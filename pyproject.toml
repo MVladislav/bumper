@@ -32,7 +32,7 @@ dependencies = [
   "amqtt@git+https://github.com/Yakifo/amqtt@main#amqtt=0.11.0b1",
   "cachetools==5.3.2",
   "coloredlogs==15.0.1",
-  "cryptography==42.0.2",
+  "cryptography==44.0.0",
   "defusedxml==0.8.0rc2",
   "gmqtt==0.6.12",
   "Jinja2==3.1.3",
