@@ -36,7 +36,7 @@ dependencies = [
   "amqtt@git+https://github.com/Yakifo/amqtt@main",
   "cachetools==5.5.0",
   "coloredlogs==15.0.1",
-  "cryptography==44.0.0",
+  "cryptography==44.0.1",
   "defusedxml==0.8.0rc2",
   "gmqtt==0.7.0",
   "Jinja2==3.1.4",
