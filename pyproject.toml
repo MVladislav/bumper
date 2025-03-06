@@ -39,7 +39,7 @@ dependencies = [
   "cryptography==44.0.0",
   "defusedxml==0.8.0rc2",
   "gmqtt==0.7.0",
-  "Jinja2==3.1.4",
+  "Jinja2==3.1.6",
   "passlib==1.7.4",
   "pytz==2024.2",
   "setuptools>=75.6.0",
