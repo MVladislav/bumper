@@ -32,7 +32,7 @@ dependencies = [
   "aiodns==3.2.0",                                      # https://pypi.org/project/aiodns
   "aiofiles==24.1.0",                                   # https://pypi.org/project/aiofiles
   "aiohttp-jinja2==1.6",                                # https://pypi.org/project/aiohttp-jinja2
-  "aiohttp==3.11.15",                                   # https://pypi.org/project/aiohttp
+  "aiohttp==3.11.16",                                   # https://pypi.org/project/aiohttp
   "aiomqtt==2.3.1",                                     # https://pypi.org/project/aiomqtt
   "amqtt@git+https://github.com/MVladislav/amqtt@main", # => "amqtt@git+https://github.com/Yakifo/amqtt@main",
   "cachetools==5.5.2",                                  # https://pypi.org/project/cachetools
