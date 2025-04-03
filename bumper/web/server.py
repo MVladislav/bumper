@@ -2,6 +2,7 @@
 
 import asyncio
 import base64
+from collections.abc import Awaitable, Callable
 import dataclasses
 import gzip
 from importlib.resources import files
@@ -44,47 +45,39 @@ class WebServer:
     def __init__(self, bindings: list[WebserverBinding] | WebserverBinding, proxy_mode: bool) -> None:
         """Web Server init."""
         self._runners: list[web.AppRunner] = []
+        self._bindings = [bindings] if isinstance(bindings, WebserverBinding) else bindings
+        self._app = web.Application(middlewares=[middlewares.log_all_requests])
 
-        if isinstance(bindings, WebserverBinding):
-            bindings = [bindings]
-        self._bindings = bindings
+        templates_path = self._resolve_path("templates")
+        static_path = self._resolve_path("static")
 
-        self._app = web.Application(
-            middlewares=[
-                middlewares.log_all_requests,
-            ],
-        )
-
-        templates_path = Path(bumper_isc.bumper_dir) / "bumper" / "web" / "templates"
-        if not templates_path.exists():
-            templates_path = Path(str(files("bumper.web").joinpath("templates")))
-
-        aiohttp_jinja2.setup(
-            self._app,
-            loader=jinja2.FileSystemLoader(str(templates_path)),
-        )
-        self._add_routes(proxy_mode)
+        aiohttp_jinja2.setup(self._app, loader=jinja2.FileSystemLoader(str(templates_path)))
+        self._add_routes(proxy_mode, static_path)
         self._app.freeze()  # no modification allowed anymore
 
-    def _add_routes(self, proxy_mode: bool) -> None:
-        self._app.add_routes(
-            [
-                web.get("/bot/remove/{did}", self._handle_remove_bot),
-                web.get("/client/remove/{resource}", self._handle_remove_client),
-                web.get("/restart_{service}", self._handle_restart_service),
-            ],
-        )
+    def _resolve_path(self, folder: str) -> Path:
+        """Resolve the path for templates or static files."""
+        path = Path(bumper_isc.bumper_dir) / "bumper" / "web" / folder
+        return path if path.exists() else Path(str(files("bumper.web").joinpath(folder)))
 
+    def _add_routes(self, proxy_mode: bool, static_path: Path) -> None:
+        """Add routes to the web application."""
+        routes: list[web.RouteDef | web.StaticDef] = [
+            web.get("/bot/remove/{did}", self._handle_remove_entity("bot")),
+            web.get("/client/remove/{resource}", self._handle_remove_entity("client")),
+            web.get("/restart_{service}", self._handle_restart_service),
+            web.get("/server-status", self._handle_partial("server_status")),
+            web.get("/bots", self._handle_partial("bots")),
+            web.get("/clients", self._handle_partial("clients")),
+            web.get("/favicon.ico", self._handle_favicon),
+        ]
         if proxy_mode is True:
-            self._app.add_routes(
-                [
-                    web.route("*", "/{path:.*}", self._handle_proxy),
-                ],
-            )
+            routes.append(web.route("*", "/{path:.*}", self._handle_proxy))
         else:
-            self._app.add_routes(
+            routes.extend(
                 [
                     web.get("", self._handle_base),
+                    web.static("/static", str(static_path)),
                     web.post("/lookup.do", self._handle_lookup),
                     web.post("/newauth.do", self._handle_new_auth),
                     web.post("/sa", self._handle_sa),
@@ -94,12 +87,9 @@ class WebServer:
                 ],
             )
             if bumper_isc.DEBUG_LOGGING_API_ROUTE is True:
-                self._app.add_routes(
-                    [
-                        web.post("/log", self._handle_log),
-                    ],
-                )
+                routes.append(web.post("/log", self._handle_log))
             plugins.add_plugins(self._app)
+        self._app.add_routes(routes)
 
     async def start(self) -> None:
         """Start server."""
@@ -132,7 +122,7 @@ class WebServer:
     async def shutdown(self) -> None:
         """Shutdown server."""
         try:
-            _LOGGER.info("Shutting down")
+            _LOGGER.info("Shutting down Web Server...")
             for runner in self._runners:
                 await runner.shutdown()
             self._runners.clear()
@@ -142,44 +132,70 @@ class WebServer:
             raise
 
     async def _handle_base(self, request: Request) -> Response:
+        """Handle the base route."""
         try:
-            bots = db.bot_get_all()
-            clients = db.client_get_all()
-            mq_sessions = []
-            if bumper_isc.mqtt_server is not None:
-                mq_sessions = [
-                    {
-                        "username": session.username,
-                        "client_id": session.client_id,
-                        "state": session.transitions.state,
-                    }
-                    for session in bumper_isc.mqtt_server.sessions
-                ]
-
-            helperbot_connected: bool = False
-            if bumper_isc.mqtt_helperbot is not None:
-                helperbot_connected = bumper_isc.mqtt_helperbot.is_connected
-            mqtt_server_state: str = "stopped"
-            if bumper_isc.mqtt_server is not None:
-                mqtt_server_state = bumper_isc.mqtt_server.state
-
             context = {
-                "bots": bots,
-                "clients": clients,
-                "helperbot": {"connected": helperbot_connected},
-                "mqtt_server": {
-                    "state": mqtt_server_state,
-                    "sessions": {
-                        "count": len(mq_sessions),
-                        "clients": mq_sessions,
-                    },
-                },
-                "xmpp_server": bumper_isc.xmpp_server,
+                **await self._get_context("server_status"),
+                **await self._get_context("bots"),
+                **await self._get_context("clients"),
             }
             return aiohttp_jinja2.render_template("home.jinja2", request, context=context)
         except Exception:
             _LOGGER.exception(utils.default_exception_str_builder())
         raise HTTPInternalServerError
+
+    def _handle_partial(self, template_name: str) -> Callable[[Request], Awaitable[Response]]:
+        async def handler(request: Request) -> Response:
+            try:
+                context = await self._get_context(template_name)
+                return aiohttp_jinja2.render_template(f"partials/{template_name}.jinja2", request, context)
+            except Exception:
+                _LOGGER.exception(utils.default_exception_str_builder())
+            raise HTTPInternalServerError
+
+        return handler
+
+    async def _get_context(self, template_name: str) -> dict[str, Any]:
+        if template_name == "server_status":
+            return {
+                "mqtt_server": {
+                    "state": bumper_isc.mqtt_server.state if bumper_isc.mqtt_server else "stopped",
+                    "sessions": {
+                        "count": len(bumper_isc.mqtt_server.sessions) if bumper_isc.mqtt_server else 0,
+                        "clients": [
+                            {
+                                "username": session.username,
+                                "client_id": session.client_id,
+                                "state": session.transitions.state,
+                            }
+                            for session in bumper_isc.mqtt_server.sessions
+                        ]
+                        if bumper_isc.mqtt_server
+                        else [],
+                    },
+                },
+                "xmpp_server": {
+                    "state": (
+                        "running"
+                        if bumper_isc.xmpp_server and bumper_isc.xmpp_server.server and bumper_isc.xmpp_server.server.is_serving()
+                        else "stopped"
+                    ),
+                    "sessions": {
+                        "count": len(bumper_isc.xmpp_server.clients) if bumper_isc.xmpp_server else 0,
+                        "clients": [client.to_dict() for client in bumper_isc.xmpp_server.clients]
+                        if bumper_isc.xmpp_server
+                        else [],
+                    },
+                },
+                "helperbot": {
+                    "state": await bumper_isc.mqtt_helperbot.is_connected if bumper_isc.mqtt_helperbot else "stopped",
+                },
+            }
+        if template_name == "bots":
+            return {"bots": db.bot_get_all()}
+        if template_name == "clients":
+            return {"clients": db.client_get_all()}
+        return {}
 
     async def _restart_helper_bot(self) -> None:
         if bumper_isc.mqtt_helperbot is not None:
@@ -188,8 +204,13 @@ class WebServer:
 
     async def _restart_mqtt_server(self) -> None:
         if bumper_isc.mqtt_server is not None:
+            _LOGGER.info("Restarting MQTT Server...")
             await bumper_isc.mqtt_server.shutdown()
-            asyncio.Task(bumper_isc.mqtt_server.start())
+            while bumper_isc.mqtt_server.state != "stopped":
+                _LOGGER.info("Waiting for MQTT Server to stop before restarting...")
+                await asyncio.sleep(0.1)
+            await bumper_isc.mqtt_server.start()
+            _LOGGER.info("MQTT Server restarted successfully")
 
     async def _handle_restart_service(self, request: Request) -> Response:
         try:
@@ -200,11 +221,11 @@ class WebServer:
             if service == "MQTTServer":
                 await self._restart_mqtt_server()
                 # In 5 seconds restart Helperbot
-                await asyncio.sleep(5)
+                # await asyncio.sleep(5)
                 await self._restart_helper_bot()
                 return web.json_response({"status": "complete"})
             if service == "XMPPServer" and bumper_isc.xmpp_server is not None:
-                bumper_isc.xmpp_server.disconnect()
+                await bumper_isc.xmpp_server.disconnect()
                 await bumper_isc.xmpp_server.start_async_server()
                 return web.json_response({"status": "complete"})
             return web.json_response({"status": "invalid service"})
@@ -212,27 +233,22 @@ class WebServer:
             _LOGGER.exception(utils.default_exception_str_builder())
         raise HTTPInternalServerError
 
-    async def _handle_remove_bot(self, request: Request) -> Response:
-        try:
-            did = request.match_info.get("did", "")
-            db.bot_remove(did)
-            if db.bot_get(did):
-                return web.json_response({"status": "failed to remove bot"})
-            return web.json_response({"status": "successfully removed bot"})
-        except Exception:
-            _LOGGER.exception(utils.default_exception_str_builder())
-        raise HTTPInternalServerError
+    def _handle_remove_entity(self, entity_type: str) -> Callable[[Request], Awaitable[Response]]:
+        async def handler(request: Request) -> Response:
+            try:
+                entity_id = request.match_info.get("did" if entity_type == "bot" else "resource", "")
+                remove_func = db.bot_remove if entity_type == "bot" else db.client_remove
+                get_func = db.bot_get if entity_type == "bot" else db.client_get
 
-    async def _handle_remove_client(self, request: Request) -> Response:
-        try:
-            resource = request.match_info.get("resource", "")
-            db.client_remove(resource)
-            if db.client_get(resource):
-                return web.json_response({"status": "failed to remove client"})
-            return web.json_response({"status": "successfully removed client"})
-        except Exception:
-            _LOGGER.exception(utils.default_exception_str_builder())
-        raise HTTPInternalServerError
+                remove_func(entity_id)
+                if get_func(entity_id):
+                    return web.json_response({"status": f"failed to remove {entity_type}"})
+                return web.json_response({"status": f"successfully removed {entity_type}"})
+            except Exception:
+                _LOGGER.exception(utils.default_exception_str_builder())
+            raise HTTPInternalServerError
+
+        return handler
 
     async def _handle_lookup(self, request: Request) -> Response:
         try:
@@ -441,3 +457,15 @@ class WebServer:
         except Exception:
             _LOGGER_WEB_LOG.exception(utils.default_exception_str_builder(info="during create api list"), exc_info=True)
         return web.Response()
+
+    async def _handle_favicon(self, _: Request) -> web.FileResponse:
+        """Serve the favicon.ico file."""
+        try:
+            favicon_path = Path(str(files("bumper.web").joinpath("static/favicon.ico")))
+            if not favicon_path.exists():
+                msg = f"Favicon not found at {favicon_path}"
+                raise FileNotFoundError(msg)
+            return web.FileResponse(path=favicon_path)
+        except Exception as e:
+            _LOGGER_WEB_LOG.exception("Failed to serve favicon.ico")
+            raise HTTPInternalServerError from e

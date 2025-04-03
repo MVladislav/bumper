@@ -147,7 +147,7 @@ class OAuth:
         oauth = OAuth()
         oauth.userId = user_id  # pylint: disable=invalid-name
         oauth.access_token = uuid.uuid4().hex
-        oauth.expire_at = f"{datetime.now(bumper_isc.LOCAL_TIMEZONE) + timedelta(days=bumper_isc.OAUTH_VALIDITY_DAYS)}"
+        oauth.expire_at = f"{datetime.now(tz=bumper_isc.LOCAL_TIMEZONE) + timedelta(days=bumper_isc.OAUTH_VALIDITY_DAYS)}"
         oauth.refresh_token = uuid.uuid4().hex
         return oauth
 

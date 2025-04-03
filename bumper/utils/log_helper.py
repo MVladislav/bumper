@@ -58,9 +58,10 @@ class LogHelper:
                 logger_name.setLevel(logging.WARNING)
             if bumper_isc.bumper_level == "INFO" and logger_name.name.startswith("amqtt"):
                 logger_name.setLevel(logging.WARNING)
+            if bumper_isc.bumper_level == "INFO" and logger_name.name.startswith("transitions.core"):
+                logger_name.setLevel(logging.WARNING)
 
-            if (logger_name_size := len(logger_name.name)) >= logger_name_size:
-                pass
+            logger_name_size = max(len(logger_name.name), logger_name_size)
         return logger_name_size + 1
 
 

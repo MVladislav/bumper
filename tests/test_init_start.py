@@ -46,7 +46,7 @@ async def test_start_stop(debug: bool, proxy: bool) -> None:
         assert bumper_isc.mqtt_server is not None
         assert bumper_isc.mqtt_server.state == "started"
         assert bumper_isc.mqtt_helperbot is not None
-        assert bumper_isc.mqtt_helperbot.is_connected is True
+        assert await bumper_isc.mqtt_helperbot.is_connected is True
         assert bumper_isc.web_server is not None
 
         log.clear()

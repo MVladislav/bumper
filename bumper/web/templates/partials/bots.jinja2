@@ -1,0 +1,42 @@
+<div class="table-responsive">
+    <table class="table table-sm table-striped table-hover">
+        <thead class="table-dark">
+        <tr>
+            <th>SN</th>
+            <th>Nickname</th>
+            <th>Class</th>
+            <th>DID</th>
+            <th>Resource</th>
+            <th>Company</th>
+            <th>Connected</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for bot in bots %}
+            <tr>
+                <td title="{{ bot.name }}">{{ bot.name }}</td>
+                <td title="{{ bot.nick }}">{{ bot.nick }}</td>
+                <td title="{{ bot.class }}">{{ bot.class }}</td>
+                <td title="{{ bot.did }}">{{ bot.did }}</td>
+                <td title="{{ bot.resource }}">{{ bot.resource }}</td>
+                <td title="{{ bot.company }}">{{ bot.company }}</td>
+                <td>
+                    {% if bot.mqtt_connection and bot.xmpp_connection %}
+                        <span class="badge bg-success" title="MQTT & XMPP">MQTT & XMPP</span>
+                    {% elif bot.mqtt_connection %}
+                        <span class="badge bg-success" title="MQTT">MQTT</span>
+                    {% elif bot.xmpp_connection %}
+                        <span class="badge bg-success" title="XMPP">XMPP</span>
+                    {% else %}
+                        <span class="badge bg-danger" title="Disconnected">Disconnected</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeEntity('bot', '{{ bot.did }}')">Remove</button>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>

@@ -12,12 +12,12 @@ ci:
 repos:
   # Codespell for spelling corrections
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.3.0
+    rev: v2.4.1
     hooks:
       - id: codespell
         args:
           - --ignore-words-list=ihs,ro,fo,onlyOnce,astroid
-          - --skip="./.*,*.csv,*.json"
+          - --skip="./.*,*.csv,*.json,*.min.js,*.min.css,*.min.html,*.min.xml,*.min.yaml,*.min.yml"
           - --quiet-level=2
         exclude_types:
           - csv
@@ -58,6 +58,9 @@ repos:
           - prettier-plugin-sort-json@3.1.0
         exclude_types:
           - python
+        # args:
+        #   - --ignore-path=.prettierignore
+        exclude: \.(css|js)$
 
   # Secret detection
   - repo: https://github.com/Yelp/detect-secrets
@@ -74,13 +77,13 @@ repos:
           - --exclude-files=home.jinja2
           - --exclude-files=tests/*
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.21.2
+    rev: v8.24.2
     hooks:
       - id: gitleaks
 
   # YAML Linting
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.35.1
+    rev: v1.37.0
     hooks:
       - id: yamllint
 
@@ -93,7 +96,7 @@ repos:
 
   # Python-specific hooks ######################################################
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.3
+    rev: v0.11.2
     hooks:
       - id: ruff
         args:

@@ -46,6 +46,7 @@ async def log_all_requests(request: Request, handler: Handler) -> StreamResponse
             _LOGGER.info(
                 json.dumps(
                     {
+                        "warning": "Requested API is not implemented!",
                         "method": request.method,
                         "url": str(request.url),
                         # "host": next((value for key, value in set(request.headers.items()) if key.lower() == "host"), ""),

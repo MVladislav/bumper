@@ -1,9 +1,10 @@
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 
 import pytest
 from tinydb import TinyDB
 
 from bumper.utils import db
+from bumper.utils.settings import config as bumper_isc
 from bumper.web.models import BumperUser
 
 
@@ -76,7 +77,7 @@ def test_user_db() -> None:
         {
             "userid": "testuser",
             "token": "token_123456",
-            "expiration": f"{datetime.now(UTC) + timedelta(seconds=-10)}",
+            "expiration": f"{datetime.now(tz=bumper_isc.LOCAL_TIMEZONE) + timedelta(seconds=-10)}",
         },
     )  # Add expired token
     db_test.close()
@@ -92,7 +93,7 @@ def test_user_db() -> None:
         {
             "userid": "testuser",
             "token": "token_1234",
-            "expiration": f"{datetime.now(UTC) + timedelta(seconds=-10)}",
+            "expiration": f"{datetime.now(tz=bumper_isc.LOCAL_TIMEZONE) + timedelta(seconds=-10)}",
         },
     )  # Add expired token
     db_test.close()

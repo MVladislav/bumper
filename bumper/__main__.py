@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Main module."""
+"""Main entry point for the Bumper application."""
 
-import bumper
+from bumper import main as bumper_main
 
 if __name__ == "__main__":
-    bumper.main()
+    bumper_main()

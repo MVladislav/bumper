@@ -9,11 +9,11 @@ from typing import Any, Literal
 from urllib.parse import urlparse, urlunparse
 
 from amqtt.adapters import StreamReaderAdapter, StreamWriterAdapter, WebSocketsReader, WebSocketsWriter
-from amqtt.client import ConnectException, MQTTClient, Session
+from amqtt.client import MQTTClient, Session
+from amqtt.errors import ConnectError, ProtocolHandlerError
 from amqtt.mqtt.connack import CONNECTION_ACCEPTED, SERVER_UNAVAILABLE
 from amqtt.mqtt.constants import QOS_0
 from amqtt.mqtt.protocol.client_handler import ClientProtocolHandler
-from amqtt.mqtt.protocol.handler import ProtocolHandlerException
 from cachetools import TTLCache
 import websockets
 from websockets.exceptions import InvalidHandshake, InvalidURI
@@ -86,7 +86,7 @@ class ProxyClient:
 
                 _LOGGER.info(f"Proxy Forward Message to Robot - Topic: {topic} - Message: {data}")
 
-                bumper_isc.mqtt_helperbot.publish(topic, data)
+                await bumper_isc.mqtt_helperbot.publish(topic, data)
             except Exception:
                 _LOGGER.exception("An error occurred during handling a message")
 
@@ -191,7 +191,7 @@ class _NoCertVerifyClient(MQTTClient):  # type:ignore[misc]
             if return_code is not CONNECTION_ACCEPTED:
                 self.session.transitions.disconnect()
                 self.logger.warning(f"Connection rejected with code '{return_code}'")
-                exc = ConnectException("Connection rejected by broker")
+                exc = ConnectError("Connection rejected by broker")
                 exc.return_code = return_code
                 raise exc
 
@@ -205,15 +205,15 @@ class _NoCertVerifyClient(MQTTClient):  # type:ignore[misc]
         except InvalidURI:
             self.logger.warning(f"connection failed: invalid URI '{self.session.broker_uri}'")
             self.session.transitions.disconnect()
-            # raise ConnectException(f"connection failed: invalid URI '{self.session.broker_uri}'", iuri)
+            # raise ConnectError(f"connection failed: invalid URI '{self.session.broker_uri}'", iuri)
             raise
         except InvalidHandshake:
             self.logger.warning("connection failed: invalid websocket handshake")
             self.session.transitions.disconnect()
-            # raise ConnectException("connection failed: invalid websocket handshake", ihs)
+            # raise ConnectError("connection failed: invalid websocket handshake", ihs)
             raise
-        except (ProtocolHandlerException, ConnectionError, OSError) as e:
+        except (ProtocolHandlerError, ConnectionError, OSError) as e:
             self.logger.warning(f"MQTT connection failed: {e}")
             self.session.transitions.disconnect()
-            # raise ConnectException(e)
+            # raise ConnectError(e)
             raise

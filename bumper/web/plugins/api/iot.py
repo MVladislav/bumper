@@ -38,7 +38,7 @@ async def _handle_devmanager_bot_command(request: Request) -> Response:
     """Dev manager bot command."""
     try:
         if bumper_isc.mqtt_helperbot is None:
-            msg = "'bumper.mqtt_helperbot' is None"
+            msg = "'bumper.mqtt.helper_bot' is None"
             raise Exception(msg)
 
         json_body = json.loads(await request.text())
@@ -76,7 +76,7 @@ async def _handle_devmanager_bot_command(request: Request) -> Response:
             # No response, send error back
             if body.get("resp") is None:
                 _LOGGER.warning(
-                    f"iot :: u:{request.query.get('u','')} :: did:{did}"
+                    f"iot :: u:{request.query.get('u', '')} :: did:{did}"
                     f" :: cmd:{json_body.get('cmdName')} :: return non 'resp' :: {body}",
                 )
             else:

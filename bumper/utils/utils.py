@@ -36,12 +36,12 @@ def default_exception_str_builder(e: Exception | None = None, info: str | None =
 
 def convert_to_millis(seconds: float) -> int:
     """Convert seconds to milliseconds."""
-    return int(round(seconds * 1000))
+    return round(seconds * 1000)
 
 
 def get_current_time_as_millis() -> int:
     """Get current time in millis."""
-    return convert_to_millis(datetime.datetime.now(bumper_isc.LOCAL_TIMEZONE).timestamp())
+    return convert_to_millis(datetime.datetime.now(tz=bumper_isc.LOCAL_TIMEZONE).timestamp())
 
 
 def str_to_bool(value: str | int | bool | None) -> bool:
@@ -125,6 +125,7 @@ _FIND_NOT_USED_API_REQUEST = [
     r"/api/neng/v3/product/msg/tabs",
     r"/api/neng/v3/shareMsg/hasUnreadMsg",
     r"/api/ota/products/wukong/class/(.*?)/firmware/latest.json",
+    r"/api/photo/list",
     r"/api/pim/api/pim/file/get/(.*?)",
     r"/api/pim/consumable/getPurchaseUrl",
     r"/api/pim/dictionary/getErrDetail",
@@ -133,6 +134,7 @@ _FIND_NOT_USED_API_REQUEST = [
     r"/api/pim/product/getConfignetAll",
     r"/api/pim/product/getProductIotMap",
     r"/api/pim/product/software/config/batch",
+    r"/api/pim/product/getShareInfo",
     r"/api/pim/voice/get",
     r"/api/pim/voice/getLanuages",
     r"/api/rapp/sds/user/data/del",
@@ -141,15 +143,21 @@ _FIND_NOT_USED_API_REQUEST = [
     r"/api/users/user.do",
     r"/app/dln/api/log/clean_result/del",
     r"/app/dln/api/log/clean_result/list",
+    r"/$",
     r"/bot/remove/(.*?)",
+    r"/bots$",
     r"/client/remove/(.*?)",
-    r"/config/Android.conf",
-    r"/data_collect/upload/generalData",
-    r"/list_routes",
-    r"/lookup.do",
-    r"/newauth.do",
+    r"/clients$",
+    r"/config/Android.conf$",
+    r"/data_collect/upload/generalData$",
+    r"/favicon.ico$",
+    r"/list_routes$",
+    r"/lookup.do$",
+    r"/newauth.do$",
     r"/restart_(.*?)",
-    r"/sa",
+    r"/sa$",
+    r"/server-status$",
+    r"/static/(.*?)",
     r"/upload/global/(.*?)/(.*?)/(.*?)/(.*?)",
     r"/v1/global/auth/getAuthCode",
     r"/v1/private/(.*?)//user/getMyUserMenuInfo",

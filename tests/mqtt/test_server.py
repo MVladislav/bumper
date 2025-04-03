@@ -2,8 +2,8 @@ import asyncio
 import ssl
 from unittest import mock
 
-from gmqtt import Client
-from gmqtt.mqtt.constants import MQTTv311
+from aiomqtt import Client
+from mqtt_util import verify_subscribe
 import pytest
 from testfixtures import LogCapture
 
@@ -16,12 +16,14 @@ _LOGGER_NAME = "bumper.mqtt.server"
 
 
 def async_return(result):
+    """Return an async result."""
     f = asyncio.Future()
     f.set_result(result)
     return f
 
 
 def test_log__helperbot_message() -> None:
+    """Test logging helper bot messages."""
     custom_log_message = "custom_log_message"
     topic = "topic"
     data = "data"
@@ -40,6 +42,7 @@ def test_log__helperbot_message() -> None:
 @pytest.mark.usefixtures("clean_database")
 @pytest.mark.parametrize("proxy", [False, True])
 async def test_mqttserver(proxy: bool) -> None:
+    """Test MQTT server functionality."""
     bumper_isc.BUMPER_PROXY_MQTT = proxy
 
     mqtt_server = MQTTServer(MQTTBinding(HOST, MQTT_PORT, True), password_file="tests/_test_files/passwd", allow_anonymous=True)
@@ -54,31 +57,73 @@ async def test_mqttserver(proxy: bool) -> None:
         ssl_ctx = ssl.create_default_context()
         ssl_ctx.check_hostname = False
         ssl_ctx.verify_mode = ssl.CERT_NONE
-        client = Client("user_123@ecouser.net/resource_123")
-        await client.connect(HOST, MQTT_PORT, ssl=ssl_ctx, version=MQTTv311)  # type: ignore
-        assert client.is_connected
-        await client.disconnect()
-        assert not client.is_connected
+
+        async with Client(
+            hostname=HOST,
+            port=MQTT_PORT,
+            tls_context=ssl_ctx,
+            identifier="user_123@ecouser.net/resource_123",
+        ) as client:
+            # Verify connection by subscribing and publishing a message
+            mock_callback = mock.Mock()
+            await verify_subscribe(
+                client,
+                did="user_123",
+                device_class="test_class",
+                resource="test_resource",
+                mock=mock_callback,
+                expected_called=True,
+            )
 
         # Test fake_bot connect
-        client = Client("bot_serial@ls1ok3/wC3g")
-        await client.connect(HOST, MQTT_PORT, ssl=ssl_ctx, version=MQTTv311)  # type: ignore
-        assert client.is_connected
-        await client.disconnect()
+        async with Client(
+            hostname=HOST,
+            port=MQTT_PORT,
+            tls_context=ssl_ctx,
+            identifier="bot_serial@ls1ok3/wC3g",
+        ) as client:
+            # Verify connection by subscribing and publishing a message
+            mock_callback = mock.Mock()
+            await verify_subscribe(
+                client,
+                did="bot_serial",
+                device_class="test_class",
+                resource="test_resource",
+                mock=mock_callback,
+                expected_called=True,
+            )
 
         # Test file auth client connect
-        client = Client("test-file-auth")
-        client.set_auth_credentials("test-client", "abc123!")
-        await client.connect(HOST, MQTT_PORT, ssl=ssl_ctx, version=MQTTv311)  # type: ignore
-        assert client.is_connected
-        await client.disconnect()
-        assert not client.is_connected
+        async with Client(
+            hostname=HOST,
+            port=MQTT_PORT,
+            tls_context=ssl_ctx,
+            identifier="test-file-auth",
+            username="test-client",
+            password="abc123!",
+        ) as client:
+            # Verify connection by subscribing and publishing a message
+            mock_callback = mock.Mock()
+            await verify_subscribe(
+                client,
+                did="test-file-auth",
+                device_class="test_class",
+                resource="test_resource",
+                mock=mock_callback,
+                expected_called=True,
+            )
 
-        # bad password
+        # Bad password
         with LogCapture() as log:
-            client.set_auth_credentials("test-client", "notvalid!")
-            await client.connect(HOST, MQTT_PORT, ssl=ssl_ctx, version=MQTTv311)  # type: ignore
-            await client.disconnect()
+            async with Client(
+                hostname=HOST,
+                port=MQTT_PORT,
+                tls_context=ssl_ctx,
+                identifier="test-file-auth",
+                username="test-client",
+                password="notvalid!",
+            ):
+                pass
 
             log.check_present(
                 (
@@ -90,10 +135,16 @@ async def test_mqttserver(proxy: bool) -> None:
             )
             log.clear()
 
-            # no username in file
-            client.set_auth_credentials("test-client-noexist", "notvalid!")
-            await client.connect(HOST, MQTT_PORT, ssl=ssl_ctx, version=MQTTv311)  # type: ignore
-            await client.disconnect()
+            # No username in file
+            async with Client(
+                hostname=HOST,
+                port=MQTT_PORT,
+                tls_context=ssl_ctx,
+                identifier="test-file-auth",
+                username="test-client-noexist",
+                password="notvalid!",
+            ):
+                pass
 
             log.check_present(
                 (
@@ -109,13 +160,26 @@ async def test_mqttserver(proxy: bool) -> None:
             if proxy:
                 dns.resolve = mock.MagicMock(return_value=async_return("127.0.0.1"))
                 mqtt_proxy.ProxyClient.connect = mock.MagicMock(return_value=async_return(True))
+                mqtt_proxy.ProxyClient.disconnect = mock.MagicMock(return_value=async_return(True))
 
-                client = Client("user_123@ls1ok3/wC3g")
-                client.set_auth_credentials("user_123", "abc123!")
-                await client.connect(HOST, MQTT_PORT, ssl=ssl_ctx, version=MQTTv311)  # type: ignore
-                assert client.is_connected
-
-                await client.disconnect()
+                async with Client(
+                    hostname=HOST,
+                    port=MQTT_PORT,
+                    tls_context=ssl_ctx,
+                    identifier="user_123@ls1ok3/wC3g",
+                    username="user_123",
+                    password="abc123!",
+                ) as client:
+                    # Verify connection by subscribing and publishing a message
+                    mock_callback = mock.Mock()
+                    await verify_subscribe(
+                        client,
+                        did="user_123",
+                        device_class="test_class",
+                        resource="test_resource",
+                        mock=mock_callback,
+                        expected_called=True,
+                    )
 
                 log.check_present(
                     (
@@ -142,8 +206,8 @@ async def test_mqttserver(proxy: bool) -> None:
 @pytest.mark.usefixtures("clean_database")
 @pytest.mark.parametrize("proxy", [False])
 async def test_mqttserver_subscribe(proxy: bool) -> None:
+    """Test MQTT server subscription."""
     with LogCapture() as log:
-        # NOTE: for proxy test subscription solution how to connect needs to be checked
         bumper_isc.BUMPER_PROXY_MQTT = proxy
         if proxy:
             dns.resolve = mock.MagicMock(return_value=async_return("127.0.0.1"))
@@ -157,23 +221,24 @@ async def test_mqttserver_subscribe(proxy: bool) -> None:
         try:
             await mqtt_server.start()
 
-            # Test client connect
             db.user_add("user_123")  # Add user to db
             db.client_add("user_123", "ecouser.net", "resource_123")  # Add client to db
 
             ssl_ctx = ssl.create_default_context()
             ssl_ctx.check_hostname = False
             ssl_ctx.verify_mode = ssl.CERT_NONE
-            client = Client("user_123@ls1ok3/wC3g")
-            client.set_auth_credentials("user_123", "abc123!")
-            await client.connect(HOST, MQTT_PORT, ssl=ssl_ctx, version=MQTTv311)  # type: ignore
-            assert client.is_connected
-            log.clear()
-            client.subscribe("iot/atr/+/+/+/+/+")
-            await asyncio.sleep(0.1)
 
-            await client.disconnect()
-            assert not client.is_connected
+            async with Client(
+                hostname=HOST,
+                port=MQTT_PORT,
+                tls_context=ssl_ctx,
+                identifier="user_123@ls1ok3/wC3g",
+                username="user_123",
+                password="abc123!",
+            ) as client:
+                log.clear()
+                await client.subscribe("iot/atr/+/+/+/+/+")
+                await asyncio.sleep(0.1)
 
             log.check_present(
                 (
@@ -189,6 +254,7 @@ async def test_mqttserver_subscribe(proxy: bool) -> None:
 
 
 async def test_mqttserver_no_file_auth() -> None:
+    """Test MQTT server with no password file."""
     with LogCapture() as log:
         mqtt_server = MQTTServer(MQTTBinding(HOST, MQTT_PORT, True), password_file="tests/_test_files/passwd-notfound")
         await mqtt_server.start()
@@ -206,6 +272,7 @@ async def test_mqttserver_no_file_auth() -> None:
 
 
 async def test_mqttserver_default_pw_file_double_start() -> None:
+    """Test MQTT server double start with default password file."""
     with LogCapture() as log:
         mqtt_server = MQTTServer(MQTTBinding(HOST, MQTT_PORT, True))
         try:
@@ -226,7 +293,7 @@ async def test_mqttserver_default_pw_file_double_start() -> None:
                 (
                     _LOGGER_NAME,
                     "INFO",
-                    "MQTT Server is still running, stop first for a restart!",
+                    "MQTT Server is already running. Stop it first for a clean restart!",
                 ),
                 order_matters=False,
             )
@@ -235,6 +302,7 @@ async def test_mqttserver_default_pw_file_double_start() -> None:
 
 
 async def test_mqttserver_shutdown() -> None:
+    """Test MQTT server shutdown."""
     with LogCapture() as log:
         mqtt_server = MQTTServer(MQTTBinding(HOST, MQTT_PORT, True))
         try:
@@ -243,9 +311,15 @@ async def test_mqttserver_shutdown() -> None:
             ssl_ctx = ssl.create_default_context()
             ssl_ctx.check_hostname = False
             ssl_ctx.verify_mode = ssl.CERT_NONE
-            client = Client("user_123@ecouser.net/resource_123")
-            await client.connect(HOST, MQTT_PORT, ssl=ssl_ctx, version=MQTTv311)  # type: ignore
-            assert client.is_connected
+
+            async with Client(
+                hostname=HOST,
+                port=MQTT_PORT,
+                tls_context=ssl_ctx,
+                identifier="user_123@ecouser.net/resource_123",
+            ) as client:
+                # Verify connection by publishing a test message
+                await client.publish("test/topic", b"test message")
 
         finally:
             log.clear()

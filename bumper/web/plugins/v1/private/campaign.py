@@ -39,7 +39,9 @@ async def _handle_home_page_alert(_: Request) -> Response:
             "clickWebUrl": None,
             "hasCampaign": "N",
             "imageUrl": None,
-            "nextAlertTime": utils.convert_to_millis((datetime.now(bumper_isc.LOCAL_TIMEZONE) + timedelta(hours=12)).timestamp()),
+            "nextAlertTime": utils.convert_to_millis(
+                (datetime.now(tz=bumper_isc.LOCAL_TIMEZONE) + timedelta(hours=12)).timestamp(),
+            ),
             "serverTime": utils.get_current_time_as_millis(),
         },
     )

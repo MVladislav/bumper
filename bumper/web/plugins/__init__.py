@@ -47,7 +47,7 @@ def _add_routes(app: web.Application, module: ModuleType, plugin_module_name: st
 
     if module_path.name == "__init__.py":
         prefix = module_path.parent.as_posix()
-        prefix = f"/{prefix[prefix.rfind('/') + 1:]}/"
+        prefix = f"/{prefix[prefix.rfind('/') + 1 :]}/"
         app.add_subapp(prefix, sub_app)
 
 

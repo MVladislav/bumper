@@ -1,0 +1,77 @@
+{% macro render_server(entries, clients=[], headers=[]) %}
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-header bg-dark text-white">
+        <div class="d-flex justify-content-between align-items-center">
+            {% for entry in entries %}
+                {% set is_running = entry.status == 'running' or entry.status == 'started' or entry.status == True %}
+                {% set is_not_running = 'stopped' if not is_running or entry.status == True else entry.status %}
+                <div class="text-start me-3">
+                    <h3 class="card-title mb-1 card-title-with-badge">
+                        <span>{{ entry.title }}</span>
+                        <span class="badge ms-3 bg-{{ 'success' if is_running else 'danger' }}">
+                            {{ 'running' if is_running else is_not_running }}
+                        </span>
+                    </h3>
+                    <button type="button" class="btn btn-outline-danger btn-sm btn-restart-left"
+                            onclick="{{ entry.action }}">
+                        Restart
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="card-body">
+        <p>Clients: {{ clients | length }}</p>
+        <div class="table-responsive">
+            <table class="table table-sm table-striped table-hover">
+                <thead class="table-dark">
+                <tr>
+                    {% for header in headers %}
+                        <th>{{ header }}</th>
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                {% if clients and clients[0] is mapping %}
+                    {% for client in clients %}
+                        <tr>
+                            {% for header in headers %}
+                                <td title="{{ client[header] }}">
+                                    {% if header == 'state' %}
+                                        {% if client[header] == 'connected' %}
+                                            <span class="badge bg-success">Connected</span>
+                                        {% elif client[header] == 'disconnected' %}
+                                            <span class="badge bg-danger">Disconnected</span>
+                                        {% else %}
+                                            {{ client[header] }}
+                                        {% endif %}
+                                    {% else %}
+                                        {{ client[header] }}
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{{ render_server(
+    [
+        {"title": "MQTT Server", "status": mqtt_server.state, "action": "restartService('MQTTServer')"},
+        {"title": "Helperbot", "status": helperbot.state, "action": "restartService('Helperbot')"}
+    ],
+    mqtt_server.sessions.clients,
+    ["username", "client_id", "state"]
+) }}
+{{ render_server(
+    [
+        {"title": "XMPP Server", "status": xmpp_server.state, "action": "restartService('XMPPServer')"}
+    ],
+    xmpp_server.sessions.clients,
+    ["uid", "bumper_jid", "state", "address", "type"]
+) }}

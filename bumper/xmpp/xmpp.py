@@ -6,7 +6,7 @@ import base64
 import logging
 import re
 import ssl
-from typing import Optional
+from typing import Any
 import uuid
 from xml.etree.ElementTree import Element
 
@@ -45,8 +45,10 @@ class XMPPServer:
             _LOGGER.exception(utils.default_exception_str_builder())
             raise
 
-    def disconnect(self) -> None:
+    async def disconnect(self) -> None:
         """Disconnect."""
+        _LOGGER.info("Shutting down XMPP Server...")
+
         _LOGGER.debug("waiting for all clients to disconnect")
         for client in self.clients:
             client.disconnect()
@@ -54,6 +56,7 @@ class XMPPServer:
         self.exit_flag = True
         if self.server is not None and self.server.is_serving():
             self.server.close()
+            await self.server.wait_closed()
         _LOGGER.debug("shutting down")
         if self.server_coro is not None:
             self.server_coro.cancel()
@@ -64,7 +67,7 @@ class XMPPServerProtocol(asyncio.Protocol):
 
     client_id: str | None = None
     exit_flag: bool = False
-    _client: Optional["XMPPAsyncClient"] = None
+    _client: "XMPPAsyncClient | None" = None
 
     def connection_made(self, transport: transports.BaseTransport) -> None:
         """Establish connection."""
@@ -104,6 +107,7 @@ class XMPPAsyncClient:
     BOT: int = 1
     CONTROLLER: int = 2
     tls_upgraded: bool = False
+    schedule_ping_task: asyncio.Task[Any] | None = None  # Track the schedule_ping task
 
     def __init__(self, transport: transports.BaseTransport) -> None:
         """XMPP client init."""
@@ -120,6 +124,19 @@ class XMPPAsyncClient:
         self.log_incoming_data: bool = True  # Set to true to log sends
         _LOGGER_CLIENT.debug(f"new client with ip {self.address}")
 
+    def cleanup(self) -> None:
+        """Ensure proper cleanup of the schedule_ping_task."""
+        if self.schedule_ping_task and not self.schedule_ping_task.done():
+            self.schedule_ping_task.cancel()
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    self.schedule_ping_task = asyncio.ensure_future(self.schedule_ping_task)
+                else:
+                    loop.run_until_complete(self.schedule_ping_task)
+            except (asyncio.CancelledError, RuntimeError):
+                _LOGGER_CLIENT.debug(f"Ping task canceled for {self.bumper_jid}")
+
     def send(self, command: str) -> None:
         """Send command."""
         try:
@@ -135,7 +152,9 @@ class XMPPAsyncClient:
 
     def disconnect(self) -> None:
         """Disconnect."""
+        _LOGGER.info("Disconnect XMPP Client...")
         try:
+            self.cleanup()  # Ensure the ping task is cleaned up
             bot = db.bot_get(self.uid)
             if bot:
                 db.bot_set_xmpp(bot.get("did"), False)
@@ -145,14 +164,14 @@ class XMPPAsyncClient:
                     db.client_set_xmpp(client.get("resource"), False)
             self.transport.close()
         except Exception:
-            _LOGGER_CLIENT.error(utils.default_exception_str_builder())
+            _LOGGER_CLIENT.error(utils.default_exception_str_builder(), exc_info=True)
 
     def _tag_strip_uri(self, tag: str) -> str:
         try:
             if tag[0] == "{":
                 _, _, tag = tag[1:].partition("}")
         except Exception:
-            _LOGGER_CLIENT.error(utils.default_exception_str_builder())
+            _LOGGER_CLIENT.error(utils.default_exception_str_builder(), exc_info=True)
         return tag
 
     def set_state(self, state: str) -> None:
@@ -167,7 +186,7 @@ class XMPPAsyncClient:
             if new_state == 5:
                 self.disconnect()
         except Exception:
-            _LOGGER_CLIENT.error(utils.default_exception_str_builder())
+            _LOGGER_CLIENT.error(utils.default_exception_str_builder(), exc_info=True)
 
     def _handle_ctl(self, xml: Element, data: str) -> None:
         try:
@@ -227,7 +246,7 @@ class XMPPAsyncClient:
                         client.send(rxmlstring)
 
         except Exception:
-            _LOGGER_CLIENT.error(utils.default_exception_str_builder())
+            _LOGGER_CLIENT.error(utils.default_exception_str_builder(), exc_info=True)
 
     def _handle_ping(self, xml: Element) -> None:
         try:
@@ -259,14 +278,17 @@ class XMPPAsyncClient:
 
     async def schedule_ping(self, time: float) -> None:
         """Schedule ping."""
-        if self.state == 5:  # disconnected
-            return
-        self.send(
-            f"<iq from='{XMPPServer.server_id}' to='{self.bumper_jid}' id='s2c1' type='get'>"
-            " <ping xmlns='urn:xmpp:ping'/></iq>",
-        )
-        await asyncio.sleep(time)
-        asyncio.Task(self.schedule_ping(time))
+        try:
+            while self.state != self.DISCONNECT:  # Run only if not disconnected
+                self.send(
+                    f"<iq from='{XMPPServer.server_id}' to='{self.bumper_jid}' id='s2c1' type='get'>"
+                    " <ping xmlns='urn:xmpp:ping'/></iq>",
+                )
+                await asyncio.sleep(time)
+        except asyncio.CancelledError:
+            _LOGGER_CLIENT.debug(f"Ping task canceled for {self.bumper_jid}")
+        except Exception:
+            _LOGGER_CLIENT.exception(utils.default_exception_str_builder(), exc_info=True)
 
     def _handle_result(self, xml: Element, data: str) -> None:
         try:
@@ -531,9 +553,11 @@ class XMPPAsyncClient:
             _LOGGER_CLIENT.exception(utils.default_exception_str_builder(), exc_info=True)
 
     def _handle_session(self, xml: Element) -> None:
+        """Handle session."""
         self.set_state("READY")
         self.send(f'<iq type="result" id="{xml.get("id")}" />')
-        asyncio.Task(self.schedule_ping(30))
+        # Schedule the ping task and store it
+        self.schedule_ping_task = asyncio.create_task(self.schedule_ping(30))
 
     def _handle_presence(self, xml: Element) -> None:
         if len(xml) and xml[0].tag == "status":
@@ -685,3 +709,13 @@ class XMPPAsyncClient:
         rxmlstring = re.sub(rf'<iq([^>]*) xmlns=["\']{xmlns}["\']([^>]*)>', r"<iq\1\2>", rxmlstring)
         # Inside "{tag}" element, add 'xmlns="{xmlns}"'
         return re.sub(rf"<{tag}(?! xmlns)([^>]*)>", rf'<{tag} xmlns="{xmlns}"\1>', rxmlstring)
+
+    def to_dict(self) -> dict[str, str | int | tuple[str, int] | None]:
+        """Serialize XMPPAsyncClient to a dictionary."""
+        return {
+            "uid": self.uid,
+            "bumper_jid": self.bumper_jid,
+            "state": self.state,
+            "address": self.address,
+            "type": "BOT" if self.type == self.BOT else "CONTROLLER" if self.type == self.CONTROLLER else "UNKNOWN",
+        }

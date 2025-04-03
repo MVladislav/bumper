@@ -28,7 +28,7 @@ async def test_base(webserver_client) -> None:
     resp = await webserver_client.get("/")
     assert resp.status == 200
 
-    bumper_isc.xmpp_server.disconnect()
+    await bumper_isc.xmpp_server.disconnect()
 
 
 @pytest.mark.usefixtures("helper_bot", "clean_database")
@@ -47,7 +47,7 @@ async def test_restartService(webserver_client) -> None:
     resp = await webserver_client.get("/restart_XMPPServer")
     assert resp.status == 200
 
-    xmpp_server.disconnect()
+    await xmpp_server.disconnect()
 
 
 async def test_RemoveBot(webserver_client) -> None:

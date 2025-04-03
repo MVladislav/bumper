@@ -262,7 +262,7 @@ def user_add_token(user_id: str, token: str) -> None:
                     "userid": user_id,
                     "token": token,
                     "expiration": str(
-                        datetime.now(bumper_isc.LOCAL_TIMEZONE) + timedelta(seconds=bumper_isc.TOKEN_VALIDITY_SECONDS),
+                        datetime.now(tz=bumper_isc.LOCAL_TIMEZONE) + timedelta(seconds=bumper_isc.TOKEN_VALIDITY_SECONDS),
                     ),
                 },
             )
@@ -353,7 +353,7 @@ def user_revoke_expired_tokens(user_id: str) -> None:
     with _db_get() as db:
         tokens = db.table(TABLE_TOKENS)
         expired_tokens = tokens.search(
-            (User_Query.userid == user_id) & (where("expiration") < str(datetime.now(bumper_isc.LOCAL_TIMEZONE))),
+            (User_Query.userid == user_id) & (where("expiration") < str(datetime.now(tz=bumper_isc.LOCAL_TIMEZONE))),
         )
 
         for token_doc in expired_tokens:
@@ -372,7 +372,7 @@ def revoke_expired_tokens() -> None:
     """Revoke expired tokens."""
     with _db_get() as db:
         tokens = db.table(TABLE_TOKENS)
-        expired_tokens = tokens.search(where("expiration") < str(datetime.now(bumper_isc.LOCAL_TIMEZONE)))
+        expired_tokens = tokens.search(where("expiration") < str(datetime.now(tz=bumper_isc.LOCAL_TIMEZONE)))
 
         for token_doc in expired_tokens:
             _LOGGER.debug(f"Removing token {token_doc.get('token')} due to expiration")
@@ -408,7 +408,7 @@ def user_revoke_expired_oauths(user_id: str) -> None:
     with _db_get() as db:
         oauth_table = db.table(TABLE_OAUTH)
         expired_oauths = oauth_table.search(
-            (User_Query.userid == user_id) & (where("expire_at") < str(datetime.now(bumper_isc.LOCAL_TIMEZONE))),
+            (User_Query.userid == user_id) & (where("expire_at") < str(datetime.now(tz=bumper_isc.LOCAL_TIMEZONE))),
         )
 
         for oauth_doc in expired_oauths:
@@ -432,7 +432,7 @@ def revoke_expired_oauths() -> None:
     """Revoke expired oauths."""
     with _db_get() as db:
         oauth_table = db.table(TABLE_OAUTH)
-        expired_oauths = oauth_table.search(where("expire_at") < str(datetime.now(bumper_isc.LOCAL_TIMEZONE)))
+        expired_oauths = oauth_table.search(where("expire_at") < str(datetime.now(tz=bumper_isc.LOCAL_TIMEZONE)))
 
         for oauth_doc in expired_oauths:
             _LOGGER.debug(f"Removing oauth {oauth_doc.get('access_token')} due to expiration")

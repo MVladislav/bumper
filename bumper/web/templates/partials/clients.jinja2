@@ -1,0 +1,36 @@
+<div class="table-responsive">
+    <table class="table table-sm table-striped table-hover">
+        <thead class="table-dark">
+        <tr>
+            <th>User ID</th>
+            <th>Realm</th>
+            <th>Resource</th>
+            <th>Connected</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for client in clients %}
+            <tr>
+                <td title="{{ client.userid }}">{{ client.userid }}</td>
+                <td title="{{ client.realm }}">{{ client.realm }}</td>
+                <td title="{{ client.resource }}">{{ client.resource }}</td>
+                <td>
+                    {% if client.mqtt_connection and client.xmpp_connection %}
+                        <span class="badge bg-success" title="MQTT & XMPP">MQTT & XMPP</span>
+                    {% elif client.mqtt_connection %}
+                        <span class="badge bg-success" title="MQTT">MQTT</span>
+                    {% elif client.xmpp_connection %}
+                        <span class="badge bg-success" title="XMPP">XMPP</span>
+                    {% else %}
+                        <span class="badge bg-danger" title="Disconnected">Disconnected</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeEntity('client', '{{ client.resource }}')">Remove</button>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>

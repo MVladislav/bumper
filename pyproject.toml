@@ -17,8 +17,8 @@ keywords = [
   "server",
 ]
 
-version = "0.0.0"
-requires-python = ">=3.12.0"
+version = "0.0.2"
+requires-python = ">=3.13.0"
 readme = "README.md"
 license = { text = "GPL-3.0" }
 
@@ -29,47 +29,43 @@ authors = [
 ]
 
 dependencies = [
-  "aiodns==3.2.0",
-  "aiofiles==24.1.0",
-  "aiohttp-jinja2==1.6",
-  "aiohttp==3.11.10",
-  "amqtt@git+https://github.com/Yakifo/amqtt@main",
-  "cachetools==5.5.0",
-  "coloredlogs==15.0.1",
-  "cryptography==44.0.1",
-  "defusedxml==0.8.0rc2",
-  "gmqtt==0.7.0",
-  "Jinja2==3.1.4",
-  "passlib==1.7.4",
-  "pytz==2024.2",
-  "setuptools>=75.6.0",
-  "tinydb==4.8.2",
-  "validators==0.34.0",
-  "websockets==10.4",                               # can not upgraded because of amqtt
+  "aiodns==3.2.0",                                      # https://pypi.org/project/aiodns
+  "aiofiles==24.1.0",                                   # https://pypi.org/project/aiofiles
+  "aiohttp-jinja2==1.6",                                # https://pypi.org/project/aiohttp-jinja2
+  "aiohttp==3.11.15",                                   # https://pypi.org/project/aiohttp
+  "aiomqtt==2.3.1",                                     # https://pypi.org/project/aiomqtt
+  "amqtt@git+https://github.com/MVladislav/amqtt@main", # => "amqtt@git+https://github.com/Yakifo/amqtt@main",
+  "cachetools==5.5.2",                                  # https://pypi.org/project/cachetools
+  "coloredlogs==15.0.1",                                # https://pypi.org/project/coloredlogs
+  "cryptography==44.0.2",                               # https://pypi.org/project/cryptography
+  "defusedxml==0.8.0rc2",                               # https://pypi.org/project/defusedxml
+  "Jinja2==3.1.6",                                      # https://pypi.org/project/Jinja2
+  "passlib==1.7.4",                                     # https://pypi.org/project/passlib
+  "tinydb==4.8.2",                                      # https://pypi.org/project/tinydb
+  "validators==0.34.0",                                 # https://pypi.org/project/validators
+  "websockets==15.0.1",                                 # https://pypi.org/project/websockets # => "websockets==10.4",
 ]
 
 [dependency-groups]
 dev = [
-  "mypy>=1.13.0",
-  "pre-commit>=4.0.1",
-  "pycountry>=24.6.1",
-  "pylint>=3.3.2",
-  "pytest-aiofiles>=0.2.0",
-  "pytest-aiohttp>=1.0.5",
-  "pytest-asyncio>=0.25.0",
-  "pytest-cov>=6.0.0",
-  "pytest-docker-fixtures>=1.3.19",
-  "pytest-env>=1.1.5",
-  "pytest-timeout>=2.3.1",
-  "pytest>=8.3.4",
-  "ruff>=0.8.3",
-  "testfixtures>=8.3.0",
-  "types-aiofiles>=24.1.0.20240626",
-  "types-cachetools>=5.5.0.20240820",
-  "types-mock>=5.1.0.20240425",
-  "types-pillow>=10.2.0.20240822",
-  "types-pytz>=2024.2.0.20241003",
-  "types-setuptools>=75.6.0.20241126",
+  "mypy>=1.15.0",                     # https://pypi.org/project/mypy
+  "pre-commit>=4.2.0",                # https://pypi.org/project/pre-commit
+  "pycountry>=24.6.1",                # https://pypi.org/project/pycountry
+  "pylint>=3.3.6",                    # https://pypi.org/project/pylint
+  "pytest-aiofiles>=0.2.0",           # https://pypi.org/project/pytest-aiofiles
+  "pytest-aiohttp>=1.1.0",            # https://pypi.org/project/pytest-aiohttp
+  "pytest-asyncio>=0.26.0",           # https://pypi.org/project/pytest-asyncio
+  "pytest-cov>=6.1.0",                # https://pypi.org/project/pytest-cov
+  "pytest-docker-fixtures>=1.3.19",   # https://pypi.org/project/pytest-docker-fixtures
+  "pytest-env>=1.1.5",                # https://pypi.org/project/pytest-env
+  "pytest-timeout>=2.3.1",            # https://pypi.org/project/pytest-timeout
+  "pytest>=8.3.5",                    # https://pypi.org/project/pytest
+  "ruff>=0.11.2",                     # https://pypi.org/project/ruff
+  "testfixtures>=8.3.0",              # https://pypi.org/project/testfixtures
+  "types-aiofiles>=24.1.0.20250326",  # https://pypi.org/project/types-aiofiles
+  "types-cachetools>=5.5.0.20240820", # https://pypi.org/project/types-cachetools
+  "types-mock>=5.2.0.20250306",       # https://pypi.org/project/types-mock
+  "types-pillow>=10.2.0.20240822",    # https://pypi.org/project/types-pillow
 ]
 
 [project.scripts]
@@ -78,11 +74,21 @@ bumper = "bumper:main"
 [tool.hatch.build.targets.sdist]
 include = ["/bumper"]
 
+[tool.hatch.build.targets.wheel]
+include = ["/bumper"]
+
+[tool.hatch.envs]
+default = { dependencies = ["dev"] }
+
 [tool.hatch.version]
 source = "vcs"
 
 [tool.hatch.metadata]
 allow-direct-references = true
+
+# ___________________________________ PLUGINS __________________________________
+[project.entry-points."amqtt.broker.plugins"]
+bumper = "bumper.mqtt.server:BumperMQTTServerPlugin"
 
 # ____________________________________ RUFF ____________________________________
 # https://docs.astral.sh/ruff/settings/
