@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/python/tags
-ARG PY_VERSION=3.13.2-alpine3.21
+ARG PY_VERSION=3.13.3-alpine3.21
 # https://github.com/astral-sh/uv/pkgs/container/uv
 ARG UV_VERSION=python3.13-alpine
 
