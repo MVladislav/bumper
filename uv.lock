@@ -80,14 +80,14 @@ wheels = [
 
 [[package]]
 name = "aiomqtt"
-version = "2.3.1"
+version = "2.3.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "paho-mqtt" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/70/b9/bfb1dc4b5263fe3f6fe072baaad4646d348cc22f0436f2568f97dd6c7ad6/aiomqtt-2.3.1.tar.gz", hash = "sha256:829d8f8d132ac25212aa6db2ed84182acf774fce0a3469558d0ab13ae2b30cbd", size = 82582 }
+sdist = { url = "https://files.pythonhosted.org/packages/6c/30/d5f54aa34cb2c3829253fce3888235fcd9ff42cc51fe38cfa8b171f4d836/aiomqtt-2.3.2.tar.gz", hash = "sha256:96d979aeac930f031b0efa4c8e71ab337b3b330cf175b9329905419a38d8509c", size = 82709 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/54/47/3a47f519de38a8f20626d9e1112bd4692b284c434cbba72cf0a7148a48d1/aiomqtt-2.3.1-py3-none-any.whl", hash = "sha256:4915b548344b689be2d4670324deeb283218b76a30eb993755fcbb3e5d228a0c", size = 15628 },
+    { url = "https://files.pythonhosted.org/packages/b1/3a/79145a555dc79ca5c79fc128723a7aa83f5d80c1067b25e3c9ab426f84e6/aiomqtt-2.3.2-py3-none-any.whl", hash = "sha256:e67f877454b04437732a7eb005d8f8751df1ba7931b2eb1b7a7d8bf7e50c96e7", size = 15627 },
 ]
 
 [[package]]
@@ -182,7 +182,7 @@ requires-dist = [
     { name = "aiofiles", specifier = "==24.1.0" },
     { name = "aiohttp", specifier = "==3.11.16" },
     { name = "aiohttp-jinja2", specifier = "==1.6" },
-    { name = "aiomqtt", specifier = "==2.3.1" },
+    { name = "aiomqtt", specifier = "==2.3.2" },
     { name = "amqtt", git = "https://github.com/MVladislav/amqtt?rev=main" },
     { name = "cachetools", specifier = "==5.5.2" },
     { name = "coloredlogs", specifier = "==15.0.1" },
