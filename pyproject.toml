@@ -35,9 +35,9 @@ dependencies = [
   "aiohttp==3.11.18",                                   # https://pypi.org/project/aiohttp
   "aiomqtt==2.4.0",                                     # https://pypi.org/project/aiomqtt
   "amqtt@git+https://github.com/MVladislav/amqtt@main", # => "amqtt@git+https://github.com/Yakifo/amqtt@main",
-  "cachetools==5.5.2",                                  # https://pypi.org/project/cachetools
+  "cachetools==6.1.0",                                  # https://pypi.org/project/cachetools
   "coloredlogs==15.0.1",                                # https://pypi.org/project/coloredlogs
-  "cryptography==44.0.3",                               # https://pypi.org/project/cryptography
+  "cryptography==45.0.4",                               # https://pypi.org/project/cryptography
   "defusedxml==0.8.0rc2",                               # https://pypi.org/project/defusedxml
   "Jinja2==3.1.6",                                      # https://pypi.org/project/Jinja2
   "passlib==1.7.4",                                     # https://pypi.org/project/passlib
