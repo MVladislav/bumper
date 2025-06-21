@@ -19,6 +19,7 @@ nav:
       - Architecture: internals/architecture.md
       - Sniffing & Reverse Engineering: internals/sniffing.md
       - Certificate Pinning Bypass (APP): internals/certificate-unpinning-app.md
+      - Certificate Pinning Bypass (BOT): internals/certificate-unpinning-bot.md
   - Development:
       - Development Guide: development/dev-guide.md
       - Testing & CI: https://github.com/MVladislav/bumper/actions
@@ -43,4 +44,8 @@ extra:
 plugins:
   - privacy
   - search
+  - glightbox
   # - social
+
+markdown_extensions:
+  - attr_list

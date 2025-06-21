@@ -205,6 +205,7 @@ dev = [
     { name = "types-setuptools" },
 ]
 docs = [
+    { name = "mkdocs-glightbox" },
     { name = "mkdocs-material" },
 ]
 
@@ -250,7 +251,10 @@ dev = [
     { name = "types-pillow", specifier = ">=10.2.0.20240822" },
     { name = "types-setuptools", specifier = ">=80.9.0.20250529" },
 ]
-docs = [{ name = "mkdocs-material", specifier = ">=9.6.14" }]
+docs = [
+    { name = "mkdocs-glightbox", specifier = ">=0.4.0" },
+    { name = "mkdocs-material", specifier = ">=9.6.14" },
+]
 
 [[package]]
 name = "cachetools"
@@ -702,6 +706,15 @@ wheels = [
 ]
 
 [[package]]
+name = "mkdocs-glightbox"
+version = "0.4.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/86/5a/0bc456397ba0acc684b5b1daa4ca232ed717938fd37198251d8bcc4053bf/mkdocs-glightbox-0.4.0.tar.gz", hash = "sha256:392b34207bf95991071a16d5f8916d1d2f2cd5d5bb59ae2997485ccd778c70d9", size = 32010, upload_time = "2024-05-06T14:31:43.063Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c1/72/b0c2128bb569c732c11ae8e49a777089e77d83c05946062caa19b841e6fb/mkdocs_glightbox-0.4.0-py3-none-any.whl", hash = "sha256:e0107beee75d3eb7380ac06ea2d6eac94c999eaa49f8c3cbab0e7be2ac006ccf", size = 31154, upload_time = "2024-05-06T14:31:41.011Z" },
+]
+
+[[package]]
 name = "mkdocs-material"
 version = "9.6.14"
 source = { registry = "https://pypi.org/simple" }
@@ -981,20 +994,20 @@ wheels = [
 
 [[package]]
 name = "pyfakefs"
-version = "5.8.0"
+version = "5.9.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/a8/50/a839c8812899e8955223d95b27767480856f9723b3230ddee0472cf1dbe2/pyfakefs-5.8.0.tar.gz", hash = "sha256:7e5457ee3cc67069d3cef6e278227ecfc80bfb61e925bc0a4d3b0af32d1c99ce", size = 215072, upload_time = "2025-03-11T19:29:20.274Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/76/9b/086e03044e1bc2fde783243d91464786bffd1e8440bd7ad54e09dc9bdd03/pyfakefs-5.9.0.tar.gz", hash = "sha256:a734fb70a55acdda41469d5ea8e169b0a37bf28618326722adc09faeb65b0f1d", size = 123133, upload_time = "2025-06-21T13:47:08.513Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/14/ac/ae2cf01b18b7ac04d22e5faf7d5eafcc000269c4f4a9036e40da6c37aed9/pyfakefs-5.8.0-py3-none-any.whl", hash = "sha256:4bd0fc8def7d0582139922447758632ff34a327b460a7e83feb6edbd841061dd", size = 230606, upload_time = "2025-03-11T19:29:18.341Z" },
+    { url = "https://files.pythonhosted.org/packages/fc/11/8d78af15f271d3fcc4f178a3a6c7427639a2db323154ed741113eb37373d/pyfakefs-5.9.0-py3-none-any.whl", hash = "sha256:e7a4b9cb4498205c057c3ecdc478a3d14f4f4e5e6287a1889c4e5ded684f2116", size = 113334, upload_time = "2025-06-21T13:47:06.7Z" },
 ]
 
 [[package]]
 name = "pygments"
-version = "2.19.1"
+version = "2.19.2"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/7c/2d/c3338d48ea6cc0feb8446d8e6937e1408088a72a39937982cc6111d17f84/pygments-2.19.1.tar.gz", hash = "sha256:61c16d2a8576dc0649d9f39e089b5f02bcd27fba10d8fb4dcc28173f7a45151f", size = 4968581, upload_time = "2025-01-06T17:26:30.443Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b0/77/a5b8c569bf593b0140bde72ea885a803b82086995367bf2037de0159d924/pygments-2.19.2.tar.gz", hash = "sha256:636cb2477cec7f8952536970bc533bc43743542f70392ae026374600add5b887", size = 4968631, upload_time = "2025-06-21T13:39:12.283Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8a/0b/9fcc47d19c48b59121088dd6da2488a49d5f72dacf8262e2790a1d2c7d15/pygments-2.19.1-py3-none-any.whl", hash = "sha256:9ea1544ad55cecf4b8242fab6dd35a93bbce657034b0611ee383099054ab6d8c", size = 1225293, upload_time = "2025-01-06T17:26:25.553Z" },
+    { url = "https://files.pythonhosted.org/packages/c7/21/705964c7812476f378728bdf590ca4b771ec72385c533964653c68e86bdc/pygments-2.19.2-py3-none-any.whl", hash = "sha256:86540386c03d588bb81d44bc3928634ff26449851e99741617ecb9037ee5ec0b", size = 1225217, upload_time = "2025-06-21T13:39:07.939Z" },
 ]
 
 [[package]]

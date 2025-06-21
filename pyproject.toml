@@ -71,6 +71,7 @@ dev = [
 ]
 docs = [
   "mkdocs-material>=9.6.14", # https://pypi.org/project/mkdocs-material/
+  "mkdocs-glightbox>=0.4.0", # https://pypi.org/project/mkdocs-glightbox/
 ]
 
 [project.scripts]
