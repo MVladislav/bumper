@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
-trap 'cleanup; echo "⚠️ Interrupted or failed."' INT TERM EXIT
 
 # ─── PREREQS ─────────────────────────────────────────────────────────────────
 command -v docker >/dev/null 2>&1 || {
@@ -14,19 +13,39 @@ else
   SKIP_ADB_INSTALL=0
 fi
 
-# ─── CONFIG ─────────────────────────────────────────────────────────────────
+# ─── TRAP ────────────────────────────────────────────────────────────────────
+WORKDIR="$(mktemp -d)"
+echo "$WORKDIR"
+# WORKDIR="$PWD/tmp"
+# mkdir -p "$WORKDIR "
+cleanup() {
+  local exit_code=$?
+  if [[ $exit_code -ne 0 ]]; then
+    echo -e "⚠️  Script failed with exit code $exit_code"
+    echo -e "❌  Last command: '$BASH_COMMAND'"
+  else
+    echo -e "✅  Script finished successfully."
+  fi
+  rm -rf "$WORKDIR"
+}
+
+trap cleanup EXIT
+trap 'echo -e "\n🛑  Script interrupted."; exit 130' INT TERM
+
+# ─── CONFIG ──────────────────────────────────────────────────────────────────
+
 IMAGE='node:18-slim'
-APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?version=latest' # >= 3.3.0
+# APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?version=latest' # >= 3.4.0
+APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?versionCode=117&nc=arm64-v8a&sv=21' # 3.3.0
 # APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?versionCode=109&nc=arm64-v8a&sv=21' # 3.0.0
 # APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?versionCode=107&nc=arm64-v8a&sv=21' # 2.5.9
 # APK_URL='https://d.apkpure.net/b/APK/com.eco.global.app?versionCode=87&nc=arm64-v8a%2Carmeabi-v7a&sv=21' # 2.4.1
+echo "💡 Collecting base information..."
 APK_NAME="$(curl -sI -L "$APK_URL" | grep -o -E 'filename="[^"]+"' | cut -d'"' -f2)"
 APK_BASENAME="${APK_NAME%.*}"
 APK_EXTENSION="${APK_NAME##*.}"
 PATCHED_NAME="${APK_BASENAME}-patched.${APK_EXTENSION}"
 CERT_PATH="$(pwd)/certs/ca.crt"
-WORKDIR="$(mktemp -d)"
-cleanup() { rm -rf "$WORKDIR"; }
 [ -f "$CERT_PATH" ] || {
   echo "❌ Certificate not found at $CERT_PATH"
   exit 1
@@ -54,7 +73,7 @@ docker run --rm \
   apk-mitm-unpin "\
     set -e; \
     curl -SL '${APK_URL}' -o '${APK_NAME}' && \
-    apk-mitm '${APK_NAME}' --certificate ca.pem \
+    apk-mitm '${APK_NAME}' --certificate /work/ca.pem \
   "
 
 # ─── SAVE PATCHED XAPK + EXTRACT ─────────────────────────────────────────────
