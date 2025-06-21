@@ -18,7 +18,7 @@ nav:
   - Internals:
       - Architecture: internals/architecture.md
       - Sniffing & Reverse Engineering: internals/sniffing.md
-      - Certificate Pinning Bypass: internals/certificate-unpinning.md
+      - Certificate Pinning Bypass (APP): internals/certificate-unpinning-app.md
   - Development:
       - Development Guide: development/dev-guide.md
       - Testing & CI: https://github.com/MVladislav/bumper/actions

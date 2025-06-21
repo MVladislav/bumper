@@ -96,7 +96,7 @@ Download and install version `2.4.1` of the Ecovacs Home APK:
 
 > If you want to try reversing newer app versions,
 > you'll need to unpin the certificate.
-> See **[Defeating Certificate Pinning](../internals/certificate-unpinning.md)** for instructions.
+> See **[Defeating Certificate Pinning](../internals/certificate-unpinning-app.md)** for instructions.
 
 -   [Ecovacs Home on APKPure](https://apkpure.net/ecovacs-home/com.eco.global.app/download/2.4.1)
 -   [Ecovacs Home on Aptoide](https://ecovacs-home.en.aptoide.com/app)

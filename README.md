@@ -141,14 +141,14 @@ In-depth guides and architecture details are available in the `docs/` folder or 
 
 ### 📱 Supported Apps
 
-| Service                        | Version  | Works | Notes                                                                                                 |
-| :----------------------------- | :------- | :---- | :---------------------------------------------------------------------------------------------------- |
-| Ecovacs Home                   | 2.2.1    | ✅    |                                                                                                       |
-| Ecovacs Home                   | 2.4.1    | ✅    | Works best                                                                                            |
-| Ecovacs Home                   | 2.4.3    | ✅    |                                                                                                       |
-| Ecovacs Home                   | >= 2.4.4 | 🛠️    | [Defeating Certificate Pinning](https://mvladislav.github.io/bumper/internals/certificate-unpinning/) |
-| Deebot 4 Home Assistant        | 2.1.2    | ✅    |                                                                                                       |
-| EcovacsBumper (HA integration) | 1.5.3    | ✅    |                                                                                                       |
+| Service                        | Version  | Works | Notes                                                                                                          |
+| :----------------------------- | :------- | :---- | :------------------------------------------------------------------------------------------------------------- |
+| Ecovacs Home                   | 2.2.1    | ✅    |                                                                                                                |
+| Ecovacs Home                   | 2.4.1    | ✅    | Works best                                                                                                     |
+| Ecovacs Home                   | 2.4.3    | ✅    |                                                                                                                |
+| Ecovacs Home                   | >= 2.4.4 | 🛠️    | [Defeating Certificate Pinning (APP)](https://mvladislav.github.io/bumper/internals/certificate-unpinning-app) |
+| Deebot 4 Home Assistant        | 2.1.2    | ✅    |                                                                                                                |
+| EcovacsBumper (HA integration) | 1.5.3    | ✅    |                                                                                                                |
 
 ---
 

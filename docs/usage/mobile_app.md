@@ -53,7 +53,7 @@ Verify in **Settings → Security → Trusted credentials → System**.
 
 Starting with Android 10, user or system CA installation does not work for apps targeting API 29+. You must bypass certificate pinning instead:
 
--   Follow the steps in [Certificate Pinning Bypass](../internals/certificate-unpinning.md).
+-   Follow the steps in [Certificate Pinning Bypass](../internals/certificate-unpinning-app.md).
 
 ---
 
@@ -79,5 +79,5 @@ Starting with Android 10, user or system CA installation does not work for apps 
 ## 📖 See Also
 
 -   [DNS Configuration](../getting_started/dns.md)
--   [Certificate Pinning Bypass](../internals/certificate-unpinning.md)
+-   [Certificate Pinning Bypass](../internals/certificate-unpinning-app.md)
 -   [How Bumper Works](../internals/architecture.md)
