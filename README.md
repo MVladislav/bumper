@@ -62,17 +62,23 @@ $git clone https://github.com/MVladislav/bumper.git
 $cd bumper
 ```
 
-**Step 2 – Start services**
+**Step 2 – Initiate Docker in Swarm mode**
+
+```sh
+$docker swarm init
+```
+
+**Step 3 – Start services**
 
 > alias for [docker-swarm](https://github.com/MVladislav/.dotfiles/blob/0b069b6a8435a43037789d8b5c4e1c0c65c6a142/zsh/profile-append#L146)
 
 ```sh
 $docker-swarm-compose deebot      # alias for Docker Swarm Compose
 # or
-$docker-compose up -d             # standard Docker Compose
+$docker compose up -d             # standard Docker Compose
 ```
 
-**Step 3 – Open the UI**
+**Step 4 – Open the UI**
 
 Visit `https://ecovacs.net/` in your browser.
 
@@ -170,8 +176,8 @@ Contributions are welcome! To get started:
 1. Fork the repo and create a feature branch.
 2. Run tests and linters:
    ```sh
-   $ uv run pytest
-   $ uv run mypy
+   $uv run pytest
+   $uv run mypy
    ```
 3. Submit a pull request against `main`.
 
