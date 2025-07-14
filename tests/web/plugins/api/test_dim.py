@@ -15,8 +15,8 @@ def async_return(result):
     return f
 
 
-@pytest.mark.usefixtures("clean_database", "create_webserver")
-async def test_dim_devmanager(webserver_client, helper_bot: MQTTHelperBot) -> None:
+@pytest.mark.usefixtures("clean_database", "helper_bot")
+async def test_dim_devmanager(webserver_client) -> None:
     # Test PollSCResult
     postbody = {"td": "PollSCResult"}
     resp = await webserver_client.post("/api/dim/devmanager.do", json=postbody)
@@ -58,7 +58,7 @@ async def test_dim_devmanager(webserver_client, helper_bot: MQTTHelperBot) -> No
     assert test_resp["debug"] == "requested bot is not supported"
 
 
-@pytest.mark.usefixtures("clean_database", "create_webserver")
+@pytest.mark.usefixtures("clean_database")
 async def test_dim_devmanager_faked(webserver_client, helper_bot: MQTTHelperBot) -> None:
     # Test PollSCResult
     postbody = {"td": "PollSCResult"}

@@ -2,6 +2,7 @@ import asyncio
 import logging
 import os
 import ssl
+import tracemalloc
 
 from aiomqtt import Client
 import pytest
@@ -15,12 +16,12 @@ from bumper.web.server import WebServer, WebserverBinding
 from bumper.xmpp.xmpp import XMPPServer
 from tests import HOST, MQTT_PORT, WEBSERVER_PORT
 
-# import tracemalloc
-# @pytest.fixture(scope="session", autouse=True)
-# def enable_tracemalloc():
-#     tracemalloc.start()
-#     yield
-#     tracemalloc.stop()
+
+@pytest.fixture(scope="session", autouse=True)
+def enable_tracemalloc():
+    tracemalloc.start()
+    yield
+    tracemalloc.stop()
 
 
 # NOTE: use with:
@@ -92,8 +93,7 @@ async def mqtt_server_anonymous():
         yield bumper_isc.mqtt_server
 
     finally:
-        if bumper_isc.mqtt_server.state == "started":
-            await bumper_isc.mqtt_server.shutdown()
+        await bumper_isc.mqtt_server.shutdown()
 
 
 @pytest.fixture
@@ -109,8 +109,7 @@ async def mqtt_server():
         yield bumper_isc.mqtt_server
 
     finally:
-        if bumper_isc.mqtt_server.state == "started":
-            await bumper_isc.mqtt_server.shutdown()
+        await bumper_isc.mqtt_server.shutdown()
 
 
 @pytest.fixture
@@ -135,14 +134,16 @@ async def mqtt_client(mqtt_server: MQTTServer):
 async def helper_bot(mqtt_server: MQTTServer):
     """Fixture to start and stop the helper bot."""
     assert mqtt_server.state == "started"
-
     bumper_isc.mqtt_helperbot = MQTTHelperBot(HOST, MQTT_PORT, True, 0.1)
-    await bumper_isc.mqtt_helperbot.start()
-    assert await bumper_isc.mqtt_helperbot.is_connected
 
-    yield bumper_isc.mqtt_helperbot
+    try:
+        await bumper_isc.mqtt_helperbot.start()
+        assert await bumper_isc.mqtt_helperbot.is_connected
 
-    await bumper_isc.mqtt_helperbot.disconnect()
+        yield bumper_isc.mqtt_helperbot
+
+    finally:
+        await bumper_isc.mqtt_helperbot.disconnect()
 
 
 @pytest.fixture
@@ -156,9 +157,3 @@ async def webserver_client(aiohttp_client):
 
     finally:
         await client.close()
-
-
-@pytest.fixture
-def create_webserver():
-    """Fixture to create a web server instance."""
-    return WebServer(WebserverBinding(HOST, WEBSERVER_PORT, False), False)

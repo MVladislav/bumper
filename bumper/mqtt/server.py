@@ -3,11 +3,14 @@
 import asyncio
 import base64
 import dataclasses
+from dataclasses import dataclass, field
 import logging
 from pathlib import Path
 from typing import Any, Literal
 
-from amqtt.broker import Broker, BrokerContext
+from amqtt.broker import Broker
+from amqtt.contexts import BaseContext
+from amqtt.plugins.base import BaseAuthPlugin
 from amqtt.session import IncomingApplicationMessage, Session
 from passlib.apps import custom_app_context as pwd_context
 
@@ -71,13 +74,14 @@ class MQTTServer:
                     config_bind[f"{listener_prefix}{index}"]["keyfile"] = str(bumper_isc.server_key)
 
             # Initialize bot server
-            config = {
+            config: dict[str, int | bool | dict[str, Any]] = {
                 "listeners": config_bind,
                 "sys_interval": 0,
-                "auth": {
-                    "allow-anonymous": allow_anonymous,
-                    "password-file": password_file,
-                    "plugins": ["bumper"],  # Bumper plugin provides auth and handling of bots/clients connecting
+                "plugins": {
+                    "bumper.mqtt.server.BumperMQTTServerPlugin": {
+                        "allow_anonymous": allow_anonymous,
+                        "password_file": password_file,
+                    },
                 },
             }
 
@@ -150,27 +154,25 @@ class MQTTServer:
             await asyncio.sleep(interval)
 
 
-class BumperMQTTServerPlugin:
+class BumperMQTTServerPlugin(BaseAuthPlugin):  # type: ignore[misc]
     """MQTT Server plugin which handles the authentication."""
 
-    def __init__(self, context: BrokerContext) -> None:
-        """MQTT Server plugin init."""
-        self._proxy_clients: dict[str, mqtt_proxy.ProxyClient] = {}
-        self.context = context
-        try:
-            if self.context.config is not None:
-                self.auth_config = self.context.config["auth"]
-                self._users: dict[str, str] = self._read_password_file()
-            else:
-                msg = "context config is not set"
-                raise Exception(msg)
-        except KeyError:
-            _LOGGER.warning("'bumper' section not found in context configuration")
-        except Exception:
-            _LOGGER.exception(utils.default_exception_str_builder(info="during plugin initialization"))
-            raise
+    @dataclass
+    class Config:
+        """Allow empty username and password file."""
 
-    async def authenticate(self, session: Session, **kwargs: dict[str, Any]) -> bool:
+        allow_anonymous: bool = field(default=True)
+        password_file: str | None = None
+
+    def __init__(self, context: BaseContext) -> None:
+        """MQTT Server plugin init."""
+        super().__init__(context)
+
+        self._proxy_clients: dict[str, mqtt_proxy.ProxyClient] = {}
+        self._users: dict[str, str] = {}
+        self._read_password_file()
+
+    async def authenticate(self, *, session: Session) -> bool | None:
         """Authenticate session."""
         username: str | None = session.username
         password: str | None = session.password  # Format: JWT
@@ -245,43 +247,49 @@ class BumperMQTTServerPlugin:
             _LOGGER.info(f"Bumper Authentication Success :: Client :: Username: {username} :: ClientID: {client_id}")
             return True
         except Exception:
-            _LOGGER.exception(f"Session: {kwargs.get('session', '')}")
+            _LOGGER.exception(f"Session: {session}")
 
         # Check for allow anonymous
-        if self.auth_config.get("allow-anonymous", True):
+        if self._get_config_option("allow_anonymous", True):
             _LOGGER.info(f"Anonymous Authentication Success :: config allows anonymous :: Username: {username}")
             return True
 
         return False
 
-    def _read_password_file(self) -> dict[str, str]:
-        password_file = self.auth_config.get("password-file")
-        users: dict[str, str] = {}
-        if password_file:
-            try:
-                with Path.open(password_file, encoding="utf-8") as file:
-                    _LOGGER.debug(f"Reading user database from {password_file}")
-                    for line in file:
-                        t_line = line.strip()
-                        if not t_line.startswith("#"):  # Allow comments in files
-                            (username, pwd_hash) = t_line.split(sep=":", maxsplit=3)
-                            if username:
-                                users[username] = pwd_hash
-                                _LOGGER.debug(f"user: {username} :: hash: {pwd_hash}")
+    def _read_password_file(self) -> None:
+        password_file = self._get_config_option("password_file", None)
+        if not password_file:
+            _LOGGER.warning("Configuration parameter 'password-file' not found")
+            return
 
-                _LOGGER.debug(f"{(len(users))} user(s) read from file {password_file}")
-            except FileNotFoundError:
-                _LOGGER.warning(f"Password file {password_file} not found")
+        try:
+            with Path.open(password_file, encoding="utf-8") as file:
+                _LOGGER.debug(f"Reading user database from {password_file}")
+                for line in file:
+                    t_line = line.strip()
+                    if t_line and not t_line.startswith("#"):  # Skip empty lines and comments
+                        (username, pwd_hash) = t_line.split(sep=":", maxsplit=3)
+                        if username:
+                            self._users[username] = pwd_hash
+                            _LOGGER.debug(f"User '{username}' loaded")
 
-        return users
+            _LOGGER.debug(f"{len(self._users)} user(s) loaded from {password_file}")
+        except FileNotFoundError:
+            _LOGGER.warning(f"Password file {password_file} not found")
+        except ValueError:
+            _LOGGER.exception(f"Malformed password file '{password_file}'")
+        except Exception:
+            _LOGGER.exception(f"Unexpected error reading password file '{password_file}'")
 
     async def on_broker_message_received(self, message: IncomingApplicationMessage, client_id: str) -> None:
         """On message received."""
         try:
             topic = message.topic
             topic_split = topic.split("/")
-            data_decoded = (
-                message.data.decode("utf-8", errors="replace") if isinstance(message.data, bytes | bytearray) else message.data
+            data_decoded: str = (
+                message.data.decode("utf-8", errors="replace")
+                if isinstance(message.data, bytes | bytearray)
+                else str(message.data)
             )
 
             if len(topic_split) < 7:
@@ -341,17 +349,17 @@ class BumperMQTTServerPlugin:
             elif client_id != helper_bot.HELPER_BOT_CLIENT_ID:
                 _LOGGER_PROXY.warning(f"MQTT Proxy Mode :: No proxy client found! :: Client: {client_id} :: Topic: {topic}")
 
-    async def on_broker_client_connected(self, client_id: str) -> None:
+    async def on_broker_client_connected(self, client_id: str, client_session: Session) -> None:
         """On client connected."""
-        self._set_client_connected(client_id, True)
+        self._set_client_connected(client_id, True, client_session)
 
-    async def on_broker_client_disconnected(self, client_id: str) -> None:
+    async def on_broker_client_disconnected(self, client_id: str, client_session: Session) -> None:
         """On client disconnect."""
         if bumper_isc.BUMPER_PROXY_MQTT and client_id in self._proxy_clients:
             await self._proxy_clients.pop(client_id).disconnect()
-        self._set_client_connected(client_id, False)
+        self._set_client_connected(client_id, False, client_session)
 
-    def _set_client_connected(self, client_id: str, connected: bool) -> None:
+    def _set_client_connected(self, client_id: str, connected: bool, _: Session) -> None:
         try:
             # Skip the HelperBot
             if client_id == helper_bot.HELPER_BOT_CLIENT_ID:

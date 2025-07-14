@@ -3,13 +3,15 @@ import json
 import time
 
 from aiomqtt import Client
+import pytest
 from testfixtures import LogCapture
 
 from bumper.mqtt.helper_bot import MQTTCommandModel, MQTTHelperBot
 from tests import HOST, MQTT_PORT
 
 
-async def test_helperbot_connect(mqtt_client: Client) -> None:
+@pytest.mark.usefixtures("mqtt_client")
+async def test_helperbot_connect() -> None:
     mqtt_helperbot = MQTTHelperBot(HOST, MQTT_PORT, True)
     try:
         await mqtt_helperbot.start()
@@ -208,7 +210,7 @@ async def test_helperbot_sendcommand(mqtt_client: Client, helper_bot: MQTTHelper
     # Send response beforehand
     msg_payload = '{"ret":"ok","ver":"0.13.5"}'
     msg_topic_name = "iot/p2p/GetWKVer/bot_serial/ls1ok3/wC3g/helperbot/bumper/helperbot/p/testgood/j"
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     loop.call_soon_threadsafe(asyncio.create_task, mqtt_client.publish(msg_topic_name, msg_payload.encode()))
 
     cmd = MQTTCommandModel(cmdjson)

@@ -293,7 +293,7 @@ class WebServer:
     async def _restart_helper_bot(self) -> None:
         if bumper_isc.mqtt_helperbot is not None:
             await bumper_isc.mqtt_helperbot.disconnect()
-            asyncio.Task(bumper_isc.mqtt_helperbot.start())
+            await bumper_isc.mqtt_helperbot.start()
 
     def _handle_remove_entity(self, entity_type: str) -> Callable[[Request], Awaitable[Response]]:
         async def handler(request: Request) -> Response:

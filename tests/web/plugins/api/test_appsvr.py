@@ -12,7 +12,7 @@ from bumper.web.plugins.api import appsvr
 USER_ID = _generate_uid(bumper_isc.USER_USERNAME_DEFAULT)
 
 
-@pytest.mark.usefixtures("clean_database", "mqtt_client")
+@pytest.mark.usefixtures("clean_database")
 async def test_handle_app_do(webserver_client) -> None:
     # Test GetGlobalDeviceList
     postbody = {
@@ -119,7 +119,7 @@ async def test_handle_app_do(webserver_client) -> None:
     assert resp.status == 500
 
 
-@pytest.mark.usefixtures("clean_database", "mqtt_client")
+@pytest.mark.usefixtures("clean_database")
 async def test_app_config_api(webserver_client):
     # Test known code: app_lang_enum
     resp = await webserver_client.get("/api/appsvr/app/config?code=app_lang_enum")
@@ -187,7 +187,7 @@ async def test_app_config_api(webserver_client):
     assert jsonresp["data"] == []
 
 
-@pytest.mark.usefixtures("clean_database", "mqtt_client")
+@pytest.mark.usefixtures("clean_database")
 async def test_service_list_api(webserver_client):
     resp = await webserver_client.get("/api/appsvr/service/list?area=de")
     assert resp.status == 200
@@ -207,7 +207,7 @@ async def test_service_list_api(webserver_client):
     assert jsonresp["data"]["setApConfig"]["a"] == bumper_isc.ECOVACS_DEFAULT_COUNTRY
 
 
-@pytest.mark.usefixtures("clean_database", "mqtt_client")
+@pytest.mark.usefixtures("clean_database")
 async def test_improve_api(webserver_client):
     did = "1"
     mid = "2"
@@ -233,7 +233,7 @@ async def test_improve_api(webserver_client):
     assert f"showRemark={show_remark}" in content
 
 
-@pytest.mark.usefixtures("clean_database", "mqtt_client")
+@pytest.mark.usefixtures("clean_database")
 async def test_improve_accept_api(webserver_client):
     resp = await webserver_client.get("/api/appsvr/improve/accept")
     assert resp.status == 200
@@ -241,7 +241,7 @@ async def test_improve_accept_api(webserver_client):
     assert jsonresp["code"] == 0
 
 
-@pytest.mark.usefixtures("clean_database", "mqtt_client")
+@pytest.mark.usefixtures("clean_database")
 async def test_improve_user_accept_api(webserver_client):
     resp = await webserver_client.get("/api/appsvr/improve/user/accept")
     assert resp.status == 200
@@ -251,7 +251,7 @@ async def test_improve_user_accept_api(webserver_client):
     assert jsonresp["data"]["accept"] is False
 
 
-@pytest.mark.usefixtures("clean_database", "mqtt_client")
+@pytest.mark.usefixtures("clean_database")
 async def test_notice_home_api(webserver_client):
     resp = await webserver_client.get("/api/appsvr/notice/home")
     assert resp.status == 200
@@ -259,7 +259,7 @@ async def test_notice_home_api(webserver_client):
     assert jsonresp["ret"] == "ok"
 
 
-@pytest.mark.usefixtures("clean_database", "mqtt_client")
+@pytest.mark.usefixtures("clean_database")
 async def test_notice_list_api(webserver_client):
     resp = await webserver_client.get("/api/appsvr/notice/list")
     assert resp.status == 200
@@ -267,7 +267,7 @@ async def test_notice_list_api(webserver_client):
     assert jsonresp["ret"] == "ok"
 
 
-@pytest.mark.usefixtures("clean_database", "mqtt_client")
+@pytest.mark.usefixtures("clean_database")
 async def test_ota_firmware_api(webserver_client):
     resp = await webserver_client.get("/api/appsvr/ota/firmware")
     assert resp.status == 200
@@ -275,7 +275,7 @@ async def test_ota_firmware_api(webserver_client):
     assert jsonresp["code"] == -1
 
 
-@pytest.mark.usefixtures("clean_database", "mqtt_client")
+@pytest.mark.usefixtures("clean_database")
 async def test_device_blacklist_check_api(webserver_client):
     resp = await webserver_client.get("/api/appsvr/device/blacklist/check")
     assert resp.status == 200
@@ -284,7 +284,7 @@ async def test_device_blacklist_check_api(webserver_client):
     assert jsonresp["data"] == []
 
 
-@pytest.mark.usefixtures("clean_database", "mqtt_client")
+@pytest.mark.usefixtures("clean_database")
 async def test_akvs_start_watch_api(webserver_client):
     auth = json.dumps({"userid": "u1", "resource": "r1"})
     resp = await webserver_client.get(f"/api/appsvr/akvs/start_watch?did=testdid&auth={auth}")
