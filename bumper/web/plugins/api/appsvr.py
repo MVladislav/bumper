@@ -4,10 +4,8 @@ from collections.abc import Iterable, Mapping
 import copy
 import json
 import logging
-from pathlib import Path
 from typing import Any
 
-import aiofiles
 from aiohttp import web
 from aiohttp.web_exceptions import HTTPInternalServerError
 from aiohttp.web_request import Request
@@ -23,7 +21,7 @@ from bumper.web.models import VacBotDevice
 from bumper.web.plugins import WebserverPlugin
 from bumper.web.response_utils import response_error_v5, response_success_v2, response_success_v3, response_success_v4
 
-from .pim import get_product_iot_map
+from .pim import get_code_push_config, get_config_groups_response, get_product_config_batch, get_product_iot_map
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -99,6 +97,11 @@ class AppsvrPlugin(WebserverPlugin):
                 "*",
                 "/appsvr/akvs/start_watch",
                 _handle_akvs_start_watch,
+            ),
+            web.route(
+                "*",
+                "/appsvr/product/getConfigGroups",
+                _handle_get_config_groups,
             ),
         ]
 
@@ -246,8 +249,7 @@ async def _handle_app_config(request: Request) -> Response:
         ]
 
     elif code == "codepush_config":
-        async with aiofiles.open(Path(__file__).parent / "pim" / "codePushConfig.json", encoding="utf-8") as file:
-            data = json.loads(await file.read())
+        data = get_code_push_config()
 
     elif code == "base_station_guide":
         data = [
@@ -473,9 +475,7 @@ def _include_product_iot_map_info(bot: VacBotDevice) -> dict[str, Any] | None:
             result["bindTs"] = utils.get_current_time_as_millis()
             result["offmap"] = True
 
-            with Path.open(Path(__file__).parent / "pim" / "productConfigBatch.json", encoding="utf-8") as file:
-                file_content = file.read()
-                product_config_batch: list[dict[str, Any]] = json.loads(file_content)
+            product_config_batch: list[dict[str, Any]] = get_product_config_batch()
 
             result["scode"] = {
                 "tmallstand": False,
@@ -486,7 +486,7 @@ def _include_product_iot_map_info(bot: VacBotDevice) -> dict[str, Any] | None:
                 "chargestate": True,
             }
             for product_config in product_config_batch:
-                if botprod_invent["_id"] == product_config.get("pid", ""):
+                if botprod_invent and botprod_invent["_id"] == product_config.get("pid", ""):
                     result["scode"] = {
                         "tmallstand": product_config.get("tmallstand", False),
                         "video": product_config.get("video", False),
@@ -534,3 +534,24 @@ async def _handle_akvs_start_watch(request: Request) -> Response:
             "ts": utils.get_current_time_as_millis(),
         },
     )
+
+
+async def _handle_get_config_groups(_: Request) -> Response:
+    """Get config groups."""
+    try:
+        return response_success_v3(
+            code=0,
+            msg_key="msg",
+            msg="success",
+            result_key="configFAQ",
+            result={
+                "wifiFAQUrl": "https://portal-ww.ecouser.net/api/pim/faqproblem.html?lang=en&defaultLang=en",
+                "notFoundAPUrl": "https://portal-ww.ecouser.net/api/pim/findDbWifi.html?lang=en&defaultLang=en",
+                "configFailedUrl": "https://portal-ww.ecouser.net/api/pim/configfail.html?lang=en&defaultLang=en",
+            },
+            data_key="data",
+            data=get_config_groups_response(),
+        )
+    except Exception:
+        _LOGGER.exception(utils.default_exception_str_builder(info="during handling request"))
+    raise HTTPInternalServerError
