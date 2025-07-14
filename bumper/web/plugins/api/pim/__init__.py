@@ -10,59 +10,56 @@ _LOGGER = logging.getLogger(__name__)
 
 def get_code_push_config() -> list[dict[str, Any]]:
     """Get code push config."""
-    base_path = Path(__file__).parent
-    json_file = base_path / "codePushConfig.json"
-
-    with json_file.open(encoding="utf-8") as f1:
-        product_config_batch: list[dict[str, Any]] = json.load(f1)
-        return product_config_batch
+    return _load_json_files(["codePushConfig.json"])
 
 
 def get_config_groups_response() -> list[dict[str, Any]]:
     """Get config groups response."""
-    base_path = Path(__file__).parent
-    json_file = base_path / "configGroupsResponse.json"
-
-    with json_file.open(encoding="utf-8") as f1:
-        product_config_batch: list[dict[str, Any]] = json.load(f1)
-        return product_config_batch
+    return _load_json_files(["configGroupsResponse.json", "configGroupsResponseUnofficial.json"])
 
 
 def get_config_net_all_response() -> list[dict[str, Any]]:
     """Get config net all response."""
-    base_path = Path(__file__).parent
-    json_file = base_path / "configNetAllResponse.json"
-
-    with json_file.open(encoding="utf-8") as f1:
-        product_config_batch: list[dict[str, Any]] = json.load(f1)
-        return product_config_batch
+    return _load_json_files(["configNetAllResponse.json", "configNetAllResponseUnofficial.json"])
 
 
 def get_product_config_batch() -> list[dict[str, Any]]:
     """Get product config batch."""
-    base_path = Path(__file__).parent
-    json_file = base_path / "productConfigBatch.json"
-
-    with json_file.open(encoding="utf-8") as f1:
-        product_config_batch: list[dict[str, Any]] = json.load(f1)
-        return product_config_batch
+    return _load_json_files(["productConfigBatch.json"])
 
 
-# EcoVacs Home Product IOT Map - 2025-04-03
-# https://portal-ww.ecouser.net/api/pim/product/getProductIotMap
 def get_product_iot_map() -> list[dict[str, Any]]:
-    """Get product iot map."""
+    """Get product IOT map combining official and unofficial mappings."""
+    return _load_json_files(["productIotMap.json", "productIotMapUnofficial.json"])
+
+
+def _load_json_files(filenames: list[str | Path]) -> list[dict[str, Any]]:
+    """Load and combine JSON arrays from one or more files located in the same directory as this module.
+
+    :param filenames: List of JSON filenames (or Path objects) relative to this module.
+    :return: Combined list of JSON objects.
+    :raises TypeError: If any file does not contain a top-level JSON array.
+    """
     base_path = Path(__file__).parent
-    product_iot_map_official = base_path / "productIotMap.json"
-    product_iot_map_unofficial = base_path / "productIotMapUnofficial.json"
+    combined: list[dict[str, Any]] = []
 
-    with product_iot_map_official.open(encoding="utf-8") as f1, product_iot_map_unofficial.open(encoding="utf-8") as f2:
-        map_official = json.load(f1)
-        map_unofficial = json.load(f2)
+    for fn in filenames:
+        file_path = base_path / fn
+        try:
+            with file_path.open(encoding="utf-8") as f:
+                data = json.load(f)
+        except FileNotFoundError:
+            _LOGGER.exception(f"JSON file not found: {file_path}")
+            raise
+        except json.JSONDecodeError:
+            _LOGGER.exception(f"Invalid JSON in file {file_path}")
+            raise
 
-    if not isinstance(map_official, list) or not isinstance(map_unofficial, list):
-        msg = "Both JSON files must contain a JSON array at the top level."
-        _LOGGER.error(msg)
-        raise TypeError(msg)
+        if not isinstance(data, list):
+            msg = f"JSON file {file_path.name} must contain a top-level array."
+            _LOGGER.error(msg)
+            raise TypeError(msg)
 
-    return map_official + map_unofficial
+        combined.extend(data)
+
+    return combined
