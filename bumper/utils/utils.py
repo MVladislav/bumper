@@ -1,10 +1,13 @@
 """Utils module."""
 
+import asyncio
+from collections.abc import Coroutine
 import datetime
 import json
 import logging
 from pathlib import Path
 import re
+from typing import Any
 
 from aiohttp import AsyncResolver
 import validators
@@ -12,6 +15,16 @@ import validators
 from bumper.utils.settings import config as bumper_isc
 
 _LOGGER = logging.getLogger(__name__)
+
+# ******************************************************************************
+
+
+def store_service(coro: Coroutine[Any, Any, None]) -> None:
+    """Create and store a new asyncio task."""
+    task = asyncio.create_task(coro)
+    bumper_isc.background_tasks.add(task)
+    task.add_done_callback(bumper_isc.background_tasks.discard)
+
 
 # ******************************************************************************
 

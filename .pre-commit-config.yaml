@@ -73,6 +73,7 @@ repos:
           - --exclude-files=bumper/web/plugins/api/pim/configNetAllResponse.json
           - --exclude-files=bumper/web/plugins/api/pim/productConfigBatch.json
           - --exclude-files=bumper/web/plugins/api/pim/productIotMap.json
+          - --exclude-files=bumper/web/plugins/api/pim/productIotMapUnofficial.json
           - --exclude-files=tests/*
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.27.2
@@ -94,7 +95,7 @@ repos:
 
   # Python-specific hooks ######################################################
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.0
+    rev: v0.12.3
     hooks:
       - id: ruff-check
         args:

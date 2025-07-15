@@ -15,7 +15,7 @@ def async_return(result):
     return f
 
 
-@pytest.mark.usefixtures("clean_database", "create_webserver")
+@pytest.mark.usefixtures("clean_database")
 async def test_devmgr(webserver_client, helper_bot: MQTTHelperBot) -> None:
     # Test PollSCResult
     postbody = {"td": "PollSCResult"}

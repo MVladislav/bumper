@@ -1,5 +1,6 @@
 """Confi module."""
 
+import asyncio
 from importlib.metadata import version
 import os
 from pathlib import Path
@@ -92,17 +93,20 @@ class Config:
 
     # Ports
     WEB_SERVER_TLS_LISTEN_PORT: int = int(os.environ.get("WEB_SERVER_HTTPS_PORT") or 443)
-    WEB_SERVER_LISTEN_PORT: int = 8007
-    MQTT_LISTEN_PORT: int = 1883
-    MQTT_LISTEN_PORT_TLS: int = 8883
-    XMPP_LISTEN_PORT: int = 1223
-    XMPP_LISTEN_PORT_TLS: int = 5223
+    WEB_SERVER_LISTEN_PORT: int = int(os.environ.get("WEB_SERVER_LISTEN_PORT") or 8007)
+    MQTT_LISTEN_PORT: int = int(os.environ.get("MQTT_LISTEN_PORT") or 1883)
+    MQTT_LISTEN_PORT_TLS: int = int(os.environ.get("MQTT_LISTEN_PORT_TLS") or 8883)
+    XMPP_LISTEN_PORT: int = int(os.environ.get("XMPP_LISTEN_PORT") or 1223)
+    XMPP_LISTEN_PORT_TLS: int = int(os.environ.get("XMPP_LISTEN_PORT_TLS") or 5223)
 
     # Servers
     mqtt_server: "MQTTServer | None" = None
     mqtt_helperbot: "MQTTHelperBot | None" = None
     web_server: "WebServer | None" = None
     xmpp_server: "XMPPServer | None" = None
+
+    # Services
+    background_tasks: set[asyncio.Task[None]] = set()
 
     # Used for maintenance loop stop
     shutting_down: bool = False

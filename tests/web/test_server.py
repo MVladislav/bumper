@@ -16,13 +16,13 @@ async def test_webserver_no_ssl() -> None:
     await webserver.start()
 
 
-@pytest.mark.usefixtures("helper_bot", "clean_database", "xmpp_server")
+@pytest.mark.usefixtures("clean_database", "xmpp_server", "helper_bot")
 async def test_base(webserver_client) -> None:
     resp = await webserver_client.get("/")
     assert resp.status == 200
 
 
-# @pytest.mark.usefixtures("helper_bot", "clean_database", "xmpp_server")
+# @pytest.mark.usefixtures("clean_database", "xmpp_server", "helper_bot")
 # async def test_restartService(webserver_client) -> None:
 #     resp = await webserver_client.get("/restart_Helperbot")
 #     assert resp.status == 200

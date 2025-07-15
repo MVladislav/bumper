@@ -10,7 +10,13 @@ FROM python:${PY_VERSION} AS builder
 # COPY --from=ghcr.io/astral-sh/uv:python3.13-alpine /uv /uvx /bin/
 COPY --from=uv_source /usr/local/bin/uv /usr/local/bin/uvx /bin/
 
-RUN apk add --no-cache bash git openssl
+RUN apk add --no-cache \
+  bash \
+  git \
+  openssl \
+  gcc \
+  musl-dev \
+  linux-headers
 
 WORKDIR /bumper
 COPY . .

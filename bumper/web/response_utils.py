@@ -97,7 +97,7 @@ def response_success_v3(
     data_key: str = "data",  # data | voices
     msg: str = "success",  # success | ok
     msg_key: str = "message",  # message | msg
-    result: str = "ok",
+    result: str | dict[str, str] = "ok",
     result_key: str | None = "ret",  # result | ret
     include_success: bool = False,
 ) -> Response:

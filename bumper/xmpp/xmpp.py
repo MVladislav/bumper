@@ -662,7 +662,7 @@ class XMPPAsyncClient:
                     item.clear()
 
                 elif item_tag == "starttls" and self.tls_upgraded is False:
-                    asyncio.Task(self._handle_starttls())
+                    utils.store_service(self._handle_starttls())
                     item.clear()
 
                 elif item_tag == "presence":

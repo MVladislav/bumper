@@ -58,7 +58,7 @@ async def handle_commands(
     """Handle commands."""
     try:
         if bumper_isc.mqtt_helperbot is None:
-            msg = "'bumper.mqtt.helper_bot' is None"
+            msg = "'bumper_isc.mqtt_helperbot' is None"
             raise Exception(msg)
 
         json_body: dict[str, Any] = {}

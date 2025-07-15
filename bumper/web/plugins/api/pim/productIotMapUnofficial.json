@@ -1,0 +1,44 @@
+[
+  {
+    "classid": "q5ez2q",
+    "product": {
+      "_id": "5b04c0227ccd1a0001e1f6a9",
+      "materialNo": "110-1810-0102",
+      "smartType": "MQ_AP",
+      "name": "DEEBOT OZMO 900 (DN55)",
+      "icon": "5b04c0217ccd1a0001e1f6a7",
+      "model": "DN55",
+      "UILogicId": "D_OZMO_900",
+      "ota": true,
+      "supportType": {
+        "share": true,
+        "tmjl": false,
+        "assistant": true,
+        "alexa": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5b04c0217ccd1a0001e1f6a7",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "eazo2f",
+    "product": {
+      "_id": "5c6bcecbe0bd76000156d296",
+      "materialNo": "110-1816-0003",
+      "smartType": "MQ_AP",
+      "name": "DEEBOT OZMO T5 Hero",
+      "icon": "6062795ad18cbd0008e2fce8",
+      "model": "DX9G_T5",
+      "UILogicId": "DX_9G",
+      "ota": true,
+      "supportType": {
+        "share": true,
+        "tmjl": false,
+        "assistant": false,
+        "alexa": false
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6062795ad18cbd0008e2fce8",
+      "status": "valid"
+    }
+  }
+]

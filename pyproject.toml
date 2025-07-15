@@ -17,7 +17,7 @@ keywords = [
   "server",
 ]
 
-version = "0.1.3"
+version = "0.1.4"
 requires-python = ">=3.13.0"
 readme = "README.md"
 license = { text = "GPL-3.0" }
@@ -32,12 +32,12 @@ dependencies = [
   "aiodns==3.5.0",        # https://pypi.org/project/aiodns
   "aiofiles==24.1.0",     # https://pypi.org/project/aiofiles
   "aiohttp-jinja2==1.6",  # https://pypi.org/project/aiohttp-jinja2
-  "aiohttp==3.12.13",     # https://pypi.org/project/aiohttp
+  "aiohttp==3.12.14",     # https://pypi.org/project/aiohttp
   "aiomqtt==2.4.0",       # https://pypi.org/project/aiomqtt
-  "amqtt==0.11.0",        # https://pypi.org/project/amqtt
+  "amqtt==0.11.2",        # https://pypi.org/project/amqtt
   "cachetools==6.1.0",    # https://pypi.org/project/cachetools
   "coloredlogs==15.0.1",  # https://pypi.org/project/coloredlogs
-  "cryptography==45.0.4", # https://pypi.org/project/cryptography
+  "cryptography==45.0.5", # https://pypi.org/project/cryptography
   "defusedxml==0.8.0rc2", # https://pypi.org/project/defusedxml
   "Jinja2==3.1.6",        # https://pypi.org/project/Jinja2
   "passlib==1.7.4",       # https://pypi.org/project/passlib
@@ -57,12 +57,12 @@ dev = [
   "pytest-aiohttp>=1.1.0",             # https://pypi.org/project/pytest-aiohttp
   "pytest-asyncio>=1.0.0",             # https://pypi.org/project/pytest-asyncio
   "pytest-cov>=6.2.1",                 # https://pypi.org/project/pytest-cov
-  "pytest-docker-fixtures>=1.3.20",    # https://pypi.org/project/pytest-docker-fixtures
+  "pytest-docker-fixtures>=1.4.0",     # https://pypi.org/project/pytest-docker-fixtures
   "pytest-env>=1.1.5",                 # https://pypi.org/project/pytest-env
   "pytest-timeout>=2.4.0",             # https://pypi.org/project/pytest-timeout
   "pytest>=8.4.1",                     # https://pypi.org/project/pytest
-  "ruff>=0.12.0",                      # https://pypi.org/project/ruff
-  "testfixtures>=8.3.0",               # https://pypi.org/project/testfixtures
+  "ruff>=0.12.2",                      # https://pypi.org/project/ruff
+  "testfixtures>=9.0.1",               # https://pypi.org/project/testfixtures
   "types-aiofiles>=24.1.0.20250606",   # https://pypi.org/project/types-aiofiles
   "types-cachetools>=6.0.0.20250525",  # https://pypi.org/project/types-cachetools
   "types-mock>=5.2.0.20250516",        # https://pypi.org/project/types-mock
@@ -71,6 +71,7 @@ dev = [
 ]
 docs = [
   "mkdocs-material>=9.6.14", # https://pypi.org/project/mkdocs-material/
+  "mkdocs-glightbox>=0.4.0", # https://pypi.org/project/mkdocs-glightbox/
 ]
 
 [project.scripts]
@@ -90,10 +91,6 @@ source = "vcs"
 
 [tool.hatch.metadata]
 allow-direct-references = true
-
-# ___________________________________ PLUGINS __________________________________
-[project.entry-points."amqtt.broker.plugins"]
-bumper = "bumper.mqtt.server:BumperMQTTServerPlugin"
 
 # ____________________________________ RUFF ____________________________________
 # https://docs.astral.sh/ruff/settings/
@@ -200,6 +197,15 @@ env = [
 
 asyncio_default_fixture_loop_scope = "function"
 
+# ---------------------------------- COVERAGE ----------------------------------
+[tool.coverage.run]
+branch = true
+source = ["bumper"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+
 # ------------------------------------ MYPY ------------------------------------
 [tool.mypy]
 exclude = ["^tests/.*", "^docs/.*"]
@@ -271,12 +277,3 @@ max-positional-arguments = 10 # too-many-positional-arguments
 max-returns = 10              # too-many-return-statements
 max-statements = 62           # too-many-statements
 max-module-lines = 1128       # too-many-lines
-
-# ---------------------------------- COVERAGE ----------------------------------
-[tool.coverage.run]
-branch = true
-source = ["bumper"]
-
-[tool.coverage.report]
-show_missing = true
-skip_covered = true
