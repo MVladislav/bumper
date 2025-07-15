@@ -2391,7 +2391,7 @@
           "IOS": "1.5.0"
         },
         "service": {
-          "jmq": "jmq-ngiot-jp.area.ww.ecouser.net"
+          "jmq": "jmq-ngiot-us.area.ww.ecouser.net"
         },
         "products": [],
         "smartTypes": ["MQ_AP"],
