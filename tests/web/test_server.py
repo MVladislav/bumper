@@ -1,3 +1,6 @@
+from pathlib import Path
+from unittest.mock import patch
+
 from aiohttp.test_utils import TestClient
 import pytest
 
@@ -51,6 +54,47 @@ async def test_remove_bot(webserver_client: TestClient) -> None:
 async def test_remove_client(webserver_client: TestClient) -> None:
     resp = await webserver_client.get("/client/remove/test_resource")
     assert resp.status == 200
+
+
+async def test_remove_user(webserver_client: TestClient) -> None:
+    resp = await webserver_client.get("/user/remove/test_resource")
+    assert resp.status == 200
+
+
+async def test_handle_partial(webserver_client: TestClient) -> None:
+    resp = await webserver_client.get("/server-status")
+    assert resp.status == 200
+    content_type = resp.headers.get("Content-Type", "")
+    assert content_type.startswith("text/html")
+    body = await resp.read()
+    assert body
+
+
+async def test_favicon(webserver_client: TestClient) -> None:
+    resp = await webserver_client.get("/favicon.ico")
+    assert resp.status == 200
+    content_type = resp.headers.get("Content-Type", "")
+    assert content_type.startswith("image/")
+    body = await resp.read()
+    assert body
+
+
+async def test_favicon_missing(
+    monkeypatch: pytest.MonkeyPatch,
+    webserver_client: TestClient,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    with patch("bumper.web.server") as mock_files:
+        # Simulate Path that does NOT exist
+        fake_path = Path("/tmp/nonexistent.ico")  # noqa: S108
+        mock_files.return_value.joinpath.return_value = fake_path
+        monkeypatch.setattr(Path, "exists", lambda _: False)
+
+        resp = await webserver_client.get("/favicon.ico")
+        assert resp.status == 500
+        body = await resp.text()
+        assert "Internal Server Error" in body
+        assert "Favicon not found at" in caplog.text
 
 
 @pytest.mark.usefixtures("clean_database")
