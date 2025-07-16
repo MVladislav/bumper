@@ -8,6 +8,8 @@ import pytest
 
 from bumper.db import bot_repo
 from bumper.mqtt.helper_bot import MQTTHelperBot
+from bumper.utils.settings import config as bumper_isc
+from bumper.web.plugins.api.iot import handle_commands
 
 
 def async_return(result: dict[str, str]) -> asyncio.Future:
@@ -69,3 +71,77 @@ async def test_devmgr(webserver_client: TestClient, helper_bot: MQTTHelperBot) -
     text = await resp.text()
     test_resp = json.loads(text)
     assert test_resp["ret"] == "ok"
+
+
+async def test_fails_when_helperbot_is_none(webserver_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(bumper_isc, "mqtt_helperbot", None)
+
+    resp = await webserver_client.post("/api/iot/devmanager.do", json={})
+    assert resp.status == 200
+    body = await resp.json()
+    assert body["ret"] == "fail"
+
+
+async def test_bot_not_found_returns_error(webserver_client: TestClient) -> None:
+    postbody = {
+        "cmdName": "getBattery",
+        "td": "q",
+        "toId": "nonexistent",
+        "payload": {"header": {"pri": "1"}},
+        "payloadType": "j",
+        "toRes": "xyz",
+        "toType": "p95mgv",
+    }
+    resp = await webserver_client.post("/api/iot/devmanager.do", json=postbody)
+    assert resp.status == 200
+    body = await resp.json()
+    assert body["ret"] == "fail"
+    assert "requested bot is not supported" in body["debug"]
+
+
+async def test_bot_wrong_company(webserver_client: TestClient) -> None:
+    bot_repo.add("sn_4321", "did_wrong", "dev", "res", "other-company")
+    postbody = {
+        "cmdName": "getBattery",
+        "td": "q",
+        "toId": "did_wrong",
+        "payload": {"header": {"pri": "1"}},
+        "payloadType": "j",
+        "toRes": "xyz",
+        "toType": "p95mgv",
+    }
+    resp = await webserver_client.post("/api/iot/devmanager.do", json=postbody)
+    body = await resp.json()
+    assert resp.status == 200
+    assert body["ret"] == "fail"
+    assert "requested bot is not supported" in body["debug"]
+
+
+async def test_extended_check_fails_if_not_connected() -> None:
+    bot_repo.add("sn_ext", "did_ext", "dev", "res", "eco-ng")
+    # MQTT connection NOT set
+    postbody = {
+        "cmdName": "getBattery",
+        "td": "q",
+        "toId": "did_ext",
+        "payload": {"header": {"pri": "1"}},
+        "payloadType": "j",
+        "toRes": "xyz",
+        "toType": "p95mgv",
+    }
+    request = mock.MagicMock()
+    request.text = mock.AsyncMock(return_value=json.dumps(postbody))
+    request.query = {}
+    resp = await handle_commands(request, extended_check=True)
+    data = json.loads(resp.text)
+    assert data["ret"] == "fail"
+
+
+async def test_td_unknown_logs_warning(webserver_client: TestClient, caplog: pytest.LogCaptureFixture) -> None:
+    postbody = {"td": "SomeUnknownTD"}
+    with caplog.at_level("WARNING"):
+        resp = await webserver_client.post("/api/iot/devmanager.do", json=postbody)
+    assert resp.status == 200
+    body = await resp.json()
+    assert body["ret"] == "fail"
+    assert "TD is not know" in caplog.text
