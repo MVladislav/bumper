@@ -1,5 +1,3 @@
-import json
-
 from aiohttp.test_utils import TestClient
 import pytest
 
@@ -8,13 +6,17 @@ from tests import HOST, WEBSERVER_PORT
 
 
 async def test_webserver_ssl() -> None:
-    webserver = WebServer(WebserverBinding(HOST, WEBSERVER_PORT, True), False)
-    await webserver.start()
+    server = WebServer(WebserverBinding(HOST, WEBSERVER_PORT, True), False)
+    await server.start()
+    await server.shutdown()
+    # await asyncio.sleep(0.1)
 
 
 async def test_webserver_no_ssl() -> None:
-    webserver = WebServer(WebserverBinding(HOST, 11112, False), False)
-    await webserver.start()
+    server = WebServer(WebserverBinding(HOST, WEBSERVER_PORT + 1, False), False)
+    await server.start()
+    await server.shutdown()
+    # await asyncio.sleep(0.1)
 
 
 @pytest.mark.usefixtures("clean_database", "xmpp_server", "helper_bot")
@@ -23,16 +25,22 @@ async def test_base(webserver_client: TestClient) -> None:
     assert resp.status == 200
 
 
-# @pytest.mark.usefixtures("clean_database", "xmpp_server", "helper_bot")
-# async def test_restart_service(webserver_client: TestClient) -> None:
-#     resp = await webserver_client.get("/restart_Helperbot")
-#     assert resp.status == 200
+@pytest.mark.usefixtures("clean_database", "helper_bot")
+async def test_restart_helperbot(webserver_client: TestClient) -> None:
+    resp = await webserver_client.get("/restart_Helperbot")
+    assert resp.status == 200
 
-#     resp = await webserver_client.get("/restart_MQTTServer")
-#     assert resp.status == 200
 
-#     resp = await webserver_client.get("/restart_XMPPServer")
-#     assert resp.status == 200
+@pytest.mark.usefixtures("clean_database", "mqtt_server")
+async def test_restart_mqtt_server(webserver_client: TestClient) -> None:
+    resp = await webserver_client.get("/restart_MQTTServer")
+    assert resp.status == 200
+
+
+@pytest.mark.usefixtures("clean_database", "xmpp_server")
+async def test_restart_xmpp_server(webserver_client: TestClient) -> None:
+    resp = await webserver_client.get("/restart_XMPPServer")
+    assert resp.status == 200
 
 
 async def test_remove_bot(webserver_client: TestClient) -> None:
@@ -48,17 +56,15 @@ async def test_remove_client(webserver_client: TestClient) -> None:
 @pytest.mark.usefixtures("clean_database")
 async def test_post_lookup(webserver_client: TestClient) -> None:
     # Test FindBest
-    postbody = {"todo": "FindBest", "service": "EcoMsgNew"}
-    resp = await webserver_client.post("/lookup.do", json=postbody)
+    body = {"todo": "FindBest", "service": "EcoMsgNew"}
+    resp = await webserver_client.post("/lookup.do", json=body)
     assert resp.status == 200
-    text = await resp.text()
-    test_resp = json.loads(text)
-    assert test_resp["result"] == "ok"
+    data = await resp.json()
+    assert data.get("result") == "ok"
 
     # Test EcoUpdate
-    postbody = {"todo": "FindBest", "service": "EcoUpdate"}
-    resp = await webserver_client.post("/lookup.do", json=postbody)
+    body = {"todo": "FindBest", "service": "EcoUpdate"}
+    resp = await webserver_client.post("/lookup.do", json=body)
     assert resp.status == 200
-    text = await resp.text()
-    test_resp = json.loads(text)
-    assert test_resp["result"] == "ok"
+    data = await resp.json()
+    assert data.get("result") == "ok"

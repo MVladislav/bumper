@@ -59,6 +59,7 @@ dev = [
   "pytest-cov>=6.2.1",                 # https://pypi.org/project/pytest-cov
   "pytest-docker-fixtures>=1.4.0",     # https://pypi.org/project/pytest-docker-fixtures
   "pytest-env>=1.1.5",                 # https://pypi.org/project/pytest-env
+  "pytest-repeat>=0.9.4",              # https://pypi.org/project/pytest-repeat
   "pytest-timeout>=2.4.0",             # https://pypi.org/project/pytest-timeout
   "pytest>=8.4.1",                     # https://pypi.org/project/pytest
   "ruff>=0.12.2",                      # https://pypi.org/project/ruff

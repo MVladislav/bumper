@@ -42,6 +42,8 @@ class MQTTBinding:
 class MQTTServer:
     """MQTT server."""
 
+    _state_cond = asyncio.Condition()
+
     def __init__(
         self,
         bindings: list[MQTTBinding] | MQTTBinding,
@@ -109,8 +111,9 @@ class MQTTServer:
                 await self._broker.start()
             elif self.state == "stopping":
                 _LOGGER.warning("MQTT Server is stopping. Waiting for it to stop before restarting...")
-                await self.wait_for_state_change(["stopping"])
-                await self._broker.start()
+                await self.wait_for_state_change("stopping", reverse=True)
+                if self.state == "stopped":
+                    await self._broker.start()
             else:
                 _LOGGER.info("MQTT Server is already running. Stop it first for a clean restart!")
         except Exception:
@@ -126,9 +129,12 @@ class MQTTServer:
                 _LOGGER_BROKER.info("Broker closed")
             elif self.state in ["starting"]:
                 _LOGGER.warning(f"MQTT server is in '{self.state}' state. Waiting for it to stabilize...")
-                await self.wait_for_state_change(["starting"])
+                await self.wait_for_state_change("starting", reverse=True)
                 if self.state == "started":
                     await self._broker.shutdown()
+            elif self.state in ["stopping"]:
+                _LOGGER.warning(f"MQTT server is in '{self.state}' state. Waiting for it to stabilize...")
+                await self.wait_for_state_change("stopping", reverse=True)
             else:
                 _LOGGER.warning(f"MQTT server is not in a valid state for shutdown. Current state: {self.state}")
         except Exception:
@@ -137,21 +143,27 @@ class MQTTServer:
 
     async def wait_for_state_change(
         self,
-        target_states: list[str],
-        interval: float = 1.0,
-        max_wait: int = 10,
+        desired: str,
+        max_wait: float = 3.0,
         reverse: bool = False,
     ) -> None:
-        """Wait for a small interval if the state is in target states."""
-        timeout_count = 0
-        while timeout_count < max_wait:
-            _LOGGER.debug("Waiting for MQTT server state change...")
-            if not reverse and self.state not in target_states:
+        """Wait until `state == desired` (reverse=False) or `state != desired` (reverse=True), raising TimeoutError."""
+        try:
+
+            def _check() -> bool:
+                st = self.state
+                _LOGGER.debug(f"Waiting for state :: '{st}' {'!=' if reverse else '=='} '{desired}' …")
+                return (reverse and st != desired) or (not reverse and st == desired)
+
+            # Fast path
+            if _check():
                 return
-            if reverse and self.state in target_states:
-                return
-            timeout_count += 1
-            await asyncio.sleep(interval)
+
+            async with self._state_cond:
+                await asyncio.wait_for(self._state_cond.wait_for(_check), max_wait)
+            _LOGGER.debug(f"Reached state :: '{self.state}' {'!=' if reverse else '=='} '{desired}'")
+        except TimeoutError:
+            _LOGGER.warning(f"Timeout waiting for MQTT server to reach state '{desired}' :: Current state: '{self.state}'")
 
 
 class BumperMQTTServerPlugin(BaseAuthPlugin):  # type: ignore[misc]

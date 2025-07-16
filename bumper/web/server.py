@@ -128,8 +128,10 @@ class WebServer:
             _LOGGER.info("Shutting down Web Server...")
             for runner in self._runners:
                 await runner.shutdown()
+                await runner.cleanup()
             self._runners.clear()
             await self._app.shutdown()
+            await self._app.cleanup()
         except Exception:
             _LOGGER.exception(utils.default_exception_str_builder())
             raise
@@ -257,11 +259,11 @@ class WebServer:
         try:
             service = request.match_info.get("service", "")
             if service == "Helperbot":
-                await self._restart_helper_bot()
-                return web.json_response({"status": "complete"})
+                if await self._restart_helper_bot():
+                    return web.json_response({"status": "complete"})
+                return web.json_response({"status": "failed"})
             if service == "MQTTServer":
                 if await self._restart_mqtt_server():
-                    await self._restart_helper_bot()
                     return web.json_response({"status": "complete"})
                 return web.json_response({"status": "failed"})
             if service == "XMPPServer" and bumper_isc.xmpp_server is not None:
@@ -277,23 +279,24 @@ class WebServer:
         if bumper_isc.mqtt_server is not None:
             _LOGGER.info("Restarting MQTT Server...")
             await bumper_isc.mqtt_server.shutdown()
-            await bumper_isc.mqtt_server.wait_for_state_change(["stopped"], reverse=True)
+            await bumper_isc.mqtt_server.wait_for_state_change("stopped")
             if bumper_isc.mqtt_server.state != "stopped":
                 _LOGGER.warning("MQTT Server failed to stop")
                 return False
             await bumper_isc.mqtt_server.start()
-            await bumper_isc.mqtt_server.wait_for_state_change(["started"], reverse=True)
-
+            await bumper_isc.mqtt_server.wait_for_state_change("started")
             if bumper_isc.mqtt_server.state == "started":
                 _LOGGER.info("MQTT Server restarted successfully")
                 return True
         _LOGGER.warning("MQTT Server failed to restart")
         return False
 
-    async def _restart_helper_bot(self) -> None:
+    async def _restart_helper_bot(self) -> bool:
         if bumper_isc.mqtt_helperbot is not None:
             await bumper_isc.mqtt_helperbot.disconnect()
             await bumper_isc.mqtt_helperbot.start()
+            return True
+        return False
 
     def _handle_remove_entity(self, entity_type: str) -> Callable[[Request], Awaitable[Response]]:
         async def handler(request: Request) -> Response:
