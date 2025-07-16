@@ -122,5 +122,6 @@ async def log_all_requests(request: Request, handler: Handler) -> StreamResponse
     except web.HTTPNotFound:
         _LOGGER.debug(f"Request path {request.raw_path} not found")
         raise
-    # finally:
-    #     _LOGGER.debug(json.dumps(to_log, cls=CustomEncoder))
+    finally:
+        if bumper_isc.DEBUG_LOGGING_API_REQUEST is True:
+            _LOGGER.debug(json.dumps(to_log, cls=CustomEncoder))
