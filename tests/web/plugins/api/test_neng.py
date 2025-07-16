@@ -1,10 +1,11 @@
 import json
 
+from aiohttp.test_utils import TestClient
 import pytest
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_neng_hasUnreadMessage(webserver_client) -> None:
+async def test_neng_has_unread_message(webserver_client: TestClient) -> None:
     postbody = {
         "auth": {
             "realm": "ecouser.net",

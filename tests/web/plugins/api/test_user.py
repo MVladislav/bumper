@@ -1,5 +1,6 @@
 import json
 
+from aiohttp.test_utils import TestClient
 import pytest
 
 from bumper.db import bot_repo, token_repo, user_repo
@@ -10,7 +11,7 @@ USER_ID = _generate_uid(bumper_isc.USER_USERNAME_DEFAULT)
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_getUsersAPI(webserver_client) -> None:
+async def test_get_users_api(webserver_client: TestClient) -> None:
     resp = await webserver_client.post("/api/users/user.do", json={})
     assert resp.status == 200
     text = await resp.text()
@@ -19,7 +20,7 @@ async def test_getUsersAPI(webserver_client) -> None:
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_postUsersAPI(webserver_client) -> None:
+async def test_post_users_api(webserver_client: TestClient) -> None:
     # Test FindBest
     postbody = {"todo": "FindBest", "service": "EcoMsgNew"}
     resp = await webserver_client.post("/api/users/user.do", json=postbody)

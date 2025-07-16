@@ -1,5 +1,6 @@
 import json
 
+from aiohttp.test_utils import TestClient
 import pytest
 
 from bumper.db import bot_repo, token_repo, user_repo
@@ -11,7 +12,7 @@ USER_ID = _generate_uid(bumper_isc.USER_USERNAME_DEFAULT)
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_checkLogin(webserver_client) -> None:
+async def test_check_login(webserver_client: TestClient) -> None:
     # Test without token
     resp = await webserver_client.get(f"/v1/private/us/en/dev_1234/ios/1/0/0/user/checkLogin?accessToken={None}")
     assert resp.status == 200
@@ -78,7 +79,7 @@ async def test_checkLogin(webserver_client) -> None:
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_getAuthCode(webserver_client) -> None:
+async def test_get_auth_code(webserver_client: TestClient) -> None:
     # Test without user or token
     resp = await webserver_client.get(f"/v1/private/us/en/dev_1234/ios/1/0/0/user/getAuthCode?uid={None}&accessToken={None}")
     assert resp.status == 200
@@ -116,7 +117,7 @@ async def test_getAuthCode(webserver_client) -> None:
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_checkAgreement(webserver_client) -> None:
+async def test_check_agreement(webserver_client: TestClient) -> None:
     resp = await webserver_client.get("/v1/private/us/en/dev_1234/ios/1/0/0/user/checkAgreement")
     assert resp.status == 200
     text = await resp.text()
@@ -132,7 +133,7 @@ async def test_checkAgreement(webserver_client) -> None:
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_getUserAccountInfo(webserver_client) -> None:
+async def test_get_user_account_info(webserver_client: TestClient) -> None:
     user_repo.add(USER_ID)
     user_repo.add_device(USER_ID, "dev_1234")
     token_repo.add(USER_ID, "token_1234")

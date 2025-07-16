@@ -15,17 +15,9 @@ def mock_transport_extra_info() -> tuple[str, int]:
     return ("127.0.0.1", 5223)
 
 
-@pytest.fixture(autouse=True)
-def cleanup_clients():
-    """Ensure all XMPPAsyncClient instances are cleaned up after each test."""
-    yield
-    for client in XMPPServer.clients:
-        client.cleanup()
-    XMPPServer.clients.clear()
-
-
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
 @pytest.mark.asyncio
-async def test_xmpp_server(xmpp_server) -> None:
+async def test_xmpp_server(xmpp_server: XMPPServer) -> None:
     with LogCapture("xmppserver") as _:
         _, writer = await asyncio.open_connection("127.0.0.1", 5223)
 
@@ -52,6 +44,7 @@ async def test_xmpp_server(xmpp_server) -> None:
         await asyncio.sleep(0.1)
 
 
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
 async def test_client_connect_no_starttls() -> None:
     test_transport = mock.Mock()
     test_transport.get_extra_info = mock.Mock(return_value=mock_transport_extra_info())
@@ -95,6 +88,7 @@ async def test_client_connect_no_starttls() -> None:
     assert xmppclient.state == xmppclient.INIT  # Client moved to INIT state
 
 
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
 async def test_client_end_stream() -> None:
     test_transport = mock.Mock()
     test_transport.get_extra_info = mock.Mock(return_value=mock_transport_extra_info())
@@ -127,6 +121,7 @@ async def test_client_end_stream() -> None:
     xmppclient.parse_data(test_data)
 
 
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
 async def test_client_connect_starttls_called() -> None:
     test_transport = mock.Mock()
     test_transport.get_extra_info = mock.Mock(return_value=mock_transport_extra_info())
@@ -202,6 +197,7 @@ async def test_client_connect_starttls_called() -> None:
     assert xmppclient.state == xmppclient.INIT  # Client moved to INIT state
 
 
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
 async def test_client_init() -> None:
     test_transport = mock.Mock()
     test_transport.get_extra_info = mock.Mock(return_value=mock_transport_extra_info())
@@ -273,6 +269,7 @@ async def test_client_init() -> None:
     )  # client presence - dummy response
 
 
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
 async def test_bot_connect() -> None:
     test_transport = mock.Mock()
     test_transport.get_extra_info = mock.Mock(return_value=mock_transport_extra_info())
@@ -318,6 +315,7 @@ async def test_bot_connect() -> None:
     assert xmppclient.type == xmppclient.BOT  # Client type is now bot
 
 
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
 async def test_bot_init() -> None:
     test_transport = mock.Mock()
     test_transport.get_extra_info = mock.Mock(return_value=mock_transport_extra_info())
@@ -387,6 +385,7 @@ async def test_bot_init() -> None:
     )  # bot presence - dummy response
 
 
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
 async def test_ping_server() -> None:
     test_transport = mock.Mock()
     test_transport.get_extra_info = mock.Mock(return_value=mock_transport_extra_info())
@@ -407,6 +406,7 @@ async def test_ping_server() -> None:
     assert mock_send.mock_calls[0][1][0] == '<iq type="result" id="2542" from="159.ecorobot.net" />'  # ping response
 
 
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
 async def test_ping_client_to_client() -> None:
     test_transport = mock.Mock()
     test_transport.get_extra_info = mock.Mock(return_value=mock_transport_extra_info())
@@ -447,6 +447,7 @@ async def test_ping_client_to_client() -> None:
     )  # ping response
 
 
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
 async def test_client_send_iq() -> None:
     test_transport = mock.Mock()
     test_transport.get_extra_info = mock.Mock(return_value=mock_transport_extra_info())

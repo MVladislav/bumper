@@ -1,24 +1,17 @@
-import asyncio
 import json
 
+from aiohttp.test_utils import TestClient
 import pytest
 
 from bumper.db import bot_repo
-from bumper.mqtt.helper_bot import MQTTHelperBot
 from bumper.utils.settings import config as bumper_isc
 from bumper.web.auth_util import _generate_uid
 
 USER_ID = _generate_uid(bumper_isc.USER_USERNAME_DEFAULT)
 
 
-def async_return(result):
-    f = asyncio.Future()
-    f.set_result(result)
-    return f
-
-
-@pytest.mark.usefixtures("clean_database")
-async def test_lg_logs(webserver_client, helper_bot: MQTTHelperBot) -> None:
+@pytest.mark.usefixtures("clean_database", "helper_bot")
+async def test_lg_logs(webserver_client: TestClient) -> None:
     test_did = "did_1234"
     bot_repo.add("sn_1234", test_did, "ls1ok3", "res_1234", "eco-ng")
     bot_repo.set_mqtt(test_did, True)

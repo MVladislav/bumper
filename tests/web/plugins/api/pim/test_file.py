@@ -1,4 +1,7 @@
-async def test_file_get(webserver_client) -> None:
+from aiohttp.test_utils import TestClient
+
+
+async def test_file_get(webserver_client: TestClient) -> None:
     resp = await webserver_client.get("/api/pim/file/get/123")
     assert resp.status == 200
     content_type = resp.headers.get("Content-Type", "")
@@ -7,7 +10,7 @@ async def test_file_get(webserver_client) -> None:
     assert body
 
 
-async def test_api_pim_file_get(webserver_client) -> None:
+async def test_api_pim_file_get(webserver_client: TestClient) -> None:
     resp = await webserver_client.get("/api/pim/api/pim/file/get/456")
     assert resp.status == 200
     content_type = resp.headers.get("Content-Type", "")

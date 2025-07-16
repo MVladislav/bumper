@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from pathlib import Path
 
 import pytest
 from tinydb import TinyDB
@@ -10,7 +11,7 @@ from bumper.web.models import BumperUser
 
 
 @pytest.mark.usefixtures("clean_database")
-def test_user_db() -> None:
+def test_user_db(test_files: dict[str, Path()]) -> None:
     user_repo.add("new_testuser")
     assert user_repo.get_by_id("new_testuser").userid == "new_testuser"
 
@@ -72,7 +73,7 @@ def test_user_db() -> None:
     user_repo._upsert(new_user.as_dict(), QueryInstance.userid == new_user.userid)
     assert user_repo.get_by_id("new_testuser").userid == "new_testuser"
 
-    db_test = TinyDB("tests/_test_files/tmp.db")
+    db_test = TinyDB(str(test_files["db"]))
     tokens = db_test.table("tokens")
     tokens.insert(
         {
@@ -88,7 +89,7 @@ def test_user_db() -> None:
     assert len(token_repo.list_for_user("testuser")) == 0  # Test 0 tokens are available
     assert token_repo.get_first("testuser") is None
 
-    db_test = TinyDB("tests/_test_files/tmp.db")
+    db_test = TinyDB(str(test_files["db"]))
     tokens = db_test.table("tokens")
     tokens.insert(
         {
@@ -109,3 +110,38 @@ def test_user_db() -> None:
     token_repo.add_it_token("testuser", "auth_1234")
     login_result = token_repo.login_by_it_token("auth_1234")
     assert login_result.as_dict() == {"token": "token_1234", "userid": "testuser"}
+
+
+@pytest.mark.usefixtures("clean_database")
+def test_user_repo_extras() -> None:
+    user_id = "testuser_extra"
+    home_id = "home123"
+
+    # Add user
+    user_repo.add(user_id)
+    assert user_repo.get_by_id(user_id) is not None
+
+    # Add home_id manually to ensure get_by_home_id can match it
+    user_repo.add_home_id(user_id, home_id)
+    user = user_repo.get_by_id(user_id)
+    assert user
+    assert home_id in user.homeids
+
+    # Test get_by_home_id
+    user_by_home = user_repo.get_by_home_id(home_id)
+    assert user_by_home is not None
+    assert user_by_home.userid == user_id
+
+    # Test list_all
+    all_users = user_repo.list_all()
+    assert isinstance(all_users, list)
+    assert any(u.userid == user_id for u in all_users)
+
+    # Test remove_home_id
+    user_repo.remove_home_id(user_id, home_id)
+    user = user_repo.get_by_id(user_id)
+    assert home_id not in user.homeids
+
+    # Test remove
+    user_repo.remove(user_id)
+    assert user_repo.get_by_id(user_id) is None

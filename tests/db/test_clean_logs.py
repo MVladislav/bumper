@@ -68,3 +68,35 @@ def test_clean_logs_db() -> None:
     clean_log.area = 28
     clean_log_repo.add(did, cid, clean_log)
     assert len(clean_log_repo.list_by_did(did)) == 2
+
+
+@pytest.mark.usefixtures("clean_database")
+def test_clean_logs_remove_by_id() -> None:
+    did = "test-device"
+    cid = "test-clean"
+    ts = 1699297517
+
+    # Add multiple entries
+    log1 = CleanLog(f"{did}@{ts}@r1")
+    log1.ts = ts
+    log1.type = "auto"
+
+    log2 = CleanLog(f"{did}@{ts}@r2")
+    log2.ts = ts
+    log2.type = "auto"
+
+    clean_log_repo.clear()
+    clean_log_repo.add(did, cid, log1)
+    clean_log_repo.add(did, cid, log2)
+
+    # Confirm both are added
+    logs = clean_log_repo.list_by_did(did)
+    assert len(logs) == 2
+
+    # Remove one by ID
+    clean_log_repo.remove_by_id(log1.clean_log_id)
+
+    # Confirm only one remains, and it's not log1
+    logs = clean_log_repo.list_by_did(did)
+    assert len(logs) == 1
+    assert logs[0].clean_log_id == log2.clean_log_id

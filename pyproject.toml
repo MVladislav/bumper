@@ -17,7 +17,7 @@ keywords = [
   "server",
 ]
 
-version = "0.1.4"
+version = "0.2.0rc1"
 requires-python = ">=3.13.0"
 readme = "README.md"
 license = { text = "GPL-3.0" }
@@ -137,26 +137,37 @@ ignore = [
   "F405", # Checks for names that might be undefined
 ]
 "scripts/**" = ["ALL"]
-"tests/**" = [
-  "D100",     # Missing docstring in public module
-  "D103",     # Missing docstring in public function
-  "D104",     # Missing docstring in public package
-  "N802",     # Function name {name} should be lowercase
-  "N806",     # Variable `userId` in function should be lowercase
-  "N816",     # Variable {name} in global scope should not be mixedCase
-  "S101",     # Use of assert detected
-  "S106",     # Possible hardcoded password assigned to argument: "password_file"
-  "SLF001",   # Private member accessed: {access}
-  "ANN001",
-  "ANN201",
-  "ARG001",
-  "ASYNC110",
-  "INP001",
-  "PGH003",
-  "PTH107",
-  "PTH110",
-  "PTH118",
+"tests/**/*.py" = [
+  # "ARG",  # Unused function args -> fixtures nevertheless are functionally relevant...
+  "D",      # pydocstyle
+  "FBT",    # Don't care about booleans as positional arguments in tests, e.g. via @pytest.mark.parametrize()
+  "INP001", # Don't care for part of an implicit namespace package to add an `__init__.py`
+  "S101",   # asserts allowed in tests...
+  "SLF00",  # Don't care for Private member accessed
+  # "S106",     # Possible hardcoded password assigned to argument: "password_file"
+  # "PLR2004", # Magic value used in comparison, ...
+  # "S311",    # Standard pseudo-random generators are not suitable for cryptographic purposes
 ]
+
+# "tests/**" = [
+#   "D100",     # Missing docstring in public module
+#   "D103",     # Missing docstring in public function
+#   "D104",     # Missing docstring in public package
+#   "N802",     # Function name {name} should be lowercase
+#   "N806",     # Variable `userId` in function should be lowercase
+#   "N816",     # Variable {name} in global scope should not be mixedCase
+#   "S101",     # Use of assert detected
+#   "SLF001",   # Private member accessed: {access}
+#   "ANN001",
+#   "ANN201",
+#   "ARG001",
+#   "ASYNC110",
+#   "INP001",
+#   "PGH003",
+#   "PTH107",
+#   "PTH110",
+#   "PTH118",
+# ]
 
 [tool.ruff.lint.flake8-pytest-style]
 fixture-parentheses = false
@@ -181,19 +192,18 @@ max-returns = 10
 
 # ----------------------------------- PYTEST -----------------------------------
 [tool.pytest.ini_options]
-addopts = ["--cov=bumper", "--cov-report=term-missing", "--cov-report=xml"]
+addopts = [
+  "--cov=bumper",
+  "--cov-report=term-missing",
+  "--cov-report=xml",
+  # "--cov-report=html",
+  "--maxfail=3",
+  "-ra",
+]
 testpaths = ["tests"]
 asyncio_mode = "auto"
 timeout = 10
 # log_cli = true
-# log_level = "INFO"
-env = [
-  "D:BUMPER_CA=tests/_test_files/certs/ca.crt",
-  "D:BUMPER_CERT=tests/_test_files/certs/bumper.crt",
-  "D:BUMPER_KEY=tests/_test_files/certs/bumper.key",
-  "WEB_SERVER_HTTPS_PORT=8443",
-  "DB_FILE=tests/_test_files/tmp.db",
-]
 
 asyncio_default_fixture_loop_scope = "function"
 

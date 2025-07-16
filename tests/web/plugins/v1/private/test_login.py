@@ -1,5 +1,6 @@
 import json
 
+from aiohttp.test_utils import TestClient
 import pytest
 
 from bumper.db import bot_repo, token_repo, user_repo
@@ -11,7 +12,7 @@ USER_ID = _generate_uid(bumper_isc.USER_USERNAME_DEFAULT)
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_login_with_user(webserver_client) -> None:
+async def test_login_with_user(webserver_client: TestClient) -> None:
     # Test without user
     resp = await webserver_client.get("/v1/private/us/en/dev_1234/ios/1/0/0/user/login")
     assert resp.status == 200
@@ -24,7 +25,7 @@ async def test_login_with_user(webserver_client) -> None:
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_login_without_user(webserver_client) -> None:
+async def test_login_without_user(webserver_client: TestClient) -> None:
     # Test global_e without user
     resp = await webserver_client.get("/v1/private/us/en/dev_1234/global_e/1/0/0/user/login")
     assert resp.status == 200
@@ -37,7 +38,7 @@ async def test_login_without_user(webserver_client) -> None:
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_login_with_existing_user(webserver_client) -> None:
+async def test_login_with_existing_user(webserver_client: TestClient) -> None:
     # Add a user to db and test with existing users
     user_repo.add(USER_ID)
     resp = await webserver_client.get("/v1/private/us/en/dev_1234/ios/1/0/0/user/login")
@@ -82,7 +83,7 @@ async def test_login_with_existing_user(webserver_client) -> None:
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_logout(webserver_client) -> None:
+async def test_logout(webserver_client: TestClient) -> None:
     # Add a token to user and test
     user_repo.add(USER_ID)
     user_repo.add_device(USER_ID, "dev_1234")

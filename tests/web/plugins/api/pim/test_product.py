@@ -1,10 +1,11 @@
 import json
 
+from aiohttp.test_utils import TestClient
 import pytest
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_getProductIotMap(webserver_client) -> None:
+async def test_get_product_iot_map(webserver_client: TestClient) -> None:
     resp = await webserver_client.post("/api/pim/product/getProductIotMap")
     assert resp.status == 200
     text = await resp.text()
@@ -15,7 +16,7 @@ async def test_getProductIotMap(webserver_client) -> None:
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_getConfignetAll(webserver_client) -> None:
+async def test_get_confignet_all(webserver_client: TestClient) -> None:
     resp = await webserver_client.post("/api/pim/product/getConfignetAll")
     assert resp.status == 200
     data = await resp.json()
@@ -23,7 +24,7 @@ async def test_getConfignetAll(webserver_client) -> None:
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_getConfigGroups(webserver_client) -> None:
+async def test_get_config_groups(webserver_client: TestClient) -> None:
     resp = await webserver_client.post("/api/pim/product/getConfigGroups")
     assert resp.status == 200
     data = await resp.json()
@@ -31,7 +32,7 @@ async def test_getConfigGroups(webserver_client) -> None:
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_software_config_batch(webserver_client) -> None:
+async def test_software_config_batch(webserver_client: TestClient) -> None:
     # Test with known pid
     resp = await webserver_client.post(
         "/api/pim/product/software/config/batch",
@@ -69,7 +70,7 @@ async def test_software_config_batch(webserver_client) -> None:
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_getShareInfo(webserver_client) -> None:
+async def test_get_share_info(webserver_client: TestClient) -> None:
     resp = await webserver_client.post(
         "/api/pim/product/getShareInfo",
         json={"scene": "testscene"},

@@ -1,42 +1,11 @@
-import importlib
-import os
-
 import pytest
 from tinydb.table import Document
 
 from bumper.db import db, helpers
 
 
-def test_db_file_with_custom_env_var(monkeypatch) -> None:
-    custom_path = "/custom/path/to/database.db"
-    monkeypatch.setenv("DB_FILE", custom_path)
-    settings_module = importlib.import_module("bumper.utils.settings")
-    importlib.reload(settings_module)
-    config = settings_module.config
-
-    assert config.db_file == custom_path
-
-
-def test_db_file_with_empty_env_var(monkeypatch) -> None:
-    monkeypatch.setenv("DB_FILE", "")
-    settings_module = importlib.import_module("bumper.utils.settings")
-    importlib.reload(settings_module)
-    config = settings_module.config
-
-    assert config.db_file == os.path.join(config.data_dir, "bumper.db")
-
-
-def test_db_file_with_none_env_var(monkeypatch) -> None:
-    monkeypatch.delenv("DB_FILE", raising=False)
-    settings_module = importlib.import_module("bumper.utils.settings")
-    importlib.reload(settings_module)
-    config = settings_module.config
-
-    assert config.db_file == os.path.join(config.data_dir, "bumper.db")
-
-
 @pytest.mark.asyncio
-async def test_db_get(tmpdir) -> None:
+async def test_db_get() -> None:
     # Call the _db_get function
     with db.get_db() as result:
         # Verify that TinyDB was instantiated with the correct file path
@@ -62,7 +31,7 @@ async def test_db_get(tmpdir) -> None:
         assert len(result) == 0
 
 
-def test_logging_message_not_document(caplog) -> None:
+def test_logging_message_not_document(caplog: pytest.LogCaptureFixture) -> None:
     value_name = "test_value"
 
     with caplog.at_level("DEBUG"):

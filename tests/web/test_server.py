@@ -1,5 +1,6 @@
 import json
 
+from aiohttp.test_utils import TestClient
 import pytest
 
 from bumper.web.server import WebServer, WebserverBinding
@@ -17,13 +18,13 @@ async def test_webserver_no_ssl() -> None:
 
 
 @pytest.mark.usefixtures("clean_database", "xmpp_server", "helper_bot")
-async def test_base(webserver_client) -> None:
+async def test_base(webserver_client: TestClient) -> None:
     resp = await webserver_client.get("/")
     assert resp.status == 200
 
 
 # @pytest.mark.usefixtures("clean_database", "xmpp_server", "helper_bot")
-# async def test_restartService(webserver_client) -> None:
+# async def test_restart_service(webserver_client: TestClient) -> None:
 #     resp = await webserver_client.get("/restart_Helperbot")
 #     assert resp.status == 200
 
@@ -34,18 +35,18 @@ async def test_base(webserver_client) -> None:
 #     assert resp.status == 200
 
 
-async def test_RemoveBot(webserver_client) -> None:
+async def test_remove_bot(webserver_client: TestClient) -> None:
     resp = await webserver_client.get("/bot/remove/test_did")
     assert resp.status == 200
 
 
-async def test_RemoveClient(webserver_client) -> None:
+async def test_remove_client(webserver_client: TestClient) -> None:
     resp = await webserver_client.get("/client/remove/test_resource")
     assert resp.status == 200
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_postLookup(webserver_client) -> None:
+async def test_post_lookup(webserver_client: TestClient) -> None:
     # Test FindBest
     postbody = {"todo": "FindBest", "service": "EcoMsgNew"}
     resp = await webserver_client.post("/lookup.do", json=postbody)

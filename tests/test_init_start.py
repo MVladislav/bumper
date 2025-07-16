@@ -1,5 +1,12 @@
+"""Integration tests for bumper.start() and bumper.shutdown().
+
+Also verifies the __main__ entrypoint runs without side effects.
+"""
+
 import asyncio
-import os
+import runpy
+import sys
+from unittest import mock
 
 import pytest
 from testfixtures import LogCapture
@@ -17,32 +24,27 @@ from bumper.utils.settings import config as bumper_isc
         (True, True),
     ],
 )
+@pytest.mark.usefixtures("clean_database")
 async def test_start_stop(debug: bool, proxy: bool) -> None:
-    # Reset any existing logfile and settings
-    if proxy:
-        bumper_isc.BUMPER_PROXY_MQTT = True
-        bumper_isc.BUMPER_PROXY_WEB = True
+    """Start and stop bumper with combinations of debug and proxy settings."""
+    # Configure settings
     bumper_isc.debug_bumper_verbose = 2
     if debug:
         bumper_isc.debug_bumper_level = "DEBUG"
-    db_path = "tests/_test_files/tmp.db"
-    if os.path.exists(db_path):
-        os.remove(db_path)  # Remove existing db
+    bumper_isc.BUMPER_PROXY_MQTT = proxy
+    bumper_isc.BUMPER_PROXY_WEB = proxy
 
     with LogCapture() as log:
+        # Launch start() in background
         start_task = asyncio.create_task(bumper.start())
-
-        await asyncio.sleep(0.1)
+        await asyncio.wait_for(start_task, timeout=1)
         log.check_present(("bumper", "INFO", "Starting Bumpers..."))
 
-        for _ in range(50):  # up to ~5 seconds of polling
-            try:
-                log.check_present(("bumper", "INFO", "Bumper started successfully"))
-                break
-            except AssertionError:
-                await asyncio.sleep(0.1)
-        else:
-            pytest.fail("Bumper never logged successful start")
+        # Await startup log, timeout after 5s
+        await asyncio.wait_for(
+            asyncio.to_thread(lambda: log.check_present(("bumper", "INFO", "Bumper started successfully"))),
+            timeout=5,
+        )
 
         if proxy:
             assert bumper_isc.BUMPER_PROXY_MQTT is True
@@ -50,6 +52,7 @@ async def test_start_stop(debug: bool, proxy: bool) -> None:
             assert bumper_isc.BUMPER_PROXY_WEB is True
             log.check_present(("bumper", "INFO", "Proxy Web Enabled"))
 
+        # Verify services are running
         assert bumper_isc.bumper_listen is not None
         assert bumper_isc.xmpp_server is not None
         assert bumper_isc.mqtt_server.state == "started"
@@ -58,32 +61,47 @@ async def test_start_stop(debug: bool, proxy: bool) -> None:
 
         log.clear()
 
+        # Shutdown and await completion
         await bumper.shutdown()
+        await asyncio.wait_for(start_task, timeout=2)
 
-        await start_task
-
-        log.check_present(("bumper", "INFO", "Shutting down..."), ("bumper", "INFO", "Shutdown complete!"))
+        log.check_present(
+            ("bumper", "INFO", "Shutting down..."),
+            ("bumper", "INFO", "Shutdown complete!"),
+        )
         assert bumper_isc.shutting_down is True
 
-    # Reset proxy flags for next parametrization
+    # Reset proxy flags
     bumper_isc.BUMPER_PROXY_MQTT = False
     bumper_isc.BUMPER_PROXY_WEB = False
 
 
+@pytest.mark.usefixtures("clean_database")
 async def test_start_missing_listen() -> None:
+    """Starting bumper without listen address logs an error and stops."""
+    bumper_isc.debug_bumper_verbose = 2
+    bumper_isc.bumper_listen = None
+
     with LogCapture() as log:
-        bumper_isc.debug_bumper_verbose = 2
-        bumper_isc.bumper_listen = None
-
-        if os.path.exists("tests/_test_files/tmp.db"):
-            os.remove("tests/_test_files/tmp.db")  # Remove existing db
-
-        asyncio.Task(bumper.start())
-        await asyncio.sleep(0.2)
-
-        assert bumper_isc.bumper_listen is None
+        # run start and allow error
+        task = asyncio.create_task(bumper.start())
+        await asyncio.wait_for(task, timeout=1)
 
         log.check_present(
             ("bumper", "INFO", "Starting Bumpers..."),
             ("bumper", "ERROR", "No listen address configured!"),
         )
+
+        assert bumper_isc.bumper_listen is None
+
+
+@mock.patch("bumper.start")
+@mock.patch("bumper.shutdown")
+def test_main_entrypoint(mock_shutdown: mock.MagicMock, mock_start: mock.MagicMock) -> None:
+    """Running bumper via __main__ entry point triggers shutdown but not start."""
+    with LogCapture():
+        with mock.patch.object(sys, "argv", []):
+            runpy.run_module("bumper", run_name="__main__")
+
+        mock_start.assert_not_called()
+        mock_shutdown.assert_called_once()

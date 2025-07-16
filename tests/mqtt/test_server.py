@@ -3,7 +3,6 @@ import ssl
 from unittest import mock
 
 from aiomqtt import Client
-from mqtt_util import verify_subscribe
 import pytest
 from testfixtures import LogCapture
 
@@ -13,10 +12,12 @@ from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
 from tests import HOST, MQTT_PORT
 
+from .mqtt_util import verify_subscribe
+
 _LOGGER_NAME = "bumper.mqtt.server"
 
 
-def async_return(result):
+def async_return(result: str | bool) -> asyncio.Future:
     """Return an async result."""
     f = asyncio.Future()
     f.set_result(result)
@@ -96,7 +97,7 @@ async def test_mqttserver(proxy: bool) -> None:
         tls_context=ssl_ctx,
         identifier="test-file-auth",
         username="test-client",
-        password="abc123!",
+        password="abc123!",  # noqa: S106
     ) as client:
         # Verify connection by subscribing and publishing a message
         mock_callback = mock.Mock()
@@ -117,7 +118,7 @@ async def test_mqttserver(proxy: bool) -> None:
             tls_context=ssl_ctx,
             identifier="test-file-auth",
             username="test-client",
-            password="notvalid!",
+            password="notvalid!",  # noqa: S106
         ):
             pass
 
@@ -138,7 +139,7 @@ async def test_mqttserver(proxy: bool) -> None:
             tls_context=ssl_ctx,
             identifier="test-file-auth",
             username="test-client-noexist",
-            password="notvalid!",
+            password="notvalid!",  # noqa: S106
         ):
             pass
 
@@ -164,7 +165,7 @@ async def test_mqttserver(proxy: bool) -> None:
                 tls_context=ssl_ctx,
                 identifier="user_123@ls1ok3/wC3g",
                 username="user_123",
-                password="abc123!",
+                password="abc123!",  # noqa: S106
             ) as client:
                 # Verify connection by subscribing and publishing a message
                 mock_callback = mock.Mock()
@@ -194,6 +195,7 @@ async def test_mqttserver(proxy: bool) -> None:
                 ),
                 order_matters=False,
             )
+    bumper_isc.BUMPER_PROXY_MQTT = False
 
 
 @pytest.mark.usefixtures("clean_database", "mqtt_server_anonymous")
@@ -218,7 +220,7 @@ async def test_mqttserver_subscribe(proxy: bool) -> None:
             tls_context=ssl_ctx,
             identifier="user_123@ls1ok3/wC3g",
             username="user_123",
-            password="abc123!",
+            password="abc123!",  # noqa: S106
         ) as client:
             log.clear()
             await client.subscribe("iot/atr/+/+/+/+/+")
@@ -232,12 +234,13 @@ async def test_mqttserver_subscribe(proxy: bool) -> None:
             ),
             order_matters=False,
         )
+    bumper_isc.BUMPER_PROXY_MQTT = False
 
 
 async def test_mqttserver_no_file_auth() -> None:
     """Test MQTT server with no password file."""
     with LogCapture() as log:
-        mqtt_server = MQTTServer(MQTTBinding(HOST, MQTT_PORT, True), password_file="tests/_test_files/passwd-notfound")
+        mqtt_server = MQTTServer(MQTTBinding(HOST, MQTT_PORT, True), password_file="tests/_test_files/passwd-notfound")  # noqa: S106
         await mqtt_server.start()
         try:
             log.check_present(

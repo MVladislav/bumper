@@ -28,7 +28,6 @@ repos:
     rev: v5.0.0
     hooks:
       - id: detect-private-key
-        exclude: tests/_test_files/certs/
       - id: check-merge-conflict
       - id: check-added-large-files
       - id: check-case-conflict

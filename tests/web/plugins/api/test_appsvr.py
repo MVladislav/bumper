@@ -1,6 +1,7 @@
 import json
 from unittest.mock import MagicMock
 
+from aiohttp.test_utils import TestClient
 import pytest
 
 from bumper.db import bot_repo
@@ -12,8 +13,8 @@ from bumper.web.plugins.api import appsvr
 USER_ID = _generate_uid(bumper_isc.USER_USERNAME_DEFAULT)
 
 
-@pytest.mark.usefixtures("clean_database")
-async def test_handle_app_do(webserver_client) -> None:
+@pytest.mark.usefixtures("clean_database", "helper_bot")
+async def test_handle_app_do(webserver_client: TestClient) -> None:
     # Test GetGlobalDeviceList
     postbody = {
         "aliliving": False,
@@ -120,7 +121,7 @@ async def test_handle_app_do(webserver_client) -> None:
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_app_config_api(webserver_client):
+async def test_app_config_api(webserver_client: TestClient) -> None:
     # Test known code: app_lang_enum
     resp = await webserver_client.get("/api/appsvr/app/config?code=app_lang_enum")
     assert resp.status == 200
@@ -188,7 +189,7 @@ async def test_app_config_api(webserver_client):
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_service_list_api(webserver_client):
+async def test_service_list_api(webserver_client: TestClient) -> None:
     resp = await webserver_client.get("/api/appsvr/service/list?area=de")
     assert resp.status == 200
     jsonresp = json.loads(await resp.text())
@@ -208,7 +209,7 @@ async def test_service_list_api(webserver_client):
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_improve_api(webserver_client):
+async def test_improve_api(webserver_client: TestClient) -> None:
     did = "1"
     mid = "2"
     uid = "3"
@@ -234,7 +235,7 @@ async def test_improve_api(webserver_client):
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_improve_accept_api(webserver_client):
+async def test_improve_accept_api(webserver_client: TestClient) -> None:
     resp = await webserver_client.get("/api/appsvr/improve/accept")
     assert resp.status == 200
     jsonresp = json.loads(await resp.text())
@@ -242,7 +243,7 @@ async def test_improve_accept_api(webserver_client):
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_improve_user_accept_api(webserver_client):
+async def test_improve_user_accept_api(webserver_client: TestClient) -> None:
     resp = await webserver_client.get("/api/appsvr/improve/user/accept")
     assert resp.status == 200
     jsonresp = json.loads(await resp.text())
@@ -252,7 +253,7 @@ async def test_improve_user_accept_api(webserver_client):
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_notice_home_api(webserver_client):
+async def test_notice_home_api(webserver_client: TestClient) -> None:
     resp = await webserver_client.get("/api/appsvr/notice/home")
     assert resp.status == 200
     jsonresp = json.loads(await resp.text())
@@ -260,7 +261,7 @@ async def test_notice_home_api(webserver_client):
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_notice_list_api(webserver_client):
+async def test_notice_list_api(webserver_client: TestClient) -> None:
     resp = await webserver_client.get("/api/appsvr/notice/list")
     assert resp.status == 200
     jsonresp = json.loads(await resp.text())
@@ -268,7 +269,7 @@ async def test_notice_list_api(webserver_client):
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_ota_firmware_api(webserver_client):
+async def test_ota_firmware_api(webserver_client: TestClient) -> None:
     resp = await webserver_client.get("/api/appsvr/ota/firmware")
     assert resp.status == 200
     jsonresp = json.loads(await resp.text())
@@ -276,7 +277,7 @@ async def test_ota_firmware_api(webserver_client):
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_device_blacklist_check_api(webserver_client):
+async def test_device_blacklist_check_api(webserver_client: TestClient) -> None:
     resp = await webserver_client.get("/api/appsvr/device/blacklist/check")
     assert resp.status == 200
     jsonresp = json.loads(await resp.text())
@@ -285,7 +286,7 @@ async def test_device_blacklist_check_api(webserver_client):
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_akvs_start_watch_api(webserver_client):
+async def test_akvs_start_watch_api(webserver_client: TestClient) -> None:
     auth = json.dumps({"userid": "u1", "resource": "r1"})
     resp = await webserver_client.get(f"/api/appsvr/akvs/start_watch?did=testdid&auth={auth}")
     assert resp.status == 200
@@ -297,7 +298,8 @@ async def test_akvs_start_watch_api(webserver_client):
     assert jsonresp["channel"].startswith("production-")
 
 
-def test_include_product_iot_map_info():
+@pytest.mark.usefixtures("clean_database")
+def test_include_product_iot_map_info() -> None:
     bot = MagicMock()
     bot.class_id = "ls1ok3"
     bot.mqtt_connection = True
