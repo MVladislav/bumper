@@ -1,5 +1,3 @@
-import json
-
 from aiohttp.test_utils import TestClient
 import pytest
 
@@ -12,30 +10,27 @@ USER_ID = _generate_uid(bumper_isc.USER_USERNAME_DEFAULT)
 
 @pytest.mark.usefixtures("clean_database")
 async def test_get_users_api(webserver_client: TestClient) -> None:
-    resp = await webserver_client.post("/api/users/user.do", json={})
-    assert resp.status == 200
-    text = await resp.text()
-    jsonresp = json.loads(text)
-    assert jsonresp["result"] == "fail"
+    async with webserver_client.post("/api/users/user.do", json={}) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["result"] == "fail"
 
 
 @pytest.mark.usefixtures("clean_database")
 async def test_post_users_api(webserver_client: TestClient) -> None:
     # Test FindBest
     postbody = {"todo": "FindBest", "service": "EcoMsgNew"}
-    resp = await webserver_client.post("/api/users/user.do", json=postbody)
-    assert resp.status == 200
-    text = await resp.text()
-    jsonresp = json.loads(text)
-    assert jsonresp["result"] == "ok"
+    async with webserver_client.post("/api/users/user.do", json=postbody) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["result"] == "ok"
 
     # Test EcoUpdate
     postbody = {"todo": "FindBest", "service": "EcoUpdate"}
-    resp = await webserver_client.post("/api/users/user.do", json=postbody)
-    assert resp.status == 200
-    text = await resp.text()
-    jsonresp = json.loads(text)
-    assert jsonresp["result"] == "ok"
+    async with webserver_client.post("/api/users/user.do", json=postbody) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["result"] == "ok"
 
     # Test loginByItToken - Uses the authcode
     user_repo.add(USER_ID)
@@ -54,11 +49,10 @@ async def test_post_users_api(webserver_client: TestClient) -> None:
         "token": "auth_1234",
         "userId": USER_ID,
     }
-    resp = await webserver_client.post("/api/users/user.do", json=postbody)
-    assert resp.status == 200
-    text = await resp.text()
-    jsonresp = json.loads(text)
-    assert jsonresp["result"] == "ok"
+    async with webserver_client.post("/api/users/user.do", json=postbody) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["result"] == "ok"
 
     # Test as EcoVacs Home (global_e)
     postbody = {
@@ -70,11 +64,10 @@ async def test_post_users_api(webserver_client: TestClient) -> None:
         "todo": "loginByItToken",
         "token": "auth_1234",
     }
-    resp = await webserver_client.post("/api/users/user.do", json=postbody)
-    assert resp.status == 200
-    text = await resp.text()
-    jsonresp = json.loads(text)
-    assert jsonresp["result"] == "ok"
+    async with webserver_client.post("/api/users/user.do", json=postbody) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["result"] == "ok"
 
     # Test as EcoVacs Home (global_e) & Post Form
     postbody = {
@@ -86,11 +79,10 @@ async def test_post_users_api(webserver_client: TestClient) -> None:
         "todo": "loginByItToken",
         "token": "auth_1234",
     }
-    resp = await webserver_client.post("/api/users/user.do", data=postbody)
-    assert resp.status == 200
-    text = await resp.text()
-    jsonresp = json.loads(text)
-    assert jsonresp["result"] == "ok"
+    async with webserver_client.post("/api/users/user.do", data=postbody) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["result"] == "ok"
 
     # Test GetDeviceList
     postbody = {
@@ -104,11 +96,10 @@ async def test_post_users_api(webserver_client: TestClient) -> None:
         "todo": "GetDeviceList",
         "userid": USER_ID,
     }
-    resp = await webserver_client.post("/api/users/user.do", json=postbody)
-    assert resp.status == 200
-    text = await resp.text()
-    jsonresp = json.loads(text)
-    assert jsonresp["result"] == "ok"
+    async with webserver_client.post("/api/users/user.do", json=postbody) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["result"] == "ok"
 
     # Test SetDeviceNick
     postbody = {
@@ -123,11 +114,10 @@ async def test_post_users_api(webserver_client: TestClient) -> None:
         "nick": "botnick",
         "did": "did_1234",
     }
-    resp = await webserver_client.post("/api/users/user.do", json=postbody)
-    assert resp.status == 200
-    text = await resp.text()
-    jsonresp = json.loads(text)
-    assert jsonresp["result"] == "ok"
+    async with webserver_client.post("/api/users/user.do", json=postbody) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["result"] == "ok"
 
     # Test AddOneDevice - Same as set nick for some bots
     postbody = {
@@ -142,11 +132,10 @@ async def test_post_users_api(webserver_client: TestClient) -> None:
         "nick": "botnick",
         "did": "did_1234",
     }
-    resp = await webserver_client.post("/api/users/user.do", json=postbody)
-    assert resp.status == 200
-    text = await resp.text()
-    jsonresp = json.loads(text)
-    assert jsonresp["result"] == "ok"
+    async with webserver_client.post("/api/users/user.do", json=postbody) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["result"] == "ok"
 
     # Test DeleteOneDevice - remove bot
     postbody = {
@@ -160,8 +149,7 @@ async def test_post_users_api(webserver_client: TestClient) -> None:
         "todo": "DeleteOneDevice",
         "did": "did_1234",
     }
-    resp = await webserver_client.post("/api/users/user.do", json=postbody)
-    assert resp.status == 200
-    text = await resp.text()
-    jsonresp = json.loads(text)
-    assert jsonresp["result"] == "ok"
+    async with webserver_client.post("/api/users/user.do", json=postbody) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["result"] == "ok"

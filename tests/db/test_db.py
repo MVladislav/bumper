@@ -4,7 +4,6 @@ from tinydb.table import Document
 from bumper.db import db, helpers
 
 
-@pytest.mark.asyncio
 async def test_db_get() -> None:
     # Call the _db_get function
     with db.get_db() as result:

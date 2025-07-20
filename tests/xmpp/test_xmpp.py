@@ -16,7 +16,6 @@ def mock_transport_extra_info() -> tuple[str, int]:
 
 
 @pytest.mark.usefixtures("xmpp_cleanup_clients")
-@pytest.mark.asyncio
 async def test_xmpp_server(xmpp_server: XMPPServer) -> None:
     with LogCapture("xmppserver") as _:
         _, writer = await asyncio.open_connection("127.0.0.1", 5223)

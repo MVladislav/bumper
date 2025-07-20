@@ -50,7 +50,13 @@ class WebServer:
         templates_path = self._resolve_path("templates")
         static_path = self._resolve_path("static")
 
-        aiohttp_jinja2.setup(self._app, loader=jinja2.FileSystemLoader(str(templates_path)))
+        aiohttp_jinja2.setup(
+            self._app,
+            loader=jinja2.FileSystemLoader(str(templates_path)),
+            auto_reload=False,  # Prevent constant template reloading
+            cache_size=800,  # Increase cache size for frequent templates
+            autoescape=True,
+        )
         self._add_routes(proxy_mode, static_path)
         self._app.freeze()  # no modification allowed anymore
 
@@ -193,7 +199,9 @@ class WebServer:
                     },
                 },
                 "helperbot": {
-                    "state": await bumper_isc.mqtt_helperbot.is_connected if bumper_isc.mqtt_helperbot else "offline",
+                    "state": await utils.with_timeout(bumper_isc.mqtt_helperbot.is_connected)
+                    if bumper_isc.mqtt_helperbot
+                    else "offline",
                 },
             }
         if template_name and template_name == "bots":

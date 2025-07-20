@@ -5,7 +5,6 @@ from aiohttp.test_utils import TestClient
 import pytest
 
 
-@pytest.mark.asyncio
 async def test_get_new_auth_valid(webserver_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
     class DummyToken:
         userid = "testuser"
@@ -14,35 +13,32 @@ async def test_get_new_auth_valid(webserver_client: TestClient, monkeypatch: pyt
     monkeypatch.setattr("bumper.web.auth_util._generate_auth_code", lambda _: "test_auth_code")
 
     payload = {"itToken": "valid_it_token", "todo": "OLoginByITToken"}
-    resp = await webserver_client.post("/newauth.do", json=payload)
-    assert resp.status == 200
-    data = await resp.json()
-    assert data.get("result") == "ok"
-    assert data.get("authCode") == "test_auth_code"
+    async with webserver_client.post("/newauth.do", json=payload) as resp:
+        assert resp.status == 200
+        data = await resp.json()
+        assert data.get("result") == "ok"
+        assert data.get("authCode") == "test_auth_code"
 
 
-@pytest.mark.asyncio
 async def test_get_new_auth_missing_token(webserver_client: TestClient) -> None:
     payload = {"todo": "OLoginByITToken"}
-    resp = await webserver_client.post("/newauth.do", json=payload)
-    assert resp.status == 200
-    data = await resp.json()
-    assert data.get("result") == "fail"
-    assert data.get("error") == "New auth failed, 'itToken' not provided"
+    async with webserver_client.post("/newauth.do", json=payload) as resp:
+        assert resp.status == 200
+        data = await resp.json()
+        assert data.get("result") == "fail"
+        assert data.get("error") == "New auth failed, 'itToken' not provided"
 
 
-@pytest.mark.asyncio
 async def test_get_new_auth_invalid_token(webserver_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("bumper.web.auth_util.token_repo.login_by_it_token", lambda _: None)
     payload = {"itToken": "invalid_token", "todo": "OLoginByITToken"}
-    resp = await webserver_client.post("/newauth.do", json=payload)
-    assert resp.status == 200
-    data = await resp.json()
-    assert data.get("result") == "fail"
-    assert data.get("error") == "New auth failed, no token found for it-token"
+    async with webserver_client.post("/newauth.do", json=payload) as resp:
+        assert resp.status == 200
+        data = await resp.json()
+        assert data.get("result") == "fail"
+        assert data.get("error") == "New auth failed, no token found for it-token"
 
 
-@pytest.mark.asyncio
 async def test_get_new_auth_generate_code_fails(webserver_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
     class DummyToken:
         userid = "dummy_user"
@@ -51,51 +47,47 @@ async def test_get_new_auth_generate_code_fails(webserver_client: TestClient, mo
     monkeypatch.setattr("bumper.web.auth_util._generate_auth_code", lambda _: None)
 
     payload = {"itToken": "some_token", "todo": "OLoginByITToken"}
-    resp = await webserver_client.post("/newauth.do", json=payload)
-    assert resp.status == 200
-    data = await resp.json()
-    assert data.get("result") == "fail"
-    assert data.get("error") == "Expired client login"
+    async with webserver_client.post("/newauth.do", json=payload) as resp:
+        assert resp.status == 200
+        data = await resp.json()
+        assert data.get("result") == "fail"
+        assert data.get("error") == "Expired client login"
 
 
-@pytest.mark.asyncio
 async def test_get_auth_code_valid(webserver_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("bumper.web.auth_util.user_repo.get_by_id", lambda user_id: type("User", (), {"userid": user_id})())
     monkeypatch.setattr("bumper.web.auth_util._generate_it_token", lambda _: "generated_it_token")
 
-    resp = await webserver_client.get("/v1/global/auth/getAuthCode?uid=testuser")
-    assert resp.status == 200
-    data = await resp.json()
-    assert data["data"]["authCode"] == "generated_it_token"
-    assert data["data"]["ecovacsUid"] == "testuser"
+    async with webserver_client.get("/v1/global/auth/getAuthCode?uid=testuser") as resp:
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["data"]["authCode"] == "generated_it_token"
+        assert data["data"]["ecovacsUid"] == "testuser"
 
 
-@pytest.mark.asyncio
 async def test_get_auth_code_user_not_found(webserver_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("bumper.web.auth_util.user_repo.get_by_id", lambda _: None)
     monkeypatch.setattr("bumper.web.auth_util._fallback_user_by_device_id", lambda _: None)
 
-    resp = await webserver_client.get("/v1/global/auth/getAuthCode?uid=missing")
-    assert resp.status == 200
-    data = await resp.json()
-    assert data.get("code") == "0004"
-    assert data.get("msg").startswith("No user found")
+    async with webserver_client.get("/v1/global/auth/getAuthCode?uid=missing") as resp:
+        assert resp.status == 200
+        data = await resp.json()
+        assert data.get("code") == "0004"
+        assert data.get("msg").startswith("No user found")
 
 
-@pytest.mark.asyncio
 async def test_get_auth_code_token_fail(webserver_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("bumper.web.auth_util.user_repo.get_by_id", lambda user_id: type("User", (), {"userid": user_id})())
     monkeypatch.setattr("bumper.web.auth_util._generate_it_token", lambda _: None)
 
-    resp = await webserver_client.get("/v1/global/auth/getAuthCode?uid=testuser")
-    assert resp.status == 200
-    data = await resp.json()
-    assert data.get("code") == "0004"
-    assert not data.get("success")
-    assert data.get("msg") == "Expired user login"
+    async with webserver_client.get("/v1/global/auth/getAuthCode?uid=testuser") as resp:
+        assert resp.status == 200
+        data = await resp.json()
+        assert data.get("code") == "0004"
+        assert not data.get("success")
+        assert data.get("msg") == "Expired user login"
 
 
-@pytest.mark.asyncio
 async def test_get_auth_code_fallback_user(webserver_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("bumper.web.auth_util.user_repo.get_by_id", lambda _: None)
     monkeypatch.setattr(
@@ -104,14 +96,13 @@ async def test_get_auth_code_fallback_user(webserver_client: TestClient, monkeyp
     )
     monkeypatch.setattr("bumper.web.auth_util._generate_it_token", lambda _: "token_device")
 
-    resp = await webserver_client.get("/v1/global/auth/getAuthCode?deviceId=device123")
-    assert resp.status == 200
-    data = await resp.json()
-    assert data["data"]["authCode"] == "token_device"
-    assert data["data"]["ecovacsUid"] == "from_device"
+    async with webserver_client.get("/v1/global/auth/getAuthCode?deviceId=device123") as resp:
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["data"]["authCode"] == "token_device"
+        assert data["data"]["ecovacsUid"] == "from_device"
 
 
-@pytest.mark.asyncio
 async def test_oauth_callback_success(webserver_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
     class DummyToken:
         userid = "user1"
@@ -128,10 +119,10 @@ async def test_oauth_callback_success(webserver_client: TestClient, monkeypatch:
     monkeypatch.setattr("bumper.web.auth_util.client_repo.get", lambda _: DummyClient())
     monkeypatch.setattr("bumper.web.auth_util.generate_jwt_helper", dummy_generate_jwt)
 
-    resp = await webserver_client.get("/api/appsvr/oauth_callback?code=auth123")
-    assert resp.status == 200
-    data = await resp.json()
-    assert data["data"]["access_token"] == "a_token"  # noqa: S105
-    assert data["data"]["refresh_token"] == "r_token"  # noqa: S105
-    assert data["data"]["userId"] == "user1"
-    assert data["data"]["expire_at"] == 99999999
+    async with webserver_client.get("/api/appsvr/oauth_callback?code=auth123") as resp:
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["data"]["access_token"] == "a_token"  # noqa: S105
+        assert data["data"]["refresh_token"] == "r_token"  # noqa: S105
+        assert data["data"]["userId"] == "user1"
+        assert data["data"]["expire_at"] == 99999999

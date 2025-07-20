@@ -1,5 +1,3 @@
-import json
-
 from aiohttp.test_utils import TestClient
 import pytest
 
@@ -29,9 +27,8 @@ async def test_lg_logs(webserver_client: TestClient) -> None:
         "resource": "res_1234",
         "td": "GetCleanLogs",
     }
-    resp = await webserver_client.post("/api/lg/log.do", json=postbody)
-    assert resp.status == 200
-    text = await resp.text()
-    jsonresp = json.loads(text)
-    assert jsonresp["ret"] == "ok"
-    assert len(jsonresp["logs"]) == 0
+    async with webserver_client.post("/api/lg/log.do", json=postbody) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert len(json_resp["logs"]) == 0

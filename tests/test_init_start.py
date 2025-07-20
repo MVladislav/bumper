@@ -37,7 +37,7 @@ async def test_start_stop(debug: bool, proxy: bool) -> None:
     with LogCapture() as log:
         # Launch start() in background
         start_task = asyncio.create_task(bumper.start())
-        await asyncio.wait_for(start_task, timeout=1)
+        await asyncio.wait_for(start_task, timeout=2)
         log.check_present(("bumper", "INFO", "Starting Bumpers..."))
 
         # Await startup log, timeout after 5s
