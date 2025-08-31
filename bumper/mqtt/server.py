@@ -6,10 +6,11 @@ import dataclasses
 from dataclasses import dataclass, field
 import logging
 from pathlib import Path
-from typing import Any, Literal
+from typing import Literal
 
 from amqtt.broker import Broker
-from amqtt.contexts import BaseContext
+from amqtt.client import ClientConfig
+from amqtt.contexts import BaseContext, BrokerConfig, ListenerConfig, ListenerType
 from amqtt.plugins.base import BaseAuthPlugin
 from amqtt.session import IncomingApplicationMessage, Session
 from passlib.apps import custom_app_context as pwd_context
@@ -61,31 +62,34 @@ class MQTTServer:
             if password_file is None:
                 password_file = str(Path(bumper_isc.data_dir) / "passwd")
 
-            # self._add_entry_point()
-
-            config_bind: dict[str, Any] = {"default": {"type": "tcp"}}
+            config_bind: dict[str, ListenerConfig] = {
+                "default": ListenerConfig(type=ListenerType.TCP, bind=None),
+            }
             listener_prefix = "mqtt"
             for index, binding in enumerate(self._bindings):
-                config_bind[f"{listener_prefix}{index}"] = {
-                    "bind": f"{binding.host}:{binding.port}",
-                    "ssl": binding.use_ssl,
-                }
+                # If port is 1883 use default as listener name, else create new one
+                listener_name = f"{listener_prefix}{index}" if binding.port != 1883 else "default"
+
+                config_bind[listener_name] = ListenerConfig(
+                    type=ListenerType.TCP,
+                    bind=f"{binding.host}:{binding.port}",
+                    ssl=binding.use_ssl,
+                )
                 if binding.use_ssl is True:
-                    config_bind[f"{listener_prefix}{index}"]["cafile"] = str(bumper_isc.ca_cert)
-                    config_bind[f"{listener_prefix}{index}"]["certfile"] = str(bumper_isc.server_cert)
-                    config_bind[f"{listener_prefix}{index}"]["keyfile"] = str(bumper_isc.server_key)
+                    config_bind[listener_name].cafile = str(bumper_isc.ca_cert)
+                    config_bind[listener_name].certfile = str(bumper_isc.server_cert)
+                    config_bind[listener_name].keyfile = str(bumper_isc.server_key)
 
             # Initialize bot server
-            config: dict[str, int | bool | dict[str, Any]] = {
-                "listeners": config_bind,
-                "sys_interval": 0,
-                "plugins": {
+            config: BrokerConfig = BrokerConfig(
+                listeners=config_bind,
+                plugins={
                     "bumper.mqtt.server.BumperMQTTServerPlugin": {
                         "allow_anonymous": allow_anonymous,
                         "password_file": password_file,
                     },
                 },
-            }
+            )
 
             self._broker = Broker(config=config)
         except Exception:
@@ -248,7 +252,7 @@ class BumperMQTTServerPlugin(BaseAuthPlugin):  # type: ignore[misc]
                 if bumper_isc.BUMPER_PROXY_MQTT and username is not None and password is not None:
                     mqtt_server = await utils.resolve(bumper_isc.PROXY_MQTT_DOMAIN)
                     _LOGGER_PROXY.info(f"MQTT Proxy Mode :: Using server {mqtt_server} for client {client_id}")
-                    proxy = mqtt_proxy.ProxyClient(client_id, mqtt_server, config={"check_hostname": False})
+                    proxy = mqtt_proxy.ProxyClient(client_id, mqtt_server, config=ClientConfig(check_hostname=False))
                     self._proxy_clients[client_id] = proxy
                     await proxy.connect(username, password)
 
