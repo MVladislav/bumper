@@ -32,12 +32,12 @@ dependencies = [
   "aiodns==3.5.0",        # https://pypi.org/project/aiodns
   "aiofiles==24.1.0",     # https://pypi.org/project/aiofiles
   "aiohttp-jinja2==1.6",  # https://pypi.org/project/aiohttp-jinja2
-  "aiohttp==3.12.14",     # https://pypi.org/project/aiohttp
+  "aiohttp==3.12.15",     # https://pypi.org/project/aiohttp
   "aiomqtt==2.4.0",       # https://pypi.org/project/aiomqtt
-  "amqtt==0.11.2",        # https://pypi.org/project/amqtt
-  "cachetools==6.1.0",    # https://pypi.org/project/cachetools
+  "amqtt==0.11.3",        # https://pypi.org/project/amqtt
+  "cachetools==6.2.0",    # https://pypi.org/project/cachetools
   "coloredlogs==15.0.1",  # https://pypi.org/project/coloredlogs
-  "cryptography==45.0.5", # https://pypi.org/project/cryptography
+  "cryptography==45.0.7", # https://pypi.org/project/cryptography
   "defusedxml==0.8.0rc2", # https://pypi.org/project/defusedxml
   "Jinja2==3.1.6",        # https://pypi.org/project/Jinja2
   "passlib==1.7.4",       # https://pypi.org/project/passlib
