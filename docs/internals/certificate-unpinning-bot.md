@@ -45,7 +45,7 @@ boot
 
 ??? note
 
-    On some bots you need to hit a specific key mention during the bootup process like:
+    On some bots you need to hit a specific key mentioned during the boot-up process like:
     ```
     Hit key to stop autoboot('CTRL+C'):  0 
     ```
@@ -72,7 +72,7 @@ mount -a
 
 ??? note
 
-    On some models executing the above commands are failing. In this case you can try to manually mount `data` by checking the boot logs for the correct partition. During the bootup the partition table is logged on the console and looks similar to:
+    On some models executing the above commands are failing. In this case you can try to manually mount `data` by checking the boot logs for the correct partition. During the boot-up the partition table is logged on the console and looks similar to:
     ```
     GPT part:  0, name:            uboot, start:0x4000, size:0x2000
     GPT part:  1, name:            trust, start:0x6000, size:0x2000
