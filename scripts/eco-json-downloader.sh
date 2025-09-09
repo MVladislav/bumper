@@ -6,7 +6,7 @@ set -euo pipefail
 # ==============================================================================
 
 # Ensure required env vars
-if [[ -z "$ECOVACS_ACCOUNT_ID" || -z "$ECOVACS_PASSWORD" ]]; then
+if [[ -z "${ECOVACS_ACCOUNT_ID:-}" || -z "${ECOVACS_PASSWORD:-}" ]]; then
   echo "❌ ERROR: Please set ECOVACS_ACCOUNT_ID and ECOVACS_PASSWORD environment variables." >&2
   exit 1
 fi

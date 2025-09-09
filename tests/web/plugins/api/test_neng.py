@@ -1,10 +1,9 @@
-import json
-
+from aiohttp.test_utils import TestClient
 import pytest
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_neng_hasUnreadMessage(webserver_client) -> None:
+async def test_neng_has_unread_message(webserver_client: TestClient) -> None:
     postbody = {
         "auth": {
             "realm": "ecouser.net",
@@ -15,8 +14,7 @@ async def test_neng_hasUnreadMessage(webserver_client) -> None:
         },
         "count": 20,
     }
-    resp = await webserver_client.post("/api/neng/message/hasUnreadMsg", json=postbody)
-    assert resp.status == 200
-    text = await resp.text()
-    jsonresp = json.loads(text)
-    assert jsonresp["code"] == 0
+    async with webserver_client.post("/api/neng/message/hasUnreadMsg", json=postbody) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["code"] == 0

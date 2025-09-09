@@ -66,6 +66,7 @@ class BotRepo(BaseRepo):
 
     def _set_field(self, did: str | None, field: str, value: Any) -> None:
         """Set a specific field for a bot."""
-        if did is None or field is None:
-            _LOGGER.warning(f"Failed to updated field :: DID: {did} :: field: {field} :: value: {value}")
+        if did is None:
+            _LOGGER.warning(f"Failed to updated field as did is not set for :: DID: {did} :: field: {field} :: value: {value}")
+            return
         self._upsert({field: value}, QueryInstance.did == did)

@@ -6,19 +6,19 @@ from bumper.utils.log_helper import AioHttpFilter, AmqttFilter, LogHelper, Sanit
 
 
 @pytest.mark.parametrize("level", [logging.INFO, logging.DEBUG])
-def test_log_helper_init(level: str, log_helper, caplog: pytest.LogCaptureFixture) -> None:
+def test_log_helper_init(level: str, log_helper: LogHelper, caplog: pytest.LogCaptureFixture) -> None:
     assert isinstance(log_helper, LogHelper)
 
     # Check that log level is set correctly
     assert logging.getLogger("root").getEffectiveLevel() == level
 
     # Ensure that SanitizeFilter is added to the root handler
-    sanitizeFilter_added = False
+    sanitize_filter_added = False
     for handler in logging.getLogger("root").handlers:
         if len(handler.filters) > 0 and isinstance(handler.filters[0], SanitizeFilter):
-            sanitizeFilter_added = True
+            sanitize_filter_added = True
             break
-    assert sanitizeFilter_added
+    assert sanitize_filter_added
 
     # Check that AioHttpFilter is added to the aiohttp.access logger
     aiohttp_access_logger = logging.getLogger("aiohttp.access")
@@ -38,8 +38,9 @@ def test_log_helper_clean_logs() -> None:
     assert logger_name_size > 0
 
 
+@pytest.mark.usefixtures("log_helper")
 @pytest.mark.parametrize("level", [logging.INFO, logging.DEBUG])
-def test_aiohttp_filter(level: int, log_helper) -> None:
+def test_aiohttp_filter(level: int) -> None:
     aiohttp_filter = AioHttpFilter()
 
     # Test suppress 'aiohttp.access'
@@ -72,8 +73,9 @@ def test_aiohttp_filter(level: int, log_helper) -> None:
     assert record.levelno == logging.INFO
 
 
+@pytest.mark.usefixtures("log_helper")
 @pytest.mark.parametrize("level", [logging.INFO, logging.DEBUG])
-def test_amqtt_filter(level: int, log_helper) -> None:
+def test_amqtt_filter(level: int) -> None:
     amqtt_filter = AmqttFilter()
 
     # Test suppress 'amqtt.broker' for "No more data"

@@ -50,11 +50,8 @@ scripts/*
 !scripts/*.py
 
 !tests/
-!tests/_test_files/
-!tests/_test_files/certs/
-!tests/_test_files/certs/*
-!tests/_test_files/passwd
-!tests/_test_files/passwd_bad
+!tests/db/
+!tests/db/**
 !tests/mqtt/
 !tests/mqtt/**
 !tests/utils/

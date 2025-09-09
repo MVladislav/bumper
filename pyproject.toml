@@ -1,6 +1,10 @@
 [build-system]
-requires = ["hatchling", "hatch-vcs"]
-build-backend = "hatchling.build"
+requires = ["uv_build>=0.8.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "bumper"
+module-root = ""
 
 [project]
 name = "bumper"
@@ -17,7 +21,7 @@ keywords = [
   "server",
 ]
 
-version = "0.1.4"
+version = "0.2.0rc2"
 requires-python = ">=3.13.0"
 readme = "README.md"
 license = { text = "GPL-3.0" }
@@ -32,12 +36,12 @@ dependencies = [
   "aiodns==3.5.0",        # https://pypi.org/project/aiodns
   "aiofiles==24.1.0",     # https://pypi.org/project/aiofiles
   "aiohttp-jinja2==1.6",  # https://pypi.org/project/aiohttp-jinja2
-  "aiohttp==3.12.14",     # https://pypi.org/project/aiohttp
+  "aiohttp==3.12.15",     # https://pypi.org/project/aiohttp
   "aiomqtt==2.4.0",       # https://pypi.org/project/aiomqtt
-  "amqtt==0.11.2",        # https://pypi.org/project/amqtt
-  "cachetools==6.1.0",    # https://pypi.org/project/cachetools
+  "amqtt==0.11.3",        # https://pypi.org/project/amqtt
+  "cachetools==6.2.0",    # https://pypi.org/project/cachetools
   "coloredlogs==15.0.1",  # https://pypi.org/project/coloredlogs
-  "cryptography==45.0.5", # https://pypi.org/project/cryptography
+  "cryptography==45.0.6", # https://pypi.org/project/cryptography
   "defusedxml==0.8.0rc2", # https://pypi.org/project/defusedxml
   "Jinja2==3.1.6",        # https://pypi.org/project/Jinja2
   "passlib==1.7.4",       # https://pypi.org/project/passlib
@@ -49,25 +53,26 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-  "mypy>=1.16.1",                      # https://pypi.org/project/mypy
-  "pre-commit>=4.2.0",                 # https://pypi.org/project/pre-commit
+  "mypy>=1.17.1",                      # https://pypi.org/project/mypy
+  "pre-commit>=4.3.0",                 # https://pypi.org/project/pre-commit
   "pycountry>=24.6.1",                 # https://pypi.org/project/pycountry
-  "pylint>=3.3.7",                     # https://pypi.org/project/pylint
+  "pylint>=3.3.8",                     # https://pypi.org/project/pylint
   "pytest-aiofiles>=0.2.0",            # https://pypi.org/project/pytest-aiofiles
   "pytest-aiohttp>=1.1.0",             # https://pypi.org/project/pytest-aiohttp
-  "pytest-asyncio>=1.0.0",             # https://pypi.org/project/pytest-asyncio
+  "pytest-asyncio>=1.1.0",             # https://pypi.org/project/pytest-asyncio
   "pytest-cov>=6.2.1",                 # https://pypi.org/project/pytest-cov
   "pytest-docker-fixtures>=1.4.0",     # https://pypi.org/project/pytest-docker-fixtures
   "pytest-env>=1.1.5",                 # https://pypi.org/project/pytest-env
+  "pytest-repeat>=0.9.4",              # https://pypi.org/project/pytest-repeat
   "pytest-timeout>=2.4.0",             # https://pypi.org/project/pytest-timeout
   "pytest>=8.4.1",                     # https://pypi.org/project/pytest
-  "ruff>=0.12.2",                      # https://pypi.org/project/ruff
-  "testfixtures>=9.0.1",               # https://pypi.org/project/testfixtures
-  "types-aiofiles>=24.1.0.20250606",   # https://pypi.org/project/types-aiofiles
-  "types-cachetools>=6.0.0.20250525",  # https://pypi.org/project/types-cachetools
-  "types-mock>=5.2.0.20250516",        # https://pypi.org/project/types-mock
+  "ruff>=0.12.11",                     # https://pypi.org/project/ruff
+  "testfixtures>=9.1.0",               # https://pypi.org/project/testfixtures
+  "types-aiofiles>=24.1.0.20250822",   # https://pypi.org/project/types-aiofiles
+  "types-cachetools>=6.2.0.20250827",  # https://pypi.org/project/types-cachetools
+  "types-mock>=5.2.0.20250809",        # https://pypi.org/project/types-mock
   "types-pillow>=10.2.0.20240822",     # https://pypi.org/project/types-pillow
-  "types-setuptools>=80.9.0.20250529", # https://pypi.org/project/types-setuptools
+  "types-setuptools>=80.9.0.20250822", # https://pypi.org/project/types-setuptools
 ]
 docs = [
   "mkdocs-material>=9.6.14", # https://pypi.org/project/mkdocs-material/
@@ -137,26 +142,37 @@ ignore = [
   "F405", # Checks for names that might be undefined
 ]
 "scripts/**" = ["ALL"]
-"tests/**" = [
-  "D100",     # Missing docstring in public module
-  "D103",     # Missing docstring in public function
-  "D104",     # Missing docstring in public package
-  "N802",     # Function name {name} should be lowercase
-  "N806",     # Variable `userId` in function should be lowercase
-  "N816",     # Variable {name} in global scope should not be mixedCase
-  "S101",     # Use of assert detected
-  "S106",     # Possible hardcoded password assigned to argument: "password_file"
-  "SLF001",   # Private member accessed: {access}
-  "ANN001",
-  "ANN201",
-  "ARG001",
-  "ASYNC110",
-  "INP001",
-  "PGH003",
-  "PTH107",
-  "PTH110",
-  "PTH118",
+"tests/**/*.py" = [
+  # "ARG",  # Unused function args -> fixtures nevertheless are functionally relevant...
+  "D",      # pydocstyle
+  "FBT",    # Don't care about booleans as positional arguments in tests, e.g. via @pytest.mark.parametrize()
+  "INP001", # Don't care for part of an implicit namespace package to add an `__init__.py`
+  "S101",   # asserts allowed in tests...
+  "SLF00",  # Don't care for Private member accessed
+  # "S106",     # Possible hardcoded password assigned to argument: "password_file"
+  # "PLR2004", # Magic value used in comparison, ...
+  # "S311",    # Standard pseudo-random generators are not suitable for cryptographic purposes
 ]
+
+# "tests/**" = [
+#   "D100",     # Missing docstring in public module
+#   "D103",     # Missing docstring in public function
+#   "D104",     # Missing docstring in public package
+#   "N802",     # Function name {name} should be lowercase
+#   "N806",     # Variable `userId` in function should be lowercase
+#   "N816",     # Variable {name} in global scope should not be mixedCase
+#   "S101",     # Use of assert detected
+#   "SLF001",   # Private member accessed: {access}
+#   "ANN001",
+#   "ANN201",
+#   "ARG001",
+#   "ASYNC110",
+#   "INP001",
+#   "PGH003",
+#   "PTH107",
+#   "PTH110",
+#   "PTH118",
+# ]
 
 [tool.ruff.lint.flake8-pytest-style]
 fixture-parentheses = false
@@ -181,19 +197,18 @@ max-returns = 10
 
 # ----------------------------------- PYTEST -----------------------------------
 [tool.pytest.ini_options]
-addopts = ["--cov=bumper", "--cov-report=term-missing", "--cov-report=xml"]
+addopts = [
+  "--cov=bumper",
+  "--cov-report=term-missing",
+  "--cov-report=xml",
+  # "--cov-report=html",
+  "--maxfail=3",
+  "-ra",
+]
 testpaths = ["tests"]
 asyncio_mode = "auto"
 timeout = 10
 # log_cli = true
-# log_level = "INFO"
-env = [
-  "D:BUMPER_CA=tests/_test_files/certs/ca.crt",
-  "D:BUMPER_CERT=tests/_test_files/certs/bumper.crt",
-  "D:BUMPER_KEY=tests/_test_files/certs/bumper.key",
-  "WEB_SERVER_HTTPS_PORT=8443",
-  "DB_FILE=tests/_test_files/tmp.db",
-]
 
 asyncio_default_fixture_loop_scope = "function"
 

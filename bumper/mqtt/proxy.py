@@ -9,7 +9,7 @@ from typing import Any, Literal
 from urllib.parse import urlparse, urlunparse
 
 from amqtt.adapters import StreamReaderAdapter, StreamWriterAdapter, WebSocketsReader, WebSocketsWriter
-from amqtt.client import MQTTClient, Session
+from amqtt.client import ClientConfig, MQTTClient, Session
 from amqtt.errors import ConnectError, ProtocolHandlerError
 from amqtt.mqtt.connack import CONNECTION_ACCEPTED, SERVER_UNAVAILABLE
 from amqtt.mqtt.constants import QOS_0
@@ -38,7 +38,7 @@ class ProxyClient:
         client_id: str,
         host: str,
         port: int = bumper_isc.WEB_SERVER_TLS_LISTEN_PORT,
-        config: dict[str, Any] | None = None,
+        config: ClientConfig | dict[str, Any] | None = None,
         timeout: float = 180,
     ) -> None:
         """Mqtt proxy client init."""

@@ -1,7 +1,7 @@
 """Utils module."""
 
 import asyncio
-from collections.abc import Coroutine
+from collections.abc import Awaitable, Coroutine
 import datetime
 import json
 import logging
@@ -24,6 +24,14 @@ def store_service(coro: Coroutine[Any, Any, None]) -> None:
     task = asyncio.create_task(coro)
     bumper_isc.background_tasks.add(task)
     task.add_done_callback(bumper_isc.background_tasks.discard)
+
+
+async def with_timeout(coro: Awaitable[Any], seconds: int = 3) -> Any:
+    """Wait with timeout helper."""
+    try:
+        return await asyncio.wait_for(coro, timeout=seconds)
+    except TimeoutError:
+        return "timeout"
 
 
 # ******************************************************************************

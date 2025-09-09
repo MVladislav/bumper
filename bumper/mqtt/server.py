@@ -6,10 +6,11 @@ import dataclasses
 from dataclasses import dataclass, field
 import logging
 from pathlib import Path
-from typing import Any, Literal
+from typing import Literal
 
 from amqtt.broker import Broker
-from amqtt.contexts import BaseContext
+from amqtt.client import ClientConfig
+from amqtt.contexts import BaseContext, BrokerConfig, ListenerConfig, ListenerType
 from amqtt.plugins.base import BaseAuthPlugin
 from amqtt.session import IncomingApplicationMessage, Session
 from passlib.apps import custom_app_context as pwd_context
@@ -42,6 +43,8 @@ class MQTTBinding:
 class MQTTServer:
     """MQTT server."""
 
+    _state_cond = asyncio.Condition()
+
     def __init__(
         self,
         bindings: list[MQTTBinding] | MQTTBinding,
@@ -59,31 +62,34 @@ class MQTTServer:
             if password_file is None:
                 password_file = str(Path(bumper_isc.data_dir) / "passwd")
 
-            # self._add_entry_point()
-
-            config_bind: dict[str, Any] = {"default": {"type": "tcp"}}
+            config_bind: dict[str, ListenerConfig] = {
+                "default": ListenerConfig(type=ListenerType.TCP, bind=None),
+            }
             listener_prefix = "mqtt"
             for index, binding in enumerate(self._bindings):
-                config_bind[f"{listener_prefix}{index}"] = {
-                    "bind": f"{binding.host}:{binding.port}",
-                    "ssl": binding.use_ssl,
-                }
+                # If port is 1883 use default as listener name, else create new one
+                listener_name = f"{listener_prefix}{index}" if binding.port != 1883 else "default"
+
+                config_bind[listener_name] = ListenerConfig(
+                    type=ListenerType.TCP,
+                    bind=f"{binding.host}:{binding.port}",
+                    ssl=binding.use_ssl,
+                )
                 if binding.use_ssl is True:
-                    config_bind[f"{listener_prefix}{index}"]["cafile"] = str(bumper_isc.ca_cert)
-                    config_bind[f"{listener_prefix}{index}"]["certfile"] = str(bumper_isc.server_cert)
-                    config_bind[f"{listener_prefix}{index}"]["keyfile"] = str(bumper_isc.server_key)
+                    config_bind[listener_name].cafile = str(bumper_isc.ca_cert)
+                    config_bind[listener_name].certfile = str(bumper_isc.server_cert)
+                    config_bind[listener_name].keyfile = str(bumper_isc.server_key)
 
             # Initialize bot server
-            config: dict[str, int | bool | dict[str, Any]] = {
-                "listeners": config_bind,
-                "sys_interval": 0,
-                "plugins": {
+            config: BrokerConfig = BrokerConfig(
+                listeners=config_bind,
+                plugins={
                     "bumper.mqtt.server.BumperMQTTServerPlugin": {
                         "allow_anonymous": allow_anonymous,
                         "password_file": password_file,
                     },
                 },
-            }
+            )
 
             self._broker = Broker(config=config)
         except Exception:
@@ -109,8 +115,9 @@ class MQTTServer:
                 await self._broker.start()
             elif self.state == "stopping":
                 _LOGGER.warning("MQTT Server is stopping. Waiting for it to stop before restarting...")
-                await self.wait_for_state_change(["stopping"])
-                await self._broker.start()
+                await self.wait_for_state_change("stopping", reverse=True)
+                if self.state == "stopped":
+                    await self._broker.start()
             else:
                 _LOGGER.info("MQTT Server is already running. Stop it first for a clean restart!")
         except Exception:
@@ -126,9 +133,12 @@ class MQTTServer:
                 _LOGGER_BROKER.info("Broker closed")
             elif self.state in ["starting"]:
                 _LOGGER.warning(f"MQTT server is in '{self.state}' state. Waiting for it to stabilize...")
-                await self.wait_for_state_change(["starting"])
+                await self.wait_for_state_change("starting", reverse=True)
                 if self.state == "started":
                     await self._broker.shutdown()
+            elif self.state in ["stopping"]:
+                _LOGGER.warning(f"MQTT server is in '{self.state}' state. Waiting for it to stabilize...")
+                await self.wait_for_state_change("stopping", reverse=True)
             else:
                 _LOGGER.warning(f"MQTT server is not in a valid state for shutdown. Current state: {self.state}")
         except Exception:
@@ -137,21 +147,27 @@ class MQTTServer:
 
     async def wait_for_state_change(
         self,
-        target_states: list[str],
-        interval: float = 1.0,
-        max_wait: int = 10,
+        desired: str,
+        max_wait: float = 3.0,
         reverse: bool = False,
     ) -> None:
-        """Wait for a small interval if the state is in target states."""
-        timeout_count = 0
-        while timeout_count < max_wait:
-            _LOGGER.debug("Waiting for MQTT server state change...")
-            if not reverse and self.state not in target_states:
+        """Wait until `state == desired` (reverse=False) or `state != desired` (reverse=True), raising TimeoutError."""
+        try:
+
+            def _check() -> bool:
+                st = self.state
+                _LOGGER.debug(f"Waiting for state :: '{st}' {'!=' if reverse else '=='} '{desired}' …")
+                return (reverse and st != desired) or (not reverse and st == desired)
+
+            # Fast path
+            if _check():
                 return
-            if reverse and self.state in target_states:
-                return
-            timeout_count += 1
-            await asyncio.sleep(interval)
+
+            async with self._state_cond:
+                await asyncio.wait_for(self._state_cond.wait_for(_check), max_wait)
+            _LOGGER.debug(f"Reached state :: '{self.state}' {'!=' if reverse else '=='} '{desired}'")
+        except TimeoutError:
+            _LOGGER.warning(f"Timeout waiting for MQTT server to reach state '{desired}' :: Current state: '{self.state}'")
 
 
 class BumperMQTTServerPlugin(BaseAuthPlugin):  # type: ignore[misc]
@@ -236,7 +252,7 @@ class BumperMQTTServerPlugin(BaseAuthPlugin):  # type: ignore[misc]
                 if bumper_isc.BUMPER_PROXY_MQTT and username is not None and password is not None:
                     mqtt_server = await utils.resolve(bumper_isc.PROXY_MQTT_DOMAIN)
                     _LOGGER_PROXY.info(f"MQTT Proxy Mode :: Using server {mqtt_server} for client {client_id}")
-                    proxy = mqtt_proxy.ProxyClient(client_id, mqtt_server, config={"check_hostname": False})
+                    proxy = mqtt_proxy.ProxyClient(client_id, mqtt_server, config=ClientConfig(check_hostname=False))
                     self._proxy_clients[client_id] = proxy
                     await proxy.connect(username, password)
 

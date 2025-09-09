@@ -165,7 +165,7 @@ async def test_helperbot_expire_message(mqtt_client: Client, helper_bot: MQTTHel
         "payload": expire_msg_payload,
     }
 
-    helper_bot._commands[request_id] = data  # type: ignore
+    helper_bot._commands[request_id] = data
 
     assert helper_bot._commands[request_id] == data
 
@@ -222,8 +222,6 @@ async def test_helperbot_sendcommand(mqtt_client: Client, helper_bot: MQTTHelper
         "ret": "ok",
         "payloadType": "j",
     }
-
-    # await mqtt_helperbot.Client.disconnect()
 
     # Test GetLifeSpan (xml command)
     cmdjson = {

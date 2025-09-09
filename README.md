@@ -134,19 +134,20 @@ In-depth guides and architecture details are available in the `docs/` folder or 
 >
 > However, it has only been reported to work on the following models:
 
-| Model           | Protocol | Version           | App Tested                                                                                                         |
-| :-------------- | :------- | :---------------- | :----------------------------------------------------------------------------------------------------------------- |
-| Deebot 900/901  | MQTT     |                   | Ecovacs / Ecovacs Home                                                                                             |
-| Deebot 600      | MQTT     |                   | Ecovacs Home                                                                                                       |
-| Deebot Ozmo 950 | MQTT     |                   | Ecovacs Home                                                                                                       |
-| Deebot T10 Plus | MQTT     | `1.7.2`           | Ecovacs Home                                                                                                       |
-| Deebot T10 Plus | MQTT     | `1.7.5`           | See [Defeating Certificate Pinning (BOT)](https://mvladislav.github.io/bumper/internals/certificate-unpinning-bot) |
-| Deebot X1 Omni  | MQTT     |                   | See [Discussion #51](https://github.com/MVladislav/bumper/discussions/51)                                          |
-| Deebot X9 Omni  | MQTT     | `1.17.*`/`1.43.*` | See [Discussion #97](https://github.com/MVladislav/bumper/discussions/97)                                          |
-| Deebot T80 Omni | MQTT     | `1.15.0`/`1.34.0` | See [Discussion #90](https://github.com/MVladislav/bumper/discussions/90)                                          |
-| Deebot Ozmo 601 | XMPP     |                   | Ecovacs                                                                                                            |
-| Deebot Ozmo 930 | XMPP     |                   | Ecovacs / Ecovacs Home                                                                                             |
-| Deebot M81 Pro  | XMPP     |                   | Ecovacs                                                                                                            |
+| Model              | Protocol | Version            | App Tested                                                                                                         |
+| :----------------- | :------- | :----------------- | :----------------------------------------------------------------------------------------------------------------- |
+| Deebot 900/901     | MQTT     |                    | Ecovacs / Ecovacs Home                                                                                             |
+| Deebot 600         | MQTT     |                    | Ecovacs Home                                                                                                       |
+| Deebot Ozmo 950    | MQTT     |                    | Ecovacs Home                                                                                                       |
+| Deebot T10 Plus    | MQTT     | `1.7.2`            | Ecovacs Home                                                                                                       |
+| Deebot T10 Plus    | MQTT     | `1.7.5`            | See [Defeating Certificate Pinning (BOT)](https://mvladislav.github.io/bumper/internals/certificate-unpinning-bot) |
+| Deebot T80 Omni    | MQTT     | `1.15.0`/`1.36.0`  | See [Discussion #90](https://github.com/MVladislav/bumper/discussions/90)                                          |
+| Deebot X1 Omni     | MQTT     | `1.15.7`/`2.3.9`   | See [Discussion #51](https://github.com/MVladislav/bumper/discussions/51)                                          |
+| Deebot X2 Pro Omni | MQTT     | `1.76.6`/`1.81.10` | See [Discussion #56](https://github.com/MVladislav/bumper/discussions/56)                                          |
+| Deebot X9 Pro Omni | MQTT     | `1.17.0`/`1.42.2`  | See [Discussion #97](https://github.com/MVladislav/bumper/discussions/97)                                          |
+| Deebot Ozmo 601    | XMPP     |                    | Ecovacs                                                                                                            |
+| Deebot Ozmo 930    | XMPP     |                    | Ecovacs / Ecovacs Home                                                                                             |
+| Deebot M81 Pro     | XMPP     |                    | Ecovacs                                                                                                            |
 
 ### 📱 Supported Apps
 

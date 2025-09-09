@@ -1,6 +1,7 @@
 import json
 from unittest.mock import MagicMock
 
+from aiohttp.test_utils import TestClient
 import pytest
 
 from bumper.db import bot_repo
@@ -12,8 +13,8 @@ from bumper.web.plugins.api import appsvr
 USER_ID = _generate_uid(bumper_isc.USER_USERNAME_DEFAULT)
 
 
-@pytest.mark.usefixtures("clean_database")
-async def test_handle_app_do(webserver_client) -> None:
+@pytest.mark.usefixtures("clean_database", "helper_bot")
+async def test_handle_app_do(webserver_client: TestClient) -> None:
     # Test GetGlobalDeviceList
     postbody = {
         "aliliving": False,
@@ -32,183 +33,181 @@ async def test_handle_app_do(webserver_client) -> None:
         "todo": "GetGlobalDeviceList",
         "userid": USER_ID,
     }
-    resp = await webserver_client.post("/api/appsvr/app.do", json=postbody)
-    assert resp.status == 200
-    text = await resp.text()
-    jsonresp = json.loads(text)
-    assert jsonresp["ret"] == "ok"
+    async with webserver_client.post("/api/appsvr/app.do", json=postbody) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
 
     bot_repo.add("sn_1234", "did_1234", "ls1ok3", "res_1234", "eco-ng")
 
     # Test again with bot added
-    resp = await webserver_client.post("/api/appsvr/app.do", json=postbody)
-    assert resp.status == 200
-    text = await resp.text()
-    jsonresp = json.loads(text)
-    assert jsonresp["ret"] == "ok"
+    async with webserver_client.post("/api/appsvr/app.do", json=postbody) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
 
     # Test GetCodepush
     data_codepush = postbody.copy()
     data_codepush["todo"] = "GetCodepush"
-    resp = await webserver_client.post("/api/appsvr/app.do", json=data_codepush)
-    assert resp.status == 200
-    jsonresp = json.loads(await resp.text())
-    assert jsonresp["ret"] == "ok"
+    async with webserver_client.post("/api/appsvr/app.do", json=data_codepush) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
 
     # Test RobotControl with invalid data
     data_robot_invalid = postbody.copy()
     data_robot_invalid["todo"] = "RobotControl"
     data_robot_invalid["data"] = "not_a_dict"
-    resp = await webserver_client.post("/api/appsvr/app.do", json=data_robot_invalid)
-    assert resp.status == 200
-    jsonresp = json.loads(await resp.text())
-    assert jsonresp["ret"] == "fail"
+    async with webserver_client.post("/api/appsvr/app.do", json=data_robot_invalid) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "fail"
 
     # Test RobotControl with valid data but missing ctl
     data_robot_missing_ctl = postbody.copy()
     data_robot_missing_ctl["todo"] = "RobotControl"
     data_robot_missing_ctl["data"] = {}
-    resp = await webserver_client.post("/api/appsvr/app.do", json=data_robot_missing_ctl)
-    assert resp.status == 200
-    jsonresp = json.loads(await resp.text())
-    assert jsonresp["ret"] == "fail"
+    async with webserver_client.post("/api/appsvr/app.do", json=data_robot_missing_ctl) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "fail"
 
     # Test RobotControl with valid data and ctl
     data_robot_valid = postbody.copy()
     data_robot_valid["todo"] = "RobotControl"
     data_robot_valid["data"] = {"ctl": {"testcmd": {"foo": "bar"}}}
-    resp = await webserver_client.post("/api/appsvr/app.do", json=data_robot_valid)
-    assert resp.status in (200, 500)  # 500 if no helperbot, 200 if mocked
+    async with webserver_client.post("/api/appsvr/app.do", json=data_robot_valid) as resp:
+        assert resp.status in (200, 500)  # 500 if no helperbot, 200 if mocked
 
-    # Test GetAppVideoUrl with valid keys
-    data_video = postbody.copy()
+        # Test GetAppVideoUrl with valid keys
+        data_video = postbody.copy()
     data_video["todo"] = "GetAppVideoUrl"
     data_video["keys"] = ["t9_promotional_video"]
-    resp = await webserver_client.post("/api/appsvr/app.do", json=data_video)
-    assert resp.status == 200
-    jsonresp = json.loads(await resp.text())
-    assert jsonresp["ret"] == "ok"
+    async with webserver_client.post("/api/appsvr/app.do", json=data_video) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
 
     # Test GetAppVideoUrl with invalid keys
     data_video_invalid = postbody.copy()
     data_video_invalid["todo"] = "GetAppVideoUrl"
     data_video_invalid["keys"] = "not_a_list"
-    resp = await webserver_client.post("/api/appsvr/app.do", json=data_video_invalid)
-    assert resp.status == 200
-    jsonresp = json.loads(await resp.text())
-    assert jsonresp["ret"] == "fail"
+    async with webserver_client.post("/api/appsvr/app.do", json=data_video_invalid) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "fail"
 
     # Test GetDeviceProtocolV2
     data_protocol = postbody.copy()
     data_protocol["todo"] = "GetDeviceProtocolV2"
-    resp = await webserver_client.post("/api/appsvr/app.do", json=data_protocol)
-    assert resp.status == 200
-    jsonresp = json.loads(await resp.text())
-    assert jsonresp["ret"] == "ok"
+    async with webserver_client.post("/api/appsvr/app.do", json=data_protocol) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
 
     # Test unknown todo
     data_unknown = postbody.copy()
     data_unknown["todo"] = "UnknownTodo"
-    resp = await webserver_client.post("/api/appsvr/app.do", json=data_unknown)
-    assert resp.status == 200
-    jsonresp = json.loads(await resp.text())
-    assert jsonresp["ret"] == "fail"
+    async with webserver_client.post("/api/appsvr/app.do", json=data_unknown) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "fail"
 
     # Test exception handling by sending invalid JSON
-    resp = await webserver_client.post("/api/appsvr/app.do", data="not_json", headers={"Content-Type": "application/json"})
-    assert resp.status == 500
+    async with webserver_client.post("/api/appsvr/app.do", data="not_json", headers={"Content-Type": "application/json"}) as resp:
+        assert resp.status == 500
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_app_config_api(webserver_client):
+async def test_app_config_api(webserver_client: TestClient) -> None:
     # Test known code: app_lang_enum
-    resp = await webserver_client.get("/api/appsvr/app/config?code=app_lang_enum")
-    assert resp.status == 200
-    jsonresp = json.loads(await resp.text())
-    assert jsonresp["ret"] == "ok"
-    assert isinstance(jsonresp["data"], list)
-    assert jsonresp["data"][0]["code"] == "app_lang_enum"
-    langs = jsonresp["data"][0]["content"]
-    assert "de" in langs
-    assert "en" in langs
-    assert "zh" in langs
-    assert langs["en"] == "English"
+    async with webserver_client.get("/api/appsvr/app/config?code=app_lang_enum") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert isinstance(json_resp["data"], list)
+        assert json_resp["data"][0]["code"] == "app_lang_enum"
+        langs = json_resp["data"][0]["content"]
+        assert "de" in langs
+        assert "en" in langs
+        assert "zh" in langs
+        assert langs["en"] == "English"
 
     # Test known code: codepush_config
-    resp = await webserver_client.get("/api/appsvr/app/config?code=codepush_config")
-    assert resp.status == 200
-    jsonresp = json.loads(await resp.text())
-    assert jsonresp["ret"] == "ok"
-    assert isinstance(jsonresp["data"], list)
-    assert jsonresp["data"][0]["code"] == "codepush_config"
-    assert isinstance(jsonresp["data"][0]["content"], dict)
-    assert "ssh5" in jsonresp["data"][0]["content"]
+    async with webserver_client.get("/api/appsvr/app/config?code=codepush_config") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert isinstance(json_resp["data"], list)
+        assert json_resp["data"][0]["code"] == "codepush_config"
+        assert isinstance(json_resp["data"][0]["content"], dict)
+        assert "ssh5" in json_resp["data"][0]["content"]
 
     # Test known code: base_station_guide
-    resp = await webserver_client.get("/api/appsvr/app/config?code=base_station_guide")
-    assert resp.status == 200
-    jsonresp = json.loads(await resp.text())
-    assert jsonresp["ret"] == "ok"
-    assert isinstance(jsonresp["data"], list)
-    assert jsonresp["data"][0]["code"] == "base_station_guide"
+    async with webserver_client.get("/api/appsvr/app/config?code=base_station_guide") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert isinstance(json_resp["data"], list)
+        assert json_resp["data"][0]["code"] == "base_station_guide"
 
     # Test known code: time_zone_list
-    resp = await webserver_client.get("/api/appsvr/app/config?code=time_zone_list")
-    assert resp.status == 200
-    jsonresp = json.loads(await resp.text())
-    assert jsonresp["ret"] == "ok"
-    assert jsonresp["data"][0]["code"] == "time_zone_list"
-    assert any("zone" in tz for tz in jsonresp["data"][0]["content"])
+    async with webserver_client.get("/api/appsvr/app/config?code=time_zone_list") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert json_resp["data"][0]["code"] == "time_zone_list"
+        assert any("zone" in tz for tz in json_resp["data"][0]["content"])
 
     # Test known code: yiko_record_enabled + full_stack_yiko_entry
-    resp = await webserver_client.get("/api/appsvr/app/config?code=yiko_record_enabled")
-    assert resp.status == 200
-    jsonresp = json.loads(await resp.text())
-    assert jsonresp["ret"] == "ok"
-    assert jsonresp["data"] == []
-    resp = await webserver_client.get("/api/appsvr/app/config?code=full_stack_yiko_entry")
-    assert resp.status == 200
-    jsonresp = json.loads(await resp.text())
-    assert jsonresp["ret"] == "ok"
-    assert jsonresp["data"] == []
+    async with webserver_client.get("/api/appsvr/app/config?code=yiko_record_enabled") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert json_resp["data"] == []
+    async with webserver_client.get("/api/appsvr/app/config?code=full_stack_yiko_entry") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert json_resp["data"] == []
 
     # Test known code: yiko_support_lang
-    resp = await webserver_client.get("/api/appsvr/app/config?code=yiko_support_lang")
-    assert resp.status == 200
-    jsonresp = json.loads(await resp.text())
-    assert jsonresp["ret"] == "ok"
-    assert jsonresp["data"][0]["code"] == "yiko_support_lang"
+    async with webserver_client.get("/api/appsvr/app/config?code=yiko_support_lang") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert json_resp["data"][0]["code"] == "yiko_support_lang"
 
     # Test unknown code
-    resp = await webserver_client.get("/api/appsvr/app/config?code=unknown_code")
-    assert resp.status == 200
-    jsonresp = json.loads(await resp.text())
-    assert jsonresp["ret"] == "ok"
-    assert jsonresp["data"] == []
+    async with webserver_client.get("/api/appsvr/app/config?code=unknown_code") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert json_resp["data"] == []
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_service_list_api(webserver_client):
-    resp = await webserver_client.get("/api/appsvr/service/list?area=de")
-    assert resp.status == 200
-    jsonresp = json.loads(await resp.text())
-    assert jsonresp["ret"] == "ok"
-    assert jsonresp["data"]["account"].startswith("users-base.")
-    assert jsonresp["data"]["dc"] == "eu"
-    assert jsonresp["data"]["setApConfig"]["a"] == "de"
+async def test_service_list_api(webserver_client: TestClient) -> None:
+    async with webserver_client.get("/api/appsvr/service/list?area=de") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert json_resp["data"]["account"].startswith("users-base.")
+        assert json_resp["data"]["dc"] == "eu"
+        assert json_resp["data"]["setApConfig"]["a"] == "de"
 
     # Test with no area param
-    resp = await webserver_client.get("/api/appsvr/service/list")
-    assert resp.status == 200
-    jsonresp = json.loads(await resp.text())
-    assert jsonresp["ret"] == "ok"
-    assert jsonresp["data"]["account"].startswith("users-base.")
-    assert jsonresp["data"]["dc"] == utils.get_dc_code(bumper_isc.ECOVACS_DEFAULT_COUNTRY)
-    assert jsonresp["data"]["setApConfig"]["a"] == bumper_isc.ECOVACS_DEFAULT_COUNTRY
+    async with webserver_client.get("/api/appsvr/service/list") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert json_resp["data"]["account"].startswith("users-base.")
+        assert json_resp["data"]["dc"] == utils.get_dc_code(bumper_isc.ECOVACS_DEFAULT_COUNTRY)
+        assert json_resp["data"]["setApConfig"]["a"] == bumper_isc.ECOVACS_DEFAULT_COUNTRY
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_improve_api(webserver_client):
+async def test_improve_api(webserver_client: TestClient) -> None:
     did = "1"
     mid = "2"
     uid = "3"
@@ -218,86 +217,87 @@ async def test_improve_api(webserver_client):
     v = "v"
     p = "p"
     show_remark = "1"
-    resp = await webserver_client.get(
+    async with webserver_client.get(
         f"/api/appsvr/improve?did={did}&mid={mid}&uid={uid}&lang={lang}&a={a}&c={c}&v={v}&p={p}&show_remark={show_remark}",
-    )
-    assert resp.status == 200
-    jsonresp = json.loads(await resp.text())
-    assert jsonresp["code"] == 0
-    content = jsonresp["data"]["content"]
-    assert "pim/productImprovePlan_ww.html" in content
-    assert f"did={did}" in content
-    assert f"mid={mid}" in content
-    assert f"uid={uid}" in content
-    assert f"lang={lang}" in content
-    assert f"showRemark={show_remark}" in content
+    ) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["code"] == 0
+        content = json_resp["data"]["content"]
+        assert "pim/productImprovePlan_ww.html" in content
+        assert f"did={did}" in content
+        assert f"mid={mid}" in content
+        assert f"uid={uid}" in content
+        assert f"lang={lang}" in content
+        assert f"showRemark={show_remark}" in content
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_improve_accept_api(webserver_client):
-    resp = await webserver_client.get("/api/appsvr/improve/accept")
-    assert resp.status == 200
-    jsonresp = json.loads(await resp.text())
-    assert jsonresp["code"] == 0
+async def test_improve_accept_api(webserver_client: TestClient) -> None:
+    async with webserver_client.get("/api/appsvr/improve/accept") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["code"] == 0
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_improve_user_accept_api(webserver_client):
-    resp = await webserver_client.get("/api/appsvr/improve/user/accept")
-    assert resp.status == 200
-    jsonresp = json.loads(await resp.text())
-    assert jsonresp["code"] == 0
-    assert "data" in jsonresp
-    assert jsonresp["data"]["accept"] is False
+async def test_improve_user_accept_api(webserver_client: TestClient) -> None:
+    async with webserver_client.get("/api/appsvr/improve/user/accept") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["code"] == 0
+        assert "data" in json_resp
+        assert json_resp["data"]["accept"] is False
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_notice_home_api(webserver_client):
-    resp = await webserver_client.get("/api/appsvr/notice/home")
-    assert resp.status == 200
-    jsonresp = json.loads(await resp.text())
-    assert jsonresp["ret"] == "ok"
+async def test_notice_home_api(webserver_client: TestClient) -> None:
+    async with webserver_client.get("/api/appsvr/notice/home") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_notice_list_api(webserver_client):
-    resp = await webserver_client.get("/api/appsvr/notice/list")
-    assert resp.status == 200
-    jsonresp = json.loads(await resp.text())
-    assert jsonresp["ret"] == "ok"
+async def test_notice_list_api(webserver_client: TestClient) -> None:
+    async with webserver_client.get("/api/appsvr/notice/list") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_ota_firmware_api(webserver_client):
-    resp = await webserver_client.get("/api/appsvr/ota/firmware")
-    assert resp.status == 200
-    jsonresp = json.loads(await resp.text())
-    assert jsonresp["code"] == -1
+async def test_ota_firmware_api(webserver_client: TestClient) -> None:
+    async with webserver_client.get("/api/appsvr/ota/firmware") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["code"] == -1
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_device_blacklist_check_api(webserver_client):
-    resp = await webserver_client.get("/api/appsvr/device/blacklist/check")
-    assert resp.status == 200
-    jsonresp = json.loads(await resp.text())
-    assert jsonresp["ret"] == "ok"
-    assert jsonresp["data"] == []
+async def test_device_blacklist_check_api(webserver_client: TestClient) -> None:
+    async with webserver_client.get("/api/appsvr/device/blacklist/check") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert json_resp["data"] == []
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_akvs_start_watch_api(webserver_client):
+async def test_akvs_start_watch_api(webserver_client: TestClient) -> None:
     auth = json.dumps({"userid": "u1", "resource": "r1"})
-    resp = await webserver_client.get(f"/api/appsvr/akvs/start_watch?did=testdid&auth={auth}")
-    assert resp.status == 200
-    jsonresp = json.loads(await resp.text())
-    assert jsonresp["ret"] == "ok"
-    assert jsonresp["client_id"] == "u1-r1"
-    assert isinstance(jsonresp["credentials"], dict)
-    assert "AccessKeyId" in jsonresp["credentials"]
-    assert jsonresp["channel"].startswith("production-")
+    async with webserver_client.get(f"/api/appsvr/akvs/start_watch?did=testdid&auth={auth}") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert json_resp["client_id"] == "u1-r1"
+        assert isinstance(json_resp["credentials"], dict)
+        assert "AccessKeyId" in json_resp["credentials"]
+        assert json_resp["channel"].startswith("production-")
 
 
-def test_include_product_iot_map_info():
+@pytest.mark.usefixtures("clean_database")
+def test_include_product_iot_map_info() -> None:
     bot = MagicMock()
     bot.class_id = "ls1ok3"
     bot.mqtt_connection = True
