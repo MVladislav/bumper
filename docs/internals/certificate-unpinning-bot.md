@@ -47,11 +47,11 @@ boot
 
     On some bots you need to hit a specific key mentioned during the boot-up process like:
     ```
-    Hit key to stop autoboot('CTRL+C'):  0 
+    Hit key to stop autoboot('CTRL+C'):  0
     ```
-    
-    Sometime `picocom` is not working and in that case you can try `minicom`. You can keep pressed your key (eg. 'CTRL+C') during the boot process until it's interropted.
-    ``` sh
+
+    Sometime `picocom` is not working and in that case you can try `minicom`. You can keep pressed your key (eg. `CTRL+C`) during the boot process until it's interropted.
+    ```sh
     minicom -D /dev/ttyUSB0 -b 115200
     ```
 
@@ -89,7 +89,7 @@ mount -a
     Identify the data partition (in the above example it's on index 9) and add 1 to it and check if you have a device by `ls /dev/rkflash0pX` (in the above example `/dev/rkflash0p10`)
 
     If the device exists, you can manually mount it with
-    ``` sh
+    ```sh
     mkdir -p /data
     fsck.ext4 -y /dev/rkflash0p10
     mount -t ext4 -o rw /dev/rkflash0p10 /data
