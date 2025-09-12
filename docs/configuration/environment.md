@@ -14,6 +14,14 @@ Variables not listed here are hardcoded or not configurable via environment.
 
 ---
 
+## ⚙️ Feature Flags
+
+| Variable               | Default | Description                                                                                                                                          |
+| ---------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CA_CERTS_API_ENABLED` | `False` | Enable the CA certificates download API (`/ca-certificates.tar.gz`). When `false` the endpoint will return `404 Not Found`. Set to `true` to enable. |
+
+---
+
 ## 📁 Paths & Files
 
 | Variable       | Default                    | Description                                           |

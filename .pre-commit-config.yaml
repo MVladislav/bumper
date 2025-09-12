@@ -17,7 +17,7 @@ repos:
       - id: codespell
         args:
           - --ignore-words-list=ihs,ro,fo,onlyOnce,astroid
-          - --skip="./.*,*.csv,*.json,*.min.js,*.min.css,*.min.html,*.min.xml,*.min.yaml,*.min.yml"
+          - --skip="./.*,*.csv,*.json,*.min.js,*.min.css,*.min.html,*.min.xml,*.min.yaml,*.min.yml",*.crt
           - --quiet-level=2
         exclude_types:
           - csv

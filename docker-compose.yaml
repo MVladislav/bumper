@@ -115,6 +115,11 @@ services:
     deploy:
       <<: *basic-deploy
     ports:
+      # HTTP Server (non TLS)
+      - target: 8007
+        published: 80
+        protocol: tcp
+        mode: host
       # HTTP Server (TLS)
       - target: 443
         published: 443

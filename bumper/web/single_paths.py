@@ -2,11 +2,15 @@
 
 import base64
 import gzip
+import hashlib
+import io
 import json
 import logging
+from pathlib import Path
+import tarfile
 
 from aiohttp import web
-from aiohttp.web_exceptions import HTTPInternalServerError
+from aiohttp.web_exceptions import HTTPInternalServerError, HTTPNotFound
 from aiohttp.web_request import Request
 from aiohttp.web_response import Response
 
@@ -16,6 +20,75 @@ from bumper.web.auth_util import get_new_auth
 from bumper.web.response_utils import ERR_UNKNOWN_TODO, response_error_v2, response_success_v3
 
 _LOGGER = logging.getLogger(__name__)
+
+
+async def handle_ca_certificates(_: Request) -> Response:
+    """Handle CA Certificates (/ca-certificates.tar.gz)."""
+    try:
+        if bumper_isc.CA_CERTS_API_ENABLED is False:
+            raise HTTPNotFound(text="CA certificate download endpoint is disabled.")
+
+        ca_cert_path: Path = bumper_isc.ca_cert
+        ca_cert_path_original: Path = Path(__file__).parent / "static" / "certs" / "ca-certificates-original.crt"
+
+        if not ca_cert_path.exists() or not ca_cert_path_original.exists():
+            msg = f"CA cert file not found for: {ca_cert_path} or {ca_cert_path_original}"
+            _LOGGER.error(msg)
+            raise HTTPNotFound(text=msg)
+
+        try:
+            # Read both cert files
+            cert_a = ca_cert_path.read_bytes()
+            cert_b = ca_cert_path_original.read_bytes()
+        except FileNotFoundError as e:
+            _LOGGER.exception("File not found while reading certificate files")
+            raise HTTPNotFound(text=str(e)) from e
+        except OSError as e:
+            _LOGGER.exception("OS error while reading certificate files")
+            raise HTTPInternalServerError from e
+
+        # Combine: ensure a single newline between them
+        if not cert_a.endswith(b"\n"):
+            cert_a += b"\n"
+        combined = cert_a + cert_b
+
+        # Compute md5 of the combined bundle
+        md5_hash = hashlib.md5(combined).hexdigest()  # noqa: S324
+
+        # Create in-memory tar.gz
+        buf = io.BytesIO()
+        try:
+            with tarfile.open(fileobj=buf, mode="w:gz") as tar:
+                # Add the combined ca-certificates.crt
+                crt_name = "ca-certificates/ca-certificates.crt"
+                crt_info = tarfile.TarInfo(name=crt_name)
+                crt_info.size = len(combined)
+                tar.addfile(crt_info, io.BytesIO(combined))
+
+                md5_text = f"{md5_hash}\n".encode()
+                md5_info = tarfile.TarInfo(name="ca-certificates/MD5SUMS")
+                md5_info.size = len(md5_text)
+                tar.addfile(md5_info, io.BytesIO(md5_text))
+        except Exception as e:
+            _LOGGER.exception("Failed building tar.gz archive for CA certificates")
+            raise HTTPInternalServerError from e
+
+        buf.seek(0)
+        data = buf.getvalue()
+
+        headers = {
+            "Content-Disposition": 'attachment; filename="ca-certificates.tar.gz"',
+            "Content-Type": "application/gzip",
+            "Content-Length": str(len(data)),
+        }
+        return Response(body=data, headers=headers)
+
+    except web.HTTPException:
+        # aiohttp HTTP exceptions (404, etc.) are intended responses — re-raise them unchanged
+        raise
+    except Exception:
+        _LOGGER.exception(utils.default_exception_str_builder())
+    raise HTTPInternalServerError
 
 
 async def handle_new_auth(request: Request) -> Response:
