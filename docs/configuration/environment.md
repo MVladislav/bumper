@@ -43,6 +43,17 @@ Variables not listed here are hardcoded or not configurable via environment.
 | `BUMPER_ANNOUNCE_IP`    | `${BUMPER_LISTEN}`           | IP advertised to robots. If `0.0.0.0`, set explicitly.                 |
 | `WEB_SERVER_HTTPS_PORT` | `443`                        | Port for HTTPS web UI.                                                 |
 
+| Variable                 | Default                 | Description                                                            |
+| ------------------------ | ----------------------- | ---------------------------------------------------------------------- |
+| `BUMPER_LISTEN`          | auto                    | IP address or hostname to bind all server listeners (Web, MQTT, XMPP). |
+| `BUMPER_ANNOUNCE_IP`     | same as `BUMPER_LISTEN` | IP advertised to robots. If `0.0.0.0`, set explicitly.                 |
+| `WEB_SERVER_HTTPS_PORT`  | `443`                   | Port for HTTPS/TLS web server.                                         |
+| `WEB_SERVER_LISTEN_PORT` | `8007`                  | Port for HTTP/non-TLS web server.                                      |
+| `MQTT_LISTEN_PORT`       | `1883`                  | Port for plaintext MQTT.                                               |
+| `MQTT_LISTEN_PORT_TLS`   | `8883`                  | Port for MQTT over TLS (MQTTS).                                        |
+| `XMPP_LISTEN_PORT`       | `1223`                  | Port for plaintext XMPP.                                               |
+| `XMPP_LISTEN_PORT_TLS`   | `5223`                  | Port for XMPP over TLS.                                                |
+
 ---
 
 ## 🚦 Logging & Debugging
