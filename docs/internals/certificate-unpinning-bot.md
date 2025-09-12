@@ -88,7 +88,7 @@ mount -a
 
     Identify the data partition (in the above example it's on index 9) and add 1 to it and check if you have a device by `ls /dev/rkflash0pX` (in the above example `/dev/rkflash0p10`)
 
-    If the device exists, you can manually mount it with
+    If the device exists, you can manually mount it with:
     ```sh
     mkdir -p /data
     fsck.ext4 -y /dev/rkflash0p10
