@@ -31,35 +31,53 @@ async def handle_ca_certificates(_: Request) -> Response:
         ca_cert_path: Path = bumper_isc.ca_cert
         ca_cert_path_original: Path = Path(__file__).parent / "static" / "certs" / "ca-certificates-original.crt"
 
-        if not ca_cert_path.exists() or not ca_cert_path_original.exists():
-            msg = f"CA cert file not found for: {ca_cert_path} or {ca_cert_path_original}"
+        if not ca_cert_path.exists():
+            msg = f"CA cert file not found: {ca_cert_path}"
             _LOGGER.error(msg)
             raise HTTPNotFound(text=msg)
 
+        # Read self-signed cert
         try:
-            # Read both cert files
             cert_a = ca_cert_path.read_bytes()
-            cert_b = ca_cert_path_original.read_bytes()
         except FileNotFoundError as e:
-            _LOGGER.exception("File not found while reading certificate files")
+            _LOGGER.exception("Self-signed CA cert not found")
             raise HTTPNotFound(text=str(e)) from e
         except OSError as e:
-            _LOGGER.exception("OS error while reading certificate files")
+            _LOGGER.exception("OS error while reading self-signed CA cert")
             raise HTTPInternalServerError from e
 
-        # Combine: ensure a single newline between them
-        if not cert_a.endswith(b"\n"):
-            cert_a += b"\n"
-        combined = cert_a + cert_b
+        if bumper_isc.CA_CERTS_API_DISABLE_COMBINE:
+            # Only self-signed CA
+            combined = cert_a
+        else:
+            # Need original cert as well
+            if not ca_cert_path_original.exists():
+                msg = f"Original CA cert file not found: {ca_cert_path_original}"
+                _LOGGER.error(msg)
+                raise HTTPNotFound(text=msg)
 
-        # Compute md5 of the combined bundle
+            try:
+                cert_b = ca_cert_path_original.read_bytes()
+            except FileNotFoundError as e:
+                _LOGGER.exception("Original CA cert not found")
+                raise HTTPNotFound(text=str(e)) from e
+            except OSError as e:
+                _LOGGER.exception("OS error while reading original CA cert")
+                raise HTTPInternalServerError from e
+
+            # Combine with one newline
+            if not cert_a.endswith(b"\n"):
+                cert_a += b"\n"
+            combined = cert_a + cert_b
+
+        # Compute md5 of the final bundle
         md5_hash = hashlib.md5(combined).hexdigest()  # noqa: S324
 
-        # Create in-memory tar.gz
+        # Build tar.gz in-memory
         buf = io.BytesIO()
         try:
             with tarfile.open(fileobj=buf, mode="w:gz") as tar:
-                # Add the combined ca-certificates.crt
+                # Add the CA bundle
                 crt_name = "ca-certificates/ca-certificates.crt"
                 crt_info = tarfile.TarInfo(name=crt_name)
                 crt_info.size = len(combined)
@@ -84,7 +102,6 @@ async def handle_ca_certificates(_: Request) -> Response:
         return Response(body=data, headers=headers)
 
     except web.HTTPException:
-        # aiohttp HTTP exceptions (404, etc.) are intended responses — re-raise them unchanged
         raise
     except Exception:
         _LOGGER.exception(utils.default_exception_str_builder())

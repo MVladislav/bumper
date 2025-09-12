@@ -16,9 +16,10 @@ Variables not listed here are hardcoded or not configurable via environment.
 
 ## ⚙️ Feature Flags
 
-| Variable               | Default | Description                                                                                                                                          |
-| ---------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `CA_CERTS_API_ENABLED` | `False` | Enable the CA certificates download API (`/ca-certificates.tar.gz`). When `false` the endpoint will return `404 Not Found`. Set to `true` to enable. |
+| Variable                       | Default | Description                                                                                                                                           |
+| ------------------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CA_CERTS_API_ENABLED`         | `False` | Enable the **`/ca-certificates.tar.gz`** endpoint for **bots to download CA bundle**.                                                                 |
+| `CA_CERTS_API_DISABLE_COMBINE` | `False` | If `true`, **only** the **self-signed CA** is served. If `false`, the **bundle** includes both the **self-signed CA** and the **original system CA**. |
 
 ---
 
