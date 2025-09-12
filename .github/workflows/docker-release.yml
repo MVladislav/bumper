@@ -4,7 +4,7 @@ name: Release Docker image to GitHub ghcr
 on:
   push:
     branches:
-      - main
+      # - main
       - dev
     tags:
       - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
