@@ -46,6 +46,7 @@ class Config:
     server_cert = Path(os.environ.get("BUMPER_CERT", certs_dir / "bumper.crt"))
     server_key = Path(os.environ.get("BUMPER_KEY", certs_dir / "bumper.key"))
     CA_CERTS_API_ENABLED: bool = str_to_bool(os.environ.get("CA_CERTS_API_ENABLED")) or False
+    CA_CERTS_API_DISABLE_COMBINE: bool = str_to_bool(os.environ.get("CA_CERTS_API_DISABLE_COMBINE")) or False
 
     # Data Files
     db_file = str(Path(os.environ.get("DB_FILE") or data_dir / "bumper.db"))
