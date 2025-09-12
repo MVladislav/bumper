@@ -43,6 +43,18 @@ setenv bootargs ${bootargs} init=/bin/bash
 boot
 ```
 
+??? note
+
+    On some bots you need to hit a specific key mentioned during the boot-up process like:
+    ```
+    Hit key to stop autoboot('CTRL+C'):  0
+    ```
+
+    Sometime `picocom` is not working and in that case you can try `minicom`. You can keep pressed your key (eg. `CTRL+C`) during the boot process until it's interropted.
+    ```sh
+    minicom -D /dev/ttyUSB0 -b 115200
+    ```
+
 ### 3. Initialize System Resources (on bot)
 
 Mount volumes and start required services:
@@ -57,6 +69,31 @@ mount -a
 /etc/rc.d/load_ko.sh start
 /etc/rc.d/time_sync.sh start
 ```
+
+??? note
+
+    On some models executing the above commands are failing. In this case you can try to manually mount `data` by checking the boot logs for the correct partition. During the boot-up the partition table is logged on the console and looks similar to:
+    ```
+    GPT part:  0, name:            uboot, start:0x4000, size:0x2000
+    GPT part:  1, name:            trust, start:0x6000, size:0x2000
+    GPT part:  2, name:              eco, start:0x8000, size:0x3000
+    GPT part:  3, name:          reserve, start:0xb000, size:0x800
+    GPT part:  4, name:              sys, start:0xb800, size:0x1000
+    GPT part:  5, name:            boot1, start:0xc800, size:0x3000
+    GPT part:  6, name:          rootfs1, start:0xf800, size:0x40000
+    GPT part:  7, name:            boot2, start:0x4f800, size:0x3000
+    GPT part:  8, name:          rootfs2, start:0x52800, size:0x40000
+    GPT part:  9, name:             data, start:0x92800, size:0x5b7df
+    ```
+
+    Identify the data partition (in the above example, it's on index 9), add 1 to the index, and check if you have a device by `ls /dev/rkflash0pX` (replace `X` with your index. In the example below, `/dev/rkflash0p10`).
+
+    If the device exists, you can manually mount it with:
+    ```sh
+    mkdir -p /data
+    fsck.ext4 -y /dev/rkflash0p10
+    mount -t ext4 -o rw /dev/rkflash0p10 /data
+    ```
 
 ### 4. Replace Certificates (on bot)
 

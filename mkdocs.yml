@@ -31,8 +31,9 @@ theme:
     scheme: slate
     primary: black
     accent: deep purple
-  # features:
-  #   - content.action.edit
+  features:
+    # - content.action.edit
+    - content.code.copy
   logo: images/favicon.ico
   favicon: images/favicon.ico
 
@@ -48,4 +49,7 @@ plugins:
   # - social
 
 markdown_extensions:
+  - admonition
   - attr_list
+  - pymdownx.details
+  - pymdownx.superfences
