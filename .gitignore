@@ -1,73 +1,3 @@
-# Ignore .hidden files
-.*
-# Ignore everything
-*
-
-!.github/
-!.github/**
-
-!.codecov.yml
-!.coveragerc
-
-!.dockerignore
-!.gitattributes
-!.gitignore
-!.gitempty
-
-!CONTRIBUTING.md
-!CODE_OF_CONDUCT.md
-!LICENSE
-!SECURITY.md
-
-!README.md
-
-!.pre-commit-config.yaml
-!.gitleaks.toml
-!.prettierrc.yml
-!.yamllint
-
-# PROJECT
-
-!mkdocs.yml
-!pyproject.toml
-!.python-version
-!uv.lock
-
-!bumper/
-!bumper/**
-
-!certs/
-!data/
-!logs/
-
-!configs/
-!configs/**
-!docs/
-!docs/**
-!scripts/
-scripts/*
-!scripts/*.sh
-!scripts/*.py
-
-!tests/
-!tests/db/
-!tests/db/**
-!tests/mqtt/
-!tests/mqtt/**
-!tests/utils/
-!tests/utils/**
-!tests/web/
-!tests/web/**
-!tests/xmpp/
-!tests/xmpp/**
-!tests/__init__.py
-!tests/conftest.py
-!tests/test*.py
-
-!Dockerfile
-!docker-compose-mitm.yaml
-!docker-compose.yaml
-
 # Created by https://www.toptal.com/developers/gitignore/api/python
 # Edit at https://www.toptal.com/developers/gitignore?templates=python
 
@@ -124,6 +54,7 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+tests/tmp.db
 
 # Translations
 *.mo
