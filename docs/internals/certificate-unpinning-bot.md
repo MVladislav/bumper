@@ -86,7 +86,7 @@ mount -a
     GPT part:  9, name:             data, start:0x92800, size:0x5b7df
     ```
 
-    Identify the data partition (in the above example it's on index 9) and add 1 to it and check if you have a device by `ls /dev/rkflash0pX` (in the above example `/dev/rkflash0p10`)
+    Identify the data partition (in the above example, it's on index 9), add 1 to the index, and check if you have a device by `ls /dev/rkflash0pX` (replace `X` with your index. In the example below, `/dev/rkflash0p10`).
 
     If the device exists, you can manually mount it with:
     ```sh
