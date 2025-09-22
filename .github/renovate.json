@@ -15,23 +15,36 @@
       "automerge": false
     },
     {
+      "addLabels": ["python-dev"],
+      "matchManagers": ["pep621"],
+      "matchDepTypes": ["dev", "docs"],
+      "groupName": "Python development dependencies",
+      "automerge": false
+    },
+    {
       "addLabels": ["github_actions"],
       "matchManagers": ["github-actions"],
       "rangeStrategy": "pin",
-      "groupName": "GitHub Actions"
+      "groupName": "GitHub Actions",
+      "automerge": false
     },
     {
       "addLabels": ["docker"],
       "matchManagers": ["dockerfile"],
+      "rangeStrategy": "pin",
       "groupName": "Docker updates",
       "automerge": false
     },
     {
       "addLabels": ["pre-commit"],
       "matchManagers": ["pre-commit"],
+      "rangeStrategy": "pin",
       "groupName": "Pre-commit hooks",
       "automerge": false
     }
   ],
+  "pre-commit": {
+    "enabled": true
+  },
   "rebaseWhen": "behind-base-branch"
 }
