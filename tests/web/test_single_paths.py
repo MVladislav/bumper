@@ -1,11 +1,65 @@
 import base64
 import gzip
+import io
 import json
+from pathlib import Path
+import tarfile
 
 from aiohttp.test_utils import TestClient
 import pytest
 
 from bumper.utils.settings import config as bumper_isc
+
+
+async def test_ca_certificates_disabled(webserver_client: TestClient) -> None:
+    bumper_isc.CA_CERTS_API_ENABLED = False
+    resp = await webserver_client.get("/ca-certificates.tar.gz")
+    assert resp.status == 404
+    assert await resp.text() == "CA certificate download endpoint is disabled."
+
+
+async def test_ca_certificates_missing_selfsigned(
+    tmp_path: Path,
+    webserver_client: TestClient,
+    test_files: dict[str, Path],
+) -> None:
+    try:
+        bumper_isc.CA_CERTS_API_ENABLED = True
+        bumper_isc.ca_cert = tmp_path / "nonexistent.crt"
+        resp = await webserver_client.get("/ca-certificates.tar.gz")
+        assert resp.status == 404
+        assert "CA cert file not found:" in await resp.text()
+    finally:
+        bumper_isc.ca_cert = test_files["certs"] / "ca.crt"
+
+
+@pytest.mark.parametrize("combine", [False, True])
+async def test_ca_certificates_content(combine: bool, webserver_client: TestClient) -> None:
+    bumper_isc.CA_CERTS_API_ENABLED = True
+    bumper_isc.CA_CERTS_API_DISABLE_COMBINE = combine
+
+    # Extend cert with fake info
+    with bumper_isc.ca_cert.open("a") as f:
+        f.write("# SELF_CERT\n")
+
+    resp = await webserver_client.get("/ca-certificates.tar.gz")
+    assert resp.status == 200
+    data = await resp.read()
+
+    # Validate cert content
+    with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as tar:
+        names = tar.getnames()
+        assert "ca-certificates/ca-certificates.crt" in names
+        assert "ca-certificates/MD5SUMS" in names
+
+        crt = tar.extractfile("ca-certificates/ca-certificates.crt").read().decode()
+        assert "SELF_CERT" in crt
+
+        crt_count = crt.count("BEGIN CERTIFICATE")
+        if combine:
+            assert crt_count == 1, f"Expected exactly one certificate when combine=False, got {crt_count}"
+        else:
+            assert crt_count >= 2, f"Expected multiple certificates when combine=True, got {crt_count}"
 
 
 async def test_newauth_unknown_todo(webserver_client: TestClient) -> None:

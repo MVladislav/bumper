@@ -101,8 +101,8 @@ async def handle_ca_certificates(_: Request) -> Response:
         }
         return Response(body=data, headers=headers)
 
-    except web.HTTPException:
-        raise
+    except web.HTTPException as e:
+        return web.Response(status=e.status, text=e.text, content_type="text/plain")
     except Exception:
         _LOGGER.exception(utils.default_exception_str_builder())
     raise HTTPInternalServerError
