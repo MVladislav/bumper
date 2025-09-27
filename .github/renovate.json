@@ -1,12 +1,12 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "commitMessagePrefix": "🚀",
-  "configMigration": true,
   "dependencyDashboard": false,
   "labels": ["dependencies", "no-stale"],
   "lockFileMaintenance": {
     "enabled": true
   },
+  "extends": ["config:recommended"],
+  "rebaseWhen": "behind-base-branch",
   "packageRules": [
     {
       "addLabels": ["python"],
@@ -45,6 +45,5 @@
   ],
   "pre-commit": {
     "enabled": true
-  },
-  "rebaseWhen": "behind-base-branch"
+  }
 }
