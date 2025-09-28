@@ -211,3 +211,19 @@ async def test_middleware_charset_fallback(
     resp = await client.post("/badcharset", data="")
     assert resp.status == 200
     assert "using 'replace' fallback" in caplog.text
+
+
+async def test_middleware_handles_none_response(
+    aiohttp_client: pytest.FixtureRequest,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    async def null_handler(_: web.Request) -> None:
+        return None  # This triggers the `response is None` branch
+
+    app = web.Application(middlewares=[log_all_requests])
+    app.router.add_post("/null", null_handler)
+    client = await aiohttp_client(app)
+
+    resp = await client.post("/null", data="test")
+    assert resp.status == 204  # HTTPNoContent
+    assert "Response was null!" in caplog.text

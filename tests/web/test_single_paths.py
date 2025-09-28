@@ -11,20 +11,12 @@ import pytest
 from bumper.utils.settings import config as bumper_isc
 
 
-async def test_ca_certificates_disabled(webserver_client: TestClient) -> None:
-    bumper_isc.CA_CERTS_API_ENABLED = False
-    resp = await webserver_client.get("/ca-certificates.tar.gz")
-    assert resp.status == 404
-    assert await resp.text() == "CA certificate download endpoint is disabled."
-
-
-async def test_ca_certificates_missing_selfsigned(
+async def test_ca_certificates_missing_self_signed(
     tmp_path: Path,
     webserver_client: TestClient,
     test_files: dict[str, Path],
 ) -> None:
     try:
-        bumper_isc.CA_CERTS_API_ENABLED = True
         bumper_isc.ca_cert = tmp_path / "nonexistent.crt"
         resp = await webserver_client.get("/ca-certificates.tar.gz")
         assert resp.status == 404
@@ -33,10 +25,10 @@ async def test_ca_certificates_missing_selfsigned(
         bumper_isc.ca_cert = test_files["certs"] / "ca.crt"
 
 
-@pytest.mark.parametrize("combine", [False, True])
-async def test_ca_certificates_content(combine: bool, webserver_client: TestClient) -> None:
-    bumper_isc.CA_CERTS_API_ENABLED = True
-    bumper_isc.CA_CERTS_API_DISABLE_COMBINE = combine
+@pytest.mark.parametrize("only_self_signed", [True, False])
+async def test_ca_certificates_content(tmp_path: Path, webserver_client: TestClient, only_self_signed: bool) -> None:
+    bumper_isc.CA_CERT_API_ONLY_BUMPER_CERT = only_self_signed
+    bumper_isc.ca_archive_file = tmp_path / f"ca-certificates{only_self_signed!s}.tar.gz"
 
     # Extend cert with fake info
     with bumper_isc.ca_cert.open("a") as f:
@@ -56,10 +48,10 @@ async def test_ca_certificates_content(combine: bool, webserver_client: TestClie
         assert "SELF_CERT" in crt
 
         crt_count = crt.count("BEGIN CERTIFICATE")
-        if combine:
-            assert crt_count == 1, f"Expected exactly one certificate when combine=False, got {crt_count}"
+        if only_self_signed:
+            assert crt_count == 1, f"Expected exactly one certificate when CA_CERT_API_ONLY_BUMPER_CERT=True, got {crt_count}"
         else:
-            assert crt_count >= 2, f"Expected multiple certificates when combine=True, got {crt_count}"
+            assert crt_count >= 2, f"Expected multiple certificates when CA_CERT_API_ONLY_BUMPER_CERT=False, got {crt_count}"
 
 
 async def test_newauth_unknown_todo(webserver_client: TestClient) -> None:
