@@ -85,6 +85,7 @@ class WebServer:
             routes.extend(
                 [
                     web.get("", self._handle_base),
+                    web.get("/ca-certificates.tar.gz", single_paths.handle_ca_certificates),
                     web.post("/newauth.do", single_paths.handle_new_auth),
                     web.post("/lookup.do", single_paths.handle_lookup),
                     web.get("/config/Android.conf", single_paths.handle_config_android_conf),

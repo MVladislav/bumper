@@ -1,10 +1,11 @@
+import gzip
 import json
 import logging
 from typing import TYPE_CHECKING, Any
 
 from aiohttp import web
 from aiohttp.web_app import Application
-from aiohttp.web_response import Response
+from aiohttp.web_response import Response, StreamResponse
 import pytest
 
 from bumper.utils.settings import config as bumper_isc
@@ -12,6 +13,23 @@ from bumper.web.middlewares import CustomEncoder, log_all_requests
 
 if TYPE_CHECKING:
     from aiohttp.test_utils import TestClient
+
+
+@pytest.fixture(autouse=True)
+def enable_debug_logging() -> None:
+    bumper_isc.DEBUG_LOGGING_API_REQUEST = True
+    bumper_isc.DEBUG_LOGGING_API_REQUEST_MISSING = False
+
+
+@pytest.fixture
+def app() -> Application:
+    async def handler(_: web.Request) -> Response:
+        return web.json_response({"msg": "ok"})
+
+    test_app = Application(middlewares=[log_all_requests])
+    test_app.router.add_post("/test", handler)
+    test_app.router.add_post("/static", handler)  # Excluded route
+    return test_app
 
 
 def test_custom_encoder_handles_set() -> None:
@@ -22,30 +40,12 @@ def test_custom_encoder_handles_set() -> None:
     assert sorted(decoded["numbers"]) == [1, 2, 3]
 
 
-@pytest.fixture
-def app() -> Application:
-    async def handler(_: web.Request) -> Response:
-        return web.json_response({"msg": "ok"})
-
-    test_app = web.Application(middlewares=[log_all_requests])
-    test_app.router.add_post("/test", handler)
-    test_app.router.add_post("/static", handler)  # Excluded route
-    return test_app
-
-
-@pytest.fixture(autouse=True)
-def enable_debug_logging() -> None:
-    bumper_isc.DEBUG_LOGGING_API_REQUEST = True
-    bumper_isc.DEBUG_LOGGING_API_REQUEST_MISSING = False
-
-
 async def test_middleware_logs_json_request(
     aiohttp_client: pytest.FixtureRequest,
     app: Application,
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     caplog.set_level(logging.DEBUG)
-
     client: TestClient = await aiohttp_client(app)
     resp = await client.post("/test", json={"key": "value"})
     assert resp.status == 200
@@ -60,7 +60,6 @@ async def test_middleware_skips_excluded_route(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     caplog.set_level(logging.DEBUG)
-
     client: TestClient = await aiohttp_client(app)
     resp = await client.post("/static", data="some data")
     assert resp.status == 200
@@ -68,13 +67,12 @@ async def test_middleware_skips_excluded_route(
     assert "request" not in caplog.text
 
 
-async def test_middleware_handles_form_body(
+async def test_middleware_logs_form_body(
     aiohttp_client: pytest.FixtureRequest,
     app: Application,
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     caplog.set_level(logging.DEBUG)
-
     client: TestClient = await aiohttp_client(app)
     resp = await client.post("/test", data={"foo": "bar"})
     assert resp.status == 200
@@ -87,7 +85,6 @@ async def test_middleware_logs_json_response(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     caplog.set_level(logging.DEBUG)
-
     client: TestClient = await aiohttp_client(app)
     resp = await client.post("/test", json={"hello": "world"})
     assert resp.status == 200
@@ -112,7 +109,7 @@ async def test_middleware_logs_text_response(
     assert "response" in caplog.text
 
 
-async def test_middleware_handles_unknown_request_content_type(
+async def test_middleware_logs_binary_request(
     aiohttp_client: pytest.FixtureRequest,
     app: Application,
     caplog: pytest.LogCaptureFixture,
@@ -127,20 +124,41 @@ async def test_middleware_handles_unknown_request_content_type(
     assert "request" in caplog.text
 
 
-async def test_middleware_skips_if_no_route_resource(
+async def test_middleware_logs_compressed_response(
     aiohttp_client: pytest.FixtureRequest,
     caplog: pytest.LogCaptureFixture,
 ) -> None:
-    async def handler(_: web.Request) -> Response:
-        return web.Response(text="ok")
+    async def gzip_handler(_: web.Request) -> Response:
+        content = gzip.compress(b"compressed body")
+        return web.Response(
+            body=content,
+            headers={"Content-Encoding": "gzip", "Content-Type": "text/plain"},
+        )
 
-    app = web.Application(middlewares=[log_all_requests])
-    app.router.add_route("POST", "/noresource/{name:.*}", handler)
+    app = Application(middlewares=[log_all_requests])
+    app.router.add_post("/gzip", gzip_handler)
 
     client: TestClient = await aiohttp_client(app)
-    resp = await client.post("/noresource/xyz", data="test")
+    resp = await client.post("/gzip", data="")
     assert resp.status == 200
-    assert "request" in caplog.text
+    assert "sample_b64" in caplog.text
+    assert "binary" in caplog.text
+
+
+async def test_middleware_logs_streamed_response(
+    aiohttp_client: pytest.FixtureRequest,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    async def stream_handler(_: web.Request) -> StreamResponse:
+        return web.StreamResponse(status=200)
+
+    app = Application(middlewares=[log_all_requests])
+    app.router.add_post("/stream", stream_handler)
+
+    client: TestClient = await aiohttp_client(app)
+    resp = await client.post("/stream", data="")
+    assert resp.status == 200
+    assert "body not available" in caplog.text
 
 
 async def test_middleware_handles_invalid_json_body(
@@ -154,6 +172,58 @@ async def test_middleware_handles_invalid_json_body(
         data="not-json",
         headers={"Content-Type": "application/json"},
     )
-    # request.json() should raise and be caught
     assert resp.status == 500
-    assert "during logging the request" in caplog.text
+    assert "during logging the request/response" in caplog.text
+
+
+async def test_middleware_logs_missing_route_warning(
+    aiohttp_client: pytest.FixtureRequest,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    bumper_isc.DEBUG_LOGGING_API_REQUEST_MISSING = True
+
+    app = Application(middlewares=[log_all_requests])
+
+    async def handler(_: web.Request) -> Response:
+        return web.json_response({"ok": True})
+
+    app.router.add_post("/known", handler)
+
+    client: TestClient = await aiohttp_client(app)
+    resp = await client.post("/unknown", data="test")
+    # Path not found triggers 404
+    assert resp.status in (404, 500)
+    assert "Requested API is not implemented" in caplog.text
+
+
+async def test_middleware_charset_fallback(
+    aiohttp_client: pytest.FixtureRequest,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    async def bad_charset_handler(_: web.Request) -> Response:
+        body = "áéíóú".encode("utf-16")  # intentionally different encoding
+        return web.Response(body=body, content_type="text/plain", charset="utf-8")
+
+    app = Application(middlewares=[log_all_requests])
+    app.router.add_post("/badcharset", bad_charset_handler)
+
+    client: TestClient = await aiohttp_client(app)
+    resp = await client.post("/badcharset", data="")
+    assert resp.status == 200
+    assert "using 'replace' fallback" in caplog.text
+
+
+async def test_middleware_handles_none_response(
+    aiohttp_client: pytest.FixtureRequest,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    async def null_handler(_: web.Request) -> None:
+        return None  # This triggers the `response is None` branch
+
+    app = web.Application(middlewares=[log_all_requests])
+    app.router.add_post("/null", null_handler)
+    client = await aiohttp_client(app)
+
+    resp = await client.post("/null", data="test")
+    assert resp.status == 204  # HTTPNoContent
+    assert "Response was null!" in caplog.text

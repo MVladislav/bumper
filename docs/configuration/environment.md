@@ -14,6 +14,14 @@ Variables not listed here are hardcoded or not configurable via environment.
 
 ---
 
+## ⚙️ Feature Flags
+
+| Variable                       | Default | Description                                                                                                                                           |
+| ------------------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CA_CERT_API_ONLY_BUMPER_CERT` | `False` | If `true`, **only** the **self-signed CA** is served. If `false`, the **bundle** includes both the **self-signed CA** and the **original system CA**. |
+
+---
+
 ## 📁 Paths & Files
 
 | Variable       | Default                    | Description                                           |

@@ -1,5 +1,6 @@
 """Web server middleware module."""
 
+import base64
 import json
 import logging
 from typing import Any
@@ -43,6 +44,108 @@ _EXCLUDE_FROM_LOGGING = [
 @web.middleware
 async def log_all_requests(request: Request, handler: Handler) -> StreamResponse:
     """Middleware to log all requests."""
+    await _log_debug_request(request)
+
+    if request.match_info.route.resource is None or request.match_info.route.resource.canonical in _EXCLUDE_FROM_LOGGING:
+        return await handler(request)
+
+    to_log = {
+        "request": {
+            "method": request.method,
+            "url": str(request.url),
+            "path": request.path,
+            "query_string": request.query_string,
+            "headers": set(request.headers.items()),
+            "route_resource": request.match_info.route.resource.canonical,
+        },
+    }
+
+    try:
+        if request.content_length:
+            if request.content_type == "application/json":
+                to_log["request"]["body"] = await request.json()
+            else:
+                to_log["request"]["body"] = set(await request.post())
+
+        response: StreamResponse | None = await handler(request)
+
+        if response is None:
+            _LOGGER.warning("Response was null!")
+            _LOGGER.warning(json.dumps(to_log, cls=CustomEncoder))
+            raise HTTPNoContent
+
+        to_log["response"] = {
+            "status": f"{response.status}",
+            "headers": set(response.headers.items()),
+        }
+
+        # Only inspect bodies for concrete in-memory Response objects
+        # StreamResponse (and FileResponse) typically don't expose body bytes here.
+        body_bytes = getattr(response, "body", None)
+        if not (isinstance(response, Response) and body_bytes is not None):
+            # Body is not available (streamed or file response) — don't try to read it
+            to_log["response"]["body"] = "<streamed or file response; body not available for logging>"
+        else:
+            if not isinstance(body_bytes, bytes | bytearray):
+                try:
+                    body_bytes = bytes(body_bytes)
+                except Exception:
+                    body_bytes = None
+
+            if body_bytes is None:
+                return response
+
+            content_type = (getattr(response, "content_type", "") or "").lower()
+            content_encoding = response.headers.get("Content-Encoding", "").lower()
+            charset = getattr(response, "charset", None)
+
+            is_text_like = (
+                content_type.startswith("text")
+                or content_type == "application/json"
+                or content_type in ("application/javascript", "application/xml", "application/xhtml+xml")
+            )
+            is_compressed = "gzip" in content_encoding or "deflate" in content_encoding
+
+            if is_compressed or not is_text_like:
+                sample_b64 = base64.b64encode(body_bytes[:64]).decode("ascii")
+                to_log["response"]["body"] = {
+                    "type": "binary",
+                    "content_type": content_type,
+                    "content_encoding": content_encoding,
+                    "length": len(body_bytes),
+                    "sample_b64": sample_b64,
+                }
+            else:
+                try:
+                    decoded = body_bytes.decode(charset or "utf-8")
+                except Exception as decode_err:
+                    _LOGGER.debug(
+                        f"Failed to decode response body with charset {charset}: {decode_err}; using 'replace' fallback",
+                    )
+                    decoded = body_bytes.decode(charset or "utf-8", errors="replace")
+
+                if content_type == "application/json":
+                    try:
+                        to_log["response"]["body"] = json.loads(decoded)
+                    except Exception:
+                        to_log["response"]["body"] = decoded
+                else:
+                    to_log["response"]["body"] = decoded
+
+        return response
+
+    except web.HTTPNotFound as e:
+        _LOGGER.debug(f"Request path {request.raw_path} not found")
+        raise web.HTTPNotFound from e
+    except Exception:
+        _LOGGER.exception(utils.default_exception_str_builder(info="during logging the request/response"))
+        raise
+    finally:
+        if bumper_isc.DEBUG_LOGGING_API_REQUEST is True:
+            _LOGGER.debug(json.dumps(to_log, cls=CustomEncoder))
+
+
+async def _log_debug_request(request: Request) -> None:
     try:
         # DEBUG logger by env set to see all requests taken
         # or to print requests which are not know (lists needs to be manually updated)
@@ -65,63 +168,3 @@ async def log_all_requests(request: Request, handler: Handler) -> StreamResponse
             )
     except Exception:
         _LOGGER.exception(utils.default_exception_str_builder(info="during logging the debug request"))
-
-    if request.match_info.route.resource is None or request.match_info.route.resource.canonical in _EXCLUDE_FROM_LOGGING:
-        return await handler(request)
-
-    to_log = {
-        "request": {
-            "method": request.method,
-            "url": str(request.url),
-            "path": request.path,
-            "query_string": request.query_string,
-            "headers": set(request.headers.items()),
-            "route_resource": request.match_info.route.resource.canonical,
-        },
-    }
-
-    try:
-        try:
-            if request.content_length:
-                if request.content_type == "application/json":
-                    to_log["request"]["body"] = await request.json()
-                else:
-                    to_log["request"]["body"] = set(await request.post())
-        except Exception:
-            _LOGGER.exception(utils.default_exception_str_builder(info="during logging the request"))
-            raise
-
-        response: StreamResponse | None = await handler(request)
-
-        try:
-            if response is None:
-                _LOGGER.warning("Response was null!")
-                _LOGGER.warning(json.dumps(to_log, cls=CustomEncoder))
-                raise HTTPNoContent
-
-            to_log["response"] = {
-                "status": f"{response.status}",
-                "headers": set(response.headers.items()),
-            }
-
-            if isinstance(response, Response) and response.body:
-                if response.text is None:
-                    msg = "Response text is not provided."
-                    raise ValueError(msg)
-
-                if response.content_type == "application/json":
-                    to_log["response"]["body"] = json.loads(response.text)
-                elif response.content_type.startswith("text"):
-                    to_log["response"]["body"] = response.text
-
-            return response
-        except Exception:
-            _LOGGER.exception(utils.default_exception_str_builder(info="during logging the response"))
-            raise
-
-    except web.HTTPNotFound:
-        _LOGGER.debug(f"Request path {request.raw_path} not found")
-        raise
-    finally:
-        if bumper_isc.DEBUG_LOGGING_API_REQUEST is True:
-            _LOGGER.debug(json.dumps(to_log, cls=CustomEncoder))

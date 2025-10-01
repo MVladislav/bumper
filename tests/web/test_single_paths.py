@@ -1,11 +1,57 @@
 import base64
 import gzip
+import io
 import json
+from pathlib import Path
+import tarfile
 
 from aiohttp.test_utils import TestClient
 import pytest
 
 from bumper.utils.settings import config as bumper_isc
+
+
+async def test_ca_certificates_missing_self_signed(
+    tmp_path: Path,
+    webserver_client: TestClient,
+    test_files: dict[str, Path],
+) -> None:
+    try:
+        bumper_isc.ca_cert = tmp_path / "nonexistent.crt"
+        resp = await webserver_client.get("/ca-certificates.tar.gz")
+        assert resp.status == 404
+        assert "CA cert file not found:" in await resp.text()
+    finally:
+        bumper_isc.ca_cert = test_files["certs"] / "ca.crt"
+
+
+@pytest.mark.parametrize("only_self_signed", [True, False])
+async def test_ca_certificates_content(tmp_path: Path, webserver_client: TestClient, only_self_signed: bool) -> None:
+    bumper_isc.CA_CERT_API_ONLY_BUMPER_CERT = only_self_signed
+    bumper_isc.ca_archive_file = tmp_path / f"ca-certificates{only_self_signed!s}.tar.gz"
+
+    # Extend cert with fake info
+    with bumper_isc.ca_cert.open("a") as f:
+        f.write("# SELF_CERT\n")
+
+    resp = await webserver_client.get("/ca-certificates.tar.gz")
+    assert resp.status == 200
+    data = await resp.read()
+
+    # Validate cert content
+    with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as tar:
+        names = tar.getnames()
+        assert "ca-certificates/ca-certificates.crt" in names
+        assert "ca-certificates/MD5SUMS" in names
+
+        crt = tar.extractfile("ca-certificates/ca-certificates.crt").read().decode()
+        assert "SELF_CERT" in crt
+
+        crt_count = crt.count("BEGIN CERTIFICATE")
+        if only_self_signed:
+            assert crt_count == 1, f"Expected exactly one certificate when CA_CERT_API_ONLY_BUMPER_CERT=True, got {crt_count}"
+        else:
+            assert crt_count >= 2, f"Expected multiple certificates when CA_CERT_API_ONLY_BUMPER_CERT=False, got {crt_count}"
 
 
 async def test_newauth_unknown_todo(webserver_client: TestClient) -> None:

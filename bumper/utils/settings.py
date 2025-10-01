@@ -5,6 +5,7 @@ from importlib.metadata import version
 import os
 from pathlib import Path
 import socket
+import tempfile
 from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
@@ -45,6 +46,9 @@ class Config:
     ca_cert = Path(os.environ.get("BUMPER_CA", certs_dir / "ca.crt"))
     server_cert = Path(os.environ.get("BUMPER_CERT", certs_dir / "bumper.crt"))
     server_key = Path(os.environ.get("BUMPER_KEY", certs_dir / "bumper.key"))
+    ca_archive_filename = "ca-certificates.tar.gz"
+    ca_archive_file = Path(tempfile.mkdtemp(prefix="bumper_ca_certificates_")) / ca_archive_filename
+    CA_CERT_API_ONLY_BUMPER_CERT: bool = str_to_bool(os.environ.get("CA_CERT_API_ONLY_BUMPER_CERT")) or False
 
     # Data Files
     db_file = str(Path(os.environ.get("DB_FILE") or data_dir / "bumper.db"))
