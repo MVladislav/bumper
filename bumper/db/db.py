@@ -15,7 +15,7 @@ TABLE_CLEAN_LOGS = "clean_logs"
 
 
 # Shared Query instance for TinyDB queries
-QueryInstance = Query()
+query_instance = Query()
 
 
 def get_db() -> TinyDB:

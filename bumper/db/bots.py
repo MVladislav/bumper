@@ -8,7 +8,7 @@ from tinydb.table import Document
 from bumper.web import models
 
 from .base import BaseRepo
-from .db import TABLE_BOTS, QueryInstance
+from .db import TABLE_BOTS, query_instance
 from .helpers import warn_if_not_doc
 
 _LOGGER = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ class BotRepo(BaseRepo):
 
     def add(self, name: str, did: str, class_id: str, resource: str, company: str) -> None:
         """Add a new bot."""
-        q = QueryInstance.did == did
+        q = query_instance.did == did
         if not self._get(q):
             bot = models.VacBotDevice(did=did, name=name, resource=resource, company=company)
             bot.class_id = class_id
@@ -30,7 +30,7 @@ class BotRepo(BaseRepo):
 
     def get(self, did: str) -> models.VacBotDevice | None:
         """Get bot by device ID."""
-        rec = self._get(QueryInstance.did == did)
+        rec = self._get(query_instance.did == did)
         return models.VacBotDevice.from_dict(rec) if isinstance(rec, dict | Document) else None
 
     def list_all(self) -> list[models.VacBotDevice]:
@@ -43,7 +43,7 @@ class BotRepo(BaseRepo):
 
     def remove(self, did: str) -> None:
         """Remove a bot by device ID."""
-        self._remove(QueryInstance.did == did)
+        self._remove(query_instance.did == did)
 
     def set_nick(self, did: str | None, nick: str) -> None:
         """Set bot nickname."""
@@ -69,4 +69,4 @@ class BotRepo(BaseRepo):
         if did is None:
             _LOGGER.warning(f"Failed to updated field as did is not set for :: DID: {did} :: field: {field} :: value: {value}")
             return
-        self._upsert({field: value}, QueryInstance.did == did)
+        self._upsert({field: value}, query_instance.did == did)

@@ -8,7 +8,7 @@ from tinydb.table import Document
 from bumper.web import models
 
 from .base import BaseRepo
-from .db import TABLE_CLEAN_LOGS, QueryInstance
+from .db import TABLE_CLEAN_LOGS, query_instance
 from .helpers import warn_if_not_doc
 
 _LOGGER = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ class CleanLogRepo(BaseRepo):
 
     def add(self, did: str, cid: str, log: models.CleanLog) -> None:
         """Add or update a clean log entry (ensures uniqueness based on ID, TS, and type)."""
-        q = QueryInstance.did == did  # & (QueryInstance.cid == cid)
+        q = query_instance.did == did  # & (QueryInstance.cid == cid)
         entry = self._get(q)
 
         logs: list[dict[str, Any]] = []
@@ -43,7 +43,7 @@ class CleanLogRepo(BaseRepo):
     def list_by_did(self, did: str) -> list[models.CleanLog]:
         """List clean logs by device ID."""
         results: list[models.CleanLog] = []
-        for entry in self.table.search(QueryInstance.did == did):
+        for entry in self.table.search(query_instance.did == did):
             warn_if_not_doc(entry, "CleanLogRepo.list_by_did entry")
             results.extend(models.CleanLog.from_db(raw) for raw in entry.get("logs", []))
         return results
@@ -55,7 +55,7 @@ class CleanLogRepo(BaseRepo):
     def remove_by_id(self, clean_log_id: str) -> None:
         """Remove a clean log entry by its clean_log_id."""
         did = clean_log_id.split("@", 1)[0]
-        entries = self.table.search(QueryInstance.did == did)
+        entries = self.table.search(query_instance.did == did)
 
         for entry in entries:
             warn_if_not_doc(entry, "CleanLogRepo.remove_by_id entry")
@@ -64,5 +64,5 @@ class CleanLogRepo(BaseRepo):
 
             # Only update if logs were actually removed
             if len(logs) != len(updated_logs):
-                q = (QueryInstance.did == entry["did"]) & (QueryInstance.cid == entry["cid"])
+                q = (query_instance.did == entry["did"]) & (query_instance.cid == entry["cid"])
                 self._upsert({"logs": updated_logs}, q)

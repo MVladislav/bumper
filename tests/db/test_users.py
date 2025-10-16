@@ -5,7 +5,7 @@ import pytest
 from tinydb import TinyDB
 
 from bumper.db import token_repo, user_repo
-from bumper.db.db import QueryInstance
+from bumper.db.db import query_instance
 from bumper.utils.settings import config as bumper_isc
 from bumper.web.models import BumperUser
 
@@ -70,7 +70,7 @@ def test_user_db(test_files: dict[str, Path()]) -> None:
 
     # Test _user_full_upsert
     new_user = BumperUser(userid="new_testuser")
-    user_repo._upsert(new_user.as_dict(), QueryInstance.userid == new_user.userid)
+    user_repo._upsert(new_user.as_dict(), query_instance.userid == new_user.userid)
     assert user_repo.get_by_id("new_testuser").userid == "new_testuser"
 
     db_test = TinyDB(str(test_files["db"]))

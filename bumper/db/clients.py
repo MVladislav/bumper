@@ -7,7 +7,7 @@ from tinydb.table import Document
 from bumper.web import models
 
 from .base import BaseRepo
-from .db import TABLE_CLIENTS, QueryInstance
+from .db import TABLE_CLIENTS, query_instance
 from .helpers import warn_if_not_doc
 
 _LOGGER = logging.getLogger(__name__)
@@ -21,14 +21,14 @@ class ClientRepo(BaseRepo):
 
     def add(self, name: str | None, user_id: str, realm: str, resource: str) -> None:
         """Add a new client."""
-        q = QueryInstance.userid == user_id
+        q = query_instance.userid == user_id
         if not self._get(q):
             client = models.VacBotClient(name=name if name else "", userid=user_id, realm=realm, resource=resource)
             self._upsert(client.as_dict(), q)
 
     def get(self, user_id: str) -> models.VacBotClient | None:
         """Get client by user ID."""
-        rec = self._get(QueryInstance.userid == user_id)
+        rec = self._get(query_instance.userid == user_id)
         return models.VacBotClient.from_dict(rec) if isinstance(rec, dict | Document) else None
 
     def list_all(self) -> list[models.VacBotClient]:
@@ -41,15 +41,15 @@ class ClientRepo(BaseRepo):
 
     def remove(self, user_id: str) -> None:
         """Remove a client by user ID."""
-        self._remove(QueryInstance.userid == user_id)
+        self._remove(query_instance.userid == user_id)
 
     def set_mqtt(self, user_id: str | None, mqtt: bool) -> None:
         """Set MQTT connection status."""
-        self._upsert({"mqtt_connection": mqtt}, QueryInstance.userid == user_id)
+        self._upsert({"mqtt_connection": mqtt}, query_instance.userid == user_id)
 
     def set_xmpp(self, user_id: str | None, xmpp: bool) -> None:
         """Set XMPP connection status."""
-        self._upsert({"xmpp_connection": xmpp}, QueryInstance.userid == user_id)
+        self._upsert({"xmpp_connection": xmpp}, query_instance.userid == user_id)
 
     def reset_all_connections(self) -> None:
         """Reset all clients' connection statuses."""
