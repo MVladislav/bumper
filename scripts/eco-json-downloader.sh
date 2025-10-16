@@ -251,16 +251,35 @@ for ENDPOINT in "${!FILES[@]}"; do
   done
 
   if [ ${#FILES_TO_COMBINE[@]} -gt 0 ]; then
-    if [[ "$OUTBASE" == "configNetAllResponse" ]]; then
-      jq -s 'add | unique_by(.groupId) | sort_by(.groupId)' "${FILES_TO_COMBINE[@]}" "bumper/web/plugins/api/pim/configNetAllResponse.json" >"$COMBINED_FILE"
+    if [[ "$OUTBASE" == "configGroupsResponse" ]]; then
+      jq -s 'add | group_by(.id) | map(.[0]) | sort_by(.sort, .id) | map(.robots |= sort_by(.sort, .groupId))' "${FILES_TO_COMBINE[@]}" "bumper/web/plugins/api/pim/configGroupsResponse.json" >"$COMBINED_FILE"
+    elif [[ "$OUTBASE" == "configNetAllResponse" ]]; then
+      jq -s 'add | unique_by(.groupId) | sort_by(.sort, .groupId)' "${FILES_TO_COMBINE[@]}" "bumper/web/plugins/api/pim/configNetAllResponse.json" >"$COMBINED_FILE"
     elif [[ "$OUTBASE" == "productIotMap" ]]; then
       jq -s 'add | unique_by(.classid) | sort_by(.classid)' "${FILES_TO_COMBINE[@]}" "bumper/web/plugins/api/pim/productIotMap.json" >"$COMBINED_FILE"
-    elif [[ "$OUTBASE" == "configGroupsResponse" ]]; then
-      jq -s 'add | sort_by(.id) | group_by(.id) | map(.[0]) | sort_by(.id)' "${FILES_TO_COMBINE[@]}" "bumper/web/plugins/api/pim/configGroupsResponse.json" >"$COMBINED_FILE"
     fi
     cp "$COMBINED_FILE" "bumper/web/plugins/api/pim/${OUTBASE}.json"
     echo "    ✅ Combined JSON '$OUTBASE' :: copied JSON: '$COMBINED_FILE' -> 'bumper/web/plugins/api/pim/${OUTBASE}.json'"
   fi
+done
+
+# --- Step 4: Replacing URLs in combined JSON files-----------------------------
+echo "🧼 Step 6: Replacing URLs in combined JSON files..."
+REPLACEMENTS=(
+  "api-app.dc-na.ww"
+  "api-app.dc-eu.ww"
+  "api-app.dc-as.ww"
+)
+
+for OUTBASE in "configNetAllResponse" "productIotMap" "configGroupsResponse"; do
+  JSON_FILE="bumper/web/plugins/api/pim/${OUTBASE}.json"
+  echo "  🌐 Processing $JSON_FILE"
+
+  for OLD_DOMAIN in "${REPLACEMENTS[@]}"; do
+    sed -i "s|https://$OLD_DOMAIN|https://portal-ww|g" "$JSON_FILE"
+  done
+
+  echo "    🔁 URLs replaced in $JSON_FILE"
 done
 
 echo "🎉 Done! Files saved in '$OUTPUT_FOLDER'"
