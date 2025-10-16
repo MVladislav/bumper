@@ -1,13 +1,13 @@
 # https://hub.docker.com/_/python/tags
 ARG PY_VERSION=3.14.0-alpine3.22
 # https://github.com/astral-sh/uv/pkgs/container/uv
-ARG UV_VERSION=python3.13-alpine
+ARG UV_VERSION=python3.14-alpine
 
 # ------------------------------------------------------------------------------
 
 FROM ghcr.io/astral-sh/uv:${UV_VERSION} AS uv_source
 FROM python:${PY_VERSION} AS builder
-# COPY --from=ghcr.io/astral-sh/uv:python3.13-alpine /uv /uvx /bin/
+# COPY --from=ghcr.io/astral-sh/uv:python3.14-alpine /uv /uvx /bin/
 COPY --from=uv_source /usr/local/bin/uv /usr/local/bin/uvx /bin/
 
 RUN apk add --no-cache \
