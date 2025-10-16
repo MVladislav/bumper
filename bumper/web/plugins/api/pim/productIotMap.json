@@ -11,10 +11,7 @@
       "UILogicId": "keplerse_ww_h_keplerseh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/678dbc5ceac3f5623d75eb79",
       "status": "valid"
@@ -30,12 +27,9 @@
       "icon": "60810dddd18cbd0008e2fd27",
       "model": "SLIM10",
       "UILogicId": "D_OZMO_SLIM10",
-      "ota": false,
+      "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/60810dddd18cbd0008e2fd27",
       "status": "valid"
@@ -53,10 +47,7 @@
       "UILogicId": "DK_781_PLUS",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/60a201729fe5580009c6d769",
       "status": "valid"
@@ -74,10 +65,7 @@
       "UILogicId": "sharkmini_ww_h_wshark",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": false,
-        "alexa": false
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6746c965b0a67b9387c1c599",
       "status": "valid"
@@ -95,12 +83,27 @@
       "UILogicId": "K650_G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5ef31b8cee3c1200075b6f67",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "0bdtzz",
+    "product": {
+      "_id": "5fa105c6d16a99000667eb54",
+      "materialNo": "110-1921-0404",
+      "smartType": "MQ_AP",
+      "name": "DEEBOT OZMO T8 PURE",
+      "icon": "5fa105bbd16a99000667eb52",
+      "model": "OT8_PURE",
+      "UILogicId": "DT_8G",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5fa105bbd16a99000667eb52",
       "status": "valid"
     }
   },
@@ -116,10 +119,7 @@
       "UILogicId": "DV_5G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5d117d4f0ac6ad00012b792d",
       "status": "valid"
@@ -137,10 +137,7 @@
       "UILogicId": "DR_930G",
       "ota": true,
       "supportType": {
-        "share": false,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": false
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5cf711aeb0acfc000179ff8a",
       "status": "valid"
@@ -156,12 +153,9 @@
       "icon": "5d2c150dba13eb00013feaae",
       "model": "Slim2",
       "UILogicId": "ECO_INTL_123",
-      "ota": false,
+      "ota": true,
       "supportType": {
-        "share": false,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": false
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5d2c150dba13eb00013feaae",
       "status": "valid"
@@ -177,12 +171,9 @@
       "icon": "5d2c14414d60de0001eaf1f2",
       "model": "M80",
       "UILogicId": "ECO_INTL_125",
-      "ota": false,
+      "ota": true,
       "supportType": {
-        "share": false,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": false
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5d2c14414d60de0001eaf1f2",
       "status": "valid"
@@ -198,12 +189,9 @@
       "icon": "5ca32ab2e9e9270001354b3d",
       "model": "N79",
       "UILogicId": "ECO_INTL_126",
-      "ota": false,
+      "ota": true,
       "supportType": {
-        "share": false,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": false
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5ca32ab2e9e9270001354b3d",
       "status": "valid"
@@ -219,14 +207,29 @@
       "icon": "5ca31df112851900016858c0",
       "model": "M86",
       "UILogicId": "ECO_INTL_129",
-      "ota": false,
+      "ota": true,
       "supportType": {
-        "share": false,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": false
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5ca31df112851900016858c0",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "12baap",
+    "product": {
+      "_id": "5ea8d1fe73193e3bef67c551",
+      "materialNo": "110-1919-1801",
+      "smartType": "MQ_AP",
+      "name": "DEEBOT U2 PRO",
+      "icon": "606425981269020008a9627b",
+      "model": "U2_APAC2",
+      "UILogicId": "U2_HIGH_G",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/606425981269020008a9627b",
       "status": "valid"
     }
   },
@@ -240,12 +243,9 @@
       "icon": "5d4b7640de51dd0001fee131",
       "model": "OZMO600",
       "UILogicId": "ECO_INTL_130",
-      "ota": false,
+      "ota": true,
       "supportType": {
-        "share": false,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": false
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5d4b7640de51dd0001fee131",
       "status": "valid"
@@ -261,12 +261,9 @@
       "icon": "5d2c152f4d60de0001eaf1f4",
       "model": "SlimNeo",
       "UILogicId": "ECO_INTL_140",
-      "ota": false,
+      "ota": true,
       "supportType": {
-        "share": false,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": false
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5d2c152f4d60de0001eaf1f4",
       "status": "valid"
@@ -282,12 +279,9 @@
       "icon": "5d2c2aa64d60de0001eaf1f6",
       "model": "M81",
       "UILogicId": "ECO_INTL_141",
-      "ota": false,
+      "ota": true,
       "supportType": {
-        "share": false,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": false
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5d2c2aa64d60de0001eaf1f6",
       "status": "valid"
@@ -303,12 +297,9 @@
       "icon": "5ca1ca79e9e9270001354b2d",
       "model": "Mini2",
       "UILogicId": "ECO_INTL_142",
-      "ota": false,
+      "ota": true,
       "supportType": {
-        "share": false,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": false
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5ca1ca79e9e9270001354b2d",
       "status": "valid"
@@ -324,12 +315,9 @@
       "icon": "5d4b7628de51dd0001fee12f",
       "model": "D600",
       "UILogicId": "ECO_INTL_152",
-      "ota": false,
+      "ota": true,
       "supportType": {
-        "share": false,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": false
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5d4b7628de51dd0001fee12f",
       "status": "valid"
@@ -345,12 +333,9 @@
       "icon": "5cd4ca505b032200015a455d",
       "model": "DN622",
       "UILogicId": "ECO_INTL_155",
-      "ota": false,
+      "ota": true,
       "supportType": {
-        "share": false,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": false
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5cd4ca505b032200015a455d",
       "status": "valid"
@@ -366,12 +351,9 @@
       "icon": "5d4b7606de51dd0001fee12d",
       "model": "159",
       "UILogicId": "ECO_INTL_159",
-      "ota": false,
+      "ota": true,
       "supportType": {
-        "share": false,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": false
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5d4b7606de51dd0001fee12d",
       "status": "valid"
@@ -387,12 +369,9 @@
       "icon": "5ca32a1012851900016858c6",
       "model": "N79T",
       "UILogicId": "ECO_INTL_165",
-      "ota": false,
+      "ota": true,
       "supportType": {
-        "share": false,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": false
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5ca32a1012851900016858c6",
       "status": "valid"
@@ -408,12 +387,9 @@
       "icon": "5d280ce3350e7a0001e84c95",
       "model": "D661",
       "UILogicId": "D_661",
-      "ota": false,
+      "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5d280ce3350e7a0001e84c95",
       "status": "valid"
@@ -431,10 +407,7 @@
       "UILogicId": "belugapro_cn_h_beluga",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/63bd2febdf25d06f775c3bee",
       "status": "valid"
@@ -452,10 +425,7 @@
       "UILogicId": "t10_ww_n_omniwhite",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/61c58ddc75bfe17354e4804e",
       "status": "valid"
@@ -473,12 +443,27 @@
       "UILogicId": "t10_ww_n_omni",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6225bd1c2af2127804f540e5",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "1zqysa",
+    "product": {
+      "_id": "5ee85c64fdd6a30008da0af4",
+      "materialNo": "110-1919-2201",
+      "smartType": "MQ_AP",
+      "name": "DEEBOT U2 POWER",
+      "icon": "6064258d1269020008a9627a",
+      "model": "U2_HK",
+      "UILogicId": "U2_HIGH_NOMAG_G",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6064258d1269020008a9627a",
       "status": "valid"
     }
   },
@@ -494,10 +479,7 @@
       "UILogicId": "at90_ww_h_at90",
       "ota": true,
       "supportType": {
-        "share": false,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": false
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/637ada094b606f5d29b84250",
       "status": "valid"
@@ -515,10 +497,7 @@
       "UILogicId": "goat_ww_h_goatx",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": false,
-        "alexa": false
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/65d6a3b4c2779efa11e50b9f",
       "status": "valid"
@@ -536,10 +515,7 @@
       "UILogicId": "faraday_ww_h_keplerh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67288127ec0f096170bddb8f",
       "status": "valid"
@@ -557,10 +533,7 @@
       "UILogicId": "w2pro_ww_h_w2",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67404febec0f0908d3bcec40",
       "status": "valid"
@@ -578,10 +551,7 @@
       "UILogicId": "t10_ww_n_turingacs",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6225bd3b7604e551a50e46ac",
       "status": "valid"
@@ -599,12 +569,27 @@
       "UILogicId": "winbot_g",
       "ota": true,
       "supportType": {
-        "share": false,
-        "tmjl": false,
-        "assistant": false,
-        "alexa": false
+        "share": false
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6049b3631269020008a95af0",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "2pv572",
+    "product": {
+      "_id": "5d1474630ac6ad00012b7940",
+      "materialNo": "110-1810-0107",
+      "smartType": "MQ_AP",
+      "name": "DEEBOT OZMO 905",
+      "icon": "5d1474632a6bd50001b5b6f3",
+      "model": "OZMO905",
+      "UILogicId": "D_OZMO_900",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5d1474632a6bd50001b5b6f3",
       "status": "valid"
     }
   },
@@ -620,10 +605,7 @@
       "UILogicId": "goatr_ww_h_goatbz",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": false,
-        "alexa": false
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/677cfd05c70c6c4d5d8125c6",
       "status": "valid"
@@ -641,12 +623,27 @@
       "UILogicId": "goatl_ww_h_goatbz",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": false,
-        "alexa": false
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/677df0e9cc4311b71dc6c71a",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "36hdj8",
+    "product": {
+      "_id": "682ad05b5ace0b25e1f51163",
+      "materialNo": "110-2499-0005",
+      "smartType": "MQ_APM",
+      "name": "DEEBOT N50 OMNI",
+      "icon": "67d3f874b8e683264a1d432d",
+      "model": "EULER_AU_BK",
+      "UILogicId": "eulerh_ww_h_eulerh5",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67d3f874b8e683264a1d432d",
       "status": "valid"
     }
   },
@@ -662,10 +659,7 @@
       "UILogicId": "N8_PLUS",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/60627bd517c95b0008ff20ec",
       "status": "valid"
@@ -683,10 +677,7 @@
       "UILogicId": "K650_RANDOM_G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5ef31b80f5dcdf000767cf4d",
       "status": "valid"
@@ -704,10 +695,7 @@
       "UILogicId": "y2sedock_ww_h_yy2h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/664425d10e8603668ca330a6",
       "status": "valid"
@@ -723,12 +711,9 @@
       "icon": "66e39944123f301d3cc1e6b0",
       "model": "CARTESIAN-WHITE-INT-STANDARD",
       "UILogicId": "y30_ww_h_y30h5",
-      "ota": false,
+      "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66e39944123f301d3cc1e6b0",
       "status": "valid"
@@ -746,10 +731,7 @@
       "UILogicId": "t30pro_ww_h_t30h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/65e04026fcab26e42479ceb4",
       "status": "valid"
@@ -767,10 +749,7 @@
       "UILogicId": "t30combo_ww_h_t30h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/660d039b31620d56505fbb9b",
       "status": "valid"
@@ -788,10 +767,7 @@
       "UILogicId": "kepler_ww_h_keplerh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/670620f28f7305309743ba40",
       "status": "valid"
@@ -809,10 +785,7 @@
       "UILogicId": "AT_01G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": false,
-        "alexa": false
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5d2d996c4d60de0001eaf2b5",
       "status": "valid"
@@ -830,10 +803,7 @@
       "UILogicId": "bohrwhite_ww_h_bohrh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6626128aeba51493a0f7eeda",
       "status": "valid"
@@ -851,10 +821,7 @@
       "UILogicId": "t30pro_ww_h_t30h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/65e03f9ca16bb4c5609e8013",
       "status": "valid"
@@ -872,10 +839,7 @@
       "UILogicId": "belugapro_ww_h_beluga",
       "ota": true,
       "supportType": {
-        "share": false,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": false
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/619477bc01fb68b814bf290b",
       "status": "valid"
@@ -893,10 +857,7 @@
       "UILogicId": "DN_2G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5c778731280fda0001770ba0",
       "status": "valid"
@@ -914,10 +875,7 @@
       "UILogicId": "faradayhup_ww_h_keplerh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6764e1212d9bc7bb94024ce7",
       "status": "valid"
@@ -935,10 +893,7 @@
       "UILogicId": "DT_8G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/605be27250928b0007c13264",
       "status": "valid"
@@ -956,10 +911,7 @@
       "UILogicId": "omni_ww_h_ssh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67f325b14c296b21ac85c742",
       "status": "valid"
@@ -977,10 +929,7 @@
       "UILogicId": "kepler_ww_h_ykeplerh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67726bd7c70c6c0eae811e98",
       "status": "valid"
@@ -998,10 +947,7 @@
       "UILogicId": "REECOO_V900",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": false,
-        "alexa": false
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5da014801636240001f988e4",
       "status": "valid"
@@ -1019,10 +965,7 @@
       "UILogicId": "goat_ww_h_goat",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/63913d74df25d049785c3bd7",
       "status": "valid"
@@ -1040,10 +983,7 @@
       "UILogicId": "T9_PRO_G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": true,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6363621b7fe5cbdcc1de8582",
       "status": "valid"
@@ -1061,10 +1001,7 @@
       "UILogicId": "belugapro_ww_h_beluga",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/63bd2ff5df25d04e415c3bf0",
       "status": "valid"
@@ -1082,10 +1019,7 @@
       "UILogicId": "t30mix_ww_h_t30h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/660d03100324610935294f7d",
       "status": "valid"
@@ -1124,10 +1058,7 @@
       "UILogicId": "T9_AF_G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/603f5147c8115100083364bc",
       "status": "valid"
@@ -1145,10 +1076,7 @@
       "UILogicId": "keplerse_ww_h_ykeplerseh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6801aab64c296be62185ccd6",
       "status": "valid"
@@ -1166,12 +1094,27 @@
       "UILogicId": "goatr_ww_h_goatbz",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": false,
-        "alexa": false
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/677cfd42c70c6c07008125ca",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "6q3rfp",
+    "product": {
+      "_id": "682acfaa166b38ad0ac006f8",
+      "materialNo": " 110-2499-0004",
+      "smartType": "MQ_APM",
+      "name": "DEEBOT N50 OMNI",
+      "icon": "67d3f6da0d79d66a2c34195a",
+      "model": "EULER_AU_WH",
+      "UILogicId": "eulerh_ww_h_eulerh5",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67d3f6da0d79d66a2c34195a",
       "status": "valid"
     }
   },
@@ -1182,17 +1125,14 @@
       "materialNo": "111-2432-0102",
       "smartType": "BT",
       "name": "WINBOT MINI",
-      "icon": "673e957cec0f097931aa7169",
+      "icon": "6886ed98f68ece317111458b",
       "model": "WHITESHARK_INT_BROWN",
       "UILogicId": "sharkmini_ww_h_wshark",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": false,
-        "alexa": false
+        "share": true
       },
-      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/673e957cec0f097931aa7169",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6886ed98f68ece317111458b",
       "status": "valid"
     }
   },
@@ -1208,10 +1148,7 @@
       "UILogicId": "cc_ww_h_cc",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/64c213889f69200af52cb92d",
       "status": "valid"
@@ -1229,10 +1166,7 @@
       "UILogicId": "goat_ww_h_goat",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": false,
-        "alexa": false
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/65547f567c33edad6806a500",
       "status": "valid"
@@ -1250,10 +1184,7 @@
       "UILogicId": "davinicih_ww_h_vinci",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6823f0775ace0b6277f50fdd",
       "status": "valid"
@@ -1271,10 +1202,7 @@
       "UILogicId": "N8_PLUS",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5fb474d4d16a99000667edd9",
       "status": "valid"
@@ -1292,10 +1220,7 @@
       "UILogicId": "copernich_ww_h_copernich5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67ad4d89eac3f5382975ecfc",
       "status": "valid"
@@ -1313,12 +1238,27 @@
       "UILogicId": "U2_HIGH_G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6064260545505e0008e5cb49",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "7ohr1d",
+    "product": {
+      "_id": "68107de9f636497378ed8db0",
+      "materialNo": "110-24A3-1101,110-24A3-0902",
+      "smartType": "BLAP2",
+      "name": "DEEBOT X11 PRO OMNI With Auto Refill And Drain",
+      "icon": "6891a66e7e68c5934153945f",
+      "model": "PLANCK_PRO_UP_INT",
+      "UILogicId": "planckhup_ww_h_planckh5",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6891a66e7e68c5934153945f",
       "status": "valid"
     }
   },
@@ -1334,10 +1274,7 @@
       "UILogicId": "aes_ww_h_fsh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/669a33c6d0a2886743f99d3b",
       "status": "valid"
@@ -1355,10 +1292,7 @@
       "UILogicId": "y30plus_ww_h_y30h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/65e672f45a1d6424fcfbc7db",
       "status": "valid"
@@ -1376,10 +1310,7 @@
       "UILogicId": "N8_PLUS",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6243b185784d1652c082ef31",
       "status": "valid"
@@ -1397,10 +1328,7 @@
       "UILogicId": "w2pro_ww_h_w2",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/656e8ca0645b0986fdb84509",
       "status": "valid"
@@ -1439,10 +1367,7 @@
       "UILogicId": "w2_ww_h_w2",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/673fe2dd0aca161a7ea6fdd8",
       "status": "valid"
@@ -1460,10 +1385,7 @@
       "UILogicId": "DT_8SE_G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5feaeb585f437d0008e0e00c",
       "status": "valid"
@@ -1481,10 +1403,7 @@
       "UILogicId": "t10_ww_n_darwinteo",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6411872416d2f20076fc1bba",
       "status": "valid"
@@ -1502,10 +1421,7 @@
       "UILogicId": "omni_ww_h_fsh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/669a34530e86038e73a3377a",
       "status": "valid"
@@ -1523,10 +1439,7 @@
       "UILogicId": "t30mixproblack_ww_h_t30mixproh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/665057280e86033a15a33131",
       "status": "valid"
@@ -1544,10 +1457,7 @@
       "UILogicId": "t30mix_ww_h_t30h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/660d02d003246150df294f7b",
       "status": "valid"
@@ -1565,10 +1475,7 @@
       "UILogicId": "halley_ww_h_halleyh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/677dea8f2a583ab2edc87351",
       "status": "valid"
@@ -1607,10 +1514,7 @@
       "UILogicId": "at90_ww_h_at91",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/63887a3237c2e75595d48120",
       "status": "valid"
@@ -1626,12 +1530,9 @@
       "icon": "5c932067280fda0001770d7f",
       "model": "D505",
       "UILogicId": "D_500",
-      "ota": false,
+      "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5c932067280fda0001770d7f",
       "status": "valid"
@@ -1649,10 +1550,7 @@
       "UILogicId": "keplerse_ww_h_keplerseh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/678dbcdba37fd12d941e7834",
       "status": "valid"
@@ -1670,10 +1568,7 @@
       "UILogicId": "t30combo_ww_h_t30h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/660d036929909212cf72fb99",
       "status": "valid"
@@ -1691,10 +1586,7 @@
       "UILogicId": "y2se_ww_h_y2h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66431314028bb2b0d7ab10fb",
       "status": "valid"
@@ -1712,10 +1604,7 @@
       "UILogicId": "t10_ww_n_darwin_e",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/64d052f39f692007dd2cb934",
       "status": "valid"
@@ -1733,10 +1622,7 @@
       "UILogicId": "DX_9G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": false,
-        "alexa": false
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6062795ad18cbd0008e2fce8",
       "status": "valid"
@@ -1754,10 +1640,7 @@
       "UILogicId": "t10_ww_n_curieacs",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/630711c6c87b95033a7817f9",
       "status": "valid"
@@ -1775,10 +1658,7 @@
       "UILogicId": "k950l_us_h_k950",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/61b0497b658e844efac7848d",
       "status": "valid"
@@ -1796,10 +1676,7 @@
       "UILogicId": "w2_ww_h_w2",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/673fe45b8f73059ec9f8fa2f",
       "status": "valid"
@@ -1817,10 +1694,7 @@
       "UILogicId": "REECOO_V900",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": false,
-        "alexa": false
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5d89b1a9590c0d00016717f4",
       "status": "valid"
@@ -1838,10 +1712,7 @@
       "UILogicId": "y2dock_ww_h_y2h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6643128b028bb2c1e5ab10f5",
       "status": "valid"
@@ -1859,10 +1730,7 @@
       "UILogicId": "k950_ww_h_k950",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/61b0498272e305141cc11624",
       "status": "valid"
@@ -1880,10 +1748,7 @@
       "UILogicId": "goat_ww_h_goatx",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": false,
-        "alexa": false
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/65d6a3bdc2779edb91e50ba1",
       "status": "valid"
@@ -1899,12 +1764,9 @@
       "icon": "5e58a2df36e8f39e318f031d",
       "model": "D665",
       "UILogicId": "D_661",
-      "ota": false,
+      "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5e58a2df36e8f39e318f031d",
       "status": "valid"
@@ -1922,10 +1784,7 @@
       "UILogicId": "N8_PLUS",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5feaeb27d4cb3a0006679047",
       "status": "valid"
@@ -1943,10 +1802,7 @@
       "UILogicId": "DT_8G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5e8e93a7032edd3f5ec66d4a",
       "status": "valid"
@@ -1964,10 +1820,7 @@
       "UILogicId": "w2pro_ww_h_w2",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67404fbb0aca160554acfd4f",
       "status": "valid"
@@ -1985,10 +1838,7 @@
       "UILogicId": "copernich_ww_h_copernich5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67ad4ce9359242e8938fcff2",
       "status": "valid"
@@ -2006,10 +1856,7 @@
       "UILogicId": "t10_ww_n_curieomni",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/62f323edb2147111664ed6b2",
       "status": "valid"
@@ -2027,12 +1874,27 @@
       "UILogicId": "y2se_ww_h_y2h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/664312f5028bb26d95ab10f9",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "c0lwyn",
+    "product": {
+      "_id": "5e993eef6a299d7e4a06d660",
+      "materialNo": "110-1919-1301",
+      "smartType": "MQ_AP",
+      "name": "DEEBOT U2 PRO",
+      "icon": "606425ab4a84d700082b39f7",
+      "model": "U2_AUH",
+      "UILogicId": "U2_HIGH_G",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/606425ab4a84d700082b39f7",
       "status": "valid"
     }
   },
@@ -2069,10 +1931,7 @@
       "UILogicId": "copernich_ww_h_copernich5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67ad4ce9359242e8938fcff2",
       "status": "valid"
@@ -2090,12 +1949,27 @@
       "UILogicId": "t30mixpro_ww_h_t30mixproh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66505750d0a288272df98fa5",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "chmi0g",
+    "product": {
+      "_id": "5ee85cabfdd6a30008da0af8",
+      "materialNo": "110-1919-2301",
+      "smartType": "MQ_AP",
+      "name": "DEEBOT U2 POWER",
+      "icon": "606425821269020008a96279",
+      "model": "U2_TW",
+      "UILogicId": "U2_HIGH_NOMAG_G",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/606425821269020008a96279",
       "status": "valid"
     }
   },
@@ -2111,10 +1985,7 @@
       "UILogicId": "t8_ww_n_nobelpluscostcoblack",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/63f2ddc22fd60963ea2f64f7",
       "status": "valid"
@@ -2132,10 +2003,7 @@
       "UILogicId": "kepler_ww_h_keplerh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66e3ac86a292891cdd5d86b9",
       "status": "valid"
@@ -2174,10 +2042,7 @@
       "UILogicId": "goatl_ww_h_goat2",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": false,
-        "alexa": false
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67be69be648011efbb5be408",
       "status": "valid"
@@ -2187,18 +2052,15 @@
     "classid": "crso4a",
     "product": {
       "_id": "66d519cb5aa1c846826e1f30",
-      "materialNo": "111-2432-0108",
+      "materialNo": "111-2432-0107",
       "smartType": "BT",
-      "name": "WINBOT NEO MINI",
+      "name": "WINBOT MINI",
       "icon": "673e95b6b0a67b2f1b63e823",
       "model": "WHITESHARK_INT",
       "UILogicId": "sharkmini_ww_h_wshark",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": false,
-        "alexa": false
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/673e95b6b0a67b2f1b63e823",
       "status": "valid"
@@ -2216,10 +2078,7 @@
       "UILogicId": "faradayh_ww_h_keplerh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6764e09fa559a57667e96f04",
       "status": "valid"
@@ -2237,10 +2096,7 @@
       "UILogicId": "faradayh_ww_h_keplerh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6764e09fa559a57667e96f04",
       "status": "valid"
@@ -2258,10 +2114,7 @@
       "UILogicId": "D_700",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5d157f9f77a3a60001051f69",
       "status": "valid"
@@ -2279,10 +2132,7 @@
       "UILogicId": "U2_HIGH_G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/606426254a84d700082b39f9",
       "status": "valid"
@@ -2321,10 +2171,7 @@
       "UILogicId": "cc_ww_h_cc",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/64c2137fd312a2e54b777217",
       "status": "valid"
@@ -2340,12 +2187,9 @@
       "icon": "5acc32067c295c0001876eea",
       "model": "D600",
       "UILogicId": "D_600",
-      "ota": false,
+      "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5acc32067c295c0001876eea",
       "status": "valid"
@@ -2363,10 +2207,7 @@
       "UILogicId": "omni_ww_h_fsh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/669a342f0e8603c3b1a33776",
       "status": "valid"
@@ -2384,10 +2225,7 @@
       "UILogicId": "x2white_ww_h_x2omnih5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/64dec744215d4f42f80f069c",
       "status": "valid"
@@ -2405,10 +2243,7 @@
       "UILogicId": "x2combo_ww_h_x2omnih5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/65bb008ac1daff549c800b0c",
       "status": "valid"
@@ -2426,12 +2261,30 @@
       "UILogicId": "bohr_ww_h_bohrh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66261233eba5145dcaf7eed6",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "eazo2f",
+    "product": {
+      "_id": "5c6bcecbe0bd76000156d296",
+      "materialNo": "110-1816-0003",
+      "smartType": "MQ_AP",
+      "name": "DEEBOT OZMO T5 Hero",
+      "icon": "6062795ad18cbd0008e2fce8",
+      "model": "DX9G_T5",
+      "UILogicId": "DX_9G",
+      "ota": true,
+      "supportType": {
+        "share": true,
+        "tmjl": false,
+        "assistant": false,
+        "alexa": false
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6062795ad18cbd0008e2fce8",
       "status": "valid"
     }
   },
@@ -2468,10 +2321,7 @@
       "UILogicId": "t30combo_ww_h_t30h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/660d03fc299092e27972fba2",
       "status": "valid"
@@ -2489,10 +2339,7 @@
       "UILogicId": "faradayh_ww_h_keplerh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/672880ccb0a67beb4b660845",
       "status": "valid"
@@ -2508,12 +2355,9 @@
       "icon": "5c931fef280fda0001770d7e",
       "model": "D501",
       "UILogicId": "D_500",
-      "ota": false,
+      "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5c931fef280fda0001770d7e",
       "status": "valid"
@@ -2531,10 +2375,7 @@
       "UILogicId": "t30mix_ww_h_t30h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/660d03100324610935294f7d",
       "status": "valid"
@@ -2552,10 +2393,7 @@
       "UILogicId": "y2combo_ww_h_y2h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/677c864c2a583a9e1ac8700a",
       "status": "valid"
@@ -2594,10 +2432,7 @@
       "UILogicId": "D_700",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5b7b65f176f7f10001e9a0c2",
       "status": "valid"
@@ -2615,10 +2450,7 @@
       "UILogicId": "faraday_ww_h_keplerh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6764e0d16e6f97c3ea24af44",
       "status": "valid"
@@ -2636,10 +2468,7 @@
       "UILogicId": "DT_8G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/605b059217c95b0008ff20d4",
       "status": "valid"
@@ -2663,6 +2492,24 @@
         "alexa": false
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/680f1f244c296b489385d0e6",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "gcmyi7",
+    "product": {
+      "_id": "638418574b606f8c59b84288",
+      "materialNo": "111-2112-0105",
+      "smartType": "BT",
+      "name": "WINBOT W1 PRO",
+      "icon": "63bd2febdf25d06f775c3bee",
+      "model": "BELUGA_PRO_KR",
+      "UILogicId": "belugapro_ww_h_beluga",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/63bd2febdf25d06f775c3bee",
       "status": "valid"
     }
   },
@@ -2699,10 +2546,7 @@
       "UILogicId": "DR_935G",
       "ota": true,
       "supportType": {
-        "share": false,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": false
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5e8da019032edd9008c66bf0",
       "status": "valid"
@@ -2720,10 +2564,7 @@
       "UILogicId": "y2_ww_h_yy2h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/664425e1da9a1473be4b13b6",
       "status": "valid"
@@ -2741,10 +2582,7 @@
       "UILogicId": "goat_ww_h_goat",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": false,
-        "alexa": false
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/65547f667c33ed71d406a502",
       "status": "valid"
@@ -2762,10 +2600,7 @@
       "UILogicId": "y2_ww_h_y2h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66431252a3e5962ad7fe9d4b",
       "status": "valid"
@@ -2783,10 +2618,7 @@
       "UILogicId": "DK_781_PLUS",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/60a201829fe5580009c6d76a",
       "status": "valid"
@@ -2804,10 +2636,7 @@
       "UILogicId": "DT_8G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5e8e8d146482551d72530e47",
       "status": "valid"
@@ -2825,12 +2654,27 @@
       "UILogicId": "t30max_ww_h_yt30h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66134ffe31620d02475fbbd2",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "huhcip",
+    "product": {
+      "_id": "6808514ef636490bb0ed89fe",
+      "materialNo": "110-24A3-0601",
+      "smartType": "BLAP2",
+      "name": "DEEBOT X11 OmniCyclone",
+      "icon": "6891a64f7e68c5e6d653945c",
+      "model": "PLANCK_CYCLONE_INT",
+      "UILogicId": "planckcyc_ww_h_planckh5",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6891a64f7e68c5e6d653945c",
       "status": "valid"
     }
   },
@@ -2846,10 +2690,7 @@
       "UILogicId": "y2se_ww_h_y2h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66431314028bb2b0d7ab10fb",
       "status": "valid"
@@ -2867,10 +2708,7 @@
       "UILogicId": "DT_8SE_G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/61318e07e37c4686071aee67",
       "status": "valid"
@@ -2888,10 +2726,7 @@
       "UILogicId": "keplersph_ww_h_keplersph5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67bd25cd0d79d61c6f3411a1",
       "status": "valid"
@@ -2909,10 +2744,7 @@
       "UILogicId": "w2pro_ww_h_w2",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/673fe41f8f7305b0a0f8f6c6",
       "status": "valid"
@@ -2930,10 +2762,7 @@
       "UILogicId": "x2whiteplus_ww_h_x2omnih5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6565a4e6545c5f1516782c20",
       "status": "valid"
@@ -2951,10 +2780,7 @@
       "UILogicId": "T9_PRO_G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/608b98c51269020008a962db",
       "status": "valid"
@@ -2972,12 +2798,45 @@
       "UILogicId": "U2_HIGH_G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/606426c64a84d700082b39fa",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "irdzs4",
+    "product": {
+      "_id": "6862307efcae2d3e63ee8c6d",
+      "materialNo": "110-24A3-0802",
+      "smartType": "BLAP2",
+      "name": "YEEDI S20 Infinity",
+      "icon": "689aa2f24d18f6e68753250c",
+      "model": "PLANCK_CYCLONE_US_YEEDI",
+      "UILogicId": "planckcyc_ww_h_yplanckh5",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/689aa2f24d18f6e68753250c",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "itk04l",
+    "product": {
+      "_id": "649aa2bfadc065d3d0ad48a4",
+      "materialNo": "116-2201-0201",
+      "smartType": "BLAP",
+      "name": "GOAT G1",
+      "icon": "649aa2beadc065e714ad48a2",
+      "model": "GOAT_INT_G1",
+      "UILogicId": "goat_ww_h_goat",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/649aa2beadc065e714ad48a2",
       "status": "valid"
     }
   },
@@ -2993,10 +2852,7 @@
       "UILogicId": "DU_6G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": false,
-        "alexa": false
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5e53207a26be71596c4b55cd",
       "status": "valid"
@@ -3014,10 +2870,7 @@
       "UILogicId": "DV_6G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5d3aa309ba13eb00013feb69",
       "status": "valid"
@@ -3035,10 +2888,7 @@
       "UILogicId": "D_700",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5b5ac4cc8d5a56000111e769",
       "status": "valid"
@@ -3056,10 +2906,7 @@
       "UILogicId": "t10_ww_n_curie",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/61e90bd1fd39e47adc132e1b",
       "status": "valid"
@@ -3077,10 +2924,7 @@
       "UILogicId": "t30mixproblack_ww_h_t30mixproh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/665057280e86033a15a33131",
       "status": "valid"
@@ -3108,6 +2952,24 @@
     }
   },
   {
+    "classid": "kd0una",
+    "product": {
+      "_id": "631b04f0c87b955c0b781a21",
+      "materialNo": "110-2122-0402",
+      "smartType": "MQ_AP",
+      "name": "yeedi Floor 3 Station",
+      "icon": "631b04eec87b9559c2781a1f",
+      "model": "K960_ACS_TW",
+      "UILogicId": "k960_ww_h_k960",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/631b04eec87b9559c2781a1f",
+      "status": "valid"
+    }
+  },
+  {
     "classid": "kduunv",
     "product": {
       "_id": "6582b68355b58bde146f0b15",
@@ -3119,10 +2981,7 @@
       "UILogicId": "y30_ww_h_y30h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66e3993888204fdc683f2bad",
       "status": "valid"
@@ -3140,10 +2999,7 @@
       "UILogicId": "y2sedock_ww_h_y2h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/664312d5028bb21f2eab10f7",
       "status": "valid"
@@ -3161,10 +3017,7 @@
       "UILogicId": "t30combo_ww_h_t30h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/660d045231620d0e515fbba0",
       "status": "valid"
@@ -3182,10 +3035,7 @@
       "UILogicId": "x2_ww_h_x2omnih5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/64dec730215d4f35d90f069a",
       "status": "valid"
@@ -3203,10 +3053,7 @@
       "UILogicId": "T9_PRO_G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/603f51243b03f50007b6c2ca",
       "status": "valid"
@@ -3224,10 +3071,7 @@
       "UILogicId": "bohrproblack_ww_h_bohrh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/666fa571d0a288fa43f990b4",
       "status": "valid"
@@ -3245,10 +3089,7 @@
       "UILogicId": "D_900",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5ba4a2cb6c2f120001c32839",
       "status": "valid"
@@ -3266,10 +3107,7 @@
       "UILogicId": "t10_ww_n_curieomni",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6296c56ad3980b9a63026b08",
       "status": "valid"
@@ -3287,10 +3125,7 @@
       "UILogicId": "aes_ww_h_fsh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/669a343e656502502579014e",
       "status": "valid"
@@ -3308,10 +3143,7 @@
       "UILogicId": "t8_ww_n_nobel",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/63e1e022d775e750ca44246b",
       "status": "valid"
@@ -3329,10 +3161,7 @@
       "UILogicId": "AA_30G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": false,
-        "alexa": false
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5d2c63a5ba13eb00013feab7",
       "status": "valid"
@@ -3350,10 +3179,7 @@
       "UILogicId": "faraday_ww_h_keplerh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67288127ec0f096170bddb8f",
       "status": "valid"
@@ -3371,10 +3197,7 @@
       "UILogicId": "DK_781_PLUS",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/606e960b45505e0008e5cb55",
       "status": "valid"
@@ -3392,10 +3215,7 @@
       "UILogicId": "keplerh_ww_h_keplerh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66e3ac63a2928902a25d83a0",
       "status": "valid"
@@ -3413,10 +3233,7 @@
       "UILogicId": "t10_ww_n_newtonaes",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/61c422316de01220a2adb91d",
       "status": "valid"
@@ -3434,10 +3251,7 @@
       "UILogicId": "T5_SE_G_DTOF",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/60627a92fc527c00087fdb0a",
       "status": "valid"
@@ -3455,10 +3269,7 @@
       "UILogicId": "y2combo_ww_h_yy2h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66c7f39b5aa1c802e8eed7ce",
       "status": "valid"
@@ -3476,12 +3287,27 @@
       "UILogicId": "goatr_ww_h_goat2",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": false,
-        "alexa": false
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6784d33087646d2eff23c185",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "npu3pt",
+    "product": {
+      "_id": "685a42c3fcae2d63d0ee857a",
+      "materialNo": "110-2353-2413",
+      "smartType": "MQ_APM",
+      "name": "DEEBOT N30",
+      "icon": "6889b3fbf68ece46f311459c",
+      "model": "FS_DOCK_BLACK_INT_NEW",
+      "UILogicId": "aesdock_ww_h_fsh5",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6889b3fbf68ece46f311459c",
       "status": "valid"
     }
   },
@@ -3497,10 +3323,7 @@
       "UILogicId": "U2_HIGH_MODE_G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/606426ebb0a931000860fad4",
       "status": "valid"
@@ -3518,12 +3341,27 @@
       "UILogicId": "faraday_ww_h_keplerh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67288127ec0f096170bddb8f",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "o073ti",
+    "product": {
+      "_id": "680851d94c296b690085ceaa",
+      "materialNo": "110-24A3-0501",
+      "smartType": "BLAP2",
+      "name": "DEEBOT X11 PRO OMNI",
+      "icon": "6891a4b44d18f6a8b853237a",
+      "model": "PLANCK_PRO_INT",
+      "UILogicId": "planckh_ww_h_planckh5",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6891a4b44d18f6a8b853237a",
       "status": "valid"
     }
   },
@@ -3539,10 +3377,7 @@
       "UILogicId": "bohrproblack_ww_h_bohrh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66b1985091779b0ad29394cb",
       "status": "valid"
@@ -3560,10 +3395,7 @@
       "UILogicId": "goatl_ww_h_goat2",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": false,
-        "alexa": false
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/677cfdbecc43119dfec6c710",
       "status": "valid"
@@ -3581,10 +3413,7 @@
       "UILogicId": "t30up_ww_h_t30h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67d232c964801178455be988",
       "status": "valid"
@@ -3602,10 +3431,7 @@
       "UILogicId": "y2se_ww_h_yy2h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/664425c6da9a1486484b13b4",
       "status": "valid"
@@ -3623,10 +3449,7 @@
       "UILogicId": "y2_ww_h_y2h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/665ff6826565026a2179000d",
       "status": "valid"
@@ -3644,10 +3467,7 @@
       "UILogicId": "t10_ww_n_darwin",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6411873116d2f22991fc1bbc",
       "status": "valid"
@@ -3665,10 +3485,7 @@
       "UILogicId": "keplerse_ww_h_ykeplerseh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6825b7715ace0b5074f51044",
       "status": "valid"
@@ -3686,10 +3503,7 @@
       "UILogicId": "aes_ww_h_fsh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/669a33c6d0a2886743f99d3b",
       "status": "valid"
@@ -3728,10 +3542,7 @@
       "UILogicId": "DK_750",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5f59e774c0f03a0008ee72e0",
       "status": "valid"
@@ -3749,10 +3560,7 @@
       "UILogicId": "t10_ww_n_curieaes",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/61f0ba7970c881c6bf65ec3d",
       "status": "valid"
@@ -3770,10 +3578,7 @@
       "UILogicId": "t30up_ww_h_t30h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67d232c964801178455be988",
       "status": "valid"
@@ -3791,12 +3596,27 @@
       "UILogicId": "t10_ww_n_darwinnoyiko_e",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/65b8c343a1bbb57a7eb8174d",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "q1v5dn",
+    "product": {
+      "_id": "5d312ae18d8d430001817002",
+      "materialNo": "70200000228",
+      "smartType": "MQ_AP",
+      "name": "AT01",
+      "icon": "5d83375f6b6a570001569e26",
+      "model": "AT01",
+      "UILogicId": "AT_01G",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5d83375f6b6a570001569e26",
       "status": "valid"
     }
   },
@@ -3822,6 +3642,27 @@
     }
   },
   {
+    "classid": "q5ez2q",
+    "product": {
+      "_id": "5b04c0227ccd1a0001e1f6a9",
+      "materialNo": "110-1810-0102",
+      "smartType": "MQ_AP",
+      "name": "DEEBOT OZMO 900 (DN55)",
+      "icon": "5b04c0217ccd1a0001e1f6a7",
+      "model": "DN55",
+      "UILogicId": "D_OZMO_900",
+      "ota": true,
+      "supportType": {
+        "share": true,
+        "tmjl": false,
+        "assistant": true,
+        "alexa": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5b04c0217ccd1a0001e1f6a7",
+      "status": "valid"
+    }
+  },
+  {
     "classid": "qdajz8",
     "product": {
       "_id": "67ac6b2e3592427f538fcfec",
@@ -3833,10 +3674,7 @@
       "UILogicId": "eulerh_ww_h_eulerh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67d3f874b8e683264a1d432d",
       "status": "valid"
@@ -3854,10 +3692,7 @@
       "UILogicId": "faraday_ww_h_keplerh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6764e0d16e6f97c3ea24af44",
       "status": "valid"
@@ -3875,10 +3710,7 @@
       "UILogicId": "y2_ww_h_y2h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66431238e8c24bd86854bca3",
       "status": "valid"
@@ -3896,10 +3728,7 @@
       "UILogicId": "goatr_ww_h_goatbz",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": false,
-        "alexa": false
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/677cfd729546343ab9883587",
       "status": "valid"
@@ -3917,10 +3746,7 @@
       "UILogicId": "copernich_ww_h_copernich5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67ad4d89eac3f5382975ecfc",
       "status": "valid"
@@ -3938,12 +3764,27 @@
       "UILogicId": "eulerh_ww_h_eulerh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67d3f874b8e683264a1d432d",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "r5y7re",
+    "product": {
+      "_id": "5fa4b1f8c7260e000858584b",
+      "materialNo": "110-2009-0902",
+      "smartType": "MQ_AP",
+      "name": "DEEBOT N8",
+      "icon": "60627a9cb0a931000860fac7",
+      "model": "N8_DTOF_TW",
+      "UILogicId": "T5_SE_G_DTOF",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/60627a9cb0a931000860fac7",
       "status": "valid"
     }
   },
@@ -3959,10 +3800,7 @@
       "UILogicId": "T5_SE_G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/60627c09b0a931000860facd",
       "status": "valid"
@@ -3978,12 +3816,9 @@
       "icon": "5c93204b63023c0001e7faa7",
       "model": "D502",
       "UILogicId": "D_500",
-      "ota": false,
+      "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5c93204b63023c0001e7faa7",
       "status": "valid"
@@ -4001,10 +3836,7 @@
       "UILogicId": "t30max_ww_h_yt30h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66b60197cc0d353ceec2767c",
       "status": "valid"
@@ -4022,10 +3854,7 @@
       "UILogicId": "t10_ww_n_curieaesnoyiko",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/61e90bbbfe80232316d12ea7",
       "status": "valid"
@@ -4043,10 +3872,7 @@
       "UILogicId": "aesdock_ww_h_fsh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/669f04d70e860344f7a33784",
       "status": "valid"
@@ -4064,10 +3890,7 @@
       "UILogicId": "y30aes_ww_h_y30h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/65b0cec3fe7a003bb0ff2e36",
       "status": "valid"
@@ -4085,10 +3908,7 @@
       "UILogicId": "bohrpro_ww_h_bohrh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/666fa50e0e8603372ba33231",
       "status": "valid"
@@ -4106,10 +3926,7 @@
       "UILogicId": "U2_HIGH_MODE_G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/606426feb0a931000860fad5",
       "status": "valid"
@@ -4127,10 +3944,7 @@
       "UILogicId": "k960_ww_h_k960",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/62ce310962e15734ec63da96",
       "status": "valid"
@@ -4148,10 +3962,7 @@
       "UILogicId": "DT_8SE_G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/61d569d0843b5a6dbdb74e32",
       "status": "valid"
@@ -4169,10 +3980,7 @@
       "UILogicId": "goat_ww_h_goat",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": false,
-        "alexa": false
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/65547f7495d0c65fe6bbfc88",
       "status": "valid"
@@ -4190,10 +3998,7 @@
       "UILogicId": "DT_8SE_G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/62ac2a8ad5e94f3b732102d0",
       "status": "valid"
@@ -4211,10 +4016,7 @@
       "UILogicId": "bruce_ww_n_bruce",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/624d4e73031bdd7c7b531af9",
       "status": "valid"
@@ -4232,10 +4034,7 @@
       "UILogicId": "DT_8SE_G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/60627bbfb0a931000860fac9",
       "status": "valid"
@@ -4253,12 +4052,27 @@
       "UILogicId": "k960_ww_h_k960",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/630ecb3e2a71f93c2cea5c0f",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "t6kipw",
+    "product": {
+      "_id": "6389be612d7c982815cd2a44",
+      "materialNo": "110-2122-0601",
+      "smartType": "MQ_AP",
+      "name": "yeedi Floor 3",
+      "icon": "6389be59df25d07dec5c3bcd",
+      "model": "K960_TW",
+      "UILogicId": "k960_ww_h_k960",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6389be59df25d07dec5c3bcd",
       "status": "valid"
     }
   },
@@ -4274,12 +4088,27 @@
       "UILogicId": "t30pro_ww_h_t30h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/65e03fdda16bb4e6c79e8017",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "ts2ofl",
+    "product": {
+      "_id": "5e993e8b8c92c753dd83555f",
+      "materialNo": "110-1919-0901",
+      "smartType": "MQ_AP",
+      "name": "DEEBOT U2",
+      "icon": "65e935af7b7ff008809320a0",
+      "model": "U2_AUL",
+      "UILogicId": "U2_HIGH_G",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/65e935af7b7ff008809320a0",
       "status": "valid"
     }
   },
@@ -4295,10 +4124,7 @@
       "UILogicId": "N8_PLUS",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/60627bcafc527c00087fdb0c",
       "status": "valid"
@@ -4316,10 +4142,7 @@
       "UILogicId": "k960_ww_h_k960",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6253e2ccf93ca0b88a72067a",
       "status": "valid"
@@ -4337,10 +4160,7 @@
       "UILogicId": "U2_HIGH_G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/606425bed18cbd0008e2fcf2",
       "status": "valid"
@@ -4358,10 +4178,7 @@
       "UILogicId": "DK_781_PLUS",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/60a2017babb8be0008b6ad16",
       "status": "valid"
@@ -4379,10 +4196,7 @@
       "UILogicId": "U2_HIGH_G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/606425a11269020008a9627d",
       "status": "valid"
@@ -4400,10 +4214,7 @@
       "UILogicId": "T9_PRO_G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/603f510e3b03f50007b6c2c9",
       "status": "valid"
@@ -4421,10 +4232,7 @@
       "UILogicId": "t30combo_ww_h_t30h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/660d03cf299092c43a72fb9d",
       "status": "valid"
@@ -4442,10 +4250,7 @@
       "UILogicId": "keplerhup_ww_h_keplerh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6715b5118f7305100e052503",
       "status": "valid"
@@ -4463,10 +4268,7 @@
       "UILogicId": "eulerh_ww_h_eulerh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67d3f84fb8e683f3ff1d432a",
       "status": "valid"
@@ -4484,10 +4286,7 @@
       "UILogicId": "T9_PRO_G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/608b997e17c95b0008ff221f",
       "status": "valid"
@@ -4505,10 +4304,7 @@
       "UILogicId": "t8_ww_n_nobelplus",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/63e1e031d775e7e16544246d",
       "status": "valid"
@@ -4526,10 +4322,7 @@
       "UILogicId": "D_700",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5b5ac4e45f21100001882bb9",
       "status": "valid"
@@ -4547,10 +4340,7 @@
       "UILogicId": "omni_ww_h_ssh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67f325c24c296b36c485c745",
       "status": "valid"
@@ -4568,10 +4358,7 @@
       "UILogicId": "davinicipro_ww_h_vinci",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/680f1bc2bc63a38552bed53d",
       "status": "valid"
@@ -4589,10 +4376,7 @@
       "UILogicId": "DX_5G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/606278d3fc527c00087fdb08",
       "status": "valid"
@@ -4610,10 +4394,7 @@
       "UILogicId": "eulerh_ww_h_eulerh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67d3f6da0d79d66a2c34195a",
       "status": "valid"
@@ -4629,12 +4410,9 @@
       "icon": "5c874326280fda0001770d2a",
       "model": "D500",
       "UILogicId": "D_500",
-      "ota": false,
+      "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5c874326280fda0001770d2a",
       "status": "valid"
@@ -4652,10 +4430,7 @@
       "UILogicId": "DK_850",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/60700a7e1269020008a96293",
       "status": "valid"
@@ -4673,10 +4448,7 @@
       "UILogicId": "DX_AIG",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/605053f7d18cbd0008e2f814",
       "status": "valid"
@@ -4694,10 +4466,7 @@
       "UILogicId": "bohrpro_ww_h_bohrh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66b197d71ff6765a3c1cbdd4",
       "status": "valid"
@@ -4715,10 +4484,7 @@
       "UILogicId": "U2_HIGH_G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6064263ad18cbd0008e2fcf4",
       "status": "valid"
@@ -4736,10 +4502,7 @@
       "UILogicId": "faradayhup_ww_h_keplerh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6764e1212d9bc7bb94024ce7",
       "status": "valid"
@@ -4757,10 +4520,7 @@
       "UILogicId": "keplersph_ww_h_ykeplersph5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/685362587bfa8837999eb3dc",
       "status": "valid"
@@ -4778,10 +4538,7 @@
       "UILogicId": "DX_AIG",
       "ota": true,
       "supportType": {
-        "share": false,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": false
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/605053e7fc527c00087fda1e",
       "status": "valid"
@@ -4799,10 +4556,7 @@
       "UILogicId": "eulerh_ww_h_eulerh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67d3f6da0d79d66a2c34195a",
       "status": "valid"
@@ -4820,10 +4574,7 @@
       "UILogicId": "DK_4G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5d3fe649de51dd0001fee0de",
       "status": "valid"
@@ -4841,10 +4592,7 @@
       "UILogicId": "t30mixproblack_ww_h_t30mixproh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/665057280e86033a15a33131",
       "status": "valid"
@@ -4883,10 +4631,7 @@
       "UILogicId": "goatr_ww_h_goat2",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": false,
-        "alexa": false
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/677cfd9e954634917988358a",
       "status": "valid"
@@ -4904,12 +4649,27 @@
       "UILogicId": "faradayh_ww_h_keplerh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/672880ccb0a67beb4b660845",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "y2qy3m",
+    "product": {
+      "_id": "5ea8d28922838d15795ed88d",
+      "materialNo": "110-1919-1701",
+      "smartType": "MQ_AP",
+      "name": "DEEBOT U2 PRO",
+      "icon": "606425784a84d700082b39f6",
+      "model": "U2_APAC3",
+      "UILogicId": "U2_HIGH_G",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/606425784a84d700082b39f6",
       "status": "valid"
     }
   },
@@ -4925,10 +4685,7 @@
       "UILogicId": "keplerh_ww_h_keplerh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66e3ac86a292891cdd5d86b9",
       "status": "valid"
@@ -4946,10 +4703,7 @@
       "UILogicId": "D_OZMO_900",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5b04c0217ccd1a0001e1f6a7",
       "status": "valid"
@@ -4967,10 +4721,7 @@
       "UILogicId": "w2_ww_h_w2",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/656ecd6636bf3581016720ed",
       "status": "valid"
@@ -4988,10 +4739,7 @@
       "UILogicId": "aes_ww_h_fsh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/669a343e656502502579014e",
       "status": "valid"
@@ -5009,10 +4757,7 @@
       "UILogicId": "DX_9G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/606278df4a84d700082b39f1",
       "status": "valid"
@@ -5030,10 +4775,7 @@
       "UILogicId": "DT_8SE_G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/60627bde50928b0007c13273",
       "status": "valid"
@@ -5051,12 +4793,27 @@
       "UILogicId": "winbot_g",
       "ota": true,
       "supportType": {
-        "share": false,
-        "tmjl": false,
-        "assistant": false,
-        "alexa": false
+        "share": false
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/60fa62b079330100089a7ce0",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "z0gd1j",
+    "product": {
+      "_id": "61a7126ed3028324ec98df93",
+      "materialNo": "110-2029-1002",
+      "smartType": "MQ_AP",
+      "name": "DEEBOT Neo",
+      "icon": "61a712dbd540b3fc0684cdd6",
+      "model": "N8_NEO",
+      "UILogicId": "N8_PLUS",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/61a712dbd540b3fc0684cdd6",
       "status": "valid"
     }
   },
@@ -5072,10 +4829,7 @@
       "UILogicId": "t30max_ww_h_t30h5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/65e03e6c280eb916abc60a96",
       "status": "valid"
@@ -5093,10 +4847,7 @@
       "UILogicId": "aesdock_ww_h_fsh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/669f04e40e86033ddaa33786",
       "status": "valid"
@@ -5114,10 +4865,7 @@
       "UILogicId": "DK_4GLINE",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/5da834a8d66cd10001f58265",
       "status": "valid"
@@ -5135,10 +4883,7 @@
       "UILogicId": "t8_ww_n_nobelpluscostco",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/63e1e03cdf25d0b5715c3c0b",
       "status": "valid"
@@ -5156,10 +4901,7 @@
       "UILogicId": "U2_HIGH_MODE_G",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6064256ed18cbd0008e2fcee",
       "status": "valid"
@@ -5177,10 +4919,7 @@
       "UILogicId": "omnin_ww_h_fsh5",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/669a34480e860350f5a33778",
       "status": "valid"
@@ -5198,10 +4937,7 @@
       "UILogicId": "k850_ww_h_k850",
       "ota": true,
       "supportType": {
-        "share": true,
-        "tmjl": false,
-        "assistant": true,
-        "alexa": true
+        "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/61cd6ea0258755faa61c832d",
       "status": "valid"
