@@ -15,7 +15,7 @@ done
 
 # ------------------------------------------------------------------------------
 
-packages_dev=(mypy pre-commit pycountry pylint pytest-aiofiles pytest-aiohttp pytest-asyncio pytest-cov pytest-docker-fixtures pytest-env pytest-repeat pytest-timeout pytest ruff testfixtures types-aiofiles types-cachetools types-mock types-pillow types-setuptools)
+packages_dev=(mypy prek pycountry pylint pytest-aiofiles pytest-aiohttp pytest-asyncio pytest-cov pytest-docker-fixtures pytest-env pytest-repeat pytest-timeout pytest ruff testfixtures types-aiofiles types-cachetools types-mock types-pillow types-setuptools)
 
 echo "" >requirements-dev.txt
 # Loop through the packages
