@@ -6,16 +6,16 @@ The `scripts/create-cert.sh` helper will generate all necessary certificates int
 
 ## 📂 Script Location & Overview
 
--   **Path**: `scripts/create-cert.sh`
--   **Purpose**:
-    -   Create a root CA (`ca.key` + `ca.crt`)
-    -   Issue a server certificate (`bumper.key` + `bumper.crt`)
-    -   Produce a combined PEM (`ca.pem`) for mitmproxy by merging CA and server certs
+- **Path**: `scripts/create-cert.sh`
+- **Purpose**:
+    - Create a root CA (`ca.key` + `ca.crt`)
+    - Issue a server certificate (`bumper.key` + `bumper.crt`)
+    - Produce a combined PEM (`ca.pem`) for mitmproxy by merging CA and server certs
 
 > If you already possess your own certs, simply place them in `certs/`:
 >
-> -   `ca.crt`, `bumper.key`, `bumper.crt` for Bumper
-> -   `ca.pem` for mitmproxy
+> - `ca.crt`, `bumper.key`, `bumper.crt` for Bumper
+> - `ca.pem` for mitmproxy
 
 ---
 
@@ -27,11 +27,11 @@ $./scripts/create-cert.sh
 
 On success, the `certs/` directory contains:
 
--   `ca.key`  – Root CA private key
--   `ca.crt`  – Root CA certificate
--   `bumper.key` – Server private key
--   `bumper.crt` – Server certificate
--   `ca.pem`  – Combined CA+server cert (for mitmproxy)
+- `ca.key`  – Root CA private key
+- `ca.crt`  – Root CA certificate
+- `bumper.key` – Server private key
+- `bumper.crt` – Server certificate
+- `ca.pem`  – Combined CA+server cert (for mitmproxy)
 
 > The script skips existing files to protect your keys.
 

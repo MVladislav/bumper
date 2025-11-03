@@ -8,8 +8,8 @@
 
 This guide explains two approaches to enable your Ecovacs bot to trust a self-signed certificate for use with a self-hosted Bumper server:
 
--   **Option 1 (Recommended, Safer):** Replace certificate files on the bot—no firmware modification required.
--   **Option 2 (Advanced):** Extract, modify, and reflash the root filesystem for deeper changes.
+- **Option 1 (Recommended, Safer):** Replace certificate files on the bot—no firmware modification required.
+- **Option 2 (Advanced):** Extract, modify, and reflash the root filesystem for deeper changes.
 
 ---
 
@@ -23,8 +23,8 @@ Connect to the bot's UART serial port:
 
 > Adjust parameters as needed:
 >
-> -   `/dev/ttyACM0`: your device may differ
-> -   `--log ...`: optional, remove if you don't want logs
+> - `/dev/ttyACM0`: your device may differ
+> - `--log ...`: optional, remove if you don't want logs
 
 ```sh
 picocom /dev/ttyACM0 --flow n --baud 115200 --log ./b-capture-"$(date --iso-8601=seconds)".log
@@ -102,13 +102,13 @@ mount -a
 
 After running the above scripts, `/data` is mounted. You now need to manually update the certificate files on the bot using the UART shell:
 
--   On your host, open the following files in a text editor:
-    -   `./certs/ca.crt`
-    -   `./certs/bumper.crt`
--   On the bot (UART shell), use an editor like `vi` or `cat >` to paste the contents into the correct files:
-    -   Overwrite `/data/ca.crt` with the contents of `./certs/ca.crt`
-    -   Overwrite `/data/ca-certificates/ca.pem` with the contents of `./certs/ca.crt`
-    -   For `/data/ca-certificates/ca-certificates.crt`, append the contents of `./certs/bumper.crt` and then `./certs/ca.crt` to the end of the file (do not remove existing entries; just add these two certs at the end, in this order)
+- On your host, open the following files in a text editor:
+    - `./certs/ca.crt`
+    - `./certs/bumper.crt`
+- On the bot (UART shell), use an editor like `vi` or `cat >` to paste the contents into the correct files:
+    - Overwrite `/data/ca.crt` with the contents of `./certs/ca.crt`
+    - Overwrite `/data/ca-certificates/ca.pem` with the contents of `./certs/ca.crt`
+    - For `/data/ca-certificates/ca-certificates.crt`, append the contents of `./certs/bumper.crt` and then `./certs/ca.crt` to the end of the file (do not remove existing entries; just add these two certs at the end, in this order)
 
 > Tip: You can use `vi /data/ca-certificates/ca-certificates.crt` and paste at the end, or use `cat >> /data/ca-certificates/ca-certificates.crt` to append. Make sure to save and exit after pasting.
 
@@ -137,10 +137,10 @@ If you need network access on the bot, set up WiFi:
 
 > Replace placeholders with your actual values:
 >
-> -   `<YOUR_SSID>`
-> -   `<YOUR_WIFI_PASSWORD>`
-> -   `<YOUR_BOT_IP>` (e.g., 192.168.112.57)
-> -   `<YOUR_GATEWAY_IP>` (e.g., 192.168.112.1)
+> - `<YOUR_SSID>`
+> - `<YOUR_WIFI_PASSWORD>`
+> - `<YOUR_BOT_IP>` (e.g., 192.168.112.57)
+> - `<YOUR_GATEWAY_IP>` (e.g., 192.168.112.1)
 
 ```sh
 mkdir -p /tmp/wpa_ctrl
@@ -243,15 +243,15 @@ reboot
 
 ## 📝 Notes
 
--   Always backup your data before making changes.
--   If unsure, use Option 1 first.
--   For certificate creation, see [Create Certificates](../getting_started/certificates.md).
--   For more context, see [Architecture](architecture.md) and [App Certificate Unpinning](certificate-unpinning-app.md).
+- Always backup your data before making changes.
+- If unsure, use Option 1 first.
+- For certificate creation, see [Create Certificates](../getting_started/certificates.md).
+- For more context, see [Architecture](architecture.md) and [App Certificate Unpinning](certificate-unpinning-app.md).
 
 ## 📚 References
 
--   <https://dontvacuum.me/talks/37c3-2023/37c3-vacuuming-and-mowing.pdf>
--   <https://dontvacuum.me/talks/DEFCON32/DEFCON32_reveng_hacking_ecovacs_robots.pdf>
--   <https://media.ccc.de/v/37c3-11943-sucking_dust_and_cutting_grass_reversing_robots_and_bypassing_security#t=2028>
--   <https://github.com/itsjfx/ecovacs-hacking/blob/master/x1_omni.md>
--   <https://dontvacuum.me/>
+- <https://dontvacuum.me/talks/37c3-2023/37c3-vacuuming-and-mowing.pdf>
+- <https://dontvacuum.me/talks/DEFCON32/DEFCON32_reveng_hacking_ecovacs_robots.pdf>
+- <https://media.ccc.de/v/37c3-11943-sucking_dust_and_cutting_grass_reversing_robots_and_bypassing_security#t=2028>
+- <https://github.com/itsjfx/ecovacs-hacking/blob/master/x1_omni.md>
+- <https://dontvacuum.me/>

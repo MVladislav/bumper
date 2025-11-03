@@ -47,8 +47,8 @@ Replace `<BUMPER_SERVER_IP>` with your server’s local IP (e.g. `192.168.1.100`
 
 **Apply changes:**
 
--   **dnsmasq**: `sudo systemctl reload dnsmasq`
--   **Pi-hole**: `pihole restartdns` or via the web UI
+- **dnsmasq**: `sudo systemctl reload dnsmasq`
+- **Pi-hole**: `pihole restartdns` or via the web UI
 
 ---
 
@@ -68,19 +68,19 @@ The Bumper project doesn’t care which exact domain is used—as long as the re
 
 Most domains follow patterns based on country or region codes:
 
--   `{countrycode}`
-    -   If you see `eco-{countrycode}-api.ecovacs.com` and you're in the US or North America, it would be:
-        `eco-us-api.ecovacs.com`
-    -   **Note:** `{countrycode}` may also be general region codes like `EU`, `WW`, or `CN`.
--   `{region}`
-    -   If you see `portal-{region}.ecouser.net` and you're in North America, use:
-        `portal-na.ecouser.net`
-    -   **Note:** `{region}` values may also include `eu`, `cn`, or `ww`.
+- `{countrycode}`
+    - If you see `eco-{countrycode}-api.ecovacs.com` and you're in the US or North America, it would be:
+      `eco-us-api.ecovacs.com`
+    - **Note:** `{countrycode}` may also be general region codes like `EU`, `WW`, or `CN`.
+- `{region}`
+    - If you see `portal-{region}.ecouser.net` and you're in North America, use:
+      `portal-na.ecouser.net`
+    - **Note:** `{region}` values may also include `eu`, `cn`, or `ww`.
 
 ### Summary
 
--   ✅ **If your DNS supports wildcard or full-domain overrides**, use them to catch all subdomains at once.
--   ❌ **If it does not**, you must manually define each used domain/subdomain to ensure proper redirection.
+- ✅ **If your DNS supports wildcard or full-domain overrides**, use them to catch all subdomains at once.
+- ❌ **If it does not**, you must manually define each used domain/subdomain to ensure proper redirection.
 
 ---
 
@@ -162,14 +162,14 @@ Most domains follow patterns based on country or region codes:
 
 ## 🔍 Troubleshooting
 
--   **App won’t connect**: Test overrides with `dig` or `nslookup` against your DNS server.
--   **Partial redirects**: Clear device DNS cache or reboot.
--   **IPv6 issues**: If your network uses IPv6, add AAAA records as well.
+- **App won’t connect**: Test overrides with `dig` or `nslookup` against your DNS server.
+- **Partial redirects**: Clear device DNS cache or reboot.
+- **IPv6 issues**: If your network uses IPv6, add AAAA records as well.
 
 ---
 
 ## 📚 Resources
 
--   [OPNsense Unbound Host Overrides](https://docs.opnsense.org/manual/unbound.html)
--   [dnsmasq address configuration](http://www.thekelleys.org.uk/dnsmasq/docs/dnsmasq-man.html#address)
--   [Pi-hole documentation](https://docs.pi-hole.net/)
+- [OPNsense Unbound Host Overrides](https://docs.opnsense.org/manual/unbound.html)
+- [dnsmasq address configuration](http://www.thekelleys.org.uk/dnsmasq/docs/dnsmasq-man.html#address)
+- [Pi-hole documentation](https://docs.pi-hole.net/)

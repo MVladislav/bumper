@@ -6,8 +6,8 @@ This guide covers setting up a local development environment, running the applic
 
 ## 🔧 Prerequisites
 
--   Python 3.13.x installed
--   Git
+- Python 3.13.x installed
+- Git
 
 ---
 

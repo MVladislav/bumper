@@ -6,11 +6,11 @@ This guide walks you through setting up an Android emulator on Ubuntu, installin
 
 ## 📋 Prerequisites
 
--   **Ubuntu 22.04+**
--   **Docker** (for running mitmproxy)
--   **Android Studio** (for emulator and ADB)
--   **CA certificate** (`ca.crt` and `ca.pem`) placed in the `./certs/` folder
-    -   Generate with [`./scripts/create-cert.sh`](https://github.com/MVladislav/bumper/blob/main/scripts/create-cert.sh) if you don’t have one
+- **Ubuntu 22.04+**
+- **Docker** (for running mitmproxy)
+- **Android Studio** (for emulator and ADB)
+- **CA certificate** (`ca.crt` and `ca.pem`) placed in the `./certs/` folder
+    - Generate with [`./scripts/create-cert.sh`](https://github.com/MVladislav/bumper/blob/main/scripts/create-cert.sh) if you don’t have one
 
 ---
 
@@ -98,8 +98,8 @@ Download and install version `2.4.1` of the Ecovacs Home APK:
 > you'll need to unpin the certificate.
 > See **[Defeating Certificate Pinning](../internals/certificate-unpinning-app.md)** for instructions.
 
--   [Ecovacs Home on APKPure](https://apkpure.net/ecovacs-home/com.eco.global.app/download/2.4.1)
--   [Ecovacs Home on Aptoide](https://ecovacs-home.en.aptoide.com/app)
+- [Ecovacs Home on APKPure](https://apkpure.net/ecovacs-home/com.eco.global.app/download/2.4.1)
+- [Ecovacs Home on Aptoide](https://ecovacs-home.en.aptoide.com/app)
 
 ```sh
 $~/.android/Sdk/platform-tools/adb install <path/to/Ecovacs_Home_2.4.1.apk>
@@ -111,8 +111,8 @@ $~/.android/Sdk/platform-tools/adb install <path/to/Ecovacs_Home_2.4.1.apk>
 
 Install a SOCKS5 proxy client (e.g., Super Proxy):
 
--   [Super Proxy on APKPure](https://apkpure.net/super-proxy/com.scheler.superproxy)
--   [Super Proxy on Aptoide](https://super-proxy-scheler-software.en.aptoide.com/app)
+- [Super Proxy on APKPure](https://apkpure.net/super-proxy/com.scheler.superproxy)
+- [Super Proxy on Aptoide](https://super-proxy-scheler-software.en.aptoide.com/app)
 
 ---
 
@@ -120,9 +120,9 @@ Install a SOCKS5 proxy client (e.g., Super Proxy):
 
 In the emulator’s network or proxy app settings:
 
--   **Protocol**: SOCKS5
--   **Host**: `<YOUR_SERVER_IP>`
--   **Port**: `1080`
+- **Protocol**: SOCKS5
+- **Host**: `<YOUR_SERVER_IP>`
+- **Port**: `1080`
 
 This routes all emulator traffic through mitmproxy.
 
@@ -196,14 +196,14 @@ Access [http://localhost:8081](http://localhost:8081) to inspect traffic.
 
 ## 🛠️ Troubleshooting
 
--   **SSL errors**: Verify the CA hash and placement.
--   **Emulator won’t root**: Use API 28 or lower with `-writable-system`.
--   **App 2003 errors**: Launch the app once without proxy to fetch initial data.
+- **SSL errors**: Verify the CA hash and placement.
+- **Emulator won’t root**: Use API 28 or lower with `-writable-system`.
+- **App 2003 errors**: Launch the app once without proxy to fetch initial data.
 
 ---
 
 ## 📚 Resources
 
--   [mitmproxy MQTT script example](https://github.com/nikitastupin/mitmproxy-mqtt-script)
--   [Custom CA usage](https://docs.mitmproxy.org/stable/concepts-certificates/#using-a-custom-certificate-authority)
--   [mitmproxy API docs](https://docs.mitmproxy.org/stable/api/)
+- [mitmproxy MQTT script example](https://github.com/nikitastupin/mitmproxy-mqtt-script)
+- [Custom CA usage](https://docs.mitmproxy.org/stable/concepts-certificates/#using-a-custom-certificate-authority)
+- [mitmproxy API docs](https://docs.mitmproxy.org/stable/api/)

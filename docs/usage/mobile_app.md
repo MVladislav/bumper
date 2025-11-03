@@ -2,8 +2,8 @@
 
 You can use the official “Ecovacs” or “Ecovacs Home” app to control your robot via your local Bumper server. This requires:
 
--   **DNS overrides** as described in [DNS Configuration](../getting_started/dns.md).
--   **Trusting Bumper’s CA certificate** on your device (generated via [Create Certificates](../getting_started/certificates.md)).
+- **DNS overrides** as described in [DNS Configuration](../getting_started/dns.md).
+- **Trusting Bumper’s CA certificate** on your device (generated via [Create Certificates](../getting_started/certificates.md)).
 
 > **Note:** Functionality may vary by app version; some features (e.g., push notifications) depend on cloud services and may not work.
 
@@ -53,7 +53,7 @@ Verify in **Settings → Security → Trusted credentials → System**.
 
 Starting with Android 10, user or system CA installation does not work for apps targeting API 29+. You must bypass certificate pinning instead:
 
--   Follow the steps in [Certificate Pinning Bypass](../internals/certificate-unpinning-app.md).
+- Follow the steps in [Certificate Pinning Bypass](../internals/certificate-unpinning-app.md).
 
 ---
 
@@ -70,14 +70,14 @@ Starting with Android 10, user or system CA installation does not work for apps 
 
 ## 🛠️ Troubleshooting
 
--   **No robots found**: Confirm DNS overrides and that Bumper is reachable at `https://<domain>`.
--   **Login errors**: Ensure your CA is trusted and HTTPS connection succeeds.
--   **Missing features**: Some cloud-only functions (e.g., map history) are not implemented.
+- **No robots found**: Confirm DNS overrides and that Bumper is reachable at `https://<domain>`.
+- **Login errors**: Ensure your CA is trusted and HTTPS connection succeeds.
+- **Missing features**: Some cloud-only functions (e.g., map history) are not implemented.
 
 ---
 
 ## 📖 See Also
 
--   [DNS Configuration](../getting_started/dns.md)
--   [Certificate Pinning Bypass](../internals/certificate-unpinning-app.md)
--   [How Bumper Works](../internals/architecture.md)
+- [DNS Configuration](../getting_started/dns.md)
+- [Certificate Pinning Bypass](../internals/certificate-unpinning-app.md)
+- [How Bumper Works](../internals/architecture.md)

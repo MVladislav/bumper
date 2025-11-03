@@ -111,8 +111,8 @@ $docker run -it \
   mvladislav/bumper
 ```
 
--   **Volumes**: uses Docker volume `bumper_data`; replace with `-v /host/path:/bumper/data` for a host mount.
--   **Ports**: 443, 8007, 8883, 5223
+- **Volumes**: uses Docker volume `bumper_data`; replace with `-v /host/path:/bumper/data` for a host mount.
+- **Ports**: 443, 8007, 8883, 5223
 
 ---
 

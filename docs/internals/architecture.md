@@ -42,10 +42,10 @@ The official Ecovacs cloud authenticates users and binds robots to accounts, ena
 
 Bumper’s Web Server module simulates the Ecovacs cloud’s REST API for login and command routing:
 
--   **Discovery**: Robots and the mobile app retrieve service endpoints (XMPP broker or MQTT server addresses) via HTTPS requests to the discovery URL exposed on ports 443/8007.
--   **Authentication**: The app submits encrypted credentials; Bumper accepts the payload and establishes a session internally, returning a token or cookie to authorize subsequent calls.
--   **Command Routing**: When the app issues a command (e.g., start cleaning), it makes a REST call against Bumper’s web service. The request is enqueued and handed off to the MQTT helper or forwarded to the XMPP server, depending on the robot’s protocol.
--   **Status Queries**: The app can poll for the robot’s latest state via REST endpoints, which query the latest telemetry stored by Bumper.
+- **Discovery**: Robots and the mobile app retrieve service endpoints (XMPP broker or MQTT server addresses) via HTTPS requests to the discovery URL exposed on ports 443/8007.
+- **Authentication**: The app submits encrypted credentials; Bumper accepts the payload and establishes a session internally, returning a token or cookie to authorize subsequent calls.
+- **Command Routing**: When the app issues a command (e.g., start cleaning), it makes a REST call against Bumper’s web service. The request is enqueued and handed off to the MQTT helper or forwarded to the XMPP server, depending on the robot’s protocol.
+- **Status Queries**: The app can poll for the robot’s latest state via REST endpoints, which query the latest telemetry stored by Bumper.
 
 These paths mirror the patterns used by the official servers, ensuring the app functions unmodified.
 
@@ -89,9 +89,9 @@ _Example Models: Deebot 600, 900, 901, Ozmo 950_
 
 ## ⚙️ Helper Bot
 
--   An internal MQTT client that bridges REST API calls to MQTT topics.
--   Authenticates with the same JWT and listens on command topics.
--   Correlates request/response pairs by message ID for REST replies.
+- An internal MQTT client that bridges REST API calls to MQTT topics.
+- Authenticates with the same JWT and listens on command topics.
+- Correlates request/response pairs by message ID for REST replies.
 
 ---
 

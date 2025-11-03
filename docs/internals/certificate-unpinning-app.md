@@ -8,19 +8,19 @@ This guide covers methods to bypass certificate pinning in the Ecovacs Home Andr
 
 ## 📋 Prerequisites
 
--   **Automated Script**
-    -   Docker (for building and running the patching container)
-    -   Android SDK platform-tools (`adb` in your PATH)
-    -   CA certificate at `./certs/ca.crt` (see [Create Certificates](../getting_started/certificates.md))
--   **Manual apk-mitm Method**
-    -   Node.js & npm
-    -   Java JDK
-    -   Android SDK platform-tools (`adb`)
-    -   `apk-mitm` (install via `npm install -g apk-mitm`)
--   **Manual apktool Method**
-    -   `apktool` (for decompile/recompile)
-    -   `keytool` and `apksigner` (part of Java JDK or Android build-tools)
-    -   Android SDK platform-tools (`adb`)
+- **Automated Script**
+    - Docker (for building and running the patching container)
+    - Android SDK platform-tools (`adb` in your PATH)
+    - CA certificate at `./certs/ca.crt` (see [Create Certificates](../getting_started/certificates.md))
+- **Manual apk-mitm Method**
+    - Node.js & npm
+    - Java JDK
+    - Android SDK platform-tools (`adb`)
+    - `apk-mitm` (install via `npm install -g apk-mitm`)
+- **Manual apktool Method**
+    - `apktool` (for decompile/recompile)
+    - `keytool` and `apksigner` (part of Java JDK or Android build-tools)
+    - Android SDK platform-tools (`adb`)
 
 ---
 
@@ -42,13 +42,11 @@ The script performs these steps internally:
 
 3. **Docker Image Build**  
    Constructs a minimal image named `apk-mitm-unpin` with:
-
     - OpenJDK 17 JRE
     - `apktool`, `apk-mitm`, `zip`, `unzip`, `curl`
 
 4. **Download & Unpin**  
    Runs a container mount:
-
     - Downloads the XAPK via `curl` using the defined URL
     - Executes `apk-mitm` with the mounted CA certificate
 
@@ -173,11 +171,11 @@ $~/.android/Sdk/platform-tools/adb install-multiple *.apk
 
 ## 📚 References
 
--   <https://github.com/niklashigi/apk-mitm>
--   <https://github.com/APKLab/APKLab>
--   <https://apktool.org>
--   <https://github.com/sensepost/objection>
--   <https://httptoolkit.com/blog/frida-certificate-pinning/>
+- <https://github.com/niklashigi/apk-mitm>
+- <https://github.com/APKLab/APKLab>
+- <https://apktool.org>
+- <https://github.com/sensepost/objection>
+- <https://httptoolkit.com/blog/frida-certificate-pinning/>
 
 ---
 
