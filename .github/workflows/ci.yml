@@ -14,6 +14,21 @@ env:
   PROJECT_PATH: "bumper"
 
 jobs:
+  prek:
+    name: Run prek checks
+    runs-on: ubuntu-latest
+
+    steps:
+      # https://github.com/actions/checkout
+      - name: ⤵️ Checkout repository
+        uses: actions/checkout@v5
+
+      # https://github.com/j178/prek-action
+      - name: Run prek
+        uses: j178/prek-action@v1.0.11
+        env:
+          PREK_SKIP: no-commit-to-branch,mypy,pylint
+
   code-quality:
     name: Check code quality
     runs-on: ubuntu-latest
@@ -43,6 +58,10 @@ jobs:
   tests:
     name: Run tests
     runs-on: ubuntu-latest
+
+    needs:
+      - prek
+      - code-quality
 
     strategy:
       matrix:

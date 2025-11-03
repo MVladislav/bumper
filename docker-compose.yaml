@@ -65,23 +65,23 @@ services:
       <<: *basic-deploy
     ports:
       # HTTP Server (non TLS)
-      - target: 8007
-        published: 8007
+      - target: ${WEB_SERVER_LISTEN_PORT:-8007}
+        published: ${WEB_SERVER_LISTEN_PORT:-8007}
         protocol: tcp
         mode: host
       # MQTT Server (non TLS)
-      - target: 1883
-        published: 1883
+      - target: ${MQTT_LISTEN_PORT:-1883}
+        published: ${MQTT_LISTEN_PORT:-1883}
         protocol: tcp
         mode: host
       # MQTT Server (TLS)
-      - target: 8883
-        published: 8883
+      - target: ${MQTT_LISTEN_PORT_TLS:-8883}
+        published: ${MQTT_LISTEN_PORT_TLS:-8883}
         protocol: tcp
         mode: host
       # XMPP Server
-      - target: 5223
-        published: 5223
+      - target: ${XMPP_LISTEN_PORT_TLS:-5223}
+        published: ${XMPP_LISTEN_PORT_TLS:-5223}
         protocol: tcp
         mode: host
     configs:
@@ -104,6 +104,16 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - config:/bumper/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider --no-check-certificate ${PROTOCOL:-https}://127.0.0.1:${WEB_SERVER_HTTPS_PORT:-443} || exit 1",
+        ]
+      start_period: 10s
+      interval: 10s
+      timeout: 3s
+      retries: 10
 
   ##############################################################################
   ##############################################################################
@@ -116,13 +126,13 @@ services:
       <<: *basic-deploy
     ports:
       # HTTP Server (non TLS)
-      - target: 8007
+      - target: ${WEB_SERVER_LISTEN_PORT:-8007}
         published: 80
         protocol: tcp
         mode: host
       # HTTP Server (TLS)
-      - target: 443
-        published: 443
+      - target: ${WEB_SERVER_HTTPS_PORT:-443}
+        published: ${WEB_SERVER_HTTPS_PORT:-443}
         protocol: tcp
         mode: host
     configs:
@@ -132,6 +142,18 @@ services:
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
+    extra_hosts:
+      - "healthcheck.ecouser.net:127.0.0.1"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider --no-check-certificate ${PROTOCOL:-https}://healthcheck.ecouser.net:${WEB_SERVER_HTTPS_PORT:-443} || exit 1",
+        ]
+      start_period: 10s
+      interval: 10s
+      timeout: 3s
+      retries: 10
 
 ################################################################################
 ################################################################################

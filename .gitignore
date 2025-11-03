@@ -14,8 +14,8 @@
 !.gitignore
 !.gitempty
 
-!CONTRIBUTING.md
 !CODE_OF_CONDUCT.md
+!CONTRIBUTING.md
 !LICENSE
 !SECURITY.md
 
@@ -30,7 +30,6 @@
 
 !mkdocs.yml
 !pyproject.toml
-!.python-version
 !uv.lock
 
 !bumper/

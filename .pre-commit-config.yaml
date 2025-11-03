@@ -48,18 +48,15 @@ repos:
       - id: mixed-line-ending
 
   # Prettier for code formatting
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v4.0.0-alpha.8
+  - repo: https://github.com/rbubley/mirrors-prettier
+    rev: v3.6.2
     hooks:
       - id: prettier
         additional_dependencies:
-          - prettier@3.2.5
-          - prettier-plugin-sort-json@3.1.0
+          - prettier@3.6.2
         exclude_types:
           - python
-        # args:
-        #   - --ignore-path=.prettierignore
-        exclude: \.(css|js)$
+        exclude: ^uv\.lock|\.(css|js)$
 
   # Secret detection
   - repo: https://github.com/Yelp/detect-secrets
@@ -86,11 +83,13 @@ repos:
       - id: yamllint
 
   # Dockerfile linting #########################################################
-  - repo: https://github.com/pryorda/dockerfilelint-precommit-hooks
-    rev: v0.1.0
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
     hooks:
-      - id: dockerfilelint
-        stages: [pre-commit]
+      - id: hadolint-docker
+        args:
+          - "--ignore"
+          - "DL3018"
 
   # Python-specific hooks ######################################################
   - repo: https://github.com/astral-sh/ruff-pre-commit

@@ -6,8 +6,8 @@ This guide covers setting up a local development environment, running the applic
 
 ## 🔧 Prerequisites
 
--   Python 3.13.x installed
--   Git
+- Python 3.13.x installed
+- Git
 
 ---
 
@@ -51,10 +51,10 @@ The web UI will be available at `https://127.0.1.1:8443` by default.
 
 ### Linting & Static Analysis
 
-**Run pre-commit hooks**
+**Run prek hooks**
 
 ```sh
-$pre-commit run --all-files
+$prek run --all-files
 ```
 
 **Type checking with mypy**
