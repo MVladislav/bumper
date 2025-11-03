@@ -21,7 +21,7 @@ keywords = [
   "server",
 ]
 
-version = "0.2.2-rc1"
+version = "0.2.2"
 requires-python = ">=3.13.0"
 readme = "README.md"
 license = { text = "GPL-3.0" }
