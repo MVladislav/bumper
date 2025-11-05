@@ -72,7 +72,7 @@ repos:
           - --exclude-files=bumper/web/plugins/api/pim/productIotMapUnofficial.json
           - --exclude-files=tests/*
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.28.0
+    rev: v8.29.0
     hooks:
       - id: gitleaks
 
