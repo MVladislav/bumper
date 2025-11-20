@@ -21,7 +21,7 @@ jobs:
     steps:
       # https://github.com/actions/checkout
       - name: ⤵️ Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       # https://github.com/j178/prek-action
       - name: Run prek
@@ -36,7 +36,7 @@ jobs:
     steps:
       # https://github.com/actions/checkout
       - name: ⤵️ Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       # https://github.com/astral-sh/setup-uv
       - name: 🏗 Install uv and Python
@@ -72,7 +72,7 @@ jobs:
     steps:
       # https://github.com/actions/checkout
       - name: ⤵️ Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       # https://github.com/astral-sh/setup-uv
       - name: 🏗 Install uv and Python ${{ matrix.python-version }}
