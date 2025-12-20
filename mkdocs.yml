@@ -20,6 +20,7 @@ nav:
       - Sniffing & Reverse Engineering: internals/sniffing.md
       - Certificate Pinning Bypass (APP): internals/certificate-unpinning-app.md
       - Certificate Pinning Bypass (BOT): internals/certificate-unpinning-bot.md
+      - Certificate Pinning Bypass (GOAT): internals/certificate-unpinning-goat.md
   - Development:
       - Development Guide: development/dev-guide.md
       - Testing & CI: https://github.com/MVladislav/bumper/actions

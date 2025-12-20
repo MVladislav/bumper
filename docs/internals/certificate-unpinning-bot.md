@@ -15,7 +15,8 @@ This guide explains two approaches to enable your Ecovacs bot to trust a self-si
 
 ## 🟢 Option 1: Simple Certificate Replacement
 
-This method only updates certificate files on the bot. No firmware unpacking or flashing is needed.
+This method only updates certificate files on the device.  
+No firmware unpacking or flashing is required.
 
 ### 1. Start UART Console (on host)
 
@@ -23,16 +24,20 @@ Connect to the bot's UART serial port:
 
 > Adjust parameters as needed:
 >
-> - `/dev/ttyACM0`: your device may differ
-> - `--log ...`: optional, remove if you don't want logs
+> - `/dev/ttyACM0`: device name may differ
+> - `--log / --log-file`: optional, remove if you do not want logs
 
 ```sh
 picocom /dev/ttyACM0 --flow n --baud 115200 --log ./b-capture-"$(date --iso-8601=seconds)".log
+
+tio /dev/ttyACM0 --flow none -b 115200 --log --log-file ./b-capture-"$(date --iso-8601=seconds)".log
 ```
 
 | UART - T10 PLUS                                                        | UART - [EXT-SOURCE](https://dontvacuum.me/talks/DEFCON32/DEFCON32_reveng_hacking_ecovacs_robots.pdf) |
 | :--------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------- |
 | ![UART T10 PLUS](./docs/../../images/uart-t10-plus.png){ width="300" } | ![UART EXT-SOURCE](./docs/../../images/uart-ext-source.png){ width="300" }                           |
+
+⚠️ **Never connect 5V to your UART adapter.**
 
 ### 2. Interrupt Boot and Enter Shell (on bot)
 
