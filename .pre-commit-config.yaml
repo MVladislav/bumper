@@ -16,7 +16,7 @@ repos:
     hooks:
       - id: codespell
         args:
-          - --ignore-words-list=ihs,ro,fo,onlyOnce,astroid
+          - --ignore-words-list=ihs,ro,fo,onlyOnce,astroid,ser
           - --skip="./.*,*.csv,*.json,*.min.js,*.min.css,*.min.html,*.min.xml,*.min.yaml,*.min.yml",*.crt
           - --quiet-level=2
         exclude_types:
