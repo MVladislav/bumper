@@ -33,13 +33,13 @@ authors = [
 ]
 
 dependencies = [
-  "aiodns==3.5.0",        # https://pypi.org/project/aiodns
+  "aiodns==3.6.1",        # https://pypi.org/project/aiodns
   "aiofiles==25.1.0",     # https://pypi.org/project/aiofiles
   "aiohttp-jinja2==1.6",  # https://pypi.org/project/aiohttp-jinja2
-  "aiohttp==3.13.2",      # https://pypi.org/project/aiohttp
+  "aiohttp==3.13.3",      # https://pypi.org/project/aiohttp
   "aiomqtt==2.4.0",       # https://pypi.org/project/aiomqtt
   "amqtt==0.11.3",        # https://pypi.org/project/amqtt
-  "cachetools==6.2.2",    # https://pypi.org/project/cachetools
+  "cachetools==6.2.4",    # https://pypi.org/project/cachetools
   "coloredlogs==15.0.1",  # https://pypi.org/project/coloredlogs
   "cryptography==46.0.3", # https://pypi.org/project/cryptography
   "defusedxml==0.8.0rc2", # https://pypi.org/project/defusedxml
