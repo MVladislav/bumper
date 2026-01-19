@@ -21,7 +21,7 @@ keywords = [
   "server",
 ]
 
-version = "0.2.2"
+version = "0.2.2-rc1"
 requires-python = ">=3.13.0"
 readme = "README.md"
 license = { text = "GPL-3.0" }
@@ -33,7 +33,7 @@ authors = [
 ]
 
 dependencies = [
-  "aiodns==3.6.1",        # https://pypi.org/project/aiodns
+  "aiodns==4.0.0",        # https://pypi.org/project/aiodns
   "aiofiles==25.1.0",     # https://pypi.org/project/aiofiles
   "aiohttp-jinja2==1.6",  # https://pypi.org/project/aiohttp-jinja2
   "aiohttp==3.13.3",      # https://pypi.org/project/aiohttp

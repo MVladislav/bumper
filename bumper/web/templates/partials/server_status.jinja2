@@ -1,66 +1,65 @@
 {% macro render_server(entries, clients=[], headers=[]) %}
 <div class="card border-0 shadow-sm mb-3">
-    <div class="card-header bg-dark text-white">
-        <div class="d-flex justify-content-between align-items-center">
-            {% for entry in entries %}
-                {% set is_running = entry.status if entry.status == 'running' or entry.status == 'started' or entry.status == True %}
-                {% set is_not_running = 'stopped' if entry.status == False else entry.status %}
-                <div class="text-start me-3">
-                    <div class="card-title mb-1 card-title-with-badge">
-                        <h3>{{ entry.title }}</h3>
-                        <span class="badge ms-3 bg-{{ 'success' if is_running else 'danger' }}">
-                            {{ 'running' if is_running else is_not_running }}
-                        </span>
-                        <span class="badge bg-dark-subtle text-dark-emphasis rounded-pill" title="{{ entry.count }} client(s) available">
-                            {{ entry.count }}
-                        </span>
-                    </div>
-                    {% if entry.action %}
-                      <button type="button" class="btn btn-outline-danger btn-sm"
-                              onclick="{{ entry.action }}">
-                          Restart
-                      </button>
-                    {% endif %}
-                </div>
+  <div class="card-header bg-dark text-white">
+    <div class="d-flex justify-content-between align-items-center">
+      {% for entry in entries %}
+      {% set is_running = entry.status if entry.status == 'running' or entry.status == 'started' or entry.status == True %}
+      {% set is_not_running = 'stopped' if entry.status == False else entry.status %}
+      <div class="text-start me-3">
+        <div class="card-title mb-1 card-title-with-badge">
+          <h3>{{ entry.title }}</h3>
+          <span class="badge ms-3 bg-{{ 'success' if is_running else 'danger' }}">
+            {{ 'running' if is_running else is_not_running }}
+          </span>
+          <span class="badge bg-dark-subtle text-dark-emphasis rounded-pill" title="{{ entry.count }} client(s) available">
+            {{ entry.count }}
+          </span>
+        </div>
+        {% if entry.action %}
+        <button type="button" class="btn btn-outline-danger btn-sm" onclick="{{ entry.action }}">
+          Restart
+        </button>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-sm table-striped table-hover">
+        <thead class="table-dark">
+          <tr>
+            {% for header in headers %}
+            <th>{{ header }}</th>
             {% endfor %}
-        </div>
+          </tr>
+        </thead>
+        <tbody>
+          {% if clients and clients[0] is mapping %}
+          {% for client in clients %}
+          <tr>
+            {% for header in headers %}
+            <td title="{{ client[header] }}">
+              {% if header == 'state' %}
+              {% if client[header] == 'connected' %}
+              <span class="badge bg-success">Connected</span>
+              {% elif client[header] == 'disconnected' %}
+              <span class="badge bg-danger">Disconnected</span>
+              {% else %}
+              {{ client[header] }}
+              {% endif %}
+              {% else %}
+              {{ client[header] }}
+              {% endif %}
+            </td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+          {% endif %}
+        </tbody>
+      </table>
     </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-sm table-striped table-hover">
-                <thead class="table-dark">
-                <tr>
-                    {% for header in headers %}
-                        <th>{{ header }}</th>
-                    {% endfor %}
-                </tr>
-                </thead>
-                <tbody>
-                {% if clients and clients[0] is mapping %}
-                    {% for client in clients %}
-                        <tr>
-                            {% for header in headers %}
-                                <td title="{{ client[header] }}">
-                                    {% if header == 'state' %}
-                                        {% if client[header] == 'connected' %}
-                                            <span class="badge bg-success">Connected</span>
-                                        {% elif client[header] == 'disconnected' %}
-                                            <span class="badge bg-danger">Disconnected</span>
-                                        {% else %}
-                                            {{ client[header] }}
-                                        {% endif %}
-                                    {% else %}
-                                        {{ client[header] }}
-                                    {% endif %}
-                                </td>
-                            {% endfor %}
-                        </tr>
-                    {% endfor %}
-                {% endif %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+  </div>
 </div>
 {% endmacro %}
 
@@ -79,3 +78,4 @@
     xmpp_server.sessions.clients,
     ["uid", "bumper_jid", "state", "address", "type"]
 ) }}
+

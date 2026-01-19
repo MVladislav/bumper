@@ -990,6 +990,24 @@
     }
   },
   {
+    "classid": "62asng",
+    "product": {
+      "_id": "68e9ff12a723c0e52e8512ff",
+      "materialNo": "110-24A3-0801",
+      "smartType": "BLAP2",
+      "name": "DEEBOT X11 OmniCyclone",
+      "icon": "6891a64f7e68c5e6d653945c",
+      "model": "PLANCK_CYCLONE_US",
+      "UILogicId": "planckcyc_ww_h_planckh5",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6891a64f7e68c5e6d653945c",
+      "status": "valid"
+    }
+  },
+  {
     "classid": "62uooe",
     "product": {
       "_id": "6384181d4b606fb67db84283",
@@ -1179,14 +1197,14 @@
       "materialNo": "111-24C2-0504",
       "smartType": "BT",
       "name": "WINBOT W2S",
-      "icon": "6823f0775ace0b6277f50fdd",
+      "icon": "69250756ae8a5106fcf56f07",
       "model": "DAVINCI_H_INT",
       "UILogicId": "davinicih_ww_h_vinci",
       "ota": true,
       "supportType": {
         "share": true
       },
-      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6823f0775ace0b6277f50fdd",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/69250756ae8a5106fcf56f07",
       "status": "valid"
     }
   },
@@ -1248,7 +1266,7 @@
     "classid": "7ohr1d",
     "product": {
       "_id": "68107de9f636497378ed8db0",
-      "materialNo": "110-24A3-1101,110-24A3-0902",
+      "materialNo": "110-24A3-1101",
       "smartType": "BLAP2",
       "name": "DEEBOT X11 PRO OMNI With Auto Refill And Drain",
       "icon": "6891a66e7e68c5934153945f",
@@ -1424,6 +1442,24 @@
         "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/669a34530e86038e73a3377a",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "8n0t5d",
+    "product": {
+      "_id": "6819be564c296bd0eb85d7be",
+      "materialNo": "110-2407-0215",
+      "smartType": "BLAP2",
+      "name": "DEEBOT T30S PRO OMNI Gen2",
+      "icon": "665057280e86033a15a33131",
+      "model": "MENDEL_MIX_PRO_GER_BK",
+      "UILogicId": "t30mixproblack_ww_h_t30mixproh5",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/665057280e86033a15a33131",
       "status": "valid"
     }
   },
@@ -2199,7 +2235,7 @@
     "classid": "dlrbzq",
     "product": {
       "_id": "660a4a20299092bf0a72fb7d",
-      "materialNo": "110-2353-0202",
+      "materialNo": "110-2353-0306",
       "smartType": "MQ_AP",
       "name": " DEEBOT N30 PRO OMNI",
       "icon": "669a342f0e8603c3b1a33776",
@@ -2210,6 +2246,24 @@
         "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/669a342f0e8603c3b1a33776",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "dzuvdj",
+    "product": {
+      "_id": "685a3ee6fcae2d0d6dee8574",
+      "materialNo": "110-2353-2417",
+      "smartType": "MQ_APM",
+      "name": "DEEBOT N30 PRO",
+      "icon": "68901d427e68c57595539151",
+      "model": "FS_AES_WHITE_JP_PRO",
+      "UILogicId": "aesdock_ww_h_fsh5",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/68901d427e68c57595539151",
       "status": "valid"
     }
   },
@@ -2877,6 +2931,24 @@
     }
   },
   {
+    "classid": "jp3knd",
+    "product": {
+      "_id": "68ea006a517ca5e13357cc79",
+      "materialNo": "110-24A3-0701",
+      "smartType": "BLAP2",
+      "name": "DEEBOT X11 PRO OMNI",
+      "icon": "6891a4b44d18f6a8b853237a",
+      "model": "PLANCK_PRO_US",
+      "UILogicId": "planckh_ww_h_planckh5",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6891a4b44d18f6a8b853237a",
+      "status": "valid"
+    }
+  },
+  {
     "classid": "jr3pqa",
     "product": {
       "_id": "5b43077b8bc457000140363e",
@@ -3344,6 +3416,24 @@
         "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67288127ec0f096170bddb8f",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "nyik8q",
+    "product": {
+      "_id": "6862310ce919b016637e987d",
+      "materialNo": "110-24A3-1401",
+      "smartType": "BLAP2",
+      "name": "DEEBOT X11 PRO",
+      "icon": "6891a6384d18f6814f53237b",
+      "model": "PLANCK_PRO_TW",
+      "UILogicId": "planckh_ww_h_planckh5",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6891a6384d18f6814f53237b",
       "status": "valid"
     }
   },
@@ -4638,6 +4728,24 @@
     }
   },
   {
+    "classid": "xw7zp9",
+    "product": {
+      "_id": "685a45f5fcae2dffdeee8598",
+      "materialNo": "110-2353-1303",
+      "smartType": "MQ_APM",
+      "name": "DEEBOT N30 PLUS",
+      "icon": "6882f62af68ece8247113a72",
+      "model": "FS_AES_BLACK_INT_Y",
+      "UILogicId": "aes_ww_h_fsh5",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6882f62af68ece8247113a72",
+      "status": "valid"
+    }
+  },
+  {
     "classid": "xztz07",
     "product": {
       "_id": "6812d99feed664706917cf47",
@@ -4832,6 +4940,24 @@
         "share": true
       },
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/65e03e6c280eb916abc60a96",
+      "status": "valid"
+    }
+  },
+  {
+    "classid": "zg6qbz",
+    "product": {
+      "_id": "67da605a6480112e655bea2e",
+      "materialNo": "110-2478-0901",
+      "smartType": "MQ_APM",
+      "name": "DEEBOT NEO 3.0 OMNI",
+      "icon": "67f3259e20a1203ee2591a7f",
+      "model": "SS_ANZ",
+      "UILogicId": "omni_ww_h_ssh5",
+      "ota": true,
+      "supportType": {
+        "share": true
+      },
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67f3259e20a1203ee2591a7f",
       "status": "valid"
     }
   },

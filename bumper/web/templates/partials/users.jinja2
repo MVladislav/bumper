@@ -1,24 +1,25 @@
 <div class="table-responsive">
-    <table class="table table-sm table-striped table-hover">
-        <thead class="table-dark">
-        <tr>
-            <th>Username</th>
-            <th>UID</th>
-            <th>Devices</th>
-            <th>Action</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for user in users %}
-            <tr>
-                <td title="{{ user.username }}">{{ user.username }}</td>
-                <td title="{{ user.userid }}">{{ user.userid }}</td>
-                <td title="{{ user.devices }}">{{ user.devices }}</td>
-                <td>
-                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeEntity('user', '{{ user.userid }}')">Remove</button>
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+  <table class="table table-sm table-striped table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>Username</th>
+        <th>UID</th>
+        <th>Devices</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr>
+        <td title="{{ user.username }}">{{ user.username }}</td>
+        <td title="{{ user.userid }}">{{ user.userid }}</td>
+        <td title="{{ user.devices }}">{{ user.devices }}</td>
+        <td>
+          <button type="button" class="btn btn-outline-danger btn-sm"
+                  onclick="removeEntity('user', '{{ user.userid }}', this)">Remove</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>

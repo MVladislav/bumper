@@ -23,6 +23,7 @@
 
 !.pre-commit-config.yaml
 !.gitleaks.toml
+!.gitleaksignore
 !.prettierrc.yml
 !.yamllint
 
@@ -64,8 +65,9 @@ scripts/*
 !tests/test*.py
 
 !Dockerfile
-!docker-compose-mitm.yaml
 !docker-compose.yaml
+!docker-compose-traefik.yaml
+!docker-compose-mitm.yaml
 
 # Created by https://www.toptal.com/developers/gitignore/api/python
 # Edit at https://www.toptal.com/developers/gitignore?templates=python

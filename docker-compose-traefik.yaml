@@ -1,0 +1,194 @@
+---
+x-basic-deploy-labels: &basic-deploy-labels
+  labels:
+    - traefik.enable=true
+    - traefik.swarm.lbswarm=${LB_SWARM:-true}
+    - traefik.swarm.network=proxy
+
+    # Default TCP Router for MQTT (port 443 to 8883)
+    - traefik.tcp.routers.bumper-default.entrypoints=${TRAEFIK_ENTRYPOINT:-https}
+    - traefik.tcp.routers.bumper-default.rule=HostSNI(`*`)
+    - traefik.tcp.routers.bumper-default.tls=true
+    - traefik.tcp.routers.bumper-default.tls.passthrough=true
+    - traefik.tcp.routers.bumper-default.service=bumper-default
+    - traefik.tcp.services.bumper-default.loadbalancer.server.port=${MQTT_LISTEN_PORT_TLS:-8883}
+
+    # TCP Router for HTTPS with specific SNI (port 443 to 443)
+    - traefik.tcp.routers.bumper-https.entrypoints=${TRAEFIK_ENTRYPOINT:-https}
+    - traefik.tcp.routers.bumper-https.rule=HostSNIRegexp(`^.*(ecovacs|ecouser|aliyuncs|aliyun)\.(net|com)$`)
+    - traefik.tcp.routers.bumper-https.tls=true
+    - traefik.tcp.routers.bumper-https.tls.passthrough=true
+    - traefik.tcp.routers.bumper-https.service=bumper-https
+    - traefik.tcp.services.bumper-https.loadbalancer.server.port=443
+
+    # TCP Router for MQTT with specific SNI (port 443 to 8883)
+    - traefik.tcp.routers.bumper-https-mqtt.entrypoints=${TRAEFIK_ENTRYPOINT:-https}
+    - traefik.tcp.routers.bumper-https-mqtt.rule=HostSNIRegexp(`^.*(mq).*\.(ecovacs|ecouser|aliyuncs|aliyun)\.(net|com)$`)
+    - traefik.tcp.routers.bumper-https-mqtt.tls=true
+    - traefik.tcp.routers.bumper-https-mqtt.tls.passthrough=true
+    - traefik.tcp.routers.bumper-https-mqtt.service=bumper-https-mqtt
+    - traefik.tcp.services.bumper-https-mqtt.loadbalancer.server.port=${MQTT_LISTEN_PORT_TLS:-8883}
+
+    # # TCP Router for HTTP (port 8007 to 8007)
+    # - traefik.tcp.routers.bumper-http.entrypoints=bumper-http
+    # - traefik.tcp.routers.bumper-http.rule=HostSNI(`*`)
+    # - traefik.tcp.routers.bumper-http.service=bumper-http
+    # - traefik.tcp.services.bumper-http.loadbalancer.server.port=${WEB_SERVER_LISTEN_PORT:-8007}
+
+    # # TCP Router for MQTTS (port 8883 to 8883)
+    # - traefik.tcp.routers.bumper-mqtts.entrypoints=bumper-mqtts
+    # - traefik.tcp.routers.bumper-mqtts.rule=HostSNI(`*`)
+    # - traefik.tcp.routers.bumper-mqtts.tls=true
+    # - traefik.tcp.routers.bumper-mqtts.tls.passthrough=true
+    # - traefik.tcp.routers.bumper-mqtts.service=bumper-mqtts
+    # - traefik.tcp.services.bumper-mqtts.loadbalancer.server.port=${MQTT_LISTEN_PORT_TLS:-8883}
+
+    # # TCP Router for MQTT (port 1883, non-TLS)
+    # - traefik.tcp.routers.bumper-mqtt.entrypoints=bumper-mqtt
+    # - traefik.tcp.routers.bumper-mqtt.rule=HostSNI(`*`)
+    # - traefik.tcp.routers.bumper-mqtt.service=bumper-mqtt
+    # - traefik.tcp.services.bumper-mqtt.loadbalancer.server.port=${MQTT_LISTEN_PORT:-1883}
+
+    # # TCP Router for XMPP (port 5223)
+    # - traefik.tcp.routers.bumper-xmpp.entrypoints=bumper-xmpp
+    # - traefik.tcp.routers.bumper-xmpp.rule=HostSNI(`*`)
+    # - traefik.tcp.routers.bumper-xmpp.service=bumper-xmpp
+    # - traefik.tcp.services.bumper-xmpp.loadbalancer.server.port=${XMPP_LISTEN_PORT_TLS:-5223}
+
+x-basic-deploy: &basic-deploy
+  mode: replicated
+  replicas: 1
+  placement:
+    max_replicas_per_node: 1
+    constraints:
+      - "node.role==${NODE_ROLE:-manager}"
+      - node.platform.os == linux
+  update_config:
+    order: stop-first
+  restart_policy:
+    condition: any
+  resources:
+    limits:
+      cpus: ${RESOURCES_LIMITS_CPUS:-1}
+      memory: ${RESOURCES_LIMITS_MEMORY:-500m}
+    reservations:
+      cpus: ${RESOURCES_RESERVATIONS_CPUS:-0.001}
+      memory: ${RESOURCES_RESERVATIONS_MEMORY:-32m}
+
+x-basic: &basic
+  env_file: .env
+  cap_add:
+    - DAC_READ_SEARCH
+    - SETGID
+    - SETUID
+  cap_drop: ["ALL"]
+  security_opt:
+    - no-new-privileges:true
+  ulimits:
+    memlock:
+      soft: -1
+      hard: -1
+    nofile:
+      soft: 655360
+      hard: 655360
+    fsize: -1
+    as: -1
+  networks:
+    proxy: {}
+  healthcheck:
+    disable: true
+  restart: always
+
+################################################################################
+################################################################################
+################################################################################
+services:
+  ##############################################################################
+  ##############################################################################
+  ##############################################################################
+  bumper:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        # https://hub.docker.com/_/python/tags
+        PY_VERSION: 3.14.0-alpine3.22
+        # https://github.com/astral-sh/uv/pkgs/container/uv
+        UV_VERSION: python3.14-alpine
+    image: ghcr.io/mvladislav/bumper:${VERSION_BUMPER:-latest}
+    <<:
+      - *basic
+      # - *basic-deploy-labels
+    deploy:
+      <<:
+        - *basic-deploy
+        - *basic-deploy-labels
+    ports:
+      # HTTP Server (non TLS)
+      - target: ${WEB_SERVER_LISTEN_PORT:-8007}
+        published: ${WEB_SERVER_LISTEN_PORT:-8007}
+        protocol: tcp
+        mode: host
+      # MQTT Server (non TLS)
+      - target: ${MQTT_LISTEN_PORT:-1883}
+        published: ${MQTT_LISTEN_PORT:-1883}
+        protocol: tcp
+        mode: host
+      # MQTT Server (TLS)
+      - target: ${MQTT_LISTEN_PORT_TLS:-8883}
+        published: ${MQTT_LISTEN_PORT_TLS:-8883}
+        protocol: tcp
+        mode: host
+      # XMPP Server
+      - target: ${XMPP_LISTEN_PORT_TLS:-5223}
+        published: ${XMPP_LISTEN_PORT_TLS:-5223}
+        protocol: tcp
+        mode: host
+    configs:
+      - source: ca_config
+        target: /bumper/certs/ca.crt
+        mode: "0444"
+      - source: server_crt_config
+        target: /bumper/certs/bumper.crt
+        mode: "0444"
+      - source: server_key_config
+        target: /bumper/certs/bumper.key
+        mode: "0444"
+    environment:
+      TZ: ${TZ:-Europe/Berlin}
+      BUMPER_ANNOUNCE_IP: ${BUMPER_ANNOUNCE_IP?Server Announce IP not set}
+      BUMPER_LISTEN: ${BUMPER_LISTEN:-0.0.0.0}
+      BUMPER_DEBUG_LEVEL: ${BUMPER_DEBUG_LEVEL:-INFO}
+      BUMPER_DEBUG_VERBOSE: ${BUMPER_DEBUG_VERBOSE:-1}
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - config:/bumper/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider --no-check-certificate ${PROTOCOL:-https}://127.0.0.1:${WEB_SERVER_HTTPS_PORT:-443} || exit 1",
+        ]
+      start_period: 10s
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+################################################################################
+################################################################################
+################################################################################
+networks:
+  proxy:
+    external: true
+
+volumes:
+  config: {}
+
+configs:
+  ca_config:
+    file: $PWD/certs/ca.crt
+  server_crt_config:
+    file: $PWD/certs/bumper.crt
+  server_key_config:
+    file: $PWD/certs/bumper.key

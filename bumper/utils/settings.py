@@ -26,6 +26,7 @@ class Config:
 
     ECOVACS_DEFAULT_COUNTRY: str = "us"
     LOCAL_TIMEZONE: ZoneInfo = ZoneInfo(os.environ.get("TZ", "UTC"))
+    SYNC_TIMEZONE: bool = str_to_bool(os.environ.get("SYNC_TIMEZONE")) or False
 
     # ww: 52.53.84.66 | eu: 3.68.172.231
     ECOVACS_UPDATE_SERVER: str = "3.68.172.231"

@@ -221,6 +221,7 @@ async def handle_codepush_update_check(request: Request) -> Response:
                 "should_run_binary_version": False,
                 "update_app_version": False,
                 "is_mandatory": True,
+                "deployment_key": "RSYAx668chaf0tpKvf1kJNaVJmDzi4g83wsg78",  # pragma: allowlist secret
             },
         }
     elif deployment_key == "0XLlHQNfNd0YUpiD-gDe1h6oIctlsVKwpcmViH":  # pragma: allowlist secret
@@ -237,6 +238,24 @@ async def handle_codepush_update_check(request: Request) -> Response:
                 "should_run_binary_version": False,
                 "update_app_version": False,
                 "is_mandatory": True,
+                "deployment_key": "0XLlHQNfNd0YUpiD-gDe1h6oIctlsVKwpcmViH",  # pragma: allowlist secret
+            },
+        }
+    elif deployment_key == "QUWwhrVVTWguUhMlp9u_MydbtiEfoGuTi6RKdt":  # pragma: allowlist secret
+        response = {
+            "update_info": {
+                "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lv8kmkyESsIqG945JLqDLbXrI7g4",
+                "description": '"1.0.0-"',
+                "is_available": True,
+                "is_disabled": False,
+                "target_binary_range": "1.0.0",
+                "label": "v19",
+                "package_hash": "d40235b07342707fa3198ba079e3e5c9e51baaa3f9d53e4ff3dc126884225263",  # pragma: allowlist secret
+                "package_size": 29094509,
+                "should_run_binary_version": False,
+                "update_app_version": False,
+                "is_mandatory": True,
+                "deployment_key": "QUWwhrVVTWguUhMlp9u_MydbtiEfoGuTi6RKdt",  # pragma: allowlist secret
             },
         }
 

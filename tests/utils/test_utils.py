@@ -3,6 +3,7 @@ import json
 import logging
 from pathlib import Path
 from unittest.mock import mock_open, patch
+from zoneinfo import ZoneInfo
 
 import pytest
 
@@ -65,6 +66,19 @@ def test_get_current_time_as_millis() -> None:
     # Assert that the current time obtained from the function is close to the expected time
     # This is to account for potential slight variations due to the time it takes to execute the test
     assert abs(current_time - expected_time) < 1000, "Current time in milliseconds is not within an acceptable range."
+
+
+def test_get_tzm_and_ts() -> None:
+    bumper_isc.LOCAL_TIMEZONE = ZoneInfo("Europe/Berlin")
+    offset_minutes, timestamp_s = utils.get_tzm_and_ts()
+    assert timestamp_s == int(datetime.datetime.now(tz=bumper_isc.LOCAL_TIMEZONE).timestamp())
+    assert offset_minutes == int(datetime.datetime.now(tz=bumper_isc.LOCAL_TIMEZONE).utcoffset().total_seconds() // 60)
+
+
+def test_get_tzm_and_ts_raises() -> None:
+    bumper_isc.LOCAL_TIMEZONE = ZoneInfo("UTC")
+    with pytest.raises(ValueError, match="UTC offset is not set!"):
+        _, _ = utils.get_tzm_and_ts()
 
 
 def test_str_to_bool_true() -> None:

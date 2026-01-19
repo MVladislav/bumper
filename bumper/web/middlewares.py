@@ -48,6 +48,8 @@ async def log_all_requests(request: Request, handler: Handler) -> StreamResponse
 
     if request.match_info.route.resource is None or request.match_info.route.resource.canonical in _EXCLUDE_FROM_LOGGING:
         return await handler(request)
+    if bumper_isc.DEBUG_LOGGING_API_REQUEST is False:
+        return await handler(request)
 
     to_log = {
         "request": {
@@ -63,7 +65,11 @@ async def log_all_requests(request: Request, handler: Handler) -> StreamResponse
     try:
         if request.content_length:
             if request.content_type == "application/json":
-                to_log["request"]["body"] = await request.json()
+                try:
+                    to_log["request"]["body"] = await request.json()
+                except Exception:
+                    _LOGGER.debug("Failed to decode body as json")
+                    to_log["request"]["body"] = set(await request.post())
             else:
                 to_log["request"]["body"] = set(await request.post())
 
@@ -132,17 +138,15 @@ async def log_all_requests(request: Request, handler: Handler) -> StreamResponse
                 else:
                     to_log["response"]["body"] = decoded
 
-        return response
-
     except web.HTTPNotFound as e:
         _LOGGER.debug(f"Request path {request.raw_path} not found")
         raise web.HTTPNotFound from e
     except Exception:
         _LOGGER.exception(utils.default_exception_str_builder(info="during logging the request/response"))
         raise
-    finally:
-        if bumper_isc.DEBUG_LOGGING_API_REQUEST is True:
-            _LOGGER.debug(json.dumps(to_log, cls=CustomEncoder))
+
+    _LOGGER.debug(json.dumps(to_log, cls=CustomEncoder))
+    return response
 
 
 async def _log_debug_request(request: Request) -> None:

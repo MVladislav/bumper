@@ -1,0 +1,104 @@
+{% set total_pages = ((count + limit - 1) // limit) %}
+{% set current_page = (offset // limit) + 1 %}
+{% set prev_offset = 0 if (offset - limit) < 0 else (offset - limit) %}
+{% set next_offset=(offset + limit) if (offset + limit < count) else offset %}
+{% set last_offset=0 if ((total_pages - 1) * limit) < 0 else ((total_pages - 1) * limit) %}
+
+<div
+  class="card-header bg-dark text-white" hx-get="/clean_logs?offset={{ offset }}&limit={{ limit }}"
+  hx-target="#clean-logs-container" hx-swap="innerHTML" hx-trigger="every 5s">
+  <div class="d-flex justify-content-between align-items-center">
+    <div class="text-start me-3">
+      <div class="card-title mb-1 card-title-with-badge">
+        <h3>Clean Logs</h3>
+        <span class="badge bg-dark-subtle text-dark-emphasis rounded-pill" title="{{ count }} Clean Log(s) saved">
+          {{ count }}
+        </span>
+      </div>
+      <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeEntity('clean_logs', 'all', this)"
+              hx-get="/clean_logs?offset={{ offset }}&limit={{ limit }}" hx-target="#clean-logs-container" hx-swap="innerHTML"
+              hx-trigger="entity-removed">
+        Clean-Up
+      </button>
+    </div>
+  </div>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-sm table-striped table-hover">
+        <thead class="table-dark">
+          <tr>
+            <th>DID</th>
+            {# <th>CID</th> #}
+            <th>Start</th>
+            <th>Time</th>
+            <th>Area</th>
+            <th>Type</th>
+            <th>Stop Reason</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="table-body-clean-logs">
+          {% if clean_logs %}
+          {% for clean_log in clean_logs %}
+          <tr>
+            <td title="{{ clean_log.did }}">{{ clean_log.did }}</td>
+            {# <td title="{{ clean_log.cid }}">{{ clean_log.cid }}</td> #}
+            <td title="{{ clean_log.ts }}">{{ clean_log.ts }}</td>
+            <td title="{{ clean_log.last }}">{{ clean_log.last / 60 }}min</td>
+            <td title="{{ clean_log.area }}">{{ clean_log.area }}m²</td>
+            <td title="{{ clean_log.type }}">{{ clean_log.type }}</td>
+            <td title="{{ clean_log.stop_reason }}">{{ clean_log.stop_reason }}</td>
+            <td>
+              <button type="button" class="btn btn-outline-danger btn-sm"
+                      onclick="removeEntity('clean_log', '{{ clean_log.clean_log_id }}', this)"
+                      hx-get="/clean_logs?offset={{ offset }}&limit={{ limit }}" hx-target="#clean-logs-container"
+                      hx-swap="innerHTML" hx-trigger="entity-removed">
+                Remove
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr>
+            <td colspan="6" class="text-center">No logs found.</td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+    <nav aria-label="Page navigation">
+      <ul class="pagination justify-content-center">
+
+        <!-- Previous -->
+        <li class="page-item {% if not has_prev %}disabled{% endif %}">
+          <a class="page-link" href="#" hx-get="/clean_logs?offset={{ prev_offset }}&limit={{ limit }}"
+             hx-target="#clean-logs-container" hx-swap="innerHTML" hx-trigger="click">«</a>
+        </li>
+
+        <!-- First page -->
+        <li class="page-item {% if current_page == 1 %}disabled{% endif %}">
+          <a class="page-link" href="#" hx-get="/clean_logs?offset=0&limit={{ limit }}" hx-target="#clean-logs-container"
+             hx-swap="innerHTML" hx-trigger="click">1</a>
+        </li>
+
+        <!-- Current page indicator -->
+        <li class="page-item disabled">
+          <span class="page-link">Page {{ current_page }} of {{ total_pages }}</span>
+        </li>
+
+        <!-- Last page -->
+        <li class="page-item {% if current_page == total_pages or not has_next %}disabled{% endif %}">
+          <a class="page-link" href="#" hx-get="/clean_logs?offset={{ last_offset }}&limit={{ limit }}"
+             hx-target="#clean-logs-container" hx-swap="innerHTML" hx-trigger="click">{{ total_pages }}</a>
+        </li>
+
+        <!-- Next -->
+        <li class="page-item {% if not has_next %}disabled{% endif %}">
+          <a class="page-link" href="#" hx-get="/clean_logs?offset={{ next_offset }}&limit={{ limit }}"
+             hx-target="#clean-logs-container" hx-swap="innerHTML" hx-trigger="click">»</a>
+        </li>
+      </ul>
+    </nav>
+  </div>

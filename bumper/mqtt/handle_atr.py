@@ -31,4 +31,4 @@ def clean_log(did: str, rid: str, payload: str) -> None:
         return
 
     t_clean_log = CleanLog.from_dict(did=did, rid=rid, data=body_data)
-    clean_log_repo.add(did, cid, t_clean_log)
+    clean_log_repo.add_or_update(t_clean_log)

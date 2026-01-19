@@ -2,11 +2,12 @@
 
 import asyncio
 from collections.abc import Awaitable, Coroutine
-import datetime
+from datetime import datetime
 import json
 import logging
 from pathlib import Path
 import re
+import time
 from typing import Any
 
 from aiohttp import AsyncResolver
@@ -63,12 +64,35 @@ def convert_to_millis(seconds: float) -> int:
 
 def get_current_time_as_millis() -> int:
     """Get current time in millis."""
-    return convert_to_millis(datetime.datetime.now(tz=bumper_isc.LOCAL_TIMEZONE).timestamp())
+    return convert_to_millis(datetime.now(tz=bumper_isc.LOCAL_TIMEZONE).timestamp())
+
+
+def get_tzm_and_ts() -> tuple[int, int]:
+    """Get tzm offset and current timestamp (seconds)."""
+    now = datetime.now(bumper_isc.LOCAL_TIMEZONE)
+    # UTC offset in minutes (DST-aware)
+    if not (offset := now.utcoffset()):
+        msg = "UTC offset is not set!"
+        raise ValueError(msg)
+    offset_minutes = int(offset.total_seconds() // 60)
+    # Current timestamp in milliseconds
+    timestamp_s = int(time.time())
+    return offset_minutes, timestamp_s
 
 
 def str_to_bool(value: str | int | bool | None) -> bool:
     """Convert str to bool."""
     return str(value).lower() in ["true", "1", "t", "y", "on", "yes"]
+
+
+def to_int(value: Any) -> int | None:
+    """Convert save any to int."""
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
 
 
 # ******************************************************************************
