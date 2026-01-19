@@ -7,7 +7,6 @@ MQTT, XMPP, and web server components used in bumper tests.
 import asyncio
 from collections.abc import AsyncIterator, Awaitable, Callable, Generator
 import logging
-import os
 from pathlib import Path
 import ssl
 import tracemalloc

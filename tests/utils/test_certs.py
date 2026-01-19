@@ -3,15 +3,14 @@
 import datetime
 from pathlib import Path
 
-import pytest
 from cryptography import x509
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.x509.oid import ExtendedKeyUsageOID, NameOID
+import pytest
 
 from bumper.utils.certs import (
     CA_VALIDITY_DAYS,
-    RAW_DOMAINS,
     SERVER_VALIDITY_DAYS,
     _build_domain_tree,
     _build_san_list,
@@ -315,7 +314,10 @@ class TestGenerateCertificates:
         server_key_path = certs_dir / "bumper.key"
 
         result = generate_certificates(
-            certs_dir, ca_cert_path, server_cert_path, server_key_path
+            certs_dir,
+            ca_cert_path,
+            server_cert_path,
+            server_key_path,
         )
 
         assert result is True
@@ -340,7 +342,10 @@ class TestGenerateCertificates:
         ca_key_path.touch()
 
         result = generate_certificates(
-            certs_dir, ca_cert_path, server_cert_path, server_key_path
+            certs_dir,
+            ca_cert_path,
+            server_cert_path,
+            server_key_path,
         )
 
         assert result is False
@@ -357,7 +362,10 @@ class TestGenerateCertificates:
         server_cert_path.touch()
 
         result = generate_certificates(
-            certs_dir, ca_cert_path, server_cert_path, server_key_path
+            certs_dir,
+            ca_cert_path,
+            server_cert_path,
+            server_key_path,
         )
 
         assert result is True
@@ -369,7 +377,10 @@ class TestGenerateCertificates:
         server_key_path = certs_dir / "bumper.key"
 
         result = generate_certificates(
-            certs_dir, ca_cert_path, server_cert_path, server_key_path
+            certs_dir,
+            ca_cert_path,
+            server_cert_path,
+            server_key_path,
         )
 
         assert result is True
@@ -382,7 +393,10 @@ class TestGenerateCertificates:
         server_key_path = certs_dir / "bumper.key"
 
         generate_certificates(
-            certs_dir, ca_cert_path, server_cert_path, server_key_path
+            certs_dir,
+            ca_cert_path,
+            server_cert_path,
+            server_key_path,
         )
 
         ca_pem_content = (certs_dir / "ca.pem").read_text()
@@ -396,7 +410,10 @@ class TestGenerateCertificates:
         server_key_path = certs_dir / "bumper.key"
 
         generate_certificates(
-            certs_dir, ca_cert_path, server_cert_path, server_key_path
+            certs_dir,
+            ca_cert_path,
+            server_cert_path,
+            server_key_path,
         )
 
         # Load and verify CA cert

@@ -236,10 +236,12 @@ def _parse_san_list() -> list[x509.GeneralName]:
 
 def _create_ca_certificate(ca_key: ec.EllipticCurvePrivateKey) -> x509.Certificate:
     """Create a CA certificate."""
-    subject = issuer = x509.Name([
-        x509.NameAttribute(NameOID.ORGANIZATION_NAME, "ecovacs"),
-        x509.NameAttribute(NameOID.COMMON_NAME, "ECOVACS CA"),
-    ])
+    subject = issuer = x509.Name(
+        [
+            x509.NameAttribute(NameOID.ORGANIZATION_NAME, "ecovacs"),
+            x509.NameAttribute(NameOID.COMMON_NAME, "ECOVACS CA"),
+        ],
+    )
 
     now = datetime.datetime.now(datetime.UTC)
     return (
@@ -282,10 +284,12 @@ def _create_server_certificate(
     ca_cert: x509.Certificate,
 ) -> x509.Certificate:
     """Create a server certificate signed by the CA."""
-    subject = x509.Name([
-        x509.NameAttribute(NameOID.ORGANIZATION_NAME, "ecovacs"),
-        x509.NameAttribute(NameOID.COMMON_NAME, "*.ecouser.net"),
-    ])
+    subject = x509.Name(
+        [
+            x509.NameAttribute(NameOID.ORGANIZATION_NAME, "ecovacs"),
+            x509.NameAttribute(NameOID.COMMON_NAME, "*.ecouser.net"),
+        ],
+    )
 
     now = datetime.datetime.now(datetime.UTC)
     return (
@@ -361,12 +365,7 @@ def generate_certificates(
     ca_key_path = certs_dir / "ca.key"
     ca_pem_path = certs_dir / "ca.pem"
 
-    if (
-        ca_cert_path.exists()
-        and ca_key_path.exists()
-        and server_cert_path.exists()
-        and server_key_path.exists()
-    ):
+    if ca_cert_path.exists() and ca_key_path.exists() and server_cert_path.exists() and server_key_path.exists():
         _LOGGER.debug("All certificate files already exist, skipping generation")
         return False
 
