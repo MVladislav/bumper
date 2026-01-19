@@ -1,7 +1,6 @@
 """Tests for certificate generation module."""
 
 import datetime
-import stat
 from pathlib import Path
 
 import pytest
@@ -22,6 +21,9 @@ from bumper.utils.certs import (
     _write_key,
     generate_certificates,
 )
+
+# Type alias for CA key and certificate fixture
+CaKeyAndCert = tuple[ec.EllipticCurvePrivateKey, x509.Certificate]
 
 
 class TestGenerateEcKey:
@@ -121,18 +123,18 @@ class TestCreateCaCertificate:
 
 class TestCreateServerCertificate:
     @pytest.fixture
-    def ca_key_and_cert(self) -> tuple[ec.EllipticCurvePrivateKey, x509.Certificate]:
+    def ca_key_and_cert(self) -> CaKeyAndCert:
         ca_key = _generate_ec_key()
         ca_cert = _create_ca_certificate(ca_key)
         return ca_key, ca_cert
 
-    def test_creates_valid_certificate(self, ca_key_and_cert: tuple[ec.EllipticCurvePrivateKey, x509.Certificate]) -> None:
+    def test_creates_valid_certificate(self, ca_key_and_cert: CaKeyAndCert) -> None:
         ca_key, ca_cert = ca_key_and_cert
         server_key = _generate_ec_key()
         cert = _create_server_certificate(server_key, ca_key, ca_cert)
         assert isinstance(cert, x509.Certificate)
 
-    def test_certificate_subject(self, ca_key_and_cert: tuple[ec.EllipticCurvePrivateKey, x509.Certificate]) -> None:
+    def test_certificate_subject(self, ca_key_and_cert: CaKeyAndCert) -> None:
         ca_key, ca_cert = ca_key_and_cert
         server_key = _generate_ec_key()
         cert = _create_server_certificate(server_key, ca_key, ca_cert)
@@ -141,13 +143,13 @@ class TestCreateServerCertificate:
         assert org == "ecovacs"
         assert cn == "*.ecouser.net"
 
-    def test_certificate_issuer_matches_ca(self, ca_key_and_cert: tuple[ec.EllipticCurvePrivateKey, x509.Certificate]) -> None:
+    def test_certificate_issuer_matches_ca(self, ca_key_and_cert: CaKeyAndCert) -> None:
         ca_key, ca_cert = ca_key_and_cert
         server_key = _generate_ec_key()
         cert = _create_server_certificate(server_key, ca_key, ca_cert)
         assert cert.issuer == ca_cert.subject
 
-    def test_certificate_validity_period(self, ca_key_and_cert: tuple[ec.EllipticCurvePrivateKey, x509.Certificate]) -> None:
+    def test_certificate_validity_period(self, ca_key_and_cert: CaKeyAndCert) -> None:
         ca_key, ca_cert = ca_key_and_cert
         server_key = _generate_ec_key()
         cert = _create_server_certificate(server_key, ca_key, ca_cert)
@@ -155,7 +157,7 @@ class TestCreateServerCertificate:
         expected_days = datetime.timedelta(days=SERVER_VALIDITY_DAYS)
         assert validity == expected_days
 
-    def test_certificate_has_key_usage(self, ca_key_and_cert: tuple[ec.EllipticCurvePrivateKey, x509.Certificate]) -> None:
+    def test_certificate_has_key_usage(self, ca_key_and_cert: CaKeyAndCert) -> None:
         ca_key, ca_cert = ca_key_and_cert
         server_key = _generate_ec_key()
         cert = _create_server_certificate(server_key, ca_key, ca_cert)
@@ -164,14 +166,14 @@ class TestCreateServerCertificate:
         assert ku.value.digital_signature is True
         assert ku.value.key_cert_sign is False
 
-    def test_certificate_has_extended_key_usage(self, ca_key_and_cert: tuple[ec.EllipticCurvePrivateKey, x509.Certificate]) -> None:
+    def test_certificate_has_extended_key_usage(self, ca_key_and_cert: CaKeyAndCert) -> None:
         ca_key, ca_cert = ca_key_and_cert
         server_key = _generate_ec_key()
         cert = _create_server_certificate(server_key, ca_key, ca_cert)
         eku = cert.extensions.get_extension_for_class(x509.ExtendedKeyUsage)
         assert ExtendedKeyUsageOID.SERVER_AUTH in eku.value
 
-    def test_certificate_has_san(self, ca_key_and_cert: tuple[ec.EllipticCurvePrivateKey, x509.Certificate]) -> None:
+    def test_certificate_has_san(self, ca_key_and_cert: CaKeyAndCert) -> None:
         ca_key, ca_cert = ca_key_and_cert
         server_key = _generate_ec_key()
         cert = _create_server_certificate(server_key, ca_key, ca_cert)
