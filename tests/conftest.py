@@ -10,7 +10,6 @@ import logging
 import os
 from pathlib import Path
 import ssl
-import subprocess
 import tracemalloc
 
 from aiohttp.test_utils import TestClient
@@ -21,6 +20,7 @@ import pytest
 from bumper.db import db
 from bumper.mqtt.helper_bot import MQTTHelperBot
 from bumper.mqtt.server import MQTTBinding, MQTTServer
+from bumper.utils.certs import generate_certificates
 from bumper.utils.log_helper import LogHelper
 from bumper.utils.settings import config as bumper_isc
 from bumper.web.server import WebServer, WebserverBinding
@@ -63,14 +63,10 @@ def test_files(tmp_path_factory: pytest.TempPathFactory) -> dict[str, Path]:
     passwd_bad.write_text("test-client:badhash\n")
 
     certs_dir = tmp_dir / "certs"
-    certs_dir.mkdir()
-    script = Path(__file__).parent.parent / "scripts" / "create-cert.sh"
-    subprocess.run(  # noqa: S603
-        ["/bin/bash", str(script)],
-        cwd=tmp_dir,
-        check=True,
-        env={**os.environ, "PWD": str(tmp_dir)},
-    )
+    ca_cert_path = certs_dir / "ca.crt"
+    server_cert_path = certs_dir / "bumper.crt"
+    server_key_path = certs_dir / "bumper.key"
+    generate_certificates(certs_dir, ca_cert_path, server_cert_path, server_key_path)
 
     db_file = tmp_dir / "tmp.db"
 
