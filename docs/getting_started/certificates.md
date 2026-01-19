@@ -16,13 +16,13 @@ No manual steps required - this is the recommended approach.
 
 On first startup, Bumper creates the following files in `certs/`:
 
-| File         | Description                              |
-| ------------ | ---------------------------------------- |
-| `ca.key`     | Root CA private key                      |
-| `ca.crt`     | Root CA certificate                      |
-| `bumper.key` | Server private key                       |
-| `bumper.crt` | Server certificate                       |
-| `ca.pem`     | Combined CA+server cert (for mitmproxy)  |
+| File         | Description                             |
+| ------------ | ----------------------------------------|
+| `ca.key`     | Root CA private key                     |
+| `ca.crt`     | Root CA certificate                     |
+| `bumper.key` | Server private key                      |
+| `bumper.crt` | Server certificate                      |
+| `ca.pem`     | Combined CA+server cert (for mitmproxy) |
 
 > Bumper skips generation if all certificate files already exist.
 
