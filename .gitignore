@@ -243,3 +243,23 @@ poetry.toml
 pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/python
+
+# Devenv
+.devenv*
+devenv.local.nix
+devenv.local.yaml
+
+# direnv
+.direnv
+
+# pre-commit
+.pre-commit-config.yaml
+
+# Nix
+!flake.nix
+!flake.lock
+!devenv.nix
+!devenv.yaml
+!.envrc
+!nix/
+!nix/**
