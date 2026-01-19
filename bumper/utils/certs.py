@@ -1,9 +1,9 @@
 """Certificate generation module for Bumper."""
 
-import datetime
-import logging
 from collections import defaultdict
+import datetime
 from ipaddress import ip_address
+import logging
 from pathlib import Path
 from typing import Any
 
@@ -186,8 +186,8 @@ def _generate_wildcards(wildcard_set: set[str], node: dict[str, Any], parent_par
         wildcard_set.add(wildcard)
 
     # Recurse into children
-    for child in node:
-        _generate_wildcards(wildcard_set, node[child], [child, *parent_parts])
+    for child, child_node in node.items():
+        _generate_wildcards(wildcard_set, child_node, [child, *parent_parts])
 
 
 def _build_san_list() -> list[str]:
@@ -213,8 +213,7 @@ def _build_san_list() -> list[str]:
         _generate_wildcards(wildcard_set, tree[root], [root])
 
     # Add all wildcard entries as DNS SANs
-    for entry in sorted(wildcard_set):
-        san_list.append(f"DNS:{entry}")
+    san_list.extend(f"DNS:{entry}" for entry in sorted(wildcard_set))
 
     return san_list
 
@@ -243,7 +242,7 @@ def _create_ca_certificate(ca_key: ec.EllipticCurvePrivateKey) -> x509.Certifica
     ])
 
     now = datetime.datetime.now(datetime.UTC)
-    cert = (
+    return (
         x509.CertificateBuilder()
         .subject_name(subject)
         .issuer_name(issuer)
@@ -275,7 +274,6 @@ def _create_ca_certificate(ca_key: ec.EllipticCurvePrivateKey) -> x509.Certifica
         )
         .sign(ca_key, hashes.SHA256())
     )
-    return cert
 
 
 def _create_server_certificate(
@@ -290,7 +288,7 @@ def _create_server_certificate(
     ])
 
     now = datetime.datetime.now(datetime.UTC)
-    cert = (
+    return (
         x509.CertificateBuilder()
         .subject_name(subject)
         .issuer_name(ca_cert.subject)
@@ -322,7 +320,6 @@ def _create_server_certificate(
         )
         .sign(ca_key, hashes.SHA256())
     )
-    return cert
 
 
 def _write_key(key: ec.EllipticCurvePrivateKey, path: Path) -> None:
