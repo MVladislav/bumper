@@ -25,15 +25,21 @@
     ...
   }: let
     forEachSystem = nixpkgs.lib.genAttrs (import systems);
-    overlays = [
+    overlaysList = [
       (import ./nix/overlays.nix)
     ];
   in {
-    inherit overlays;
+    overlays.default = import ./nix/overlays.nix;
+
+    nixosModules = {
+      default = self.nixosModules.bumper;
+      bumper = import ./nix/module.nix;
+    };
 
     packages = forEachSystem (system: let
       pkgs = import nixpkgs {
-        inherit system overlays;
+        inherit system;
+        overlays = overlaysList;
       };
       python = pkgs.python313;
     in {

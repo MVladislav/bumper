@@ -10,7 +10,7 @@ final: prev: {
           owner = "Yakifo";
           repo = "amqtt";
           rev = "v${version}";
-          hash = "sha256-J2BWaUJacsCDa3N9fNohn0l+5Vl4+g8Y8aWetjCfZ/A=";
+          hash = "sha256-J2BWaUJacsCDa3N9fNohn0l+5Vl4+g8Y8aWetjCfZ/A="; # pragma: allowlist secret
         };
 
         pyproject = true;

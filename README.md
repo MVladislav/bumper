@@ -115,6 +115,67 @@ $uv run bumper
 
 ---
 
+## ❄️ Nix Development
+
+For NixOS or Nix users, a flake-based development environment is available.
+
+**Enter the dev shell:**
+
+```sh
+$direnv allow
+# or
+$nix develop --impure
+```
+
+**Available commands:**
+
+| Command     | Description                              |
+| :---------- | :--------------------------------------- |
+| `build`     | Build package with Nix                   |
+| `test`      | Run tests                                |
+| `check`     | Run all checks (fmt, lint, typecheck)    |
+| `fmt`       | Format code                              |
+| `lint`      | Run linter                               |
+| `typecheck` | Run type checker                         |
+| `serve`     | Run bumper server                        |
+| `sync`      | Reinstall dependencies                   |
+
+**Use in other flakes** (`flake.nix`):
+
+```nix
+{
+  inputs.bumper.url = "github:MVladislav/bumper";
+
+  outputs = { nixpkgs, bumper, ... }: {
+    nixosConfigurations.myhost = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      specialArgs = { inherit bumper; };
+      modules = [ ./configuration.nix ];
+    };
+  };
+}
+```
+
+**NixOS service module** (`configuration.nix`):
+
+```nix
+{ bumper, ... }:
+{
+  imports = [ bumper.nixosModules.bumper ];
+
+  nixpkgs.overlays = [ bumper.overlays.default ];
+
+  services.bumper = {
+    enable = true;
+    announce = "192.168.1.100";  # your server IP
+    certsDir = "/path/to/certs";
+    openFirewall = true;
+  };
+}
+```
+
+---
+
 ## 📖 Documentation
 
 In-depth guides and architecture details are available in the `docs/` folder or online:
