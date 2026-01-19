@@ -1,10 +1,22 @@
 # Generating Certificates for Bumper
 
-The `scripts/create-cert.sh` helper will generate all necessary certificates into the `certs/` directory for both Bumper and mitmproxy.
+Bumper requires TLS certificates to communicate securely with Ecovacs devices and apps.
 
 ---
 
-## 📂 Script Location & Overview
+## 🔄 Automatic Generation
+
+**Bumper automatically generates certificates on first startup** if they don't exist. Simply start Bumper and it will create all necessary certificates in the `certs/` directory.
+
+This is the recommended approach for most users - no manual steps required.
+
+---
+
+## 🛠️ Manual Generation (Optional)
+
+If you prefer to generate certificates manually, use the `scripts/create-cert.sh` helper script.
+
+### Script Overview
 
 - **Path**: `scripts/create-cert.sh`
 - **Purpose**:
@@ -17,9 +29,7 @@ The `scripts/create-cert.sh` helper will generate all necessary certificates int
 > - `ca.crt`, `bumper.key`, `bumper.crt` for Bumper
 > - `ca.pem` for mitmproxy
 
----
-
-## 🚀 Execute the Script
+### Execute the Script
 
 ```sh
 $./scripts/create-cert.sh

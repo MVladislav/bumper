@@ -2,6 +2,7 @@
 
 import datetime
 import logging
+from ipaddress import ip_address
 from pathlib import Path
 
 from cryptography import x509
@@ -169,8 +170,6 @@ def _parse_san_list() -> list[x509.GeneralName]:
     general_names: list[x509.GeneralName] = []
     for san in SUBJECT_ALT_NAMES:
         if san.startswith("IP:"):
-            from ipaddress import ip_address
-
             general_names.append(x509.IPAddress(ip_address(san[3:])))
         elif san.startswith("DNS:"):
             general_names.append(x509.DNSName(san[4:]))
