@@ -57,30 +57,27 @@ class TestBuildDomainTree:
     def test_builds_tree_from_domains(self) -> None:
         domains = ["sub.example.com", "other.example.com", "test.org"]
         tree = _build_domain_tree(domains)
-        assert "example.com" in tree
-        assert "test.org" in tree
-        assert "sub" in tree["example.com"]
-        assert "other" in tree["example.com"]
+        assert set(tree.keys()) == {"example.com", "test.org"}
+        assert set(tree["example.com"].keys()) == {"sub", "other"}
 
     def test_handles_deep_subdomains(self) -> None:
         domains = ["a.b.c.example.com"]
         tree = _build_domain_tree(domains)
-        assert "example.com" in tree
-        assert "c" in tree["example.com"]
-        assert "b" in tree["example.com"]["c"]
-        assert "a" in tree["example.com"]["c"]["b"]
+        assert list(tree.keys()) == ["example.com"]
+        assert list(tree["example.com"].keys()) == ["c"]
+        assert list(tree["example.com"]["c"].keys()) == ["b"]
+        assert list(tree["example.com"]["c"]["b"].keys()) == ["a"]
 
     def test_handles_root_domain_only(self) -> None:
         domains = ["example.com"]
         tree = _build_domain_tree(domains)
-        assert "example.com" in tree
+        assert list(tree.keys()) == ["example.com"]
         assert tree["example.com"] == {}
 
     def test_skips_invalid_domains(self) -> None:
         domains = ["invalid", "example.com"]
         tree = _build_domain_tree(domains)
-        assert "example.com" in tree
-        assert len(tree) == 1
+        assert list(tree.keys()) == ["example.com"]
 
 
 class TestGenerateWildcards:
