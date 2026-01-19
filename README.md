@@ -129,16 +129,16 @@ $nix develop --impure
 
 **Available commands:**
 
-| Command     | Description                              |
-| :---------- | :--------------------------------------- |
-| `build`     | Build package with Nix                   |
-| `test`      | Run tests                                |
-| `check`     | Run all checks (fmt, lint, typecheck)    |
-| `fmt`       | Format code                              |
-| `lint`      | Run linter                               |
-| `typecheck` | Run type checker                         |
-| `serve`     | Run bumper server                        |
-| `sync`      | Reinstall dependencies                   |
+| Command     | Description                           |
+| :---------- | :------------------------------------ |
+| `build`     | Build package with Nix                |
+| `test`      | Run tests                             |
+| `check`     | Run all checks (fmt, lint, typecheck) |
+| `fmt`       | Format code                           |
+| `lint`      | Run linter                            |
+| `typecheck` | Run type checker                      |
+| `serve`     | Run bumper server                     |
+| `sync`      | Reinstall dependencies                |
 
 **Use in other flakes** (`flake.nix`):
 
