@@ -18,7 +18,7 @@ h3 {
 
 h2,
 h3 {
-  letter-spacing: -.025em;
+  letter-spacing: -0.025em;
   font-weight: 600;
 }
 
@@ -70,8 +70,8 @@ h3 {
 }
 
 svg {
-  width: .75rem;
-  height: .75rem;
+  width: 0.75rem;
+  height: 0.75rem;
 }
 
 footer {
@@ -79,7 +79,6 @@ footer {
   bottom: 10px;
   right: 10px; */
   /* background: rgba(255, 255, 255, 0.8); */
-
 
   font-size: 0.8em;
   padding: 5px;
@@ -91,24 +90,24 @@ footer {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: .375rem;
+    gap: 0.375rem;
     padding-inline-end: 1.5rem;
-    font-size: .75rem;
+    font-size: 0.75rem;
     line-height: 1rem;
-    opacity: .8;
+    opacity: 0.8;
 
     .split {
-      opacity: .7;
+      opacity: 0.7;
       background-color: hsl(220 4% 67%);
       width: 1px;
-      height: .625rem;
+      height: 0.625rem;
     }
 
     a {
       text-decoration: none;
       display: flex;
       align-items: center;
-      gap: .125rem;
+      gap: 0.125rem;
       color: var(--muted-color);
     }
 
@@ -151,6 +150,11 @@ footer {
   border-radius: calc(var(--radius) - 6px);
 }
 
+ul.pagination {
+  margin-top: 0.3rem;
+  margin-bottom: 0;
+}
+
 @keyframes fadeInOut {
   0% {
     opacity: 0;
@@ -168,7 +172,6 @@ footer {
     transform: translateY(-10px);
   }
 }
-
 
 @media (max-width: 1642px) {
   .container-fluid {
@@ -193,17 +196,18 @@ footer {
 }
 
 :root {
+  --text-color-accent: rgba(0, 248, 252, 0.218);
+
   --text-color: hsl(210 17% 16%);
   --background-color: hsl(210 36% 96%);
-  --bade-size: .675rem;
+  --bade-size: 0.675rem;
   --card-border-color: hsl(210 3% 29%);
   --card-box-shadow: 0 4px 6px hsla(0 0% 0% 0.1);
   --muted-color: hsl(210 17% 60%);
 
-  --radius: .8rem;
-  --bs-body-font-size: .875rem;
+  --radius: 0.8rem;
+  --bs-body-font-size: 0.875rem;
 }
-
 
 @media (prefers-color-scheme: dark) {
   :root {
@@ -213,31 +217,62 @@ footer {
     --card-box-shadow: 0 0 0;
     /*0 4px 6px hsla(0 0% 71% 0.1);*/
 
+    --text-color-hover: hsl(210 7% 80%);
+    --background-color-hover: hsl(220 5.5% 11%);
+    --card-border-color-hover: hsl(220 3% 14%);
+
+    --text-color-disabled: hsl(210 7% 60%);
+    --background-color-disabled: hsl(220 5.5% 14%);
+    --card-border-color-disabled: hsl(220 3% 16%);
+
     --bs-dark-rgb: 33, 37, 41;
     --bs-body-bg: hsl(220 5.5% 10.5%);
     --muted: 220 6% 16%;
     --muted-foreground: 220 4% 67%;
     --accent-foreground: 220 2% 98%;
     --border: 220 3% 16%;
-    --bs-border-color: hsl(var(--border) / .6);
+    --bs-border-color: hsl(var(--border) / 0.6);
+  }
+
+  .pagination {
+    --bs-pagination-color: var(--text-color);
+    --bs-pagination-bg: var(--background-color);
+    --bs-pagination-border-color: var(--card-border-color);
+
+    --bs-pagination-hover-color: var(--text-color-hover);
+    --bs-pagination-hover-bg: var(--background-color-hover);
+    --bs-pagination-hover-border-color: var(--card-border-color-hover);
+
+    --bs-pagination-focus-color: var(--text-color);
+    --bs-pagination-focus-bg: var(--background-color);
+
+    --bs-pagination-active-color: var(--text-color);
+    --bs-pagination-active-bg: var(--background-color);
+    --bs-pagination-active-border-color: var(--card-border-color);
+
+    --bs-pagination-disabled-color: var(--text-color-disabled);
+    --bs-pagination-disabled-bg: var(--background-color-disabled);
+    --bs-pagination-disabled-border-color: var(--card-border-color-disabled);
+
+    --bs-pagination-focus-box-shadow: 0 0 0.5rem 0.05rem
+      var(--text-color-accent);
   }
 
   .bg-dark {
-    background-color: hsl(var(--muted) / .3) !important;
+    background-color: hsl(var(--muted) / 0.3) !important;
   }
 
   .table-dark {
-    --bs-table-bg: hsl(var(--muted) / .3) !important;
+    --bs-table-bg: hsl(var(--muted) / 0.3) !important;
     --bs-table-color: hsl(var(--muted-foreground));
-    --bs-table-border-color: hsl(var(--border) / .6);
+    --bs-table-border-color: hsl(var(--border) / 0.6);
   }
 
-  .table> :not(caption)>*>* {
+  .table > :not(caption) > * > * {
     color: hsl(var(--accent-foreground));
   }
 
   .border-0 {
     border: 1px solid var(--card-border-color) !important;
   }
-
 }

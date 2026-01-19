@@ -8,9 +8,10 @@ Variables not listed here are hardcoded or not configurable via environment.
 
 ## ⏰ Timezone
 
-| Variable | Default | Description                                                                                                                                              |
-| -------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `TZ`     | `UTC`   | Timezone for scheduling and log timestamps. Set to any [IANA zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones), e.g., `Europe/Berlin`. |
+| Variable        | Default | Description                                                                                                                                              |
+| --------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TZ`            | `UTC`   | Timezone for scheduling and log timestamps. Set to any [IANA zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones), e.g., `Europe/Berlin`. |
+| `SYNC_TIMEZONE` | `false` | Sync server timezone offset to bots when they connect via MQTT.                                                                                          |
 
 ---
 

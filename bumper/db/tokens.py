@@ -41,7 +41,7 @@ class TokenRepo(BaseRepo):
 
     def list_for_user(self, user_id: str) -> list[Token]:
         """List all Tokens for user."""
-        recs = self.table.search(query_instance.userid == user_id)
+        recs = self._get_multi(query_instance.userid == user_id)
         return [Token.from_dict(r) for r in recs]
 
     def verify(self, user_id: str, token_str: str) -> bool:
@@ -85,7 +85,7 @@ class TokenRepo(BaseRepo):
     def revoke_user_expired(self, user_id: str) -> None:
         """Revoke expired Tokens for user."""
         now_iso = datetime.now(tz=bumper_isc.LOCAL_TIMEZONE).isoformat()
-        expired = self.table.search((query_instance.userid == user_id) & (where("expiration") < now_iso))
+        expired = self._get_multi((query_instance.userid == user_id) & (where("expiration") < now_iso))
         for r in expired:
             _LOGGER.debug(f"Revoking expired token {r.get('token')}")
             self.table.remove(doc_ids=[r.doc_id])
@@ -97,12 +97,12 @@ class TokenRepo(BaseRepo):
     def revoke_expired(self) -> None:
         """Revoke all expired Tokens."""
         now_iso = datetime.now(tz=bumper_isc.LOCAL_TIMEZONE).isoformat()
-        expired = self.table.search(where("expiration") < now_iso)
+        expired = self._get_multi(where("expiration") < now_iso)
         for r in expired:
             _LOGGER.debug(f"Revoking expired token {r.get('token')}")
             self.table.remove(doc_ids=[r.doc_id])
 
     def revoke_all_for_user(self, user_id: str) -> None:
         """Revoke all Tokens for user."""
-        recs = self.table.search(query_instance.userid == user_id)
+        recs = self._get_multi(query_instance.userid == user_id)
         self.table.remove(doc_ids=[r.doc_id for r in recs])

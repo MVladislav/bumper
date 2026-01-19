@@ -58,6 +58,15 @@
         "confirmText": "",
         "btnText": ""
       },
+      "input_sn_img": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
       "occupy": {
         "guideImageType": "lottie",
         "guideImageId": "61a870215afd25d08d5c695f",
@@ -67,15 +76,6 @@
         "confirmText": "",
         "btnText": "",
         "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/61a870215afd25d08d5c695f"
-      },
-      "input_sn_img": {
-        "guideImageType": "",
-        "guideImageId": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
       }
     },
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/61c422316de01220a2adb91d"
@@ -131,6 +131,15 @@
       "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/61a87016186b375c578cd961"
     },
     "customSteps": {
+      "scanQRStep": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
       "input_sn_img": {
         "guideImageType": "",
         "guideImageId": "",
@@ -149,15 +158,6 @@
         "confirmText": "",
         "btnText": "",
         "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/61a870215afd25d08d5c695f"
-      },
-      "scanQRStep": {
-        "guideImageType": "",
-        "guideImageId": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
       }
     },
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6225bd1c2af2127804f540e5"
@@ -278,6 +278,15 @@
         "confirmText": "",
         "btnText": ""
       },
+      "input_sn_img": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
       "occupy": {
         "guideImageType": "lottie",
         "guideImageId": "63f5dd48576335fe6bec7988",
@@ -287,15 +296,6 @@
         "confirmText": "",
         "btnText": "",
         "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/63f5dd48576335fe6bec7988"
-      },
-      "input_sn_img": {
-        "guideImageType": "",
-        "guideImageId": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
       }
     },
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6411872416d2f20076fc1bba"
@@ -474,7 +474,7 @@
         "confirmText": "",
         "btnText": ""
       },
-      "scanQRStep": {
+      "occupy": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -483,7 +483,7 @@
         "confirmText": "",
         "btnText": ""
       },
-      "occupy": {
+      "scanQRStep": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -493,7 +493,7 @@
         "btnText": ""
       }
     },
-    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/608b98c51269020008a962db"
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/603f510e3b03f50007b6c2c9"
   },
   {
     "groupId": "5fa243b9c7260e0008585847",
@@ -591,7 +591,7 @@
       "btnText": ""
     },
     "customSteps": {
-      "scanQRStep": {
+      "input_sn_img": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -609,7 +609,7 @@
         "confirmText": "",
         "btnText": ""
       },
-      "input_sn_img": {
+      "scanQRStep": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -677,7 +677,7 @@
         "confirmText": "",
         "btnText": ""
       },
-      "occupy": {
+      "scanQRStep": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -686,7 +686,7 @@
         "confirmText": "",
         "btnText": ""
       },
-      "scanQRStep": {
+      "occupy": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -741,7 +741,7 @@
     ],
     "qrpStep": {},
     "customSteps": {},
-    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/60fa62b079330100089a7ce0"
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6049b3631269020008a95af0"
   },
   {
     "groupId": "60361d0f48c6dc00075d9ce6",
@@ -790,6 +790,15 @@
       "btnText": ""
     },
     "customSteps": {
+      "occupy": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
       "input_sn_img": {
         "guideImageType": "",
         "guideImageId": "",
@@ -800,15 +809,6 @@
         "btnText": ""
       },
       "scanQRStep": {
-        "guideImageType": "",
-        "guideImageId": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      },
-      "occupy": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -949,6 +949,15 @@
         "confirmText": "",
         "btnText": ""
       },
+      "input_sn_img": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
       "occupy": {
         "guideImageType": "lottie",
         "guideImageId": "61a870215afd25d08d5c695f",
@@ -958,15 +967,6 @@
         "confirmText": "",
         "btnText": "",
         "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/61a870215afd25d08d5c695f"
-      },
-      "input_sn_img": {
-        "guideImageType": "",
-        "guideImageId": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
       }
     },
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6225bd3b7604e551a50e46ac"
@@ -1077,6 +1077,15 @@
         "confirmText": "",
         "btnText": ""
       },
+      "input_sn_img": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
       "occupy": {
         "guideImageType": "lottie",
         "guideImageId": "61dfc16efe80235887d12e9a",
@@ -1086,15 +1095,6 @@
         "confirmText": "",
         "btnText": "",
         "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/61dfc16efe80235887d12e9a"
-      },
-      "input_sn_img": {
-        "guideImageType": "",
-        "guideImageId": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
       }
     },
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/61e90bd1fd39e47adc132e1b"
@@ -1149,15 +1149,14 @@
       "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/61dfc1d19d1b81f1ad574715"
     },
     "customSteps": {
-      "occupy": {
-        "guideImageType": "lottie",
-        "guideImageId": "61dfc1dafe80234bdbd12e9c",
+      "input_sn_img": {
+        "guideImageType": "",
+        "guideImageId": "",
         "title": "",
         "guideText": "",
         "retryText": "",
         "confirmText": "",
-        "btnText": "",
-        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/61dfc1dafe80234bdbd12e9c"
+        "btnText": ""
       },
       "scanQRStep": {
         "guideImageType": "",
@@ -1168,14 +1167,15 @@
         "confirmText": "",
         "btnText": ""
       },
-      "input_sn_img": {
-        "guideImageType": "",
-        "guideImageId": "",
+      "occupy": {
+        "guideImageType": "lottie",
+        "guideImageId": "61dfc1dafe80234bdbd12e9c",
         "title": "",
         "guideText": "",
         "retryText": "",
         "confirmText": "",
-        "btnText": ""
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/61dfc1dafe80234bdbd12e9c"
       }
     },
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/61f0ba7970c881c6bf65ec3d"
@@ -1230,6 +1230,15 @@
       "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/61dfc1ee70c8812c6765ec08"
     },
     "customSteps": {
+      "scanQRStep": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
       "occupy": {
         "guideImageType": "lottie",
         "guideImageId": "61dfc1e79d1b814f30574716",
@@ -1239,15 +1248,6 @@
         "confirmText": "",
         "btnText": "",
         "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/61dfc1e79d1b814f30574716"
-      },
-      "scanQRStep": {
-        "guideImageType": "",
-        "guideImageId": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
       },
       "input_sn_img": {
         "guideImageType": "",
@@ -1376,7 +1376,7 @@
       "btnText": ""
     },
     "customSteps": {
-      "occupy": {
+      "scanQRStep": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -1385,7 +1385,7 @@
         "confirmText": "",
         "btnText": ""
       },
-      "scanQRStep": {
+      "occupy": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -1555,16 +1555,6 @@
       "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6267b0d71164307de14f3093"
     },
     "customSteps": {
-      "input_sn_img": {
-        "guideImageType": "image",
-        "guideImageId": "6267a8be1164305e434f3091",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": "",
-        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6267a8be1164305e434f3091"
-      },
       "scanQRStep": {
         "guideImageType": "lottie",
         "guideImageId": "6267a8acda512e4e9751a63f",
@@ -1584,6 +1574,16 @@
         "confirmText": "",
         "btnText": "",
         "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6267b25f8ec6dd6737a77dd0"
+      },
+      "input_sn_img": {
+        "guideImageType": "image",
+        "guideImageId": "6267a8be1164305e434f3091",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6267a8be1164305e434f3091"
       }
     },
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/624d4e73031bdd7c7b531af9"
@@ -1646,6 +1646,15 @@
         "confirmText": "",
         "btnText": ""
       },
+      "occupy": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
       "input_sn_img": {
         "guideImageType": "image",
         "guideImageId": "6268a83fd3980b4f820267d6",
@@ -1655,18 +1664,9 @@
         "confirmText": "",
         "btnText": "",
         "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6268a83fd3980b4f820267d6"
-      },
-      "occupy": {
-        "guideImageType": "",
-        "guideImageId": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
       }
     },
-    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/63887a3237c2e75595d48120"
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/637ada094b606f5d29b84250"
   },
   {
     "groupId": "6296c50f9dbd614e21bb5030",
@@ -1728,7 +1728,7 @@
         "btnText": "",
         "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/61dfc1dafe80234bdbd12e9c"
       },
-      "scanQRStep": {
+      "input_sn_img": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -1737,7 +1737,7 @@
         "confirmText": "",
         "btnText": ""
       },
-      "input_sn_img": {
+      "scanQRStep": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -1840,6 +1840,15 @@
       "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/61dfc1d19d1b81f1ad574715"
     },
     "customSteps": {
+      "scanQRStep": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
       "occupy": {
         "guideImageType": "lottie",
         "guideImageId": "61dfc1dafe80234bdbd12e9c",
@@ -1851,15 +1860,6 @@
         "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/61dfc1dafe80234bdbd12e9c"
       },
       "input_sn_img": {
-        "guideImageType": "",
-        "guideImageId": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      },
-      "scanQRStep": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -1918,15 +1918,6 @@
       "btnText": ""
     },
     "customSteps": {
-      "occupy": {
-        "guideImageType": "",
-        "guideImageId": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      },
       "scanQRStep": {
         "guideImageType": "",
         "guideImageId": "",
@@ -1937,6 +1928,15 @@
         "btnText": ""
       },
       "input_sn_img": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "occupy": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -1995,7 +1995,7 @@
       "btnText": ""
     },
     "customSteps": {
-      "input_sn_img": {
+      "scanQRStep": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -2004,7 +2004,7 @@
         "confirmText": "",
         "btnText": ""
       },
-      "scanQRStep": {
+      "input_sn_img": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -2194,7 +2194,7 @@
       "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/63f5dd3247e37d55f7098e00"
     },
     "customSteps": {
-      "input_sn_img": {
+      "apHostspot": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -2203,7 +2203,7 @@
         "confirmText": "",
         "btnText": ""
       },
-      "apHostspot": {
+      "scanQRStep": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -2222,7 +2222,7 @@
         "btnText": "",
         "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/63f5dd48576335fe6bec7988"
       },
-      "scanQRStep": {
+      "input_sn_img": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -2281,6 +2281,15 @@
       "btnText": ""
     },
     "customSteps": {
+      "input_sn_img": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
       "occupy": {
         "guideImageType": "",
         "guideImageId": "",
@@ -2291,15 +2300,6 @@
         "btnText": ""
       },
       "scanQRStep": {
-        "guideImageType": "",
-        "guideImageId": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      },
-      "input_sn_img": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -2494,7 +2494,7 @@
         "confirmText": "",
         "btnText": ""
       },
-      "input_sn_img": {
+      "scanQRStep": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -2503,7 +2503,7 @@
         "confirmText": "",
         "btnText": ""
       },
-      "scanQRStep": {
+      "input_sn_img": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -2513,7 +2513,7 @@
         "btnText": ""
       }
     },
-    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/65b8c343a1bbb57a7eb8174d"
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/64d052f39f692007dd2cb934"
   },
   {
     "groupId": "64f5917cae02c41609994d3a",
@@ -3128,7 +3128,7 @@
         "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/65f3ee93b895cd309396359b"
       }
     },
-    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/65547f667c33ed71d406a502"
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/65547f567c33edad6806a500"
   },
   {
     "groupId": "65bc803ea1bbb5c7c9b81757",
@@ -3588,7 +3588,7 @@
         "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/657029c2645b093940b84510"
       }
     },
-    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/660d045231620d0e515fbba0"
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/660d036929909212cf72fb99"
   },
   {
     "groupId": "65d83a1d2a36bda8b0774b2d",
@@ -3881,7 +3881,7 @@
         "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66134ad103246181822950bb"
       }
     },
-    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/66b197d71ff6765a3c1cbdd4"
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/666fa50e0e8603372ba33231"
   },
   {
     "groupId": "65f7ead9b895cdf4709635ad",
@@ -5755,6 +5755,17 @@
         "confirmText": "",
         "btnText": ""
       },
+      "apHostspot": {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6fa9fed7e1108fe3f29",
+        "title": "Release Hotspot",
+        "guideText": "Press the Reset button and the AUTO button at the same time, then release them after hearing the prompt \"Network setup mode switched\".",
+        "retryText": "",
+        "confirmText": "I've heard the prompt \"Network setup mode switched\".",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6fa9fed7e1108fe3f29"
+      },
       "occupy": {
         "guideImageType": "",
         "guideImageId": "",
@@ -5772,17 +5783,6 @@
         "retryText": "",
         "confirmText": "",
         "btnText": ""
-      },
-      "apHostspot": {
-        "guideImageType": "lottie",
-        "guideImageId": "66dac6fa9fed7e1108fe3f29",
-        "title": "Release Hotspot",
-        "guideText": "Press the Reset button and the AUTO button at the same time, then release them after hearing the prompt \"Network setup mode switched\".",
-        "retryText": "",
-        "confirmText": "I've heard the prompt \"Network setup mode switched\".",
-        "btnText": "",
-        "mid": "",
-        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6fa9fed7e1108fe3f29"
       }
     },
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/67ad4d89eac3f5382975ecfc"
@@ -5831,7 +5831,7 @@
     ],
     "qrpStep": {},
     "customSteps": {},
-    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/673fe2dd0aca161a7ea6fdd8"
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/673fe45b8f73059ec9f8fa2f"
   },
   {
     "groupId": "67061fb10aca16a6ca1f4d29",
@@ -6589,7 +6589,7 @@
       "btnText": ""
     },
     "customSteps": {
-      "scanQRStep": {
+      "input_sn_img": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -6618,7 +6618,7 @@
         "confirmText": "",
         "btnText": ""
       },
-      "input_sn_img": {
+      "scanQRStep": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -6816,7 +6816,7 @@
         "title": "Turn on your phone's Bluetooth.",
         "guideText": "Please turn on Bluetooth and allow ECOVACS HOME to connect to WINBOT.",
         "retryText": "",
-        "confirmText": "Enabled",
+        "confirmText": "On",
         "btnText": "Next",
         "mid": "",
         "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/685d15c0fcae2d42ddee8727"
@@ -6851,7 +6851,7 @@
         "title": "Getting WINBOT Ready",
         "guideText": "Connect in the following sequence:\n1. Connect the adapter to WINBOT.\n2. Plug the adapter into a power socket.",
         "retryText": "",
-        "confirmText": "Enabled",
+        "confirmText": "On",
         "btnText": "Next",
         "mid": "",
         "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/68b956f919e97737ced5ce34"
@@ -6870,7 +6870,7 @@
     ],
     "qrpStep": {},
     "customSteps": {},
-    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6823f0775ace0b6277f50fdd"
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/69250756ae8a5106fcf56f07"
   },
   {
     "groupId": "67c93ee20d79d65e1a3416ed",
@@ -6917,6 +6917,52 @@
     "qrpStep": {},
     "customSteps": {},
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/67d3f874b8e683264a1d432d"
+  },
+  {
+    "groupId": "67da60351d781638e63bd33f",
+    "sort": 1,
+    "groupName": "DEEBOT NEO 3.0 OMNI",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "MQ_APM",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "1.0.0",
+      "IOS": "1.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["MQ_APM"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "67a563bea9d37d596812d69f",
+        "title": "Power on",
+        "guideText": "Press and hold the POWER button for 3s to turn it on. Wait for the startup music to end",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67a563bea9d37d596812d69f"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "67a563c1dd24eefafa04db01",
+        "title": "Release Hotspot",
+        "guideText": "Briefly press the RESET button for 1 second and then release. You will hear that DEEBOT is ready for network setup.",
+        "retryText": "",
+        "confirmText": "I've heard the sound",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67a563c1dd24eefafa04db01"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {},
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/67f3259e20a1203ee2591a7f"
   },
   {
     "groupId": "67ec9bba4c296b109785c6ed",
@@ -7579,7 +7625,7 @@
         "confirmText": "",
         "btnText": ""
       },
-      "scanQRStep": {
+      "occupy": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -7599,7 +7645,7 @@
         "mid": "",
         "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6fa9fed7e1108fe3f29"
       },
-      "occupy": {
+      "scanQRStep": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -7663,26 +7709,6 @@
       "btnText": ""
     },
     "customSteps": {
-      "apHostspot": {
-        "guideImageType": "lottie",
-        "guideImageId": "66dac6fa9fed7e1108fe3f29",
-        "title": "Release Hotspot",
-        "guideText": "Press the Reset button and the AUTO button at the same time, then release them after hearing the prompt \"Network setup mode switched\".",
-        "retryText": "",
-        "confirmText": "I've heard the prompt \"Network setup mode switched\".",
-        "btnText": "",
-        "mid": "",
-        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6fa9fed7e1108fe3f29"
-      },
-      "input_sn_img": {
-        "guideImageType": "",
-        "guideImageId": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      },
       "scanQRStep": {
         "guideImageType": "",
         "guideImageId": "",
@@ -7700,9 +7726,85 @@
         "retryText": "",
         "confirmText": "",
         "btnText": ""
+      },
+      "input_sn_img": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "apHostspot": {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6fa9fed7e1108fe3f29",
+        "title": "Release Hotspot",
+        "guideText": "Press the Reset button and the AUTO button at the same time, then release them after hearing the prompt \"Network setup mode switched\".",
+        "retryText": "",
+        "confirmText": "I've heard the prompt \"Network setup mode switched\".",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6fa9fed7e1108fe3f29"
       }
     },
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/67ad4d89eac3f5382975ecfc"
+  },
+  {
+    "groupId": "6819be28bc63a385cabedca8",
+    "sort": 1,
+    "groupName": "DEEBOT T30S PRO OMNI Gen2",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BLAP2",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.0.0",
+      "IOS": "3.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["BLAP2"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "656fe3332200770dcbdba35e",
+        "title": "Power ON",
+        "guideText": "Press and hold the middle switch of the robot and wait for the startup sound to end.",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/656fe3332200770dcbdba35e"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "6577d0d295d0c67ff4bbfcc9",
+        "title": "Turn on Bluetooth hotspot",
+        "guideText": "Briefly press the Reset button for 1 second, then release. Make sure you hear \"Bluetooth hotspot released.\"",
+        "retryText": "",
+        "confirmText": "Heard \"Bluetooth hotspot turned on\"",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6577d0d295d0c67ff4bbfcc9"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {
+      "apHostspot": {
+        "guideImageType": "lottie",
+        "guideImageId": "657029c2645b093940b84510",
+        "title": "Release Hotspot",
+        "guideText": "Press the Spot Clean and Reset buttons together, and make sure you hear the prompt \"Entering network setup mode\".",
+        "retryText": "",
+        "confirmText": "I've heard the sound",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/657029c2645b093940b84510"
+      }
+    },
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/665057280e86033a15a33131"
   },
   {
     "groupId": "682acf62ee7792b9d40f1af0",
@@ -7797,6 +7899,61 @@
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/67d3f874b8e683264a1d432d"
   },
   {
+    "groupId": "685a3ec1fcae2d52a1ee8562",
+    "sort": 1,
+    "groupName": "DEEBOT N30 PRO",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "MQ_APM",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "1.0.0",
+      "IOS": "1.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["MQ_APM"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "666ffef2da9a1454984b1555",
+        "title": "Power on",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/666ffef2da9a1454984b1555"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "666ffee40e8603b82aa33237",
+        "title": "Release Hotspot",
+        "guideText": "Briefly press the [SPOT] and [HOME] buttons and then release. Make sure you hear the prompt \"Entering network setup mode\"",
+        "retryText": "",
+        "confirmText": "I've heard the sound",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/666ffee40e8603b82aa33237"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {
+      "apHostspot": {
+        "guideImageType": "lottie",
+        "guideImageId": "664c6465d0a288d509f98f96",
+        "title": "Release Hotspot",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "I've heard the sound",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/664c6465d0a288d509f98f96"
+      }
+    },
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/68901d427e68c57595539151"
+  },
+  {
     "groupId": "685a429ae919b0c7447e88e4",
     "sort": 1,
     "groupName": "DEEBOT N30",
@@ -7850,6 +8007,151 @@
       }
     },
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6889b3fbf68ece46f311459c"
+  },
+  {
+    "groupId": "685a45d1fcae2d092aee8586",
+    "sort": 1,
+    "groupName": "DEEBOT N30 PLUS",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "MQ_APM",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "1.0.0",
+      "IOS": "1.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["MQ_APM"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66a09ea6da9a14fd634b17b3",
+        "title": "Power on",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66a09ea6da9a14fd634b17b3"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66a09eb10e86037c9aa338c2",
+        "title": "Release Hotspot",
+        "guideText": "Briefly press the [SPOT] and [HOME] buttons and then release. Make sure you hear the prompt \"Entering network setup mode\"",
+        "retryText": "",
+        "confirmText": "I've heard the sound",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66a09eb10e86037c9aa338c2"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {
+      "apHostspot": {
+        "guideImageType": "lottie",
+        "guideImageId": "664c6465d0a288d509f98f96",
+        "title": "Release Hotspot",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "I've heard the sound",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/664c6465d0a288d509f98f96"
+      }
+    },
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6882f62af68ece8247113a72"
+  },
+  {
+    "groupId": "686230dfe919b086767e985d",
+    "sort": 1,
+    "groupName": "DEEBOT X11 PRO",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BLAP2",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.0.0",
+      "IOS": "3.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["BLAP2"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6ec88204f3303dcbd11",
+        "title": "Power ON",
+        "guideText": "Open the DEEBOT cover, switch on your DEEBOT and wait until a startup sound is played.",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6ec88204f3303dcbd11"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6f488204fe56adcbd2f",
+        "title": "Turn on Bluetooth hotspot",
+        "guideText": "Press the Reset button for 1 s and then release it. Make sure you have heard the prompt \"Bluetooth hotspot turned on\".",
+        "retryText": "",
+        "confirmText": "Done",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6f488204fe56adcbd2f"
+      }
+    ],
+    "qrpStep": {
+      "guideImageType": "",
+      "guideImageId": "",
+      "title": "",
+      "guideText": "",
+      "retryText": "",
+      "confirmText": "",
+      "btnText": ""
+    },
+    "customSteps": {
+      "input_sn_img": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "apHostspot": {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6fa9fed7e1108fe3f29",
+        "title": "Release Hotspot",
+        "guideText": "Press the Reset button and the AUTO button at the same time, then release them after hearing the prompt \"Network setup mode switched\".",
+        "retryText": "",
+        "confirmText": "I've heard the prompt \"Network setup mode switched\".",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6fa9fed7e1108fe3f29"
+      },
+      "occupy": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "scanQRStep": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      }
+    },
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6891a6384d18f6814f53237b"
   },
   {
     "groupId": "6874d51d7004357610214bcf",
@@ -8196,7 +8498,7 @@
   {
     "groupId": "5e6999f4298f0d04dffef7de",
     "sort": 4,
-    "groupName": "DEEBOT OZMO T8 PURE",
+    "groupName": "DEEBOT OZMO T8",
     "isPopular": true,
     "belongApp": ["ecoglobal"],
     "smartType": "MQ_AP",
@@ -8241,7 +8543,7 @@
       "btnText": ""
     },
     "customSteps": {
-      "input_sn_img": {
+      "occupy": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -8250,7 +8552,7 @@
         "confirmText": "",
         "btnText": ""
       },
-      "occupy": {
+      "input_sn_img": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -8260,7 +8562,7 @@
         "btnText": ""
       }
     },
-    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/5fa105bbd16a99000667eb52"
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/5e8e8d146482551d72530e47"
   },
   {
     "groupId": "5fbcb261d16a99000667f0fa",
@@ -8309,15 +8611,6 @@
       "btnText": ""
     },
     "customSteps": {
-      "scanQRStep": {
-        "guideImageType": "",
-        "guideImageId": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      },
       "occupy": {
         "guideImageType": "",
         "guideImageId": "",
@@ -8328,6 +8621,15 @@
         "btnText": ""
       },
       "input_sn_img": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "scanQRStep": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -8386,7 +8688,7 @@
       "btnText": ""
     },
     "customSteps": {
-      "input_sn_img": {
+      "occupy": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -8395,7 +8697,7 @@
         "confirmText": "",
         "btnText": ""
       },
-      "occupy": {
+      "input_sn_img": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -8454,7 +8756,7 @@
       "btnText": ""
     },
     "customSteps": {
-      "input_sn_img": {
+      "occupy": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -8463,7 +8765,7 @@
         "confirmText": "",
         "btnText": ""
       },
-      "occupy": {
+      "input_sn_img": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -8724,7 +9026,7 @@
   {
     "groupId": "5e85969d648255bad6530e10",
     "sort": 70,
-    "groupName": "DEEBOT U2 SE",
+    "groupName": "DEEBOT U2",
     "isPopular": false,
     "belongApp": ["ecoglobal"],
     "smartType": "MQ_AP",
@@ -8770,7 +9072,7 @@
       "btnText": ""
     },
     "customSteps": {},
-    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6064256ed18cbd0008e2fcee"
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6064263ad18cbd0008e2fcf4"
   },
   {
     "groupId": "5d2460f244af360001383992",
@@ -8900,7 +9202,7 @@
   {
     "groupId": "5acb0f2e7c295c0001876eb4",
     "sort": 110,
-    "groupName": "DEEBOT 665",
+    "groupName": "DEEBOT 661",
     "isPopular": false,
     "belongApp": ["ecoglobal"],
     "smartType": "MQ_AP",
@@ -8938,12 +9240,12 @@
     ],
     "qrpStep": {},
     "customSteps": {},
-    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/5e58a2df36e8f39e318f031d"
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/5d280ce3350e7a0001e84c95"
   },
   {
     "groupId": "5ae197be7ccd1a0001e1f6a1",
     "sort": 120,
-    "groupName": "DEEBOT 711s",
+    "groupName": "DEEBOT 710",
     "isPopular": false,
     "belongApp": ["ecoglobal"],
     "smartType": "MQ_AP",
@@ -8981,12 +9283,12 @@
     ],
     "qrpStep": {},
     "customSteps": {},
-    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/5d157f9f77a3a60001051f69"
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/5b5ac4e45f21100001882bb9"
   },
   {
     "groupId": "5b6560760506b100015c8867",
     "sort": 130,
-    "groupName": "DEEBOT 910",
+    "groupName": "DEEBOT 900 Series",
     "isPopular": false,
     "belongApp": ["ecoglobal", "ecodeebot"],
     "smartType": "MQ_AP",
@@ -9022,7 +9324,7 @@
     ],
     "qrpStep": {},
     "customSteps": {},
-    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/5c778731280fda0001770ba0"
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/5ba4a2cb6c2f120001c32839"
   },
   {
     "groupId": "5ca31e8212851900016858c2",

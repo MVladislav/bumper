@@ -50,7 +50,7 @@ function restartService(service) {
     });
 }
 
-function removeEntity(type, id) {
+function removeEntity(type, id, el) {
   console.log(`remove ${type}`, id);
   fetch(`${type}/remove/${id}`)
     .then((response) => {
@@ -66,6 +66,7 @@ function removeEntity(type, id) {
         `Removing ${type} - ${id} - ${data.status}`,
         data.status.includes("success") ? "success" : "danger"
       );
+      htmx.trigger(el, "entity-removed");
       console.log(`remove ${type}`, id, data.status);
     })
     .catch((error) => {

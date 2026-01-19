@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Any
 
 from bumper.utils.settings import config as bumper_isc
+from bumper.utils.utils import to_int
 
 
 class VacBotDevice:
@@ -189,6 +190,7 @@ class CleanLogs:
 class CleanLog:
     """Clean log."""
 
+    did: str | None = None
     cid: str | None = None
     # Older and Newer Bots
     aiavoid: int = 0
@@ -224,27 +226,29 @@ class CleanLog:
     def from_db(cls, data: dict[str, Any]) -> "CleanLog":
         """Create a CleanLog instance from a dictionary."""
         clean_log = cls(clean_log_id=data["clean_log_id"])
+        clean_log.did = data.get("did")
         clean_log.cid = data.get("cid")
         # Older and Newer Bots
-        clean_log.aiavoid = data.get("aiavoid", 0)
+        clean_log.aiavoid = to_int(data.get("aiavoid")) or 0
         clean_log.aitypes = data.get("aitypes", [])
-        clean_log.area = data.get("area")
+        clean_log.area = to_int(data.get("area"))
         clean_log.image_url = data.get("image_url")
-        clean_log.stop_reason = data.get("stop_reason")
-        clean_log.last = data.get("last")
-        clean_log.ts = data.get("ts")
+        clean_log.stop_reason = to_int(data.get("stop_reason"))
+        clean_log.last = to_int(data.get("last"))
+        clean_log.ts = to_int(data.get("ts"))
         clean_log.type = data.get("type")
         # Newer Bots
-        clean_log.avoid_count = data.get("avoid_count")
-        clean_log.enable_power_mop = data.get("enable_power_mop")
-        clean_log.power_mop_type = data.get("power_mop_type")
-        clean_log.ai_open = data.get("ai_open")
+        clean_log.avoid_count = to_int(data.get("avoid_count"))
+        clean_log.enable_power_mop = to_int(data.get("enable_power_mop"))
+        clean_log.power_mop_type = to_int(data.get("power_mop_type"))
+        clean_log.ai_open = to_int(data.get("ai_open"))
         return clean_log
 
     def as_dict(self) -> dict[str, Any]:
         """Convert to dict."""
         return {
             "id": self.clean_log_id,
+            # "did": self.did,
             # "cid": self.cid,
             # Older and Newer Bots
             "aiavoid": self.aiavoid,
@@ -267,6 +271,7 @@ class CleanLog:
         """Create a CleanLog instance from a dictionary."""
         start = data.get("start")
         clean_log = cls(clean_log_id=f"{did}@{start}@{rid}")
+        clean_log.did = did
         clean_log.cid = data.get("cid")
 
         # Older and Newer Bots

@@ -49,7 +49,7 @@ repos:
 
   # Prettier for code formatting
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.6.2
+    rev: v3.8.0
     hooks:
       - id: prettier
         additional_dependencies:
@@ -78,7 +78,7 @@ repos:
 
   # YAML Linting
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.37.1
+    rev: v1.38.0
     hooks:
       - id: yamllint
 
@@ -93,7 +93,7 @@ repos:
 
   # Python-specific hooks ######################################################
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.5
+    rev: v0.14.13
     hooks:
       - id: ruff-check
         args:

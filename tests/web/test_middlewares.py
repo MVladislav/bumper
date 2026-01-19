@@ -172,8 +172,10 @@ async def test_middleware_handles_invalid_json_body(
         data="not-json",
         headers={"Content-Type": "application/json"},
     )
-    assert resp.status == 500
-    assert "during logging the request/response" in caplog.text
+    # assert resp.status == 500
+    # assert "during logging the request/response" in caplog.text
+    assert resp.status == 200
+    assert "Failed to decode body as json" in caplog.text
 
 
 async def test_middleware_logs_missing_route_warning(

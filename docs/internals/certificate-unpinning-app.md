@@ -88,7 +88,7 @@ $apk-mitm './data/eco.xapk' --certificate './certs/ca.crt'
 
 ```sh
 $unzip -o './data/eco-patched.xapk' -d ./data/apks
-$~/.android/Sdk/platform-tools/adb install-multiple ./data/apks/*.apk
+$adb install-multiple ./data/apks/*.apk
 ```
 
 ---
@@ -107,10 +107,18 @@ $curl -SL "$APK_URL" -o "$APK_NAME"
 $unzip "$APK_NAME" -d bump && cd bump
 ```
 
+**2. Prepare:**
+
+```sh
+$curl -Lo apktool.jar https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.12.1.jar
+$export _JAVA_OPTIONS="-Djava.io.tmpdir=$HOME/.tmp"
+
+```
+
 **2. Decode with apktool:**
 
 ```sh
-$apktool d 'com.eco.global.app.apk' --frame-path /tmp/apktool-framework
+$java -jar apktool.jar d 'com.eco.global.app.apk' --frame-path ~/.tmp/apktool-framework
 ```
 
 **3. Insert network security config:**
@@ -138,7 +146,7 @@ EOF
 **4. Rebuild the APK:**
 
 ```sh
-$apktool b 'com.eco.global.app' --frame-path /tmp/apktool-framework
+$java -jar apktool.jar b 'com.eco.global.app' --frame-path ~/.tmp/apktool-framework
 $cp 'com.eco.global.app/dist/com.eco.global.app.apk' 'com.eco.global.app.apk'
 ```
 
@@ -150,8 +158,7 @@ $keytool -genkey -v -keystore bumper-key.jks -alias bumper-key \
     -storepass 123456 -keypass 123456 \
     -dname "CN=Bumper, OU=Bumper, O=Bumper, L=Home, S=Home, C=EU"
 
-# NOTE: You need also (re)sign all other apk's
-$~/.android/Sdk/build-tools/36.0.0/apksigner sign \
+$apksigner sign \
     --ks bumper-key.jks \
     --ks-key-alias bumper-key \
     --ks-pass pass:123456 \
@@ -159,12 +166,39 @@ $~/.android/Sdk/build-tools/36.0.0/apksigner sign \
     --v1-signing-enabled true \
     --v2-signing-enabled true \
     'com.eco.global.app.apk'
+
+$apksigner sign \
+    --ks bumper-key.jks \
+    --ks-key-alias bumper-key \
+    --ks-pass pass:123456 \
+    --key-pass pass:123456 \
+    --v1-signing-enabled true \
+    --v2-signing-enabled true \
+    'config.arm64_v8a.apk'
+
+$apksigner sign \
+    --ks bumper-key.jks \
+    --ks-key-alias bumper-key \
+    --ks-pass pass:123456 \
+    --key-pass pass:123456 \
+    --v1-signing-enabled true \
+    --v2-signing-enabled true \
+    'config.en.apk'
+
+$apksigner sign \
+    --ks bumper-key.jks \
+    --ks-key-alias bumper-key \
+    --ks-pass pass:123456 \
+    --key-pass pass:123456 \
+    --v1-signing-enabled true \
+    --v2-signing-enabled true \
+    'config.xxxhdpi.apk'
 ```
 
 **6. Install on device:**
 
 ```sh
-$~/.android/Sdk/platform-tools/adb install-multiple *.apk
+$adb install-multiple *.apk
 ```
 
 ---

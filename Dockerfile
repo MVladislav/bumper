@@ -20,7 +20,7 @@ RUN apk add --no-cache \
 
 WORKDIR /bumper
 COPY . .
-RUN uv sync --no-editable --no-cache
+RUN uv sync --no-dev --no-editable --no-cache
 
 # ------------------------------------------------------------------------------
 

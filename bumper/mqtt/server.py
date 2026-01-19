@@ -4,6 +4,7 @@ import asyncio
 import base64
 import dataclasses
 from dataclasses import dataclass, field
+from datetime import datetime
 import logging
 from pathlib import Path
 from typing import Literal
@@ -224,10 +225,10 @@ class BumperMQTTServerPlugin(BaseAuthPlugin):  # type: ignore[misc]
             did, class_id, resource, client_type = result
 
             # username has more information included
-            if username and class_id == "USER" and (username_info := username.split("`")) and len(username_info) >= 3:
-                # {"fv":"1.0.0","wv":"v2.1.0"}
+            if username and "`" in username and (username_info := username.split("`")) and len(username_info) >= 3:
+                # Content example: {"fv":"1.0.0","wv":"v2.1.0"}
                 user_header: str = base64.b64decode(username_info[1].replace("\n", "")).decode("utf-8")
-                # {"app":"user","st":10}
+                # Content example: {"app":"user","st":10}
                 user_body: str = base64.b64decode(username_info[2].replace("\n", "")).decode("utf-8")
                 session.username = username_info[0]
                 username = session.username
@@ -388,6 +389,8 @@ class BumperMQTTServerPlugin(BaseAuthPlugin):  # type: ignore[misc]
             if client_type == "bot":
                 if bot := bot_repo.get(did):
                     bot_repo.set_mqtt(bot.did, connected)
+                    if connected:
+                        asyncio.create_task(self._set_bot_timezone(did))  # noqa: RUF006
                 return
             if client_type == "user":
                 if client := client_repo.get(did):
@@ -407,3 +410,49 @@ class BumperMQTTServerPlugin(BaseAuthPlugin):  # type: ignore[misc]
         # if not identified with a user class_id, we mark as bot
         client_type: Literal["bot", "user"] = "user" if class_id in bumper_isc.USER_REALMS else "bot"
         return did, class_id, resource, client_type
+
+    async def _set_bot_timezone(self, did: str) -> None:
+        """Set bot timezone, sync on connect."""
+        try:
+            if bumper_isc.SYNC_TIMEZONE is False:
+                return
+            if bumper_isc.mqtt_helperbot is None:
+                msg = "'bumper_isc.mqtt_helperbot' is None"
+                raise Exception(msg)
+            if not (bot := bot_repo.get(did)):
+                return
+
+            offset_minutes, timestamp_s = utils.get_tzm_and_ts()
+            timestamp_s_ts = timestamp_s * 1000
+            timestamp_s_bd = timestamp_s * 1_000_000
+
+            json_body = {
+                "cmdName": "setTimeZone",
+                "toId": bot.did,
+                "toType": bot.class_id,
+                "toRes": bot.resource,
+                "payload": {
+                    "header": {
+                        "pri": 2,
+                        "ts": str(timestamp_s_ts),
+                        "tzm": offset_minutes,
+                        "ver": "0.0.22",
+                    },
+                    "body": {
+                        "data": {
+                            "tzm": offset_minutes,
+                            "bdTaskID": str(timestamp_s_bd),
+                        },
+                    },
+                },
+            }
+            cmd_request = helper_bot.MQTTCommandModel(cmdjson=json_body, version="1")
+            _LOGGER.info(
+                f"Syncing timezone for bot {bot.did}: "
+                f"tzm={offset_minutes} :: ts={timestamp_s_ts} :: bdTaskID={timestamp_s_bd} "
+                f"({datetime.fromtimestamp(timestamp_s, tz=bumper_isc.LOCAL_TIMEZONE).strftime('%Y-%m-%d %H:%M')})",
+            )
+
+            await bumper_isc.mqtt_helperbot.send_command(cmd_request)
+        except Exception:
+            _LOGGER.exception("Failed to set timezone on bot")

@@ -8,6 +8,7 @@ from pathlib import Path
 import sys
 
 from bumper.db import bot_repo, client_repo, token_repo
+from bumper.db.migration import migrate_db
 from bumper.mqtt import helper_bot, server as server_mqtt
 from bumper.utils import utils
 from bumper.utils.log_helper import LogHelper
@@ -41,6 +42,8 @@ async def start_configuration() -> None:
         error_message = "No listen address configured!"
         _LOGGER.error(error_message)
         raise ValueError(error_message)
+
+    migrate_db()
 
     bot_repo.reset_all_connections()
     client_repo.reset_all_connections()

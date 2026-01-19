@@ -973,7 +973,7 @@
             "title": "Turn on your phone's Bluetooth.",
             "guideText": "Please turn on Bluetooth and allow ECOVACS HOME to connect to WINBOT.",
             "retryText": "",
-            "confirmText": "Enabled",
+            "confirmText": "On",
             "btnText": "Next",
             "mid": "",
             "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/685d15c0fcae2d42ddee8727"
@@ -1013,7 +1013,7 @@
             "title": "Getting WINBOT Ready",
             "guideText": "Connect in the following sequence:\n1. Connect the adapter to WINBOT.\n2. Plug the adapter into a power socket.",
             "retryText": "",
-            "confirmText": "Enabled",
+            "confirmText": "On",
             "btnText": "Next",
             "mid": "",
             "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/68b956f919e97737ced5ce34"
@@ -6017,6 +6017,57 @@
             "btnText": ""
           }
         },
+        "seriesId": "61ada2b7b7b105456d53a66c"
+      },
+      {
+        "groupId": "67da60351d781638e63bd33f",
+        "category": "DEEBOT",
+        "groupName": "DEEBOT NEO 3.0 OMNI",
+        "sort": 1,
+        "isPopular": false,
+        "belongApp": ["ecoglobal"],
+        "smartType": "MQ_APM",
+        "failCount": 0,
+        "checkTips": 0,
+        "materialNo": "",
+        "mid": "zg6qbz",
+        "supportVer": {
+          "Android": "1.0.0",
+          "IOS": "1.0.0",
+          "Harmony": "1.0.0"
+        },
+        "service": {
+          "jmq": "jmq-ngiot-de.area.ww.ecouser.net"
+        },
+        "products": [],
+        "smartTypes": ["MQ_APM"],
+        "icon": "https://portal-ww.ecouser.net/api/pim/file/get/67ec9891f63649fec7ed7f4d",
+        "qrpStep": {},
+        "steps": [
+          {
+            "guideImageType": "lottie",
+            "guideImageId": "67a563bea9d37d596812d69f",
+            "title": "Power on",
+            "guideText": "Press and hold the POWER button for 3s to turn it on. Wait for the startup music to end",
+            "retryText": "",
+            "confirmText": "",
+            "btnText": "",
+            "mid": "",
+            "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67a563bea9d37d596812d69f"
+          },
+          {
+            "guideImageType": "lottie",
+            "guideImageId": "67a563c1dd24eefafa04db01",
+            "title": "Release Hotspot",
+            "guideText": "Briefly press the RESET button for 1 second and then release. You will hear that DEEBOT is ready for network setup.",
+            "retryText": "",
+            "confirmText": "I've heard the sound",
+            "btnText": "",
+            "mid": "",
+            "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67a563c1dd24eefafa04db01"
+          }
+        ],
+        "cusSteps": {},
         "seriesId": "61ada2b7b7b105456d53a66c"
       }
     ]
