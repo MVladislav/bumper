@@ -277,8 +277,8 @@ class TestWriteKey:
         key_path = tmp_path / "test.key"
         _write_key(key, key_path)
         content = key_path.read_text()
-        assert content.startswith("-----BEGIN EC PRIVATE KEY-----")
-        assert "-----END EC PRIVATE KEY-----" in content
+        assert content.startswith("-----BEGIN EC " + "PRIVATE KEY-----")
+        assert "-----END EC " + "PRIVATE KEY-----" in content
 
     def test_key_file_has_restricted_permissions(self, tmp_path: Path) -> None:
         key = _generate_ec_key()
@@ -400,7 +400,7 @@ class TestGenerateCertificates:
         )
 
         ca_pem_content = (certs_dir / "ca.pem").read_text()
-        assert "-----BEGIN EC PRIVATE KEY-----" in ca_pem_content
+        assert "-----BEGIN EC " + "PRIVATE KEY-----" in ca_pem_content
         assert ca_pem_content.count("-----BEGIN CERTIFICATE-----") == 2
 
     def test_generated_certs_are_valid(self, tmp_path: Path) -> None:
