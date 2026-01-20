@@ -1,47 +1,47 @@
-# Generating Certificates for Bumper
+# Certificates for Bumper
 
-The `scripts/create-cert.sh` helper will generate all necessary certificates into the `certs/` directory for both Bumper and mitmproxy.
-
----
-
-## 📂 Script Location & Overview
-
-- **Path**: `scripts/create-cert.sh`
-- **Purpose**:
-    - Create a root CA (`ca.key` + `ca.crt`)
-    - Issue a server certificate (`bumper.key` + `bumper.crt`)
-    - Produce a combined PEM (`ca.pem`) for mitmproxy by merging CA and server certs
-
-> If you already possess your own certs, simply place them in `certs/`:
->
-> - `ca.crt`, `bumper.key`, `bumper.crt` for Bumper
-> - `ca.pem` for mitmproxy
+Bumper requires TLS certificates to communicate securely with Ecovacs devices and apps.
 
 ---
 
-## 🚀 Execute the Script
+## 🔄 Automatic Generation
 
-```sh
-$./scripts/create-cert.sh
-```
+**Bumper automatically generates certificates on first startup** if they don't exist. Simply start Bumper and it will create all necessary certificates in the `certs/` directory.
 
-On success, the `certs/` directory contains:
-
-- `ca.key`  – Root CA private key
-- `ca.crt`  – Root CA certificate
-- `bumper.key` – Server private key
-- `bumper.crt` – Server certificate
-- `ca.pem`  – Combined CA+server cert (for mitmproxy)
-
-> The script skips existing files to protect your keys.
+No manual steps required - this is the recommended approach.
 
 ---
 
-## ⚙️ Using Certificates
+## 📂 Generated Files
 
-### Bumper Application
+On first startup, Bumper creates the following files in `certs/`:
 
-Configure Bumper to load certificates (defaults shown):
+| File         | Description                             |
+| ------------ | --------------------------------------- |
+| `ca.key`     | Root CA private key                     |
+| `ca.crt`     | Root CA certificate                     |
+| `bumper.key` | Server private key                      |
+| `bumper.crt` | Server certificate                      |
+| `ca.pem`     | Combined CA+server cert (for mitmproxy) |
+
+> Bumper skips generation if all certificate files already exist.
+
+---
+
+## 🔧 Custom Certificates
+
+If you prefer to use your own certificates, place them in the `certs/` directory before starting Bumper:
+
+- `ca.crt`, `bumper.key`, `bumper.crt` for Bumper
+- `ca.pem` for mitmproxy (optional)
+
+---
+
+## ⚙️ Configuration
+
+### Environment Variables
+
+Configure certificate paths via environment variables (defaults shown):
 
 ```env
 BUMPER_CERTS=certs
@@ -68,18 +68,5 @@ $docker run --rm -it \
   mitmproxy/mitmproxy mitmweb \
     --certs '*=/home/mitm/ca.pem'
 ```
-
----
-
-## 🐍 Python Configuration (Advanced)
-
-Bumper’s Python `Config` class reads these env vars if set:
-
-| Variable       | Default      | Description            |
-| -------------- | ------------ | ---------------------- |
-| `BUMPER_CERTS` | `./certs`    | Certificates directory |
-| `BUMPER_CA`    | `ca.crt`     | CA cert filename       |
-| `BUMPER_CERT`  | `bumper.crt` | Server cert filename   |
-| `BUMPER_KEY`   | `bumper.key` | Server key filename    |
 
 > Note: `ca.pem` is only needed by mitmproxy; Bumper uses individual CRT/KEY files.

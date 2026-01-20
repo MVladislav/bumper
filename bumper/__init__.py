@@ -11,6 +11,7 @@ from bumper.db import bot_repo, client_repo, token_repo
 from bumper.db.migration import migrate_db
 from bumper.mqtt import helper_bot, server as server_mqtt
 from bumper.utils import utils
+from bumper.utils.certs import generate_certificates
 from bumper.utils.log_helper import LogHelper
 from bumper.utils.settings import config as bumper_isc
 from bumper.web import server as server_web
@@ -171,6 +172,14 @@ async def _lifecycle(argv: list[str] | None = None) -> None:
         if not utils.is_valid_ip(bumper_isc.bumper_listen):
             error_message = "Invalid listen address configured!"
             raise ValueError(error_message)
+
+        # Generate certificates if they don't exist
+        generate_certificates(
+            bumper_isc.certs_dir,
+            bumper_isc.ca_cert,
+            bumper_isc.server_cert,
+            bumper_isc.server_key,
+        )
 
         await start()  # 👉 enters maintenance() and spins until shutdown flag
     except KeyboardInterrupt:

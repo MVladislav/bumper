@@ -10,7 +10,7 @@ This guide walks you through setting up an Android emulator on Ubuntu, installin
 - **Docker** (for running mitmproxy)
 - **Android Studio** (for emulator and ADB)
 - **CA certificate** (`ca.crt` and `ca.pem`) placed in the `./certs/` folder
-    - Generate with [`./scripts/create-cert.sh`](https://github.com/MVladislav/bumper/blob/main/scripts/create-cert.sh) if you don’t have one
+    - These are generated automatically when Bumper starts for the first time
 
 ---
 
