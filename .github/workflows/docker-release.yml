@@ -23,10 +23,12 @@ jobs:
   push_to_registry:
     name: Push Docker image to GitHub ghcr
     runs-on: ubuntu-latest
+    # needs: [scan]  # Only build/push if security passes (or review alerts)
 
     steps:
       # https://github.com/actions/checkout
-      - uses: actions/checkout@v6
+      - name: Checkout repository
+        uses: actions/checkout@v6
 
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata (tags, labels)
@@ -71,6 +73,8 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           build-args: |
             BUILDTIME=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
             VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}

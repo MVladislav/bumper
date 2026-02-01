@@ -7,6 +7,8 @@ on:
       - main
   workflow_dispatch:
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 jobs:
   deploy:
     name: Create MkDocs
@@ -16,17 +18,22 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v6
+      # https://github.com/actions/checkout
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
       - name: Configure Git Credentials
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
 
+      # https://github.com/actions/setup-python
       - uses: actions/setup-python@v6
         with:
           python-version: 3.14.2
 
       - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
+      # https://github.com/actions/cache
       - uses: actions/cache@v5
         with:
           key: mkdocs-material-${{ env.cache_id }}

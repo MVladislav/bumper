@@ -4,9 +4,13 @@ name: Release Drafter
 on:
   push:
     tags:
-      # Push events to matching v*, i.e. v1.0, v20.15.10
-      - "v*"
+      - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
   workflow_dispatch:
+
+permissions:
+  contents: read
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 jobs:
   update_release_draft:
@@ -15,6 +19,7 @@ jobs:
 
     permissions:
       contents: write
+      # pull-requests: read
 
     steps:
       # https://github.com/release-drafter/release-drafter

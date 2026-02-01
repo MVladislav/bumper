@@ -13,6 +13,8 @@ env:
   UV_CACHE_DIR: /tmp/.uv-cache
   PROJECT_PATH: "bumper"
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 jobs:
   prek:
     name: Run prek checks
