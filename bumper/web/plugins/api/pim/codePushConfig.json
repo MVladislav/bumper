@@ -6,6 +6,15 @@
     "description": "",
     "type": "json",
     "content": {
+      "winbot_h5_wificonfig": {
+        "deploymentKey": {
+          "production": "AICKpN4aYcaNNI65DEBbiUYGDZl5c7YIePPa1",
+          "staging": "CNAK5wSAReLwG5LQAlvYd79y161uc7YIePPa1",
+          "current": "production"
+        },
+        "configurl": "codepush-base.dc-eu.ww.ecouser.net",
+        "version": "1.0.0"
+      },
       "ssh5": {
         "deploymentKey": {
           "production": "AwV60bVIL5-f_bsQubbR5Cr3p-7lKg0wIKhdF4K",
@@ -540,6 +549,142 @@
           "current": "production",
           "production": "R4zZ3MAkEFuCqInSVrPol9HgGJsyc7YIePPa1",
           "staging": "EOxYyyV9mqyDdvb1g2XWWoi4i46ac7YIePPa1"
+        }
+      },
+      "planckh5": {
+        "version": "1.0.0",
+        "deploymentKey": {
+          "current": "production",
+          "production": "AMIDgMX5uEnmNVnMvxpMAQtBaj6gc7YIePPa1",
+          "staging": "gVWsguYPYiA7i8EVb2sXYuFIrfmsc7YIePPa1"
+        }
+      },
+      "keplerplush5": {
+        "version": "1.0.0",
+        "deploymentKey": {
+          "current": "production",
+          "production": "xahVsOeExr8oKEbUnyL2LoH7Vypfc7YIePPa1",
+          "staging": "fISpcrgylHSVjV6KNCL9yh66tSXMc7YIePPa1"
+        }
+      },
+      "qianxsh5": {
+        "version": "1.0.0",
+        "deploymentKey": {
+          "current": "production",
+          "production": "sdN5yZS4xYmelICQIyvKJ5FRK6VUc7YIePPa1",
+          "staging": "LOvwAT2sjlsYZUPpOD631EPyqSN2c7YIePPa1"
+        }
+      },
+      "x3videomaph5": {
+        "version": "1.0.0",
+        "deploymentKey": {
+          "current": "production",
+          "production": "evKyaIwluML4TNNZfp5NKd0Zv40bc7YIePPa1",
+          "staging": "bsDoCnqtZxJhoHlf3zbaDemANV5Wc7YIePPa1"
+        }
+      },
+      "goat2plus": {
+        "version": "1.0.0",
+        "deploymentKey": {
+          "current": "production",
+          "production": "xqKsm76KLDIBvoXmFSRgMwzrcbVic7YIePPa1",
+          "staging": "aA8Mh4Rw7UzFD1QXMkL933CVBsrsc7YIePPa1"
+        }
+      },
+      "shakespeareh5": {
+        "version": "1.0.0",
+        "deploymentKey": {
+          "current": "production",
+          "production": "pcXv3JBxegPXU61tevi7KnnGqBOJc7YIePPa1",
+          "staging": "RSE6YRi2YqkBXC8ObRphvvIkNntgc7YIePPa1"
+        }
+      },
+      "goatbzse": {
+        "version": "1.0.0",
+        "deploymentKey": {
+          "current": "production",
+          "production": "JpWAEE4ILllQwuBfHeXhri2coDEoc7YIePPa1",
+          "staging": "njJUa7S7K12ES2FzAL3m9HNa0dm0c7YIePPa1"
+        }
+      },
+      "ssth5": {
+        "version": "1.0.0",
+        "deploymentKey": {
+          "current": "production",
+          "production": "3KUNJU26Ovs27QwNyBnB7bJRZlH3c7YIePPa1",
+          "staging": "7VjucpcuSJBHfvrftRuxQ9Q5Ryy1c7YIePPa1"
+        }
+      },
+      "goatbzplus": {
+        "version": "1.0.0",
+        "deploymentKey": {
+          "current": "production",
+          "production": "1fUXmT4dm4TDZe6L1NXk3ubdUQ4dc7YIePPa1",
+          "staging": "e6DNRLCz4lRM8qwXNgJ9K5VYd581c7YIePPa1"
+        }
+      },
+      "keplersplush5": {
+        "version": "1.0.0",
+        "deploymentKey": {
+          "current": "production",
+          "production": "6VMEYtSKfS4LK5Toct54FsxjFEQgc7YIePPa1",
+          "staging": "l25bTLiuLvJl75jirSmUKjzUEbZ9c7YIePPa1"
+        }
+      },
+      "plancksh5": {
+        "version": "1.0.0",
+        "deploymentKey": {
+          "current": "production",
+          "production": "44sTmog6kWLe7CKAAHGqFe58EmA0c7YIePPa1",
+          "staging": "ihHMghUCU38meiiv3rUOUs85uN5Zc7YIePPa1"
+        }
+      },
+      "hsrx1h5": {
+        "version": "1.0.0",
+        "deploymentKey": {
+          "current": "production",
+          "production": "GceiSRVFbgpgJfHnx43H4yX7OIBpc7YIePPa1",
+          "staging": "Wwbv6SkIrcqm3L3d3mGHJt9mMrKyc7YIePPa1"
+        }
+      },
+      "peth5": {
+        "version": "1.0.0",
+        "deploymentKey": {
+          "current": "production",
+          "production": "pfcrO0FxzYxmzg7FiGUxeiuwgshmc7YIePPa1",
+          "staging": "kykXZ7C2VHf6X5YxncKLjEeMENBfc7YIePPa1"
+        }
+      },
+      "w3": {
+        "version": "1.0.0",
+        "deploymentKey": {
+          "current": "production",
+          "production": "1G0NyoBfoCKlO4AaVnHOypCKeXMbc7YIePPa1",
+          "staging": "l2gg28nCPz3SvHScBCUIAt6FsEDLc7YIePPa1"
+        }
+      },
+      "poolh5": {
+        "version": "1.0.0",
+        "deploymentKey": {
+          "current": "production",
+          "production": "4Nnw8g77WhNckneT0OfH0PcBuqnRc7YIePPa1",
+          "staging": "SvZszPW2P8DHL0aMt3zuVqzF7dKOc7YIePPa1"
+        }
+      },
+      "ykeplersph5": {
+        "version": "1.0.0",
+        "deploymentKey": {
+          "current": "production",
+          "production": "2AAwEAtsEvGbVDwQe7mhCXLghPGhc7YIePPa1",
+          "staging": "isjbAXgYOjsVJGTdLzrPXcFuj9FEc7YIePPa1"
+        }
+      },
+      "winbot_h5_wificonfigv2": {
+        "version": "1.0.0",
+        "deploymentKey": {
+          "current": "production",
+          "production": "2bZVzT4jhzCwbN7kspLwgqEIiciTc7YIePPa1",
+          "staging": "A8MLAoMKCWXctA1lCMguHqgyLfB6c7YIePPa1"
         }
       }
     }

@@ -70,6 +70,7 @@ repos:
           - --exclude-files=bumper/web/plugins/api/pim/productConfigBatch.json
           - --exclude-files=bumper/web/plugins/api/pim/productIotMap.json
           - --exclude-files=bumper/web/plugins/api/pim/productIotMapUnofficial.json
+          - --exclude-files=bumper/web/update_check.json
           - --exclude-files=tests/*
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.29.0

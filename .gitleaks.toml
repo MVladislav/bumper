@@ -1,5 +1,5 @@
 [allowlist]
-# paths = []
+paths = ["bumper/web/update_check.json"]
 
 [extend]
 useDefault = true

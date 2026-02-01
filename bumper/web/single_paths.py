@@ -192,73 +192,29 @@ async def handle_codepush_report_status_deploy(_: Request) -> Response:
 async def handle_codepush_update_check(request: Request) -> Response:
     """CodePush Update check (/v0.1/public/codepush/update_check)."""
     deployment_key = request.query.get("deployment_key", "")
-    response = {
-        "update_info": {
-            "download_url": "",
-            "description": "",
-            "is_available": False,
-            "is_disabled": True,
-            "target_binary_range": "",
-            "label": "",
-            "package_hash": "",
-            "package_size": 0,
-            "should_run_binary_version": False,
-            "update_app_version": False,
-            "is_mandatory": False,
-        },
-    }
-    if deployment_key == "RSYAx668chaf0tpKvf1kJNaVJmDzi4g83wsg78":  # pragma: allowlist secret
-        response = {
-            "update_info": {
-                "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/FrxqD9fvyTZqY8umUP3kTEfGSTMl",
-                "description": '"1.0.0-"',
-                "is_available": True,
-                "is_disabled": False,
-                "target_binary_range": "1.0.0",
-                "label": "v5",
-                "package_hash": "df903c2d7db36907cdd31d583f68c125e49ecc03941fe360661803f3d92fe158",  # pragma: allowlist secret
-                "package_size": 1859843,
-                "should_run_binary_version": False,
-                "update_app_version": False,
-                "is_mandatory": True,
-                "deployment_key": "RSYAx668chaf0tpKvf1kJNaVJmDzi4g83wsg78",  # pragma: allowlist secret
-            },
-        }
-    elif deployment_key == "0XLlHQNfNd0YUpiD-gDe1h6oIctlsVKwpcmViH":  # pragma: allowlist secret
-        response = {
-            "update_info": {
-                "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lp9Tb7HxQCVq1kjtuLn1fbBm6qhz",
-                "description": '"1.0.0-"',
-                "is_available": True,
-                "is_disabled": False,
-                "target_binary_range": "1.0.0",
-                "label": "v5",
-                "package_hash": "64c5e72612ed6c19d51f2c8341c016e5942028a3e1e04d24bbfef224f05ee2cc",  # pragma: allowlist secret
-                "package_size": 8342889,
-                "should_run_binary_version": False,
-                "update_app_version": False,
-                "is_mandatory": True,
-                "deployment_key": "0XLlHQNfNd0YUpiD-gDe1h6oIctlsVKwpcmViH",  # pragma: allowlist secret
-            },
-        }
-    elif deployment_key == "QUWwhrVVTWguUhMlp9u_MydbtiEfoGuTi6RKdt":  # pragma: allowlist secret
-        response = {
-            "update_info": {
-                "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lv8kmkyESsIqG945JLqDLbXrI7g4",
-                "description": '"1.0.0-"',
-                "is_available": True,
-                "is_disabled": False,
-                "target_binary_range": "1.0.0",
-                "label": "v19",
-                "package_hash": "d40235b07342707fa3198ba079e3e5c9e51baaa3f9d53e4ff3dc126884225263",  # pragma: allowlist secret
-                "package_size": 29094509,
-                "should_run_binary_version": False,
-                "update_app_version": False,
-                "is_mandatory": True,
-                "deployment_key": "QUWwhrVVTWguUhMlp9u_MydbtiEfoGuTi6RKdt",  # pragma: allowlist secret
-            },
-        }
+    label = request.query.get("label", "")
+    package_hash = request.query.get("package_hash", "")
+    app_version = request.query.get("app_version", "1.0.0")
 
+    response = utils.load_json_object_files("update_check.json", Path(__file__).parent).get(
+        deployment_key,
+        {
+            "update_info": {
+                "download_url": "",
+                "description": "",
+                "is_available": False,
+                "is_disabled": True,
+                "target_binary_range": app_version,
+                "label": label,
+                "package_hash": package_hash,
+                "package_size": 0,
+                "should_run_binary_version": False,
+                "update_app_version": False,
+                "is_mandatory": False,
+                "deployment_key": deployment_key,
+            },
+        },
+    )
     return web.json_response(response)
 
 
