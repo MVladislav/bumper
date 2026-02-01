@@ -20,7 +20,11 @@ x-basic-deploy: &basic-deploy
       memory: ${RESOURCES_RESERVATIONS_MEMORY:-32m}
 
 x-basic: &basic
-  env_file: .env
+  env_file: ${ENV_FILE:-.env}
+  cap_add:
+    - DAC_READ_SEARCH # Bypasses file read and directory execute permissions (`ls`,`cat`,`find`)
+    - SETGID # Allows setting group ID (`setgid`,`newgrp`,`chgrp`,`setregid()`)
+    - SETUID # Allows setting user ID (`setuid`,`su`,`sudo`,`passwd`)
   cap_drop: ["ALL"]
   security_opt:
     - no-new-privileges:true
@@ -37,21 +41,23 @@ x-basic: &basic
     default: {}
   healthcheck:
     disable: true
+  tmpfs:
+    - /tmp:rw,nosuid,nodev,noexec,relatime,size=512m
   restart: always
 
 ################################################################################
 ################################################################################
 ################################################################################
 services:
-  # ##############################################################################
-  # ##############################################################################
-  # ##############################################################################
+  ##############################################################################
+  ##############################################################################
+  ##############################################################################
   mitmproxy:
-    image: mitmproxy/mitmproxy:${version_mitmproxy:-latest}
+    # https://hub.docker.com/r/mitmproxy/mitmproxy
+    image: mitmproxy/mitmproxy:${VERSION_MITMPROXY:-latest}
     <<: *basic
     deploy:
       <<: *basic-deploy
-    cap_add: ["ALL"]
     ports:
       - target: 8081
         published: 8081
@@ -79,6 +85,9 @@ services:
       - source: mitm_mqtt_script_config
         target: /tmp/mitm-mqtt.py
         mode: "0555"
+      - source: mitm_dns_script_config
+        target: /tmp/mitm-dns.py
+        mode: "0555"
     command:
       - "mitmweb"
       - "-vv"
@@ -86,7 +95,7 @@ services:
       - "--web-host"
       - "0.0.0.0"
       - "--set"
-      - "web_password=mitm"
+      - "web_password=${MITM_WEB_PW:-mitm}"
       - "--set"
       - "connection_strategy=lazy"
       - "--mode"
@@ -101,6 +110,8 @@ services:
       - "/tmp/mitm-cmd.py"
       # - "-s"
       # - "/tmp/mitm-mqtt.py"
+      - "-s"
+      - "/tmp/mitm-dns.py"
 
 ################################################################################
 ################################################################################
@@ -122,3 +133,5 @@ configs:
     file: $PWD/configs/mitm-cmd.py
   mitm_mqtt_script_config:
     file: $PWD/configs/mitm-mqtt.py
+  mitm_dns_script_config:
+    file: $PWD/configs/mitm-dns.py
