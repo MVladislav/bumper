@@ -207,6 +207,9 @@ class BumperMQTTServerPlugin(BaseAuthPlugin):  # type: ignore[misc]
                 _LOGGER.info(f"Bumper Authentication Success :: Helperbot :: ClientID: {client_id}")
                 return True
 
+            username = username.split("@")[0] if username and "@" in username else username
+            session.username = username
+
             # Check for File Auth
             if "@" not in client_id and username is not None and password is not None:
                 password_hash = self._users.get(username)
