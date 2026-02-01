@@ -70,7 +70,7 @@ async def login(request: Request) -> Response:
                 # Performing basic "auth" using devid, super insecure
                 user = user_repo.get_by_device_id(device_id)
                 if user is None:
-                    _LOGGER.warning(f"No user found for {device_id}")
+                    _LOGGER.warning(f"No user found for {device_id} (login)")
                 else:
                     if "checkLogin" in request.path:
                         return _check_token(app_type, country_code, user, request.query.get("accessToken", ""))[1]
@@ -153,7 +153,7 @@ async def get_auth_code(request: Request) -> Response:
         if user is None:
             user = _fallback_user_by_device_id(request)
         if user is None:
-            _LOGGER.warning(f"No user found for {user_id}")
+            _LOGGER.warning(f"No user found for {user_id} (get_auth_code)")
             return response_error_v9(msg=f"No user found for {user_id}", code=ERR_TOKEN_INVALID)
 
         if (auth_code := _generate_it_token(user.userid)) is not None:
@@ -238,7 +238,7 @@ async def get_auth_code_v2(request: Request) -> Response:
         if user_id is not None:
             user = user_repo.get_by_id(user_id)
         if user is None:
-            _LOGGER.warning(f"No user found for {user_id}")
+            _LOGGER.warning(f"No user found for {user_id} (get_auth_code_v2)")
             return response_error_v2(msg=f"No user found for {user_id}", code=ERR_USER_DISABLE)
 
         if (auth_code := _generate_auth_code(user.userid)) is not None:

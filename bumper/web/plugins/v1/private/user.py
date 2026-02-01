@@ -104,7 +104,7 @@ async def _logout(request: Request) -> Response:
         if device_id is not None and access_token is not None:
             user = user_repo.get_by_device_id(device_id)
             if user is None:
-                _LOGGER.warning(f"No user found for {device_id}")
+                _LOGGER.warning(f"No user found for {device_id} (logout)")
             elif token_repo.verify(user.userid, access_token):
                 # Deactivate old tokens and authcodes
                 token_repo.revoke_token(user.userid, access_token)
@@ -120,7 +120,7 @@ async def _handle_get_user_account_info(request: Request) -> Response:
         user_device_id = request.match_info.get("devid", "")
         user = user_repo.get_by_device_id(user_device_id)
         if user is None:
-            _LOGGER.warning(f"No user found for {user_device_id}")
+            _LOGGER.warning(f"No user found for {user_device_id} (get_user_account_info)")
         else:
             intl_member_info = {
                 "availableGeneralIntegral": 0,
