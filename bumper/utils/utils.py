@@ -155,3 +155,51 @@ def check_url_not_used(url: str) -> bool:
     except Exception:
         _LOGGER.warning(f"Could not find or read: '{config_path.name}'")
     return False
+
+
+def load_json_array_files(filenames: list[str | Path], base_path: Path) -> list[dict[str, Any]]:
+    """Load and combine JSON arrays from one or more files located under provided base_path."""
+    combined: list[dict[str, Any]] = []
+
+    for fn in filenames:
+        file_path = base_path / fn
+        try:
+            with file_path.open(encoding="utf-8") as f:
+                data = json.load(f)
+        except FileNotFoundError:
+            _LOGGER.exception(f"JSON file not found: {file_path}")
+            raise
+        except json.JSONDecodeError:
+            _LOGGER.exception(f"Invalid JSON in file {file_path}")
+            raise
+
+        if not isinstance(data, list):
+            msg = f"JSON file {file_path.name} must contain a top-level array."
+            _LOGGER.error(msg)
+            raise TypeError(msg)
+
+        combined.extend(data)
+
+    return combined
+
+
+def load_json_object_files(filename: str | Path, base_path: Path) -> dict[str, Any]:
+    """Load JSON object from a file."""
+    data: Any = {}
+    file_path = base_path / filename
+    try:
+        with file_path.open(encoding="utf-8") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        _LOGGER.exception(f"JSON file not found: {file_path}")
+        raise
+    except json.JSONDecodeError:
+        _LOGGER.exception(f"Invalid JSON in file {file_path}")
+        raise
+
+    if not isinstance(data, dict):
+        msg = f"JSON file {file_path.name} must contain a top-level object."
+        _LOGGER.error(msg)
+        raise TypeError(msg)
+
+    return data
