@@ -1,6 +1,7 @@
 """Single paths for bumper web server."""
 
 import base64
+from functools import cache
 import gzip
 import hashlib
 import io
@@ -19,6 +20,7 @@ from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
 from bumper.web.auth_util import get_new_auth
 from bumper.web.response_utils import ERR_UNKNOWN_TODO, response_error_v2, response_success_v3
+from bumper.web.static_api import get_codepush_update_check
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -48,7 +50,7 @@ def _create_ca_tar_file(archive_path: Path) -> None:
     _LOGGER.debug(f"Creating CA certificates archive: {archive_path}")
 
     ca_cert_path: Path = bumper_isc.ca_cert
-    ca_cert_path_original: Path = Path(__file__).parent / "static" / "certs" / "ca-certificates-original.crt"
+    ca_cert_path_original: Path = Path(__file__).parent / "static_web" / "certs" / "ca-certificates-original.crt"
 
     cert_bumper = _get_ca_cert(ca_cert_path)
     if bumper_isc.CA_CERT_API_ONLY_BUMPER_CERT:
@@ -78,6 +80,7 @@ def _create_ca_tar_file(archive_path: Path) -> None:
         raise HTTPInternalServerError from e
 
 
+@cache
 def _get_ca_cert(cert_path: Path) -> bytes:
     if not cert_path.exists():
         msg = f"CA cert file not found: {cert_path}"
@@ -196,7 +199,7 @@ async def handle_codepush_update_check(request: Request) -> Response:
     package_hash = request.query.get("package_hash", "")
     app_version = request.query.get("app_version", "1.0.0")
 
-    response = utils.load_json_object_files("update_check.json", Path(__file__).parent).get(
+    response = get_codepush_update_check().get(
         deployment_key,
         {
             "update_info": {

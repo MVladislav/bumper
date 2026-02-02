@@ -15,8 +15,12 @@ from bumper.utils import utils
 from bumper.web.images import get_bot_image
 from bumper.web.plugins import WebserverPlugin
 from bumper.web.response_utils import response_success_v3, response_success_v4
-
-from . import get_config_groups_response, get_config_net_all_response, get_product_config_batch, get_product_iot_map
+from bumper.web.static_api import (
+    get_config_groups_response,
+    get_config_net_all_response,
+    get_product_config_batch,
+    get_product_iot_map,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -63,53 +67,41 @@ class ProductPlugin(WebserverPlugin):
 
 async def _handle_get_product_iot_map(_: Request) -> Response:
     """Get product iot map."""
-    try:
-        return response_success_v4(get_product_iot_map())
-    except Exception:
-        _LOGGER.exception(utils.default_exception_str_builder(info="during handling request"))
-    raise HTTPInternalServerError
+    return response_success_v4(get_product_iot_map())
 
 
 async def _handle_get_config_net_all(_: Request) -> Response:
     """Get config net all."""
-    try:
-        return response_success_v3(
-            code=0,
-            msg_key="msg",
-            msg="success",
-            result_key="configFAQ",
-            result={
-                "wifiFAQUrl": "https://portal-ww.ecouser.net/api/pim/faqproblem.html?lang=en&defaultLang=en",
-                "notFoundAPUrl": "https://portal-ww.ecouser.net/api/pim/findDbWifi.html?lang=en&defaultLang=en",
-                "configFailedUrl": "https://portal-ww.ecouser.net/api/pim/configfail.html?lang=en&defaultLang=en",
-            },
-            data_key="data",
-            data=get_config_net_all_response(),
-        )
-    except Exception:
-        _LOGGER.exception(utils.default_exception_str_builder(info="during handling request"))
-    raise HTTPInternalServerError
+    return response_success_v3(
+        code=0,
+        msg_key="msg",
+        msg="success",
+        result_key="configFAQ",
+        result={
+            "wifiFAQUrl": "https://portal-ww.ecouser.net/api/pim/faqproblem.html?lang=en&defaultLang=en",
+            "notFoundAPUrl": "https://portal-ww.ecouser.net/api/pim/findDbWifi.html?lang=en&defaultLang=en",
+            "configFailedUrl": "https://portal-ww.ecouser.net/api/pim/configfail.html?lang=en&defaultLang=en",
+        },
+        data_key="data",
+        data=get_config_net_all_response(),
+    )
 
 
 async def _handle_get_config_groups(_: Request) -> Response:
     """Get config groups."""
-    try:
-        return response_success_v3(
-            code=0,
-            msg_key="msg",
-            msg="success",
-            result_key="configFAQ",
-            result={
-                "wifiFAQUrl": "https://portal-ww.ecouser.net/api/pim/faqproblem.html?lang=en&defaultLang=en",
-                "notFoundAPUrl": "https://portal-ww.ecouser.net/api/pim/findDbWifi.html?lang=en&defaultLang=en",
-                "configFailedUrl": "https://portal-ww.ecouser.net/api/pim/configfail.html?lang=en&defaultLang=en",
-            },
-            data_key="data",
-            data=get_config_groups_response(),
-        )
-    except Exception:
-        _LOGGER.exception(utils.default_exception_str_builder(info="during handling request"))
-    raise HTTPInternalServerError
+    return response_success_v3(
+        code=0,
+        msg_key="msg",
+        msg="success",
+        result_key="configFAQ",
+        result={
+            "wifiFAQUrl": "https://portal-ww.ecouser.net/api/pim/faqproblem.html?lang=en&defaultLang=en",
+            "notFoundAPUrl": "https://portal-ww.ecouser.net/api/pim/findDbWifi.html?lang=en&defaultLang=en",
+            "configFailedUrl": "https://portal-ww.ecouser.net/api/pim/configfail.html?lang=en&defaultLang=en",
+        },
+        data_key="data",
+        data=get_config_groups_response(),
+    )
 
 
 async def _handle_config_batch(request: Request) -> Response:

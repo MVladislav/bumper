@@ -5,10 +5,10 @@ trap 'echo "ERROR: Unexpected error on line $LINENO (command: $BASH_COMMAND)." >
 USER_AGENT="Dalvik/2.1.0 (Linux; U; Android 5.1.1; A5010 Build/LMY48Z)"
 BASE_URL="https://codepush-base.dc-na.ww.ecouser.net/v0.1/public/codepush/update_check"
 OUTPUT_FOLDER="json_mappings"
-COMBINED_FILE="$OUTPUT_FOLDER/update_check.json"
+COMBINED_FILE="$OUTPUT_FOLDER/updateCheck.json"
 mkdir -p "$OUTPUT_FOLDER"
 
-JSON_FILE="./bumper/web/plugins/api/pim/codePushConfig.json"
+JSON_FILE="./bumper/web/static_web/codePushConfig.json"
 
 default_curl() {
   local m="$1" u="$2"

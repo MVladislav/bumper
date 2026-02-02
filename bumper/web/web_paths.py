@@ -30,7 +30,7 @@ _LOGGER_PROXY = logging.getLogger(f"{__name__}.proxy")
 async def handle_favicon(_: Request) -> web.FileResponse:
     """Serve the favicon.ico file."""
     try:
-        favicon_path = Path(str(files("bumper.web").joinpath("static/favicon.ico")))
+        favicon_path = Path(str(files("bumper.web").joinpath("static_web/favicon.ico")))
         if not favicon_path.exists():
             msg = f"Favicon not found at {favicon_path}"
             raise FileNotFoundError(msg)

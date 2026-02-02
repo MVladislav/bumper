@@ -43,7 +43,7 @@ class WebServer:
         self._app = web.Application(middlewares=[middlewares.log_all_requests])
 
         templates_path = self._resolve_path("templates")
-        static_path = self._resolve_path("static")
+        static_path = self._resolve_path("static_web")
 
         aiohttp_jinja2.setup(
             self._app,

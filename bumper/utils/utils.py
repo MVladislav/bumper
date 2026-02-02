@@ -135,10 +135,9 @@ def get_area_code_map() -> dict[str, str]:
     """Return area code map."""
     config_path = Path(__file__).parent / "utils_area_code_mapping.json"
     try:
-        with config_path.open(encoding="utf-8") as file:
-            patterns = json.load(file)
-            if isinstance(patterns, dict):
-                return patterns
+        patterns = json.loads(config_path.read_text())
+        if isinstance(patterns, dict):
+            return patterns
     except Exception:
         _LOGGER.warning(f"Could not find or read: '{config_path.name}'")
     return {}
@@ -148,10 +147,9 @@ def check_url_not_used(url: str) -> bool:
     """Check if a url is not in the know api list, used in the middleware for debug."""
     config_path = Path(__file__).parent / "utils_implemented_apis.json"
     try:
-        with config_path.open(encoding="utf-8") as file:
-            patterns = json.load(file)
-            if isinstance(patterns, list):
-                return any(re.search(pattern, url) for pattern in patterns)
+        patterns = json.loads(config_path.read_text())
+        if isinstance(patterns, list):
+            return any(re.search(pattern, url) for pattern in patterns)
     except Exception:
         _LOGGER.warning(f"Could not find or read: '{config_path.name}'")
     return False
@@ -163,9 +161,9 @@ def load_json_array_files(filenames: list[str | Path], base_path: Path) -> list[
 
     for fn in filenames:
         file_path = base_path / fn
+        data = []
         try:
-            with file_path.open(encoding="utf-8") as f:
-                data = json.load(f)
+            data = json.loads(file_path.read_text())
         except FileNotFoundError:
             _LOGGER.exception(f"JSON file not found: {file_path}")
             raise
@@ -188,8 +186,7 @@ def load_json_object_files(filename: str | Path, base_path: Path) -> dict[str, A
     data: Any = {}
     file_path = base_path / filename
     try:
-        with file_path.open(encoding="utf-8") as f:
-            data = json.load(f)
+        data = json.loads(file_path.read_text())
     except FileNotFoundError:
         _LOGGER.exception(f"JSON file not found: {file_path}")
         raise
@@ -201,5 +198,18 @@ def load_json_object_files(filename: str | Path, base_path: Path) -> dict[str, A
         msg = f"JSON file {file_path.name} must contain a top-level object."
         _LOGGER.error(msg)
         raise TypeError(msg)
+
+    return data
+
+
+def load_text_files(filename: str | Path, base_path: Path) -> str:
+    """Load TEXT from a file."""
+    data: str = ""
+    file_path = base_path / filename
+    try:
+        data = file_path.read_text()
+    except FileNotFoundError:
+        _LOGGER.exception(f"JSON file not found: {file_path}")
+        raise
 
     return data

@@ -4,7 +4,6 @@ import base64
 from collections.abc import Iterable
 import json
 import logging
-from pathlib import Path
 
 import aiofiles
 from aiohttp import web
@@ -21,6 +20,7 @@ from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
 from bumper.web.plugins import WebserverPlugin
 from bumper.web.response_utils import response_success_v1
+from bumper.web.static_api import get_common_area
 
 from . import BASE_URL
 
@@ -224,9 +224,7 @@ async def _handle_get_user_config(request: Request) -> Response:
 async def _handle_get_areas(_: Request) -> Response:
     """Get Areas."""
     try:
-        async with aiofiles.open(Path(__file__).parent / "common_area.json", encoding="utf-8") as file:
-            file_content = await file.read()
-            return response_success_v1(json.loads(file_content))
+        return response_success_v1(get_common_area())
     except Exception:
         _LOGGER.exception(utils.default_exception_str_builder(info="during handling request"))
     raise HTTPInternalServerError

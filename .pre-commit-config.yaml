@@ -64,13 +64,13 @@ repos:
     hooks:
       - id: detect-secrets
         args:
-          - --exclude-files=bumper/web/plugins/api/pim/codePushConfig.json
-          - --exclude-files=bumper/web/plugins/api/pim/configGroupsResponse.json
-          - --exclude-files=bumper/web/plugins/api/pim/configNetAllResponse.json
-          - --exclude-files=bumper/web/plugins/api/pim/productConfigBatch.json
-          - --exclude-files=bumper/web/plugins/api/pim/productIotMap.json
-          - --exclude-files=bumper/web/plugins/api/pim/productIotMapUnofficial.json
-          - --exclude-files=bumper/web/update_check.json
+          - --exclude-files=bumper/web/static_api/configGroupsResponse.json
+          - --exclude-files=bumper/web/static_api/configNetAllResponse.json
+          - --exclude-files=bumper/web/static_api/productConfigBatch.json
+          - --exclude-files=bumper/web/static_api/productIotMap.json
+          - --exclude-files=bumper/web/static_api/productIotMapUnofficial.json
+          - --exclude-files=bumper/web/static_api/codePushConfig.json
+          - --exclude-files=bumper/web/static_api/updateCheck.json
           - --exclude-files=tests/*
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.29.0

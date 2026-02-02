@@ -4,6 +4,7 @@ from collections.abc import Iterable, Mapping
 import copy
 import json
 import logging
+import secrets
 from typing import Any
 
 from aiohttp import web
@@ -20,8 +21,7 @@ from bumper.web import auth_util
 from bumper.web.models import VacBotDevice
 from bumper.web.plugins import WebserverPlugin
 from bumper.web.response_utils import response_error_v5, response_success_v2, response_success_v3, response_success_v4
-
-from .pim import get_code_push_config, get_config_groups_response, get_product_config_batch, get_product_iot_map
+from bumper.web.static_api import get_code_push_config, get_config_groups_response, get_product_config_batch, get_product_iot_map
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -98,6 +98,11 @@ class AppsvrPlugin(WebserverPlugin):
                 "/appsvr/akvs/start_watch",
                 _handle_akvs_start_watch,
             ),
+            # web.route(
+            #     "*",
+            #     "/appsvr/akvs/end_watch",
+            #     _handle_akvs_end_watch,
+            # ),
             web.route(
                 "*",
                 "/appsvr/product/getConfigGroups",
@@ -524,13 +529,13 @@ async def _handle_akvs_start_watch(request: Request) -> Response:
             "channel": f"production-{query_did}",
             "client_id": f"{user_id}-{resource}",
             "credentials": {
-                "AccessKeyId": None,
-                "SecretAccessKey": None,
-                "SessionToken": None,
+                "AccessKeyId": f"ASIA{secrets.token_hex(10).upper()}",
+                "SecretAccessKey": f"wJalrXUtnFEMI/{secrets.token_hex(15)}/{secrets.token_hex(10)}",
+                "SessionToken": secrets.token_urlsafe(128),
                 "Expiration": "9999-12-31T00:00:00.000Z",
                 "TtlSec": 3600,
             },
-            "session": "de/abc1234",
+            "session": f"de/{secrets.token_hex(4)}",
             "ts": utils.get_current_time_as_millis(),
         },
     )

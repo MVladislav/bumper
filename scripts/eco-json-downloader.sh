@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+trap 'echo "ERROR: Unexpected error on line $LINENO (command: $BASH_COMMAND)." >&2' ERR
 # ==============================================================================
 # Ecovacs API Sync Script
 # Requirements: curl, jq, openssl
@@ -30,6 +31,8 @@ AUTH_CLIENT_SECRET="77ef58ce3afbe337da74aa8c5ab963a9" # pragma: allowlist secret
 USER_AGENT="Dalvik/2.1.0 (Linux; U; Android 5.1.1; A5010 Build/LMY48Z)"
 COUNTRIES=("DE" "US" "JP")
 LOGIN_COUNTRY="${COUNTRIES[0]}"
+
+TARGET_JSON_PATH="bumper/web/static_api"
 
 # --- Helpers ------------------------------------------------------------------
 md5() { echo -n "$1" | openssl dgst -md5 | awk '{print $2}'; }
@@ -225,9 +228,7 @@ for ENDPOINT in "${!FILES[@]}"; do
     )
     OUTFILE="$OUTPUT_FOLDER/${OUTBASE}V2-${COUNTRY_CODE}.json"
     echo "    ⬇️ Fetching '$ENDPOINT' for '$COUNTRY_CODE' -> '$OUTFILE'"
-    default_curl POST "$API_URL/$ENDPOINT" \
-      -H "Content-Type: application/json" \
-      -d "$BODY" | jq . >"$OUTFILE"
+    default_curl POST "$API_URL/$ENDPOINT" -H "Content-Type: application/json" -d "$BODY" | jq . >"$OUTFILE"
     if jq -e '.code == 0 or .code == "0000"' "$OUTFILE" >/dev/null; then
       jq '.data' "$OUTFILE" >"$OUTFILE.tmp" && mv "$OUTFILE.tmp" "$OUTFILE"
       echo "    🔄 Parsed 'data' for '$COUNTRY_CODE'"
@@ -252,14 +253,14 @@ for ENDPOINT in "${!FILES[@]}"; do
 
   if [ ${#FILES_TO_COMBINE[@]} -gt 0 ]; then
     if [[ "$OUTBASE" == "configGroupsResponse" ]]; then
-      jq -s 'add | group_by(.id) | map(.[0]) | sort_by(.sort, .id) | map(.robots |= sort_by(.sort, .groupId))' "${FILES_TO_COMBINE[@]}" "bumper/web/plugins/api/pim/configGroupsResponse.json" >"$COMBINED_FILE"
+      jq -s 'add | group_by(.id) | map(.[0]) | sort_by(.sort, .id) | map(.robots |= sort_by(.sort, .groupId))' "${FILES_TO_COMBINE[@]}" "${TARGET_JSON_PATH}/configGroupsResponse.json" >"$COMBINED_FILE"
     elif [[ "$OUTBASE" == "configNetAllResponse" ]]; then
-      jq -s 'add | unique_by(.groupId) | sort_by(.sort, .groupId)' "${FILES_TO_COMBINE[@]}" "bumper/web/plugins/api/pim/configNetAllResponse.json" >"$COMBINED_FILE"
+      jq -s 'add | unique_by(.groupId) | sort_by(.sort, .groupId)' "${FILES_TO_COMBINE[@]}" "${TARGET_JSON_PATH}/configNetAllResponse.json" >"$COMBINED_FILE"
     elif [[ "$OUTBASE" == "productIotMap" ]]; then
-      jq -s 'add | unique_by(.classid) | sort_by(.classid)' "${FILES_TO_COMBINE[@]}" "bumper/web/plugins/api/pim/productIotMap.json" >"$COMBINED_FILE"
+      jq -s 'add | unique_by(.classid) | sort_by(.classid)' "${FILES_TO_COMBINE[@]}" "${TARGET_JSON_PATH}/productIotMap.json" >"$COMBINED_FILE"
     fi
-    cp "$COMBINED_FILE" "bumper/web/plugins/api/pim/${OUTBASE}.json"
-    echo "    ✅ Combined JSON '$OUTBASE' :: copied JSON: '$COMBINED_FILE' -> 'bumper/web/plugins/api/pim/${OUTBASE}.json'"
+    cp "$COMBINED_FILE" "${TARGET_JSON_PATH}/${OUTBASE}.json"
+    echo "    ✅ Combined JSON '$OUTBASE' :: copied JSON: '$COMBINED_FILE' -> '${TARGET_JSON_PATH}/${OUTBASE}.json'"
   fi
 done
 
@@ -272,7 +273,7 @@ REPLACEMENTS=(
 )
 
 for OUTBASE in "configNetAllResponse" "productIotMap" "configGroupsResponse"; do
-  JSON_FILE="bumper/web/plugins/api/pim/${OUTBASE}.json"
+  JSON_FILE="${TARGET_JSON_PATH}/${OUTBASE}.json"
   echo "  🌐 Processing $JSON_FILE"
 
   for OLD_DOMAIN in "${REPLACEMENTS[@]}"; do
