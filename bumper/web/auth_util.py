@@ -94,28 +94,40 @@ def _auth_any(
     country_code: str,
     check: bool,
 ) -> Response:
-    if uid is None:
-        uid = _generate_uid(bumper_isc.USER_USERNAME_DEFAULT)
+    """Authenticate user or validate existing session.
 
-    body: Response = response_error_v1(msg="Parameter error. Please try again later.", code=ERR_TOKEN_INVALID)
-    user: models.BumperUser | None = user_repo.get_by_id(uid)
-
-    # anyway if it is a 'login' or only 'checkLogin'
-    # we will create a user if not exists and generated always a token, to be always authenticated
+    Login (!check): Always generates fresh token.
+    CheckLogin (check): Validates existing token or generates new one.
+    """
+    # Ensure valid UID
+    uid = uid or _generate_uid(bumper_isc.USER_USERNAME_DEFAULT)
+    # Ensure user exists
+    user = user_repo.get_by_id(uid)
     if user is None:
         user_repo.add(uid)
         user = user_repo.get_by_id(uid)
 
-    if user is not None:
-        _auth_any_user_extends(user, device_id)
-        token = _generate_token(user.userid)
-        body = response_success_v1(_get_login_details(app_type, country_code, user, token))
+    if user is None:
+        return response_error_v1(msg="Parameter error. Please try again later.", code=ERR_TOKEN_INVALID)
 
-        # If request was 'checkLogin'
-        if check is True and token_str is not None:
-            (success, result) = _check_token(app_type, country_code, user, token_str)
-            if success is True:  # We ignore when token check fails ;) and only use other result when not False
-                body = result
+    # Update user context and cleanup old tokens
+    _auth_any_user_extends(user, device_id)
+
+    # Determine token strategy
+    is_check_login = check and token_str is not None
+    if not is_check_login or (token_str and not token_repo.get(user.userid, token_str)):
+        token_str = _generate_token(user.userid)
+    if token_str is None:
+        token_str = _generate_token(user.userid)
+
+    # Build primary success response
+    body = response_success_v1(_get_login_details(app_type, country_code, user, token_str))
+
+    # For check-login, validate original token and use its response if valid
+    if is_check_login:
+        success, result = _check_token(app_type, country_code, user, token_str)
+        if success is True:  # We ignore when token check fails ;) and only use other result when not False
+            body = result
 
     return body
 
@@ -210,6 +222,11 @@ async def get_new_auth(request: Request) -> Response:
             _LOGGER.warning("New auth failed, no token found for it-token")
             return response_error_v2(msg="New auth failed, no token found for it-token", code=ERR_TOKEN_INVALID)
 
+        token_repo.revoke_user_expired(token.userid)
+
+        auth_code: str | None = None
+        if token.auth_code and (auth_code := token.auth_code) is not None:
+            return response_success_v2(data=auth_code, data_key="authCode", code=None, result_key="result")
         if (auth_code := _generate_auth_code(token.userid)) is not None:
             return response_success_v2(data=auth_code, data_key="authCode", code=None, result_key="result")
 
@@ -241,6 +258,11 @@ async def get_auth_code_v2(request: Request) -> Response:
             _LOGGER.warning(f"No user found for {user_id} (get_auth_code_v2)")
             return response_error_v2(msg=f"No user found for {user_id}", code=ERR_USER_DISABLE)
 
+        token_repo.revoke_user_expired(user_id)
+        token = token_repo.get_first(user_id)
+
+        if (token and (auth_code := token.auth_code)) is not None:
+            return response_success_v2(data=auth_code, data_key="code", code=None, result_key="result")
         if (auth_code := _generate_auth_code(user.userid)) is not None:
             return response_success_v2(data=auth_code, data_key="code", code=None, result_key="result")
 
@@ -261,10 +283,10 @@ async def get_auth_code_v2(request: Request) -> Response:
 async def oauth_callback(request: Request) -> Response:
     """Oauth callback."""
     try:
-        if (auth_code := request.query.get("code")) is None:
-            return response_error_v4()
+        if (auth_code := _get_auth_code(request)) is None:
+            return response_error_v4(msg="You not provide a auth_code")
         if (token := token_repo.get_by_auth_code(auth_code)) is None:
-            return response_error_v4()
+            return response_error_v4(msg="Auth code not known")
 
         client = client_repo.get(token.userid)
 
@@ -301,6 +323,20 @@ async def oauth_callback(request: Request) -> Response:
     except Exception:
         _LOGGER.exception(utils.default_exception_str_builder(info="during 'oauth_callback'"))
     raise HTTPInternalServerError
+
+
+def _get_auth_code(request: Request) -> str | None:
+    """Get auth code."""
+    auth_code = request.query.get("code")
+    if auth_code is not None:
+        return auth_code
+
+    refresh_token = request.query.get("refresh_token")
+    if refresh_token is None:
+        return None
+    if (jwt_details := _extract_jwt_details(refresh_token)) is None:
+        return None
+    return jwt_details.get("auth_code")
 
 
 # ******************************************************************************
@@ -404,9 +440,13 @@ def get_jwt_details(auth_header: str | None) -> dict[str, Any] | None:
     """Extract JWT helper."""
     if not auth_header or not auth_header.lower().startswith("bearer "):
         return None
-
     token = auth_header.split(" ")[1]
+    return _extract_jwt_details(token)
 
+
+def _extract_jwt_details(token: str | None) -> dict[str, Any] | None:
+    if token is None:
+        return None
     try:
         payload = jwt.decode(token, options={"verify_signature": False})
         return {

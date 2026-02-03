@@ -32,6 +32,10 @@ class BaseRepo:
         warn_if_not_doc(rec, f"{self._table_name}.get result ({query.__dict__})")
         return rec if isinstance(rec, dict | Document) else None
 
+    def _get_first(self, query: QueryLike) -> Document | None:
+        """Get first document matching query (from potentially many)."""
+        return next(iter(self._get_multi(query)), None)
+
     def _get_multi(self, query: QueryLike) -> list[Document]:
         """Retrieve a document or list of documents matching the query."""
         return self.table.search(query)

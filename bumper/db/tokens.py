@@ -36,7 +36,7 @@ class TokenRepo(BaseRepo):
 
     def get_first(self, user_id: str) -> Token | None:
         """Get first Token by user."""
-        rec = self._get(query_instance.userid == user_id)
+        rec = self._get_first(query_instance.userid == user_id)
         return Token.from_dict(rec) if isinstance(rec, dict | Document) else None
 
     def list_for_user(self, user_id: str) -> list[Token]:
@@ -46,27 +46,25 @@ class TokenRepo(BaseRepo):
 
     def verify(self, user_id: str, token_str: str) -> bool:
         """Verify Token existence."""
-        return bool(self.table.contains((query_instance.userid == user_id) & (query_instance.token == token_str)))
+        if not (token := self.get(user_id, token_str)):
+            return False
+        return token.expiration > datetime.now(tz=bumper_isc.LOCAL_TIMEZONE)
 
     def add_auth_code(self, user_id: str, auth_code: str) -> bool:
         """Add auth code to existing Token."""
-        rec = self._get(query_instance.userid == user_id)
-        if rec:
-            self.table.update({"auth_code": auth_code}, query_instance.userid == user_id)
-            return True
+        if self._get_first(query_instance.userid == user_id):
+            return len(self._upsert({"auth_code": auth_code}, query_instance.userid == user_id)) > 0
         return False
 
     def add_it_token(self, user_id: str, it_token: str) -> bool:
         """Add IT token to existing Token."""
-        rec = self._get(query_instance.userid == user_id)
-        if rec:
-            self.table.update({"it_token": it_token}, query_instance.userid == user_id)
-            return True
+        if self._get_first(query_instance.userid == user_id):
+            return len(self._upsert({"it_token": it_token}, query_instance.userid == user_id)) > 0
         return False
 
     def get_by_auth_code(self, auth_code: str) -> Token | None:
         """Get Token by auth code."""
-        rec = self._get(query_instance.auth_code == auth_code)
+        rec = self._get_first(query_instance.auth_code == auth_code)
         return Token.from_dict(rec) if isinstance(rec, dict | Document) else None
 
     def verify_it(self, user_id: str, it_token: str) -> bool:
@@ -79,7 +77,7 @@ class TokenRepo(BaseRepo):
 
     def login_by_it_token(self, it_token: str) -> Token | None:
         """Login by IT token."""
-        rec = self._get(query_instance.it_token == it_token)
+        rec = self._get_first(query_instance.it_token == it_token)
         return Token.from_dict(rec) if isinstance(rec, dict | Document) else None
 
     def revoke_user_expired(self, user_id: str) -> None:

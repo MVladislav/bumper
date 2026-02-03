@@ -8,6 +8,7 @@ import pytest
 async def test_get_new_auth_valid(webserver_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
     class DummyToken:
         userid = "testuser"
+        auth_code = None
 
     monkeypatch.setattr("bumper.web.auth_util.token_repo.login_by_it_token", lambda _: DummyToken())
     monkeypatch.setattr("bumper.web.auth_util._generate_auth_code", lambda _: "test_auth_code")
@@ -18,6 +19,22 @@ async def test_get_new_auth_valid(webserver_client: TestClient, monkeypatch: pyt
         data = await resp.json()
         assert data.get("result") == "ok"
         assert data.get("authCode") == "test_auth_code"
+
+
+async def test_get_existing_auth_valid(webserver_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
+    class DummyToken:
+        userid = "testuser"
+        auth_code = "existingToken"
+
+    monkeypatch.setattr("bumper.web.auth_util.token_repo.login_by_it_token", lambda _: DummyToken())
+    monkeypatch.setattr("bumper.web.auth_util._generate_auth_code", lambda _: "existingToken")
+
+    payload = {"itToken": "valid_it_token", "todo": "OLoginByITToken"}
+    async with webserver_client.post("/newauth.do", json=payload) as resp:
+        assert resp.status == 200
+        data = await resp.json()
+        assert data.get("result") == "ok"
+        assert data.get("authCode") == "existingToken"
 
 
 async def test_get_new_auth_missing_token(webserver_client: TestClient) -> None:
@@ -42,6 +59,7 @@ async def test_get_new_auth_invalid_token(webserver_client: TestClient, monkeypa
 async def test_get_new_auth_generate_code_fails(webserver_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
     class DummyToken:
         userid = "dummy_user"
+        auth_code = None
 
     monkeypatch.setattr("bumper.web.auth_util.token_repo.login_by_it_token", lambda _: DummyToken())
     monkeypatch.setattr("bumper.web.auth_util._generate_auth_code", lambda _: None)
