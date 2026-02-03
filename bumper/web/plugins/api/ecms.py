@@ -24,42 +24,13 @@ class EcmsPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                "/ecms/file/get/{id}",
-                # TODO: real response is a svga response
-                get_bot_image,
-            ),
-            web.route(
-                "*",
-                "/ecms/app/ad/res",
-                _handle_ad_res,
-            ),
-            web.route(
-                "*",
-                "/ecms/app/ad/res/v2",
-                _handle_ad_res,
-            ),
-            web.route(
-                "*",
-                "/ecms/app/ad/res/v3",
-                _handle_ad_res,
-            ),
-            web.route(
-                "*",
-                "/ecms/app/element/hint",
-                _handle_hint,
-            ),
-            web.route(
-                "*",
-                "/ecms/app/resources",
-                _handle_resources,
-            ),
-            web.route(
-                "*",
-                "/ecms/app/push/event",
-                _handle_push_event,
-            ),
+            web.route("*", "/ecms/file/get/{id}", get_bot_image),  # TODO: real response is a svga response
+            web.route("*", "/ecms/app/ad/res", _handle_ad_res),
+            web.route("*", "/ecms/app/ad/res/v2", _handle_ad_res),
+            web.route("*", "/ecms/app/ad/res/v3", _handle_ad_res),
+            web.route("*", "/ecms/app/element/hint", _handle_hint),
+            web.route("*", "/ecms/app/resources", _handle_resources),
+            web.route("*", "/ecms/app/push/event", _handle_push_event),
         ]
 
 

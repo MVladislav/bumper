@@ -19,19 +19,7 @@ class UserPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                f"{BASE_URL}user/login",
-                auth_util.login,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}user/checkLogin",
-                auth_util.login,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}user/checkAgreementBatch",
-                handle_check_agreement_batch,
-            ),
+            web.route("*", f"{BASE_URL}user/login", auth_util.login),
+            web.route("*", f"{BASE_URL}user/checkLogin", auth_util.login),
+            web.route("*", f"{BASE_URL}user/checkAgreementBatch", handle_check_agreement_batch),
         ]

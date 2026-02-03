@@ -32,36 +32,12 @@ class ProductPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                "/product/getProductIotMap",
-                _handle_get_product_iot_map,
-            ),
-            web.route(
-                "*",
-                "/product/getConfignetAll",
-                _handle_get_config_net_all,
-            ),
-            web.route(
-                "*",
-                "/product/getConfigGroups",
-                _handle_get_config_groups,
-            ),
-            web.route(
-                "POST",
-                "/product/software/config/batch",
-                _handle_config_batch,
-            ),
-            web.route(
-                "POST",
-                "/product/getShareInfo",
-                _handle_get_share_info,
-            ),
-            web.route(
-                "GET",
-                "/product/image",
-                get_bot_image,
-            ),
+            web.route("*", "/product/getProductIotMap", _handle_get_product_iot_map),
+            web.route("*", "/product/getConfignetAll", _handle_get_config_net_all),
+            web.route("*", "/product/getConfigGroups", _handle_get_config_groups),
+            web.route("POST", "/product/software/config/batch", _handle_config_batch),
+            web.route("POST", "/product/getShareInfo", _handle_get_share_info),
+            web.route("GET", "/product/image", get_bot_image),
         ]
 
 

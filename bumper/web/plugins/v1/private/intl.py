@@ -27,16 +27,8 @@ class IntlPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                f"{BASE_URL}intl/member/basicInfo",
-                _handle_basic_info,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}intl/member/signStatus",
-                _handle_sign_status,
-            ),
+            web.route("*", f"{BASE_URL}intl/member/basicInfo", _handle_basic_info),
+            web.route("*", f"{BASE_URL}intl/member/signStatus", _handle_sign_status),
         ]
 
 

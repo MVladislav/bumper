@@ -16,9 +16,5 @@ class GlobalAuthPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                "/global/auth/getAuthCode",
-                auth_util.get_auth_code,
-            ),
+            web.route("*", "/global/auth/getAuthCode", auth_util.get_auth_code),
         ]

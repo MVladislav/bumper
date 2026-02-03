@@ -18,11 +18,7 @@ class DimPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "POST",
-                "/content/agreement",
-                _handle_content_agreement,
-            ),
+            web.route("POST", "/content/agreement", _handle_content_agreement),
         ]
 
 

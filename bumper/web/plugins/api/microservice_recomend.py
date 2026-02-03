@@ -22,11 +22,7 @@ class MicroserviceRecomendPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                "/microservice-recomend/userReminderResult/",
-                _handle_user_reminder_result,
-            ),
+            web.route("*", "/microservice-recomend/userReminderResult/", _handle_user_reminder_result),
         ]
 
 

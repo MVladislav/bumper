@@ -21,11 +21,7 @@ class AgreementPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                f"{BASE_URL}agreement/getUserAcceptInfo",
-                _handle_get_user_accept_info,
-            ),
+            web.route("*", f"{BASE_URL}agreement/getUserAcceptInfo", _handle_get_user_accept_info),
         ]
 
 

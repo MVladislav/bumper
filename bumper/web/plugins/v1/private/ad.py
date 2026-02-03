@@ -20,16 +20,8 @@ class AdPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                f"{BASE_URL}ad/getAdByPositionType",
-                _handle,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}ad/getBootScreen",
-                _handle,
-            ),
+            web.route("*", f"{BASE_URL}ad/getAdByPositionType", _handle),
+            web.route("*", f"{BASE_URL}ad/getBootScreen", _handle),
         ]
 
 

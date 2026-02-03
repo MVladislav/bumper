@@ -27,16 +27,8 @@ class IotPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "POST",
-                "/iot/devmanager.do",
-                _handle_devmanager_bot_command,
-            ),
-            web.route(
-                "POST",
-                "/iot/endpoint/control",
-                _handle_endpoint_control,
-            ),
+            web.route("POST", "/iot/devmanager.do", _handle_devmanager_bot_command),
+            web.route("POST", "/iot/endpoint/control", _handle_endpoint_control),
         ]
 
 

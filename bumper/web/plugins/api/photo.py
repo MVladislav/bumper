@@ -22,11 +22,7 @@ class PhotoPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                "/photo/list",
-                _handle_photo_list,
-            ),
+            web.route("*", "/photo/list", _handle_photo_list),
         ]
 
 

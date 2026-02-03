@@ -20,11 +20,7 @@ class ShopPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                f"{BASE_URL}shop/getCnWapShopConfig",
-                _handle_get_cn_wap_shop_config,
-            ),
+            web.route("*", f"{BASE_URL}shop/getCnWapShopConfig", _handle_get_cn_wap_shop_config),
         ]
 
 

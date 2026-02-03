@@ -21,11 +21,7 @@ class OtaPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                "/ota/products/wukong/class/{class}/firmware/latest.json",
-                _handle_products_firmware_latest,
-            ),
+            web.route("*", "/ota/products/wukong/class/{class}/firmware/latest.json", _handle_products_firmware_latest),
         ]
 
 

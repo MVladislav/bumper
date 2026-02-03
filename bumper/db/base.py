@@ -42,14 +42,14 @@ class BaseRepo:
         if isinstance(rec, Document):
             self.table.remove(doc_ids=[rec.doc_id])
 
-    def update_list_field(self, query: QueryLike, field: str, value: Any, add: bool) -> None:
+    def update_list_field(self, query: QueryLike, field: str, value: Any, add: bool) -> bool:
         """Add or remove an item in a list field."""
         rec = self._get(query)
         if not isinstance(rec, Document):
-            return
+            return False
         lst = list(rec.get(field, []))
         if add and value not in lst:
             lst.append(value)
         elif not add and value in lst:
             lst.remove(value)
-        self._upsert({field: lst}, query)
+        return len(self._upsert({field: lst}, query)) > 0

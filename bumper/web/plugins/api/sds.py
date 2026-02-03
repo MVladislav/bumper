@@ -22,11 +22,7 @@ class SdsPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                "/sds/baidu/audio/getcred",
-                _handle_baidu_audio_getcred,
-            ),
+            web.route("*", "/sds/baidu/audio/getcred", _handle_baidu_audio_getcred),
         ]
 
 

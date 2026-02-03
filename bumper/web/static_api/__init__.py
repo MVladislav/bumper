@@ -41,6 +41,12 @@ def get_product_iot_map() -> list[dict[str, Any]]:
 
 
 @cache
+def get_err_detail() -> list[dict[str, Any]]:
+    """Get error detail json."""
+    return load_json_array_files(["errDetail.json"], Path(__file__).parent)
+
+
+@cache
 def get_common_area() -> dict[str, Any]:
     """Get common area json."""
     return load_json_object_files("commonArea.json", Path(__file__).parent)

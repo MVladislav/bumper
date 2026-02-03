@@ -18,9 +18,5 @@ class UserSettingPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                f"{BASE_URL}userSetting/getMsgReceiveSetting",
-                handle_get_msg_receive_setting,
-            ),
+            web.route("*", f"{BASE_URL}userSetting/getMsgReceiveSetting", handle_get_msg_receive_setting),
         ]

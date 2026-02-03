@@ -25,16 +25,8 @@ class DlnPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                "/dln/api/log/clean_result/list",
-                _handle_clean_result_list,
-            ),
-            web.route(
-                "*",
-                "/dln/api/log/clean_result/del",
-                _handle_clean_result_del,
-            ),
+            web.route("*", "/dln/api/log/clean_result/list", _handle_clean_result_list),
+            web.route("*", "/dln/api/log/clean_result/del", _handle_clean_result_del),
         ]
 
 

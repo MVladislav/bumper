@@ -19,21 +19,9 @@ class RappPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                "/rapp/sds/user/data/map/get",
-                _handle_map_get,
-            ),
-            web.route(
-                "*",
-                "/rapp/sds/user/data/del",
-                _handle_user_data_del,
-            ),
-            web.route(
-                "*",
-                "/rapp/sds/user/data/list",
-                _handle_user_data_list,
-            ),
+            web.route("*", "/rapp/sds/user/data/map/get", _handle_map_get),
+            web.route("*", "/rapp/sds/user/data/del", _handle_user_data_del),
+            web.route("*", "/rapp/sds/user/data/list", _handle_user_data_list),
         ]
 
 

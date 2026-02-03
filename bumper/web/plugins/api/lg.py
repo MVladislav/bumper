@@ -25,11 +25,7 @@ class LgPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "POST",
-                "/lg/log.do",
-                _handle_lg_log,
-            ),
+            web.route("POST", "/lg/log.do", _handle_lg_log),
         ]
 
 

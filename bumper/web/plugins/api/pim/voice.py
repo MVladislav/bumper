@@ -21,38 +21,17 @@ class VoicePlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                "/voice/get",
-                _handle_get,
-            ),
-            web.route(
-                "*",
-                "/voice/getLanuages",
-                _handle_get_lanuages,
-            ),
-            web.route(
-                "*",
-                "/v2/voice/getLanuages",
-                _handle_get_lanuages,
-            ),
-            web.route(
-                "*",
-                "/voice/download/{id}",
-                _handle_download,
-            ),
+            web.route("*", "/voice/get", _handle_get),
+            web.route("*", "/voice/getLanuages", _handle_get_lanuages),
+            web.route("*", "/v2/voice/getLanuages", _handle_get_lanuages),
+            web.route("*", "/voice/download/{id}", _handle_download),
         ]
 
 
 async def _handle_get(request: Request) -> Response:
     """Get voice."""
     voice_lang = request.query.get("voiceLang", "EN").lower()
-    language_name: str | list[str] = "English"
-    for voice in _get_voice_list():
-        if voice.get("voiceLang") == voice_lang:
-            language_name = voice.get("languageName", "English")
-            break
-
+    language_name = next((v.get("languageName") for v in _get_voice_list() if v.get("voiceLang") == voice_lang), "English")
     return response_success_v3(
         data_key="voices",
         data=[

@@ -21,76 +21,24 @@ class OsMallPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                f"{BASE_URL}osmall/getCountryConfig",
-                _handle_get_country_config,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}osmall/index/getLayout",
-                _handle_get_layout,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}osmall/index/getBannerList",
-                _handle_get_banner_list,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}osmall/index/getGoodsCategory",
-                _handle_get_goods_category,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}osmall/index/getConfNetRobotPartsGoods",
-                _handle_get_conf_net_robot_parts_goods,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}osmall/index/getRecommendGoods",
-                _handle_get_recommend_goods,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}osmall/proxy/my/get-user-center-coupon-list",
-                _handle_get_user_center_coupon_list,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}osmall/proxy/my/get-my-coupon",
-                _handle_get_my_coupon,
-            ),
+            web.route("*", f"{BASE_URL}osmall/getCountryConfig", _handle_get_country_config),
+            web.route("*", f"{BASE_URL}osmall/index/getLayout", _handle_get_layout),
+            web.route("*", f"{BASE_URL}osmall/index/getBannerList", _handle_get_banner_list),
+            web.route("*", f"{BASE_URL}osmall/index/getGoodsCategory", _handle_get_goods_category),
+            web.route("*", f"{BASE_URL}osmall/index/getConfNetRobotPartsGoods", _handle_get_conf_net_robot_parts_goods),
+            web.route("*", f"{BASE_URL}osmall/index/getRecommendGoods", _handle_get_recommend_goods),
+            web.route("*", f"{BASE_URL}osmall/proxy/my/get-user-center-coupon-list", _handle_get_user_center_coupon_list),
+            web.route("*", f"{BASE_URL}osmall/proxy/my/get-my-coupon", _handle_get_my_coupon),
             web.route(
                 "*",
                 f"{BASE_URL}osmall/proxy/coupon-send-activity/get-customer-coupon-send-activity-coupon",
                 _handle_get_customer_coupon_send_activity_coupon,
             ),
-            web.route(
-                "*",
-                f"{BASE_URL}osmall/proxy/cart/get-count",
-                _handle_get_count,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}osmall/proxy/order/list",
-                _handle_order_list,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}osmall/proxy/product/material-accessory-list",
-                _handle_material_accessory_list,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}osmall/proxy/v2/web/benefit/get-benefits",
-                _handle_v2_get_benefits,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}osmall/proxy/v2/web/payment-icon/index",
-                _handle_v2_payment_icon_index,
-            ),
+            web.route("*", f"{BASE_URL}osmall/proxy/cart/get-count", _handle_get_count),
+            web.route("*", f"{BASE_URL}osmall/proxy/order/list", _handle_order_list),
+            web.route("*", f"{BASE_URL}osmall/proxy/product/material-accessory-list", _handle_material_accessory_list),
+            web.route("*", f"{BASE_URL}osmall/proxy/v2/web/benefit/get-benefits", _handle_v2_get_benefits),
+            web.route("*", f"{BASE_URL}osmall/proxy/v2/web/payment-icon/index", _handle_v2_payment_icon_index),
         ]
 
 

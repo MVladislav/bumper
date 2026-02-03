@@ -22,16 +22,12 @@ class ConsumablePlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                "/consumable/getPurchaseUrl",
-                _handle_get_purchase_url,
-            ),
+            web.route("*", "/consumable/getPurchaseUrl", _handle_get_purchase_url),
         ]
 
 
 async def _handle_get_purchase_url(_: Request) -> Response:
-    """Get purchas url."""
+    """Get purchase url."""
     desc_side_brush = (
         "Dual Side Brushes can collect dust and send it to the Main Brush, so as to better clean the corners."
         " In the process of cleaning, the Side Brush may get entangled with hair. Please remove the hair with"

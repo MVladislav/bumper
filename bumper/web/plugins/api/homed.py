@@ -29,36 +29,12 @@ class HomedPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                "/homed/home/list",
-                _handle_home_list,
-            ),
-            web.route(
-                "POST",
-                "/homed/home/create",
-                _handle_home_create,
-            ),
-            web.route(
-                "*",
-                "/homed/home/update",
-                _handle_home_update,
-            ),
-            web.route(
-                "POST",
-                "/homed/home/delete",
-                _handle_home_delete,
-            ),
-            web.route(
-                "*",
-                "/homed/member/list",
-                _handle_member_list,
-            ),
-            web.route(
-                "POST",
-                "/homed/device/move",
-                _handle_device_move,
-            ),
+            web.route("*", "/homed/home/list", _handle_home_list),
+            web.route("POST", "/homed/home/create", _handle_home_create),
+            web.route("*", "/homed/home/update", _handle_home_update),
+            web.route("POST", "/homed/home/delete", _handle_home_delete),
+            web.route("*", "/homed/member/list", _handle_member_list),
+            web.route("POST", "/homed/device/move", _handle_device_move),
         ]
 
 

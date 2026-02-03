@@ -20,11 +20,7 @@ class MemberPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                f"{BASE_URL}member/getExpByScene",
-                handle_get_exp_by_scene,
-            ),
+            web.route("*", f"{BASE_URL}member/getExpByScene", handle_get_exp_by_scene),
         ]
 
 

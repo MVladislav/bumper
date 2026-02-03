@@ -21,11 +21,7 @@ class EventDetailPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                "/eventdetail.html",
-                _handle_event_detail,
-            ),
+            web.route("*", "/eventdetail.html", _handle_event_detail),
         ]
 
 

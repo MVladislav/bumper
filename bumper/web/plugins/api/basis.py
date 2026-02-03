@@ -25,11 +25,7 @@ class BasisPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                "/basis/dc/get-by-area",
-                _handle_get_by_area,
-            ),
+            web.route("*", "/basis/dc/get-by-area", _handle_get_by_area),
         ]
 
 

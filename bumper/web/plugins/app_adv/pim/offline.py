@@ -21,11 +21,7 @@ class OfflinePlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                "/offline.html",
-                _handle_offline,
-            ),
+            web.route("*", "/offline.html", _handle_offline),
         ]
 
 

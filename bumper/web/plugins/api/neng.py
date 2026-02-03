@@ -19,56 +19,16 @@ class NengPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                "/neng/message/hasUnreadMsg",
-                _handle_has_unread_message,
-            ),
-            web.route(
-                "*",
-                "/neng/message/getShareMsgs",
-                _handle_get_share_msgs,
-            ),
-            web.route(
-                "*",
-                "/neng/message/getlist",
-                _handle_get_list,
-            ),
-            web.route(
-                "*",
-                "/neng/message/read",
-                _handle_read,
-            ),
-            web.route(
-                "*",
-                "/neng/v2/message/push",
-                _handle_v2_message_push,
-            ),
-            web.route(
-                "*",
-                "/neng/v3/message/pushStatus",
-                _handle_v3_message_push_status,
-            ),
-            web.route(
-                "*",
-                "/neng/v3/message/latest_by_did",
-                _handle_v3_latest_by_did,
-            ),
-            web.route(
-                "*",
-                "/neng/v3/message/list",
-                _handle_v3_message_list,
-            ),
-            web.route(
-                "*",
-                "/neng/v3/product/msg/tabs",
-                _handle_v3_product_msg_tabs,
-            ),
-            web.route(
-                "*",
-                "/neng/v3/shareMsg/hasUnreadMsg",
-                _handle_v3_share_msg_has_unread_msg,
-            ),
+            web.route("*", "/neng/message/hasUnreadMsg", _handle_has_unread_message),
+            web.route("*", "/neng/message/getShareMsgs", _handle_get_share_msgs),
+            web.route("*", "/neng/message/getlist", _handle_get_list),
+            web.route("*", "/neng/message/read", _handle_read),
+            web.route("*", "/neng/v2/message/push", _handle_v2_message_push),
+            web.route("*", "/neng/v3/message/pushStatus", _handle_v3_message_push_status),
+            web.route("*", "/neng/v3/message/latest_by_did", _handle_v3_latest_by_did),
+            web.route("*", "/neng/v3/message/list", _handle_v3_message_list),
+            web.route("*", "/neng/v3/product/msg/tabs", _handle_v3_product_msg_tabs),
+            web.route("*", "/neng/v3/shareMsg/hasUnreadMsg", _handle_v3_share_msg_has_unread_msg),
         ]
 
 

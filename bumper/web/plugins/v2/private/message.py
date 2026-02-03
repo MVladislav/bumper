@@ -21,21 +21,9 @@ class MessagePlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                f"{BASE_URL}message/hasMoreUnReadMsg",
-                _handle_has_more_unread_message,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}message/waterfallFlow",
-                _handle_waterfall_flow,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}message/moduleConfiguration",
-                _handle_module_configuration,
-            ),
+            web.route("*", f"{BASE_URL}message/hasMoreUnReadMsg", _handle_has_more_unread_message),
+            web.route("*", f"{BASE_URL}message/waterfallFlow", _handle_waterfall_flow),
+            web.route("*", f"{BASE_URL}message/moduleConfiguration", _handle_module_configuration),
         ]
 
 

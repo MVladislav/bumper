@@ -34,71 +34,19 @@ class CommonPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                f"{BASE_URL}common/checkAPPVersion",
-                _handle_check_app_version,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}common/checkVersion",
-                _handle_check_version,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}common/uploadDeviceInfo",
-                _handle_upload_device_info,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}common/getSystemReminder",
-                _handle_get_system_reminder,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}common/getConfig",
-                _handle_get_config,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}common/getUserConfig",
-                _handle_get_user_config,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}common/getAreas",
-                _handle_get_areas,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}common/getAreaSupportService",
-                _handle_common_get_area_support_service,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}common/getAgreementURLBatch",
-                _handle_get_agreement_url_batch,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}common/getTimestamp",
-                _handle_get_timestamp,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}common/getBottomNavigateInfoList",
-                _handle_get_bottom_navigate_info_list,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}common/getAboutBriefItem",
-                _handle_get_about_brief_item,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}common/getCurrentAreaSupportServiceInfo",
-                handle_get_current_area_support_service_info,
-            ),
+            web.route("*", f"{BASE_URL}common/checkAPPVersion", _handle_check_app_version),
+            web.route("*", f"{BASE_URL}common/checkVersion", _handle_check_version),
+            web.route("*", f"{BASE_URL}common/uploadDeviceInfo", _handle_upload_device_info),
+            web.route("*", f"{BASE_URL}common/getSystemReminder", _handle_get_system_reminder),
+            web.route("*", f"{BASE_URL}common/getConfig", _handle_get_config),
+            web.route("*", f"{BASE_URL}common/getUserConfig", _handle_get_user_config),
+            web.route("*", f"{BASE_URL}common/getAreas", _handle_get_areas),
+            web.route("*", f"{BASE_URL}common/getAreaSupportService", _handle_common_get_area_support_service),
+            web.route("*", f"{BASE_URL}common/getAgreementURLBatch", _handle_get_agreement_url_batch),
+            web.route("*", f"{BASE_URL}common/getTimestamp", _handle_get_timestamp),
+            web.route("*", f"{BASE_URL}common/getBottomNavigateInfoList", _handle_get_bottom_navigate_info_list),
+            web.route("*", f"{BASE_URL}common/getAboutBriefItem", _handle_get_about_brief_item),
+            web.route("*", f"{BASE_URL}common/getCurrentAreaSupportServiceInfo", handle_get_current_area_support_service_info),
         ]
 
 

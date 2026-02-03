@@ -18,9 +18,5 @@ class CommonPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                f"{BASE_URL}common/getBottomNavigateInfoList",
-                handle_get_bottom_navigate_info_list,
-            ),
+            web.route("*", f"{BASE_URL}common/getBottomNavigateInfoList", handle_get_bottom_navigate_info_list),
         ]

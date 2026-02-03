@@ -25,21 +25,9 @@ class CommonPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                f"{BASE_URL}common/getBottomNavigateInfoList",
-                handle_get_bottom_navigate_info_list,
-            ),
-            web.route(
-                "GET",
-                f"{BASE_URL}common/YIKOBasicSetting",
-                _handle_yiko_basic_setting,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}common/getCurrentAreaSupportServiceInfo",
-                handle_get_current_area_support_service_info,
-            ),
+            web.route("*", f"{BASE_URL}common/getBottomNavigateInfoList", handle_get_bottom_navigate_info_list),
+            web.route("GET", f"{BASE_URL}common/YIKOBasicSetting", _handle_yiko_basic_setting),
+            web.route("*", f"{BASE_URL}common/getCurrentAreaSupportServiceInfo", handle_get_current_area_support_service_info),
         ]
 
 

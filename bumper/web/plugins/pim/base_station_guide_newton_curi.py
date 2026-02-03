@@ -22,16 +22,8 @@ class EventDetailPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                "/base_station_guide_newton_curi.html",
-                _handle_base_station_guide_newton_curi,
-            ),
-            web.route(
-                "*",
-                "/images/{id}",
-                get_bot_image,
-            ),
+            web.route("*", "/base_station_guide_newton_curi.html", _handle_base_station_guide_newton_curi),
+            web.route("*", "/images/{id}", get_bot_image),
         ]
 
 

@@ -28,71 +28,19 @@ class UserPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                f"{BASE_URL}user/login",
-                auth_util.login,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}user/checkLogin",
-                auth_util.login,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}user/getAuthCode",
-                auth_util.get_auth_code,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}user/logout",
-                _logout,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}user/checkAgreement",
-                _handle_check_agreement,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}user/checkAgreementBatch",
-                handle_check_agreement_batch,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}user/getUserAccountInfo",
-                _handle_get_user_account_info,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}user/getUserMenuInfo",
-                _handle_get_user_menu_info,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}/user/getMyUserMenuInfo",
-                _handle_get_my_user_menu_info,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}user/getMyUserMenuInfo",
-                _handle_get_my_user_menu_info,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}user/changeArea",
-                _handle_change_area,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}user/queryChangeArea",
-                _handle_change_area,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}user/acceptAgreementBatch",
-                _handle_accept_agreement_batch,
-            ),
+            web.route("*", f"{BASE_URL}user/login", auth_util.login),
+            web.route("*", f"{BASE_URL}user/checkLogin", auth_util.login),
+            web.route("*", f"{BASE_URL}user/getAuthCode", auth_util.get_auth_code),
+            web.route("*", f"{BASE_URL}user/logout", _logout),
+            web.route("*", f"{BASE_URL}user/checkAgreement", _handle_check_agreement),
+            web.route("*", f"{BASE_URL}user/checkAgreementBatch", handle_check_agreement_batch),
+            web.route("*", f"{BASE_URL}user/getUserAccountInfo", _handle_get_user_account_info),
+            web.route("*", f"{BASE_URL}user/getUserMenuInfo", _handle_get_user_menu_info),
+            web.route("*", f"{BASE_URL}/user/getMyUserMenuInfo", _handle_get_my_user_menu_info),
+            web.route("*", f"{BASE_URL}user/getMyUserMenuInfo", _handle_get_my_user_menu_info),
+            web.route("*", f"{BASE_URL}user/changeArea", _handle_change_area),
+            web.route("*", f"{BASE_URL}user/queryChangeArea", _handle_change_area),
+            web.route("*", f"{BASE_URL}user/acceptAgreementBatch", _handle_accept_agreement_batch),
         ]
 
 
@@ -181,6 +129,7 @@ async def _handle_check_agreement(request: Request) -> Response:
                 "type": "USER",
                 "url": f"{domain}?id=20180804040641_7d746faf18b8cb22a50d145598fe4c90&language=EN",
                 "version": "1.01",
+                "acceptTime": 1681542128770,
             },
             {
                 "force": "N",
@@ -188,6 +137,7 @@ async def _handle_check_agreement(request: Request) -> Response:
                 "type": "PRIVACY",
                 "url": f"{domain}?id=20180804040245_4e7c56dfb7ebd3b81b1f2747d0859fac&language=EN",
                 "version": "1.01",
+                "acceptTime": 1681542128770,
             },
         ]
     return response_success_v1(data)
@@ -195,31 +145,37 @@ async def _handle_check_agreement(request: Request) -> Response:
 
 async def handle_check_agreement_batch(_: Request) -> Response:
     """Check agreement batch."""
+    domain = f"https://{bumper_isc.DOMAIN_SEC3}/content/agreement"
     return response_success_v1(
-        {
-            "agreementList": [],
-            "reAcceptFlag": None,
-            "userAcceptRecord": [
-                {
-                    "acceptTime": 1681542125538,
-                    "force": None,
-                    "id": "20230403095818_78798528690d2307bd692c0b624909f9",
-                    "type": "USER",
-                    "updateDesc": None,
-                    "url": None,
-                    "version": "1.03",
-                },
-                {
-                    "acceptTime": 1681542128770,
-                    "force": None,
-                    "id": "20230322085808_ff1bcf0d24ece3a37e3dac81b7e91733",
-                    "type": "PRIVACY",
-                    "updateDesc": None,
-                    "url": None,
-                    "version": "1.07",
-                },
-            ],
-        },
+        [
+            {
+                "acceptTime": 1681542128770,
+                "force": "N",
+                "id": "20230403095818_78798528690d2307bd692c0b624909f9",
+                "type": "USER",
+                "url": None,
+                "version": "1.03",
+                "updateDesc": None,
+            },
+            {
+                "acceptTime": 1681542128770,
+                "force": "N",
+                "id": "20230322085808_ff1bcf0d24ece3a37e3dac81b7e91733",
+                "type": "PRIVACY",
+                "url": None,
+                "version": "1.07",
+                "updateDesc": None,
+            },
+            {
+                "acceptTime": 1681542128770,
+                "force": "N",
+                "id": "20251124143026_570d32ec1f78f36066b64193cd347e5b",
+                "type": "PRIVACY",
+                "url": f"{domain}?id=20251124143026_570d32ec1f78f36066b64193cd347e5b&language=EN",
+                "version": "1.11",
+                "updateDesc": None,
+            },
+        ],
     )
 
 

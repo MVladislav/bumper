@@ -20,16 +20,8 @@ class MessagePlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                f"{BASE_URL}message/hasUnreadMsg",
-                _handle_has_unread_message,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}message/getMsgList",
-                _handle_get_msg_list,
-            ),
+            web.route("*", f"{BASE_URL}message/hasUnreadMsg", _handle_has_unread_message),
+            web.route("*", f"{BASE_URL}message/getMsgList", _handle_get_msg_list),
         ]
 
 

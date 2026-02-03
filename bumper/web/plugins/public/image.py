@@ -16,9 +16,5 @@ class ImagePlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Image routes."""
         return [
-            web.route(
-                "*",
-                "/{id}/{image}",
-                images.get_bot_image,
-            ),
+            web.route("*", "/{id}/{image}", images.get_bot_image),
         ]

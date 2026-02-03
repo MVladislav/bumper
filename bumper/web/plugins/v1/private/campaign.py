@@ -23,11 +23,7 @@ class CampaignPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                f"{BASE_URL}campaign/homePageAlert",
-                _handle_home_page_alert,
-            ),
+            web.route("*", f"{BASE_URL}campaign/homePageAlert", _handle_home_page_alert),
         ]
 
 

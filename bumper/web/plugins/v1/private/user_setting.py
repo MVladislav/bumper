@@ -8,6 +8,7 @@ from aiohttp.web_response import Response
 from aiohttp.web_routedef import AbstractRouteDef
 
 from bumper.utils import utils
+from bumper.utils.settings import config as bumper_isc
 from bumper.web.plugins import WebserverPlugin
 from bumper.web.response_utils import response_success_v1
 
@@ -21,21 +22,9 @@ class UserSettingPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                f"{BASE_URL}userSetting/getSuggestionSetting",
-                _handle_get_suggestion_setting,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}userSetting/getMsgReceiveSetting",
-                handle_get_msg_receive_setting,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}userSetting/saveUserSetting",
-                _handle_save_user_setting,
-            ),
+            web.route("*", f"{BASE_URL}userSetting/getSuggestionSetting", _handle_get_suggestion_setting),
+            web.route("*", f"{BASE_URL}userSetting/getMsgReceiveSetting", handle_get_msg_receive_setting),
+            web.route("*", f"{BASE_URL}userSetting/saveUserSetting", _handle_save_user_setting),
         ]
 
 
@@ -50,7 +39,7 @@ async def _handle_get_suggestion_setting(_: Request) -> Response:
                     "name": "Notification",
                     "settingKey": "ACTIVITY",
                     "subTitle": activity_sub_title,
-                    "val": "Y",
+                    "val": "N",
                 },
                 {
                     "name": "Allow to Receive Recommendation",
@@ -83,6 +72,12 @@ async def _handle_get_suggestion_setting(_: Request) -> Response:
                     "val": "N",
                 },
             ],
+            "userPersonalization": {
+                "settingKey": "PERSONALIZATIONIZATION_ADVERTISING",
+                "name": None,
+                "val": "N",
+                "url": f"https://{bumper_isc.DOMAIN_SEC3}/web/page?no=tye52bsd",
+            },
         },
     )
 

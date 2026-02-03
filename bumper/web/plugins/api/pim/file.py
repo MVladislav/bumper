@@ -16,14 +16,6 @@ class FilePlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                "/file/get/{id}",
-                get_bot_image,
-            ),
-            web.route(
-                "*",
-                "/api/pim/file/get/{id}",
-                get_bot_image,
-            ),
+            web.route("*", "/file/get/{id}", get_bot_image),
+            web.route("*", "/api/pim/file/get/{id}", get_bot_image),
         ]

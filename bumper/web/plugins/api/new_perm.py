@@ -24,11 +24,7 @@ class NewPermPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "POST",
-                "/new-perm/token/sst/issue",
-                _handle_sst_issue,
-            ),
+            web.route("POST", "/new-perm/token/sst/issue", _handle_sst_issue),
         ]
 
 

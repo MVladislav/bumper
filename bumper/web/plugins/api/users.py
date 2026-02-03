@@ -29,11 +29,7 @@ class UsersPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "POST",
-                "/users/user.do",
-                _handle_user,
-            ),
+            web.route("POST", "/users/user.do", _handle_user),
         ]
 
 

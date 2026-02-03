@@ -21,11 +21,7 @@ class FaqProblemPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                "/faqproblem.html",
-                _handle_faq_problem,
-            ),
+            web.route("*", "/faqproblem.html", _handle_faq_problem),
         ]
 
 

@@ -21,16 +21,8 @@ class HelpPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                f"{BASE_URL}help/getHelpIndex",
-                _handle_get_help_index,
-            ),
-            web.route(
-                "*",
-                f"{BASE_URL}help/getProductHelpIndex",
-                _handle_get_product_help_index,
-            ),
+            web.route("*", f"{BASE_URL}help/getHelpIndex", _handle_get_help_index),
+            web.route("*", f"{BASE_URL}help/getProductHelpIndex", _handle_get_product_help_index),
         ]
 
 

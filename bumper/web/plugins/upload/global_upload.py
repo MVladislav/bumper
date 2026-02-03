@@ -16,9 +16,5 @@ class GlobalPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "*",
-                "/global/{year}/{month}/{day}/{id}",
-                images.get_bot_image,
-            ),
+            web.route("*", "/global/{year}/{month}/{day}/{id}", images.get_bot_image),
         ]

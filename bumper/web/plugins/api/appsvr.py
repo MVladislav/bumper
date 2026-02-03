@@ -33,81 +33,21 @@ class AppsvrPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route(
-                "POST",
-                "/appsvr/app.do",
-                _handle_app_do,
-            ),
-            web.route(
-                "*",
-                "/appsvr/app/config",
-                _handle_app_config,
-            ),
-            web.route(
-                "*",
-                "/appsvr/improve",
-                _handle_improve,
-            ),
-            web.route(
-                "*",
-                "/appsvr/improve/accept",
-                _handle_improve_accept,
-            ),
-            web.route(
-                "*",
-                "/appsvr/improve/user/accept",
-                _handle_improve_user_accept,
-            ),
-            web.route(
-                "*",
-                "/appsvr/notice/home",
-                _handle_notice_home,
-            ),
-            web.route(
-                "*",
-                "/appsvr/notice/list",
-                _handle_notice_list,
-            ),
-            web.route(
-                "*",
-                "/appsvr/oauth_callback",
-                auth_util.oauth_callback,
-            ),
-            # web.route(
-            #     "*",
-            #     "/appsvr/oauth/token",
-            #     # auth_util.oauth_callback, # TODO: implement
-            # ),
-            web.route(
-                "*",
-                "/appsvr/service/list",
-                _handle_service_list,
-            ),
-            web.route(
-                "*",
-                "/appsvr/ota/firmware",
-                _handle_ota_firmware,
-            ),
-            web.route(
-                "*",
-                "/appsvr/device/blacklist/check",
-                _handle_device_blacklist_check,
-            ),
-            web.route(
-                "*",
-                "/appsvr/akvs/start_watch",
-                _handle_akvs_start_watch,
-            ),
-            # web.route(
-            #     "*",
-            #     "/appsvr/akvs/end_watch",
-            #     _handle_akvs_end_watch,
-            # ),
-            web.route(
-                "*",
-                "/appsvr/product/getConfigGroups",
-                _handle_get_config_groups,
-            ),
+            web.route("POST", "/appsvr/app.do", _handle_app_do),
+            web.route("*", "/appsvr/app/config", _handle_app_config),
+            web.route("*", "/appsvr/improve", _handle_improve),
+            web.route("*", "/appsvr/improve/accept", _handle_improve_accept),
+            web.route("*", "/appsvr/improve/user/accept", _handle_improve_user_accept),
+            web.route("*", "/appsvr/notice/home", _handle_notice_home),
+            web.route("*", "/appsvr/notice/list", _handle_notice_list),
+            web.route("*", "/appsvr/oauth_callback", auth_util.oauth_callback),
+            web.route("*", "/appsvr/oauth/token", auth_util.oauth_callback),  # TODO: implement
+            web.route("*", "/appsvr/service/list", _handle_service_list),
+            web.route("*", "/appsvr/ota/firmware", _handle_ota_firmware),
+            web.route("*", "/appsvr/device/blacklist/check", _handle_device_blacklist_check),
+            web.route("*", "/appsvr/akvs/start_watch", _handle_akvs_start_watch),
+            # web.route("*", "/appsvr/akvs/end_watch", _handle_akvs_end_watch), # TODO: implement
+            web.route("*", "/appsvr/product/getConfigGroups", _handle_get_config_groups),
         ]
 
 
