@@ -29,7 +29,7 @@ async def handle_ca_certificates(_: Request) -> FileResponse | Response:
     """Handle CA Certificates (/ca-certificates.tar.gz)."""
     try:
         archive_path: Path = bumper_isc.ca_archive_file
-        if not archive_path.exists():
+        if not await utils.check_file_exists(archive_path):
             _create_ca_tar_file(archive_path)
 
         return FileResponse(

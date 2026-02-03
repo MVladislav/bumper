@@ -35,6 +35,15 @@ async def with_timeout(coro: Awaitable[Any], seconds: int = 3) -> Any:
         return "timeout"
 
 
+async def check_file_exists(file: Path) -> bool:
+    """Check if a file exists."""
+    try:
+        # Use asyncio.to_thread for blocking Path.exists()
+        return await asyncio.to_thread(file.exists)
+    except Exception:
+        return False
+
+
 # ******************************************************************************
 
 

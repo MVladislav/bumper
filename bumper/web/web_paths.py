@@ -31,7 +31,7 @@ async def handle_favicon(_: Request) -> web.FileResponse:
     """Serve the favicon.ico file."""
     try:
         favicon_path = Path(str(files("bumper.web").joinpath("static_web/favicon.ico")))
-        if not favicon_path.exists():
+        if not await utils.check_file_exists(favicon_path):
             msg = f"Favicon not found at {favicon_path}"
             raise FileNotFoundError(msg)
         return web.FileResponse(path=favicon_path)

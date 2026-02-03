@@ -23,7 +23,7 @@ class ClientRepo(BaseRepo):
         """Add a new client."""
         q = query_instance.userid == user_id
         if not self._get(q):
-            client = models.VacBotClient(name=name if name else "", userid=user_id, realm=realm, resource=resource)
+            client = models.VacBotClient(name=name or "", userid=user_id, realm=realm, resource=resource)
             self._upsert(client.as_dict(), q)
 
     def get(self, user_id: str) -> models.VacBotClient | None:

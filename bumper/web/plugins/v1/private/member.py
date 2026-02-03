@@ -31,16 +31,16 @@ async def handle_get_exp_by_scene(request: Request) -> Response:
     get_point = None
     prompt = None
 
-    if scene in ["GLOBALAPP_REGULATE_DEEBOT_SUCTION"]:
+    if scene == "GLOBALAPP_REGULATE_DEEBOT_SUCTION":
         get_point = 0
         prompt = "Task DEEBOT Perform suction power setting, +0"
-    elif scene in ["GLOBALAPP_REGULATE_DEEBOT_WATER"]:
+    elif scene == "GLOBALAPP_REGULATE_DEEBOT_WATER":
         get_point = 0
         prompt = "Perform task DEEBOT water flow rate, +0"
-    elif scene in ["GLOBALAPP_TIMING_OF_CONSUMABLES"]:
+    elif scene == "GLOBALAPP_TIMING_OF_CONSUMABLES":
         get_point = 0
         prompt = "Perform Display accessory usage task, +0"
-    elif scene in ["GLOBALAPP_VIRTUAL_WALL_MANAGEMENT"]:
+    elif scene == "GLOBALAPP_VIRTUAL_WALL_MANAGEMENT":
         get_point = 0
         prompt = "Perform task Manage DEEBOT Virtual Walls, +0"
     elif scene in [

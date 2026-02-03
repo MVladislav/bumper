@@ -132,12 +132,12 @@ class MQTTServer:
                 _LOGGER.info("Shutting down MQTT server...")
                 await self._broker.shutdown()
                 _LOGGER_BROKER.info("Broker closed")
-            elif self.state in ["starting"]:
+            elif self.state == "starting":
                 _LOGGER.warning(f"MQTT server is in '{self.state}' state. Waiting for it to stabilize...")
                 await self.wait_for_state_change("starting", reverse=True)
                 if self.state == "started":
                     await self._broker.shutdown()
-            elif self.state in ["stopping"]:
+            elif self.state == "stopping":
                 _LOGGER.warning(f"MQTT server is in '{self.state}' state. Waiting for it to stabilize...")
                 await self.wait_for_state_change("stopping", reverse=True)
             else:
