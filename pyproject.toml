@@ -39,13 +39,13 @@ dependencies = [
   "aiohttp==3.13.3",      # https://pypi.org/project/aiohttp
   "aiomqtt==2.5.0",       # https://pypi.org/project/aiomqtt
   "amqtt==0.11.3",        # https://pypi.org/project/amqtt
-  "cachetools==6.2.4",    # https://pypi.org/project/cachetools
+  "cachetools==6.2.6",    # https://pypi.org/project/cachetools
   "coloredlogs==15.0.1",  # https://pypi.org/project/coloredlogs
-  "cryptography==46.0.3", # https://pypi.org/project/cryptography
+  "cryptography==46.0.4", # https://pypi.org/project/cryptography
   "defusedxml==0.8.0rc2", # https://pypi.org/project/defusedxml
   "Jinja2==3.1.6",        # https://pypi.org/project/Jinja2
   "passlib==1.7.4",       # https://pypi.org/project/passlib
-  "PyJWT==2.10.1",        # https://pypi.org/project/PyJWT
+  "PyJWT==2.11.0",        # https://pypi.org/project/PyJWT
   "tinydb==4.8.2",        # https://pypi.org/project/tinydb
   "validators==0.35.0",   # https://pypi.org/project/validators
   "websockets==15.0.1",   # https://pypi.org/project/websockets
