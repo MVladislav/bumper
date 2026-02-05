@@ -2,12 +2,15 @@
 
 import asyncio
 from importlib.metadata import version
+import logging
 import os
 from pathlib import Path
 import socket
 import tempfile
 from typing import TYPE_CHECKING, Literal, cast
 from zoneinfo import ZoneInfo
+
+_LOGGER = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from bumper.mqtt.helper_bot import MQTTHelperBot
@@ -45,7 +48,10 @@ class Config:
     certs_dir.mkdir(parents=True, exist_ok=True)  # Ensure certs directory exists or create
 
     # Certs
-    ca_cert = Path(os.environ.get("BUMPER_CA_CERT", certs_dir / "ca.crt"))
+    env_ca_cert = os.environ.get("BUMPER_CA_CERT") or os.environ.get("BUMPER_CA")
+    if env_ca_cert and not os.environ.get("BUMPER_CA_CERT"):
+        _LOGGER.warning("\n  !!! WARN :: Environment variable 'BUMPER_CA' is deprecated; use 'BUMPER_CA_CERT' instead. !!!\n")
+    ca_cert = Path(env_ca_cert) if env_ca_cert else certs_dir / "ca.crt"
     ca_key = Path(os.environ.get("BUMPER_CA_KEY", certs_dir / "ca.key"))
     ca_pem = Path(os.environ.get("BUMPER_CA_PEM", certs_dir / "ca.pem"))
     server_cert = Path(os.environ.get("BUMPER_CERT", certs_dir / "bumper.crt"))
