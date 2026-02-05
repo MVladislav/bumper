@@ -34,11 +34,7 @@ Prepare TLS certificates and minimal environment variables before any deployment
 
 **TLS certificates**:
 
-Place your certs in `certs/ca.crt`, `certs/bumper.crt`, `certs/bumper.key`, or generate them:
-
-```sh
-$./scripts/create-cert.sh
-```
+Bumper automatically generates certificates on first startup. Alternatively, place your own certs in `certs/ca.crt`, `certs/bumper.crt`, `certs/bumper.key`.
 
 **Environment variables**:
 
