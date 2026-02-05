@@ -61,25 +61,43 @@ def test_files(tmp_path_factory: pytest.TempPathFactory) -> dict[str, Path]:
     passwd_bad = tmp_dir / "passwd_bad"
     passwd_bad.write_text("test-client:badhash\n")
 
-    certs_dir = tmp_dir / "certs"
-    ca_cert_path = certs_dir / "ca.crt"
-    server_cert_path = certs_dir / "bumper.crt"
-    server_key_path = certs_dir / "bumper.key"
-    generate_certificates(certs_dir, ca_cert_path, server_cert_path, server_key_path)
+    bumper_isc.certs_dir = tmp_dir / "certs"
+    bumper_isc.ca_cert = bumper_isc.certs_dir / "ca.crt"
+    bumper_isc.ca_key = bumper_isc.certs_dir / "ca.key"
+    bumper_isc.ca_pem = bumper_isc.certs_dir / "ca.pem"
+    bumper_isc.server_cert = bumper_isc.certs_dir / "bumper.crt"
+    bumper_isc.server_key = bumper_isc.certs_dir / "bumper.key"
+    generate_certificates()
 
     db_file = tmp_dir / "tmp.db"
-
-    bumper_isc.ca_cert = certs_dir / "ca.crt"
-    bumper_isc.server_cert = certs_dir / "bumper.crt"
-    bumper_isc.server_key = certs_dir / "bumper.key"
     bumper_isc.db_file = str(db_file)
 
     return {
         "passwd": passwd_file,
         "passwd_bad": passwd_bad,
-        "certs": certs_dir,
+        "certs": bumper_isc.certs_dir,
         "db": db_file,
     }
+
+
+@pytest.fixture
+def test_certs(tmp_path: Path) -> None:
+    saved_cert_dir = bumper_isc.certs_dir
+    bumper_isc.certs_dir = tmp_path / "certs"
+    bumper_isc.ca_cert = bumper_isc.certs_dir / "ca.crt"
+    bumper_isc.ca_key = bumper_isc.certs_dir / "ca.key"
+    bumper_isc.ca_pem = bumper_isc.certs_dir / "ca.pem"
+    bumper_isc.server_cert = bumper_isc.certs_dir / "bumper.crt"
+    bumper_isc.server_key = bumper_isc.certs_dir / "bumper.key"
+
+    yield bumper_isc.certs_dir
+
+    bumper_isc.certs_dir = saved_cert_dir
+    bumper_isc.ca_cert = bumper_isc.certs_dir / "ca.crt"
+    bumper_isc.ca_key = bumper_isc.certs_dir / "ca.key"
+    bumper_isc.ca_pem = bumper_isc.certs_dir / "ca.pem"
+    bumper_isc.server_cert = bumper_isc.certs_dir / "bumper.crt"
+    bumper_isc.server_key = bumper_isc.certs_dir / "bumper.key"
 
 
 @pytest.fixture

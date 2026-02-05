@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 import socket
 import tempfile
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal, cast
 from zoneinfo import ZoneInfo
 
 if TYPE_CHECKING:
@@ -25,6 +25,7 @@ class Config:
     """Config class."""
 
     ECOVACS_DEFAULT_COUNTRY: str = "us"
+    ECOVACS_DEFAULT_COUNTRY_LANG: str = "en"
     LOCAL_TIMEZONE: ZoneInfo = ZoneInfo(os.environ.get("TZ", "UTC"))
     SYNC_TIMEZONE: bool = str_to_bool(os.environ.get("SYNC_TIMEZONE")) or False
 
@@ -44,12 +45,21 @@ class Config:
     certs_dir.mkdir(parents=True, exist_ok=True)  # Ensure certs directory exists or create
 
     # Certs
-    ca_cert = Path(os.environ.get("BUMPER_CA", certs_dir / "ca.crt"))
+    ca_cert = Path(os.environ.get("BUMPER_CA_CERT", certs_dir / "ca.crt"))
+    ca_key = Path(os.environ.get("BUMPER_CA_KEY", certs_dir / "ca.key"))
+    ca_pem = Path(os.environ.get("BUMPER_CA_PEM", certs_dir / "ca.pem"))
     server_cert = Path(os.environ.get("BUMPER_CERT", certs_dir / "bumper.crt"))
     server_key = Path(os.environ.get("BUMPER_KEY", certs_dir / "bumper.key"))
     ca_archive_filename = "ca-certificates.tar.gz"
     ca_archive_file = Path(tempfile.mkdtemp(prefix="bumper_ca_certificates_")) / ca_archive_filename
     CA_CERT_API_ONLY_BUMPER_CERT: bool = str_to_bool(os.environ.get("CA_CERT_API_ONLY_BUMPER_CERT")) or False
+
+    ca_valid_days = int(os.environ.get("BUMPER_CA_VALID_DAYS") or 6669)
+    server_valid_days = int(os.environ.get("BUMPER_VALID_DAYS") or 666)
+
+    KeyTypeStr = Literal["ec", "rsa"]
+    cert_key_type: KeyTypeStr = cast("KeyTypeStr", (os.environ.get("CERT_KEY_TYPE") or "ec").lower())
+    cert_rsa_key_size: int = int(os.environ.get("CERT_RSA_KEY_SIZE") or 2048)
 
     # Data Files
     db_file = str(Path(os.environ.get("DB_FILE") or data_dir / "bumper.db"))

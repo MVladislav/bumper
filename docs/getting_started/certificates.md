@@ -44,18 +44,15 @@ If you prefer to use your own certificates, place them in the `certs/` directory
 Configure certificate paths via environment variables (defaults shown):
 
 ```env
-BUMPER_CERTS=certs
-BUMPER_CA=ca.crt
-BUMPER_CERT=bumper.crt
-BUMPER_KEY=bumper.key
+BUMPER_CERTS=$PWD/certs
 ```
 
 Or point directly to full paths:
 
 ```env
-BUMPER_CA_PATH=certs/ca.crt
-BUMPER_CERT_PATH=certs/bumper.crt
-BUMPER_KEY_PATH=certs/bumper.key
+BUMPER_CA_CERT=certs/ca.crt
+BUMPER_CERT=certs/bumper.crt
+BUMPER_KEY=certs/bumper.key
 ```
 
 ### mitmproxy

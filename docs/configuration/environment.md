@@ -25,14 +25,25 @@ Variables not listed here are hardcoded or not configurable via environment.
 
 ## 📁 Paths & Files
 
-| Variable       | Default                    | Description                                           |
-| -------------- | -------------------------- | ----------------------------------------------------- |
-| `BUMPER_DATA`  | `$PWD/data`                | Directory for persistent data (database, caches).     |
-| `DB_FILE`      | `${BUMPER_DATA}/bumper.db` | Path to SQLite database file. Overrides default.      |
-| `BUMPER_CERTS` | `$PWD/certs`               | Directory for TLS certificate files.                  |
-| `BUMPER_CA`    | `ca.crt`                   | Filename of CA certificate inside `BUMPER_CERTS`.     |
-| `BUMPER_CERT`  | `bumper.crt`               | Filename of server certificate inside `BUMPER_CERTS`. |
-| `BUMPER_KEY`   | `bumper.key`               | Filename of server private key inside `BUMPER_CERTS`. |
+| Variable         | Default                    | Description                                           |
+| ---------------- | -------------------------- | ----------------------------------------------------- |
+| `BUMPER_DATA`    | `$PWD/data`                | Directory for persistent data (database, caches).     |
+| `DB_FILE`        | `${BUMPER_DATA}/bumper.db` | Path to SQLite database file. Overrides default.      |
+| `BUMPER_CERTS`   | `$PWD/certs`               | Directory for TLS certificate files.                  |
+| `BUMPER_CA_CERT` | `$PWD/certs/ca.crt`        | Filename of CA certificate inside `BUMPER_CERTS`.     |
+| `BUMPER_CERT`    | `$PWD/certs/bumper.crt`    | Filename of server certificate inside `BUMPER_CERTS`. |
+| `BUMPER_KEY`     | `$PWD/certs/bumper.key`    | Filename of server private key inside `BUMPER_CERTS`. |
+
+---
+
+## Certificate
+
+| Variable             | Default | Description                                                                                              |
+| -------------------- | ------- | -------------------------------------------------------------------------------------------------------- |
+| BUMPER_CA_VALID_DAYS | `6669`  | CA certificate validity in days (≈18 years). Long duration for home-hosted self-signed server stability. |
+| BUMPER_VALID_DAYS    | `666`   | Server certificate validity in days (≈22 months). Practical rotation cycle for home server management.   |
+| CERT_KEY_TYPE        | `ec`    | Key algorithm. Accepts only `ec` (P-256 elliptic curve) or `rsa`.                                        |
+| CERT_RSA_KEY_SIZE    | `2048`  | RSA key size in bits. Must be `2048`-`4096`. Ignored for EC keys.                                        |
 
 ---
 

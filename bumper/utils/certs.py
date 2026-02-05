@@ -5,12 +5,14 @@ import datetime
 from ipaddress import ip_address
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives.asymmetric import ec, rsa
 from cryptography.x509.oid import ExtendedKeyUsageOID, NameOID
+
+from bumper.utils.settings import config as bumper_isc
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -133,10 +135,6 @@ RAW_DOMAINS: list[str] = [
     "www.ecouser.net",
 ]
 
-# Certificate validity periods (in days)
-CA_VALIDITY_DAYS = 6669
-SERVER_VALIDITY_DAYS = 666
-
 
 def _build_domain_tree(domains: list[str]) -> dict[str, Any]:
     """Build a hierarchical tree structure from domain list.
@@ -214,13 +212,24 @@ def _build_san_list() -> list[str]:
 
     # Add all wildcard entries as DNS SANs
     san_list.extend(f"DNS:{entry}" for entry in sorted(wildcard_set))
-
     return san_list
 
 
-def _generate_ec_key() -> ec.EllipticCurvePrivateKey:
-    """Generate an EC private key using prime256v1 curve."""
-    return ec.generate_private_key(ec.SECP256R1())
+def _generate_key(key_type: Literal["ec", "rsa"] = "ec") -> ec.EllipticCurvePrivateKey | rsa.RSAPrivateKey:
+    """Generate private key based on type."""
+    key: ec.EllipticCurvePrivateKey | rsa.RSAPrivateKey | None = None
+    if key_type == "rsa":
+        if not 2048 <= bumper_isc.cert_rsa_key_size <= 4096:
+            msg = "RSA key size must be between 2048-4096 bits"
+            raise ValueError(msg)
+        key = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=bumper_isc.cert_rsa_key_size,
+        )
+    else:  # ec
+        key = ec.generate_private_key(ec.SECP256R1())
+
+    return key
 
 
 def _parse_san_list() -> list[x509.GeneralName]:
@@ -234,7 +243,7 @@ def _parse_san_list() -> list[x509.GeneralName]:
     return general_names
 
 
-def _create_ca_certificate(ca_key: ec.EllipticCurvePrivateKey) -> x509.Certificate:
+def _create_ca_certificate(ca_key: ec.EllipticCurvePrivateKey | rsa.RSAPrivateKey) -> x509.Certificate:
     """Create a CA certificate."""
     subject = issuer = x509.Name(
         [
@@ -251,7 +260,7 @@ def _create_ca_certificate(ca_key: ec.EllipticCurvePrivateKey) -> x509.Certifica
         .public_key(ca_key.public_key())
         .serial_number(x509.random_serial_number())
         .not_valid_before(now)
-        .not_valid_after(now + datetime.timedelta(days=CA_VALIDITY_DAYS))
+        .not_valid_after(now + datetime.timedelta(days=bumper_isc.ca_valid_days))
         .add_extension(
             x509.BasicConstraints(ca=True, path_length=None),
             critical=True,
@@ -279,8 +288,8 @@ def _create_ca_certificate(ca_key: ec.EllipticCurvePrivateKey) -> x509.Certifica
 
 
 def _create_server_certificate(
-    server_key: ec.EllipticCurvePrivateKey,
-    ca_key: ec.EllipticCurvePrivateKey,
+    server_key: ec.EllipticCurvePrivateKey | rsa.RSAPrivateKey,
+    ca_key: ec.EllipticCurvePrivateKey | rsa.RSAPrivateKey,
     ca_cert: x509.Certificate,
 ) -> x509.Certificate:
     """Create a server certificate signed by the CA."""
@@ -299,7 +308,7 @@ def _create_server_certificate(
         .public_key(server_key.public_key())
         .serial_number(x509.random_serial_number())
         .not_valid_before(now)
-        .not_valid_after(now + datetime.timedelta(days=SERVER_VALIDITY_DAYS))
+        .not_valid_after(now + datetime.timedelta(days=bumper_isc.server_valid_days))
         .add_extension(
             x509.KeyUsage(
                 digital_signature=True,
@@ -326,7 +335,7 @@ def _create_server_certificate(
     )
 
 
-def _write_key(key: ec.EllipticCurvePrivateKey, path: Path) -> None:
+def _write_key(key: ec.EllipticCurvePrivateKey | rsa.RSAPrivateKey, path: Path) -> None:
     """Write a private key to a file with restricted permissions."""
     key_bytes = key.private_bytes(
         encoding=serialization.Encoding.PEM,
@@ -343,48 +352,51 @@ def _write_cert(cert: x509.Certificate, path: Path) -> None:
     path.write_bytes(cert_bytes)
 
 
-def generate_certificates(
-    certs_dir: Path,
-    ca_cert_path: Path,
-    server_cert_path: Path,
-    server_key_path: Path,
-) -> bool:
+def generate_certificates() -> bool:
     """Generate CA and server certificates if they don't exist.
-
-    Args:
-        certs_dir: Directory to store certificates
-        ca_cert_path: Path for CA certificate
-        server_cert_path: Path for server certificate
-        server_key_path: Path for server private key
 
     Returns:
         True if certificates were generated, False if they already existed
 
     """
-    # Check if all required certificates exist
-    ca_key_path = certs_dir / "ca.key"
-    ca_pem_path = certs_dir / "ca.pem"
+    if bumper_isc.cert_key_type not in ["ec", "rsa"]:
+        msg = "Wrong Certificate Key Type provided"
+        raise ValueError(msg)
 
-    if ca_cert_path.exists() and ca_key_path.exists() and server_cert_path.exists() and server_key_path.exists():
+    ca_pem_path = bumper_isc.certs_dir / "ca.pem"
+    ca_cert_bump = bumper_isc.ca_cert
+    ca_key_bump = bumper_isc.ca_key
+    server_cert_bump = bumper_isc.server_cert
+    server_key_bump = bumper_isc.server_key
+
+    # Create unique identifier from parent directories only
+    parent_dirs = {ca_pem_path.parent, ca_cert_bump.parent, ca_key_bump.parent, server_cert_bump.parent, server_key_bump.parent}
+    paths_info = ", ".join(str(p) for p in sorted(parent_dirs))
+
+    # Check if all required certificates exist
+    if all(p.exists() for p in [ca_cert_bump, ca_key_bump, server_cert_bump, server_key_bump]):
         _LOGGER.debug("All certificate files already exist, skipping generation")
         return False
 
-    _LOGGER.info("Generating certificates in %s", certs_dir)
-    certs_dir.mkdir(parents=True, exist_ok=True)
+    _LOGGER.info(f"Generating {bumper_isc.cert_key_type.upper()} certificates in directories: {paths_info}")
+
+    # Create all parent directories
+    for parent_dir in sorted(parent_dirs):
+        parent_dir.mkdir(parents=True, exist_ok=True)
 
     # Generate CA certificate
     _LOGGER.info("Creating CA certificate...")
-    ca_key = _generate_ec_key()
+    ca_key = _generate_key(bumper_isc.cert_key_type)
     ca_cert = _create_ca_certificate(ca_key)
-    _write_key(ca_key, ca_key_path)
-    _write_cert(ca_cert, ca_cert_path)
+    _write_key(ca_key, ca_key_bump)
+    _write_cert(ca_cert, ca_cert_bump)
 
     # Generate server certificate
     _LOGGER.info("Creating server certificate...")
-    server_key = _generate_ec_key()
+    server_key = _generate_key(bumper_isc.cert_key_type)
     server_cert = _create_server_certificate(server_key, ca_key, ca_cert)
-    _write_key(server_key, server_key_path)
-    _write_cert(server_cert, server_cert_path)
+    _write_key(server_key, server_key_bump)
+    _write_cert(server_cert, server_cert_bump)
 
     # Create combined ca.pem (server key + server cert + CA cert)
     _LOGGER.info("Creating combined ca.pem...")
@@ -397,5 +409,5 @@ def generate_certificates(
     ca_cert_bytes = ca_cert.public_bytes(serialization.Encoding.PEM)
     ca_pem_path.write_bytes(server_key_bytes + server_cert_bytes + ca_cert_bytes)
 
-    _LOGGER.info("Certificates created successfully in %s", certs_dir)
+    _LOGGER.info(f"{bumper_isc.cert_key_type.upper()} certificates created successfully")
     return True
