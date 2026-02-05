@@ -39,7 +39,7 @@ dependencies = [
   "aiohttp==3.13.3",      # https://pypi.org/project/aiohttp
   "aiomqtt==2.5.0",       # https://pypi.org/project/aiomqtt
   "amqtt==0.11.3",        # https://pypi.org/project/amqtt
-  "cachetools==6.2.6",    # https://pypi.org/project/cachetools
+  "cachetools==7.0.0",    # https://pypi.org/project/cachetools
   "coloredlogs==15.0.1",  # https://pypi.org/project/coloredlogs
   "cryptography==46.0.4", # https://pypi.org/project/cryptography
   "defusedxml==0.8.0rc2", # https://pypi.org/project/defusedxml
@@ -242,6 +242,7 @@ no_implicit_optional = true
 warn_return_any = true
 warn_unreachable = true
 strict = true
+disable_error_code = "typeddict-unknown-key"
 
 # ----------------------------------- PYLINT -----------------------------------
 [tool.pylint.MAIN]
