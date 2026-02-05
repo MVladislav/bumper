@@ -48,7 +48,7 @@ dependencies = [
   "PyJWT==2.11.0",        # https://pypi.org/project/PyJWT
   "tinydb==4.8.2",        # https://pypi.org/project/tinydb
   "validators==0.35.0",   # https://pypi.org/project/validators
-  "websockets==15.0.1",   # https://pypi.org/project/websockets
+  "websockets==16.0",   # https://pypi.org/project/websockets
 ]
 
 [dependency-groups]
