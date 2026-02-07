@@ -374,7 +374,7 @@ def generate_certificates() -> bool:
     paths_info = ", ".join(str(p) for p in sorted(parent_dirs))
 
     # Check if all required certificates exist
-    if all(p.exists() for p in [ca_cert_bump, ca_key_bump, server_cert_bump, server_key_bump]):
+    if all(p.exists() for p in [ca_cert_bump, server_cert_bump, server_key_bump]):
         _LOGGER.debug("All certificate files already exist, skipping generation")
         return False
 
