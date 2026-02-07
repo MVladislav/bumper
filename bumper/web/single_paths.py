@@ -18,9 +18,9 @@ from aiohttp.web_response import Response
 
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
-from bumper.web.auth_util import get_new_auth
-from bumper.web.response_utils import ERR_UNKNOWN_TODO, response_error_v2, response_success_v3
+from bumper.web.auth_service import get_new_auth
 from bumper.web.static_api import get_codepush_update_check
+from bumper.web.utils.response_helper import ERR_UNKNOWN_TODO, response_error_v2, response_success_v3
 
 _LOGGER = logging.getLogger(__name__)
 

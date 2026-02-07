@@ -12,9 +12,9 @@ from aiohttp.web_routedef import AbstractRouteDef
 from bumper.db import token_repo, user_repo
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
-from bumper.web import auth_util
+from bumper.web import auth_service
 from bumper.web.plugins import WebserverPlugin
-from bumper.web.response_utils import response_success_v1
+from bumper.web.utils.response_helper import response_success_v1
 
 from . import BASE_URL
 
@@ -28,9 +28,9 @@ class UserPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route("*", f"{BASE_URL}user/login", auth_util.login),
-            web.route("*", f"{BASE_URL}user/checkLogin", auth_util.login),
-            web.route("*", f"{BASE_URL}user/getAuthCode", auth_util.get_auth_code),
+            web.route("*", f"{BASE_URL}user/login", auth_service.login),
+            web.route("*", f"{BASE_URL}user/checkLogin", auth_service.login),
+            web.route("*", f"{BASE_URL}user/getAuthCode", auth_service.get_auth_code),
             web.route("*", f"{BASE_URL}user/logout", _logout),
             web.route("*", f"{BASE_URL}user/checkAgreement", _handle_check_agreement),
             web.route("*", f"{BASE_URL}user/checkAgreementBatch", handle_check_agreement_batch),

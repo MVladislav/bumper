@@ -5,7 +5,7 @@ from typing import Any
 
 from tinydb.table import Document
 
-from bumper.web import models
+from bumper.web.utils import models
 
 from .base import BaseRepo
 from .db import TABLE_BOTS, query_instance

@@ -8,8 +8,8 @@ from aiohttp.web_response import Response
 from aiohttp.web_routedef import AbstractRouteDef
 
 from bumper.web.plugins import WebserverPlugin
-from bumper.web.response_utils import response_success_v3
 from bumper.web.static_api import get_err_detail
+from bumper.web.utils.response_helper import response_success_v3
 
 
 class DictionaryPlugin(WebserverPlugin):

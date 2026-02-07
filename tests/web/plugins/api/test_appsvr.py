@@ -7,7 +7,7 @@ import pytest
 from bumper.db import bot_repo
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
-from bumper.web.auth_util import _generate_uid
+from bumper.web.auth_service import _generate_uid
 from bumper.web.plugins.api import appsvr
 
 USER_ID = _generate_uid(bumper_isc.USER_USERNAME_DEFAULT)

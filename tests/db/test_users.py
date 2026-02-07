@@ -7,7 +7,7 @@ from tinydb import TinyDB
 from bumper.db import token_repo, user_repo
 from bumper.db.db import query_instance
 from bumper.utils.settings import config as bumper_isc
-from bumper.web.models import BumperUser
+from bumper.web.utils.models import BumperUser
 
 
 @pytest.mark.usefixtures("clean_database")

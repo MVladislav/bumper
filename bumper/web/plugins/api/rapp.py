@@ -9,7 +9,7 @@ from aiohttp.web_routedef import AbstractRouteDef
 
 from bumper.utils import utils
 from bumper.web.plugins import WebserverPlugin
-from bumper.web.response_utils import response_success_v3
+from bumper.web.utils.response_helper import response_success_v3
 
 
 class RappPlugin(WebserverPlugin):

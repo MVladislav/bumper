@@ -18,7 +18,8 @@ from yarl import URL
 
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
-from bumper.web import middlewares, plugins, single_paths, web_paths
+from bumper.web import plugins, single_paths, web_paths
+from bumper.web.utils import middlewares
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER_PROXY = logging.getLogger(f"{__name__}.proxy")

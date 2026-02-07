@@ -4,7 +4,7 @@ import json
 import logging
 
 from bumper.db import clean_log_repo
-from bumper.web.models import CleanLog
+from bumper.web.utils.models import CleanLog
 
 _LOGGER = logging.getLogger(__name__)
 

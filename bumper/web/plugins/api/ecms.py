@@ -5,14 +5,15 @@ import logging
 from typing import Any
 
 from aiohttp import web
+from aiohttp.web_fileresponse import FileResponse
 from aiohttp.web_request import Request
 from aiohttp.web_response import Response
 from aiohttp.web_routedef import AbstractRouteDef
 
 from bumper.utils.settings import config as bumper_isc
-from bumper.web.images import get_bot_image
 from bumper.web.plugins import WebserverPlugin
-from bumper.web.response_utils import response_success_v3
+from bumper.web.static_api import get_bot_image_path
+from bumper.web.utils.response_helper import response_success_v3
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -24,7 +25,7 @@ class EcmsPlugin(WebserverPlugin):
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route("*", "/ecms/file/get/{id}", get_bot_image),  # TODO: real response is a svga response
+            web.route("*", "/ecms/file/get/{id}", _get_bot_image),  # TODO: real response is a svga response
             web.route("*", "/ecms/app/ad/res", _handle_ad_res),
             web.route("*", "/ecms/app/ad/res/v2", _handle_ad_res),
             web.route("*", "/ecms/app/ad/res/v3", _handle_ad_res),
@@ -32,6 +33,11 @@ class EcmsPlugin(WebserverPlugin):
             web.route("*", "/ecms/app/resources", _handle_resources),
             web.route("*", "/ecms/app/push/event", _handle_push_event),
         ]
+
+
+async def _get_bot_image(_: Request) -> FileResponse:
+    """Get generic image of bot."""
+    return FileResponse(get_bot_image_path())
 
 
 async def _handle_ad_res(_: Request) -> Response:

@@ -10,9 +10,9 @@ from aiohttp.web_response import Response
 from aiohttp.web_routedef import AbstractRouteDef
 
 from bumper.utils import utils
-from bumper.web.auth_util import generate_jwt_helper
+from bumper.web.auth_service import generate_jwt_helper
 from bumper.web.plugins import WebserverPlugin
-from bumper.web.response_utils import response_success_v3
+from bumper.web.utils.response_helper import response_success_v3
 
 _LOGGER = logging.getLogger(__name__)
 

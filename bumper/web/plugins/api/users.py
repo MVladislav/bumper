@@ -14,10 +14,10 @@ from aiohttp.web_routedef import AbstractRouteDef
 from bumper.db import bot_repo, client_repo, token_repo, user_repo
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
-from bumper.web import auth_util
+from bumper.web import auth_service
 from bumper.web.plugins import WebserverPlugin
 from bumper.web.plugins.api.appsvr import create_device_list
-from bumper.web.response_utils import response_error_v6, response_success_v2
+from bumper.web.utils.response_helper import response_error_v6, response_success_v2
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -107,7 +107,7 @@ async def _handle_login_by_it_token(post_body: Mapping[str, Any], _: Request) ->
 
 
 async def _handle_get_auth_code(_: Mapping[str, Any], request: Request) -> Response | None:
-    return await auth_util.get_auth_code_v2(request)
+    return await auth_service.get_auth_code_v2(request)
 
 
 async def _handle_get_device_list(_: Mapping[str, Any], __: Request) -> Response | None:

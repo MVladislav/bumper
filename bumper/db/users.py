@@ -3,7 +3,7 @@
 from tinydb.table import Document
 
 from bumper.utils.settings import config as bumper_isc
-from bumper.web.models import BumperUser
+from bumper.web.utils.models import BumperUser
 
 from .base import BaseRepo
 from .db import TABLE_USERS, query_instance

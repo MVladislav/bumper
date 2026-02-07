@@ -7,7 +7,7 @@ from tinydb import where
 from tinydb.table import Document
 
 from bumper.utils.settings import config as bumper_isc
-from bumper.web.models import Token
+from bumper.web.utils.models import Token
 
 from .base import BaseRepo
 from .db import TABLE_TOKENS, query_instance

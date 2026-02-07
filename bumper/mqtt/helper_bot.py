@@ -16,7 +16,7 @@ from cachetools import TTLCache
 
 from bumper.mqtt.handle_atr import clean_log
 from bumper.utils import utils
-from bumper.web.response_utils import response_error_v8, response_success_v2
+from bumper.web.utils.response_helper import response_error_v8, response_success_v2
 
 if TYPE_CHECKING:
     from collections.abc import MutableMapping

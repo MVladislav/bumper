@@ -1,7 +1,7 @@
 import pytest
 
 from bumper.db import clean_log_repo
-from bumper.web.models import CleanLog
+from bumper.web.utils.models import CleanLog
 
 
 @pytest.mark.usefixtures("clean_database")

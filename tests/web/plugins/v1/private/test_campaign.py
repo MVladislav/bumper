@@ -1,7 +1,7 @@
 from aiohttp.test_utils import TestClient
 import pytest
 
-from bumper.web.response_utils import RETURN_API_SUCCESS
+from bumper.web.utils.response_helper import RETURN_API_SUCCESS
 
 
 @pytest.mark.usefixtures("clean_database")

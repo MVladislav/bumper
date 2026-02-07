@@ -13,7 +13,7 @@ from aiohttp.web_routedef import AbstractRouteDef
 from bumper.db import bot_repo, clean_log_repo
 from bumper.utils import utils
 from bumper.web.plugins import WebserverPlugin
-from bumper.web.response_utils import response_error_v7
+from bumper.web.utils.response_helper import response_error_v7
 
 _LOGGER = logging.getLogger(__name__)
 

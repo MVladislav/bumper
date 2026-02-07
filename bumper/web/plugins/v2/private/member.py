@@ -9,7 +9,7 @@ from aiohttp.web_routedef import AbstractRouteDef
 
 from bumper.web.plugins import WebserverPlugin
 from bumper.web.plugins.v1.private.member import handle_get_exp_by_scene
-from bumper.web.response_utils import response_success_v1
+from bumper.web.utils.response_helper import response_success_v1
 
 from . import BASE_URL
 

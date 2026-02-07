@@ -1,7 +1,7 @@
 from aiohttp.test_utils import TestClient
 import pytest
 
-from bumper.web.response_utils import ERR_TOKEN_INVALID
+from bumper.web.utils.response_helper import ERR_TOKEN_INVALID
 
 
 @pytest.mark.usefixtures("clean_database")

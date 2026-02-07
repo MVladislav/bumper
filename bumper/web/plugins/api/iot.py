@@ -15,7 +15,7 @@ from bumper.mqtt.helper_bot import MQTTCommandModel
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
 from bumper.web.plugins import WebserverPlugin
-from bumper.web.response_utils import response_error_v7, response_error_v8
+from bumper.web.utils.response_helper import response_error_v7, response_error_v8
 
 _LOGGER = logging.getLogger(__name__)
 

@@ -3,8 +3,8 @@ import pytest
 
 from bumper.db import bot_repo, token_repo, user_repo
 from bumper.utils.settings import config as bumper_isc
-from bumper.web.auth_util import _generate_uid
-from bumper.web.response_utils import RETURN_API_SUCCESS
+from bumper.web.auth_service import _generate_uid
+from bumper.web.utils.response_helper import RETURN_API_SUCCESS
 
 USER_ID = _generate_uid(bumper_isc.USER_USERNAME_DEFAULT)
 

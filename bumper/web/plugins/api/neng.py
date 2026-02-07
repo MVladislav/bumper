@@ -9,7 +9,7 @@ from aiohttp.web_routedef import AbstractRouteDef
 
 from bumper.db import bot_repo
 from bumper.web.plugins import WebserverPlugin
-from bumper.web.response_utils import response_success_v3, response_success_v4
+from bumper.web.utils.response_helper import response_success_v3, response_success_v4
 
 
 class NengPlugin(WebserverPlugin):

@@ -4,7 +4,7 @@ import logging
 
 from tinydb.table import Document
 
-from bumper.web.models import CleanLog
+from bumper.web.utils.models import CleanLog
 
 from .base import BaseRepo
 from .db import TABLE_CLEAN_LOGS, query_instance

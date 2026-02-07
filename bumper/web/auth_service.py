@@ -16,8 +16,8 @@ import jwt
 from bumper.db import bot_repo, client_repo, token_repo, user_repo
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
-from bumper.web import models
-from bumper.web.response_utils import (
+from bumper.web.utils import models
+from bumper.web.utils.response_helper import (
     ERR_TOKEN_INVALID,
     ERR_USER_DISABLE,
     response_error_v1,

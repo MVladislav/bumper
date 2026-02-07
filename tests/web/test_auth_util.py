@@ -10,8 +10,8 @@ async def test_get_new_auth_valid(webserver_client: TestClient, monkeypatch: pyt
         userid = "testuser"
         auth_code = None
 
-    monkeypatch.setattr("bumper.web.auth_util.token_repo.login_by_it_token", lambda _: DummyToken())
-    monkeypatch.setattr("bumper.web.auth_util._generate_auth_code", lambda _: "test_auth_code")
+    monkeypatch.setattr("bumper.web.auth_service.token_repo.login_by_it_token", lambda _: DummyToken())
+    monkeypatch.setattr("bumper.web.auth_service._generate_auth_code", lambda _: "test_auth_code")
 
     payload = {"itToken": "valid_it_token", "todo": "OLoginByITToken"}
     async with webserver_client.post("/newauth.do", json=payload) as resp:
@@ -26,8 +26,8 @@ async def test_get_existing_auth_valid(webserver_client: TestClient, monkeypatch
         userid = "testuser"
         auth_code = "existingToken"
 
-    monkeypatch.setattr("bumper.web.auth_util.token_repo.login_by_it_token", lambda _: DummyToken())
-    monkeypatch.setattr("bumper.web.auth_util._generate_auth_code", lambda _: "existingToken")
+    monkeypatch.setattr("bumper.web.auth_service.token_repo.login_by_it_token", lambda _: DummyToken())
+    monkeypatch.setattr("bumper.web.auth_service._generate_auth_code", lambda _: "existingToken")
 
     payload = {"itToken": "valid_it_token", "todo": "OLoginByITToken"}
     async with webserver_client.post("/newauth.do", json=payload) as resp:
@@ -47,7 +47,7 @@ async def test_get_new_auth_missing_token(webserver_client: TestClient) -> None:
 
 
 async def test_get_new_auth_invalid_token(webserver_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr("bumper.web.auth_util.token_repo.login_by_it_token", lambda _: None)
+    monkeypatch.setattr("bumper.web.auth_service.token_repo.login_by_it_token", lambda _: None)
     payload = {"itToken": "invalid_token", "todo": "OLoginByITToken"}
     async with webserver_client.post("/newauth.do", json=payload) as resp:
         assert resp.status == 200
@@ -61,8 +61,8 @@ async def test_get_new_auth_generate_code_fails(webserver_client: TestClient, mo
         userid = "dummy_user"
         auth_code = None
 
-    monkeypatch.setattr("bumper.web.auth_util.token_repo.login_by_it_token", lambda _: DummyToken())
-    monkeypatch.setattr("bumper.web.auth_util._generate_auth_code", lambda _: None)
+    monkeypatch.setattr("bumper.web.auth_service.token_repo.login_by_it_token", lambda _: DummyToken())
+    monkeypatch.setattr("bumper.web.auth_service._generate_auth_code", lambda _: None)
 
     payload = {"itToken": "some_token", "todo": "OLoginByITToken"}
     async with webserver_client.post("/newauth.do", json=payload) as resp:
@@ -73,8 +73,8 @@ async def test_get_new_auth_generate_code_fails(webserver_client: TestClient, mo
 
 
 async def test_get_auth_code_valid(webserver_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr("bumper.web.auth_util.user_repo.get_by_id", lambda user_id: type("User", (), {"userid": user_id})())
-    monkeypatch.setattr("bumper.web.auth_util._generate_it_token", lambda _: "generated_it_token")
+    monkeypatch.setattr("bumper.web.auth_service.user_repo.get_by_id", lambda user_id: type("User", (), {"userid": user_id})())
+    monkeypatch.setattr("bumper.web.auth_service._generate_it_token", lambda _: "generated_it_token")
 
     async with webserver_client.get("/v1/global/auth/getAuthCode?uid=testuser") as resp:
         assert resp.status == 200
@@ -84,8 +84,8 @@ async def test_get_auth_code_valid(webserver_client: TestClient, monkeypatch: py
 
 
 async def test_get_auth_code_user_not_found(webserver_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr("bumper.web.auth_util.user_repo.get_by_id", lambda _: None)
-    monkeypatch.setattr("bumper.web.auth_util._fallback_user_by_device_id", lambda _: None)
+    monkeypatch.setattr("bumper.web.auth_service.user_repo.get_by_id", lambda _: None)
+    monkeypatch.setattr("bumper.web.auth_service._fallback_user_by_device_id", lambda _: None)
 
     async with webserver_client.get("/v1/global/auth/getAuthCode?uid=missing") as resp:
         assert resp.status == 200
@@ -95,8 +95,8 @@ async def test_get_auth_code_user_not_found(webserver_client: TestClient, monkey
 
 
 async def test_get_auth_code_token_fail(webserver_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr("bumper.web.auth_util.user_repo.get_by_id", lambda user_id: type("User", (), {"userid": user_id})())
-    monkeypatch.setattr("bumper.web.auth_util._generate_it_token", lambda _: None)
+    monkeypatch.setattr("bumper.web.auth_service.user_repo.get_by_id", lambda user_id: type("User", (), {"userid": user_id})())
+    monkeypatch.setattr("bumper.web.auth_service._generate_it_token", lambda _: None)
 
     async with webserver_client.get("/v1/global/auth/getAuthCode?uid=testuser") as resp:
         assert resp.status == 200
@@ -107,12 +107,12 @@ async def test_get_auth_code_token_fail(webserver_client: TestClient, monkeypatc
 
 
 async def test_get_auth_code_fallback_user(webserver_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr("bumper.web.auth_util.user_repo.get_by_id", lambda _: None)
+    monkeypatch.setattr("bumper.web.auth_service.user_repo.get_by_id", lambda _: None)
     monkeypatch.setattr(
-        "bumper.web.auth_util._fallback_user_by_device_id",
+        "bumper.web.auth_service._fallback_user_by_device_id",
         lambda _: type("User", (), {"userid": "from_device"})(),
     )
-    monkeypatch.setattr("bumper.web.auth_util._generate_it_token", lambda _: "token_device")
+    monkeypatch.setattr("bumper.web.auth_service._generate_it_token", lambda _: "token_device")
 
     async with webserver_client.get("/v1/global/auth/getAuthCode?deviceId=device123") as resp:
         assert resp.status == 200
@@ -133,9 +133,9 @@ async def test_oauth_callback_success(webserver_client: TestClient, monkeypatch:
     async def dummy_generate_jwt(data: Any, t: str, **args: dict[str, Any]) -> CoroutineType[Any, Any, tuple[str, int]]:  # noqa: ARG001
         return f"{t}_token", 99999999
 
-    monkeypatch.setattr("bumper.web.auth_util.token_repo.get_by_auth_code", lambda _: DummyToken())
-    monkeypatch.setattr("bumper.web.auth_util.client_repo.get", lambda _: DummyClient())
-    monkeypatch.setattr("bumper.web.auth_util.generate_jwt_helper", dummy_generate_jwt)
+    monkeypatch.setattr("bumper.web.auth_service.token_repo.get_by_auth_code", lambda _: DummyToken())
+    monkeypatch.setattr("bumper.web.auth_service.client_repo.get", lambda _: DummyClient())
+    monkeypatch.setattr("bumper.web.auth_service.generate_jwt_helper", dummy_generate_jwt)
 
     async with webserver_client.get("/api/appsvr/oauth_callback?code=auth123") as resp:
         assert resp.status == 200

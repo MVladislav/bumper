@@ -7,20 +7,21 @@ from typing import Any
 
 from aiohttp import web
 from aiohttp.web_exceptions import HTTPInternalServerError
+from aiohttp.web_fileresponse import FileResponse
 from aiohttp.web_request import Request
 from aiohttp.web_response import Response
 from aiohttp.web_routedef import AbstractRouteDef
 
 from bumper.utils import utils
-from bumper.web.images import get_bot_image
 from bumper.web.plugins import WebserverPlugin
-from bumper.web.response_utils import response_success_v3, response_success_v4
 from bumper.web.static_api import (
+    get_bot_image_path,
     get_config_groups_response,
     get_config_net_all_response,
     get_product_config_batch,
     get_product_iot_map,
 )
+from bumper.web.utils.response_helper import response_success_v3, response_success_v4
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -37,7 +38,7 @@ class ProductPlugin(WebserverPlugin):
             web.route("*", "/product/getConfigGroups", _handle_get_config_groups),
             web.route("POST", "/product/software/config/batch", _handle_config_batch),
             web.route("POST", "/product/getShareInfo", _handle_get_share_info),
-            web.route("GET", "/product/image", get_bot_image),
+            web.route("GET", "/product/image", _get_bot_image),
         ]
 
 
@@ -113,3 +114,8 @@ async def _handle_get_share_info(request: Request) -> Response:
     except Exception:
         _LOGGER.exception(utils.default_exception_str_builder(info="during handling request"))
     raise HTTPInternalServerError
+
+
+async def _get_bot_image(_: Request) -> FileResponse:
+    """Get generic image of bot."""
+    return FileResponse(get_bot_image_path())

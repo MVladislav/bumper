@@ -9,7 +9,7 @@ from aiohttp.web_response import Response, StreamResponse
 import pytest
 
 from bumper.utils.settings import config as bumper_isc
-from bumper.web.middlewares import CustomEncoder, log_all_requests
+from bumper.web.utils.middlewares import CustomEncoder, log_all_requests
 
 if TYPE_CHECKING:
     from aiohttp.test_utils import TestClient

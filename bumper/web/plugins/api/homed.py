@@ -15,9 +15,9 @@ from aiohttp.web_routedef import AbstractRouteDef
 from bumper.db import token_repo, user_repo
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
-from bumper.web.auth_util import get_jwt_details
+from bumper.web.auth_service import get_jwt_details
 from bumper.web.plugins import WebserverPlugin
-from bumper.web.response_utils import response_error_v2, response_success_v3
+from bumper.web.utils.response_helper import response_error_v2, response_success_v3
 
 _LOGGER = logging.getLogger(__name__)
 

@@ -18,7 +18,7 @@ from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
 
 if TYPE_CHECKING:
-    from bumper.web.models import BumperUser, CleanLog, VacBotClient, VacBotDevice
+    from bumper.web.utils.models import BumperUser, CleanLog, VacBotClient, VacBotDevice
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER_PROXY = logging.getLogger(f"{__name__}.proxy")

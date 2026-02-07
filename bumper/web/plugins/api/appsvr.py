@@ -17,11 +17,11 @@ from bumper.db import bot_repo
 from bumper.mqtt.helper_bot import MQTTCommandModel
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
-from bumper.web import auth_util
-from bumper.web.models import VacBotDevice
+from bumper.web import auth_service
 from bumper.web.plugins import WebserverPlugin
-from bumper.web.response_utils import response_error_v5, response_success_v2, response_success_v3, response_success_v4
 from bumper.web.static_api import get_code_push_config, get_config_groups_response, get_product_config_batch, get_product_iot_map
+from bumper.web.utils.models import VacBotDevice
+from bumper.web.utils.response_helper import response_error_v5, response_success_v2, response_success_v3, response_success_v4
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -40,8 +40,8 @@ class AppsvrPlugin(WebserverPlugin):
             web.route("*", "/appsvr/improve/user/accept", _handle_improve_user_accept),
             web.route("*", "/appsvr/notice/home", _handle_notice_home),
             web.route("*", "/appsvr/notice/list", _handle_notice_list),
-            web.route("*", "/appsvr/oauth_callback", auth_util.oauth_callback),
-            web.route("*", "/appsvr/oauth/token", auth_util.oauth_callback),  # TODO: implement
+            web.route("*", "/appsvr/oauth_callback", auth_service.oauth_callback),
+            web.route("*", "/appsvr/oauth/token", auth_service.oauth_callback),  # TODO: implement
             web.route("*", "/appsvr/service/list", _handle_service_list),
             web.route("*", "/appsvr/ota/firmware", _handle_ota_firmware),
             web.route("*", "/appsvr/device/blacklist/check", _handle_device_blacklist_check),
