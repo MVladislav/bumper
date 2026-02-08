@@ -1,6 +1,6 @@
 """Web paths for bumper web server."""
 
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Iterable
 from datetime import datetime
 from importlib.resources import files
 import logging
@@ -11,6 +11,7 @@ from aiohttp import web
 from aiohttp.web_exceptions import HTTPInternalServerError
 from aiohttp.web_request import Request
 from aiohttp.web_response import Response
+from aiohttp.web_routedef import RouteDef, StaticDef
 import aiohttp_jinja2
 
 from bumper.db import bot_repo, clean_log_repo, client_repo, user_repo
@@ -21,13 +22,31 @@ if TYPE_CHECKING:
     from bumper.web.utils.models import BumperUser, CleanLog, VacBotClient, VacBotDevice
 
 _LOGGER = logging.getLogger(__name__)
-_LOGGER_PROXY = logging.getLogger(f"{__name__}.proxy")
+
+
+def bumper_routes() -> Iterable[RouteDef | StaticDef]:
+    """Bumper web routes."""
+    return [
+        web.get("", handle_base),
+        web.get("/favicon.ico", _handle_favicon),
+        web.get("/restart_{service}", _handle_restart_service),
+        web.get("/server-status", _handle_partial("server_status")),
+        web.get("/bots", _handle_partial("bots")),
+        web.get("/bot/remove/{did}", _handle_remove_entity("bot")),
+        web.get("/clients", _handle_partial("clients")),
+        web.get("/client/remove/{userid}", _handle_remove_entity("client")),
+        web.get("/users", _handle_partial("users")),
+        web.get("/user/remove/{userid}", _handle_remove_entity("user")),
+        web.get("/clean_logs", _handle_partial("clean_logs")),
+        web.get("/clean_log/remove/{clean_log_id}", _handle_remove_entity("clean_log")),
+        web.get("/clean_logs/remove/{placeholder}", _handle_remove_entity("clean_logs")),
+    ]
 
 
 # ******************************************************************************
 
 
-async def handle_favicon(_: Request) -> web.FileResponse:
+async def _handle_favicon(_: Request) -> web.FileResponse:
     """Serve the favicon.ico file."""
     try:
         favicon_path = Path(str(files("bumper.web").joinpath("static_web/favicon.ico")))
@@ -43,7 +62,7 @@ async def handle_favicon(_: Request) -> web.FileResponse:
 # ******************************************************************************
 
 
-async def handle_restart_service(request: Request) -> Response:
+async def _handle_restart_service(request: Request) -> Response:
     """Handle restart services."""
     try:
         service = request.match_info.get("service", "")
@@ -112,10 +131,10 @@ async def handle_base(request: Request) -> Response:
     raise HTTPInternalServerError
 
 
-def handle_partial(template_name: str) -> Callable[[Request], Awaitable[Response]]:
+def _handle_partial(template_name: str) -> Callable[[Request], Awaitable[Response]]:
     """Handle partials."""
 
-    async def handler(request: Request) -> Response:
+    async def _handler(request: Request) -> Response:
         try:
             context = await _get_context(request, template_name)
             return aiohttp_jinja2.render_template(f"partials/{template_name}.jinja2", request, context)
@@ -123,7 +142,7 @@ def handle_partial(template_name: str) -> Callable[[Request], Awaitable[Response
             _LOGGER.exception(utils.default_exception_str_builder())
         raise HTTPInternalServerError
 
-    return handler
+    return _handler
 
 
 async def _get_context(request: Request, template_name: str | None = None) -> dict[str, Any]:
@@ -243,10 +262,10 @@ async def _get_context(request: Request, template_name: str | None = None) -> di
     }
 
 
-def handle_remove_entity(entity_type: str) -> Callable[[Request], Awaitable[Response]]:
+def _handle_remove_entity(entity_type: str) -> Callable[[Request], Awaitable[Response]]:
     """Handle remove entity."""
 
-    async def handler(request: Request) -> Response:
+    async def _handler(request: Request) -> Response:
         try:
             remove_func: Callable[..., None] | None = None
             get_func: Callable[..., VacBotClient | VacBotDevice | BumperUser | CleanLog | list[CleanLog] | None] | None = None
@@ -286,4 +305,4 @@ def handle_remove_entity(entity_type: str) -> Callable[[Request], Awaitable[Resp
             _LOGGER.exception(utils.default_exception_str_builder())
         raise HTTPInternalServerError
 
-    return handler
+    return _handler

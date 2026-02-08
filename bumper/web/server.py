@@ -65,20 +65,8 @@ class WebServer:
         """Add routes to the web application."""
         routes: list[web.RouteDef | web.StaticDef] = [
             web.static("/static", str(static_path)),
-            web.get("", web_paths.handle_base),
-            web.get("/favicon.ico", web_paths.handle_favicon),
-            web.get("/restart_{service}", web_paths.handle_restart_service),
-            web.get("/server-status", web_paths.handle_partial("server_status")),
-            web.get("/bots", web_paths.handle_partial("bots")),
-            web.get("/bot/remove/{did}", web_paths.handle_remove_entity("bot")),
-            web.get("/clients", web_paths.handle_partial("clients")),
-            web.get("/client/remove/{userid}", web_paths.handle_remove_entity("client")),
-            web.get("/users", web_paths.handle_partial("users")),
-            web.get("/user/remove/{userid}", web_paths.handle_remove_entity("user")),
-            web.get("/clean_logs", web_paths.handle_partial("clean_logs")),
-            web.get("/clean_log/remove/{clean_log_id}", web_paths.handle_remove_entity("clean_log")),
-            web.get("/clean_logs/remove/{placeholder}", web_paths.handle_remove_entity("clean_logs")),
         ]
+        routes.extend(web_paths.bumper_routes())
         if proxy_mode is True:
             routes.append(web.route("*", "/{path:.*}", self._handle_proxy))
         else:
