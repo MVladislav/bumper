@@ -1,0 +1,1727 @@
+<!DOCTYPE html><html lang="en" class="no-js"><head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://mvladislav.github.io/bumper/getting_started/dns/">
+      
+      
+        <link rel="prev" href="../..">
+      
+      
+        <link rel="next" href="../certificates/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>DNS Setup - Bumper Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        
+        <link rel="stylesheet" href="../../assets/external/fonts.googleapis.com/css.49ea35f2.css">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="deep-purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#dns-configuration-for-bumper" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Bumper Docs" class="md-header__button md-logo" aria-label="Bumper Docs" data-md-component="logo">
+      
+  <img src="../../images/favicon.ico" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Bumper Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              DNS Setup
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/MVladislav/bumper" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Bumper Docs" class="md-nav__button md-logo" aria-label="Bumper Docs" data-md-component="logo">
+      
+  <img src="../../images/favicon.ico" alt="logo">
+
+    </a>
+    Bumper Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/MVladislav/bumper" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DNS Setup
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DNS Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#recommended-opnsense-unbound-dns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔧 Recommended: OPNsense + Unbound DNS
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alternative-dnsmasq-pi-hole" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📦 Alternative: dnsmasq / Pi-hole
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes-on-domain-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📋 Notes on Domain Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📋 Notes on Domain Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#replacement-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Replacement Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#known-domains" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        💡 Known Domains
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="💡 Known Domains">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#domains-with-known-ips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Domains with Known IPs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#current-domains-with-tls-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current Domains with TLS Errors
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📚 Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../certificates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Certificate Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3">
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Usage
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Usage
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Command-Line Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/docker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/mobile_app/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mobile App Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4">
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Configuration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/environment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Environment Variables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5">
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Internals
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Internals
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../internals/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../internals/sniffing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sniffing &amp; Reverse Engineering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../internals/certificate-unpinning-app/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Certificate Pinning Bypass (APP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../internals/certificate-unpinning-bot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Certificate Pinning Bypass (BOT)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../internals/certificate-unpinning-goat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Certificate Pinning Bypass (GOAT)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6">
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/dev-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/MVladislav/bumper/actions" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing &amp; CI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../origins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Origins &amp; Credits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#recommended-opnsense-unbound-dns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔧 Recommended: OPNsense + Unbound DNS
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alternative-dnsmasq-pi-hole" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📦 Alternative: dnsmasq / Pi-hole
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes-on-domain-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📋 Notes on Domain Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📋 Notes on Domain Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#replacement-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Replacement Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#known-domains" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        💡 Known Domains
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="💡 Known Domains">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#domains-with-known-ips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Domains with Known IPs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#current-domains-with-tls-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current Domains with TLS Errors
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📚 Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="dns-configuration-for-bumper">DNS Configuration for Bumper</h1>
+<p>To intercept and redirect traffic from Ecovacs robots and the official app to
+your local <strong>Bumper</strong> server, configure your network’s DNS resolver to override
+specific Ecovacs domains to your server’s IP.</p>
+<hr>
+<h2 id="recommended-opnsense-unbound-dns">🔧 Recommended: OPNsense + Unbound DNS</h2>
+<p>If you're using OPNsense as your router/firewall, Unbound DNS is the default resolver.
+Override domain resolution by adding Host Overrides:</p>
+<ol>
+<li><strong>Login</strong> to the OPNsense web interface.</li>
+<li>Navigate to <strong>Services → Unbound DNS → Overrides</strong>.</li>
+<li>Under <strong>Host Overrides</strong>, click <strong>Add</strong> and set:<ul>
+<li><strong>Host</strong>: <code>*</code></li>
+<li><strong>Domain</strong>: <code>ecouser.net</code></li>
+<li><strong>IP</strong>: <code>&lt;BUMPER_SERVER_IP&gt;</code> (e.g. <code>192.168.1.100</code>)</li>
+</ul>
+</li>
+<li>Repeat for each domain pattern:<ul>
+<li><code>*.ecouser.com</code></li>
+<li><code>*.ecovacs.com</code></li>
+<li><code>*.ecouser.net</code></li>
+<li><code>*.ecovacs.net</code></li>
+</ul>
+</li>
+<li>Click <strong>Apply</strong> to reload Unbound.</li>
+</ol>
+<blockquote>
+<p>These wildcard entries catch all subdomains under the specified domain.</p>
+</blockquote>
+<hr>
+<h2 id="alternative-dnsmasq-pi-hole">📦 Alternative: dnsmasq / Pi-hole</h2>
+<p>If you're using DNSMasq directly or via Pi-hole, create a custom config file:</p>
+<div class="highlight"><pre><span></span><code>/etc/dnsmasq.d/02-bumper.conf
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>address=/ecouser.com/&lt;BUMPER_SERVER_IP&gt;
+address=/ecouser.net/&lt;BUMPER_SERVER_IP&gt;
+address=/ecovacs.com/&lt;BUMPER_SERVER_IP&gt;
+address=/ecovacs.net/&lt;BUMPER_SERVER_IP&gt;
+</code></pre></div>
+<p>Replace <code>&lt;BUMPER_SERVER_IP&gt;</code> with your server’s local IP (e.g. <code>192.168.1.100</code>).</p>
+<p><strong>Apply changes:</strong></p>
+<ul>
+<li><strong>dnsmasq</strong>: <code>sudo systemctl reload dnsmasq</code></li>
+<li><strong>Pi-hole</strong>: <code>pihole restartdns</code> or via the web UI</li>
+</ul>
+<hr>
+<h2 id="notes-on-domain-patterns">📋 Notes on Domain Patterns</h2>
+<p>If overriding DNS for top-level domains (like <code>*.ecovacs.com</code>) isn’t supported in your DNS setup,
+you’ll need to manually configure your router or DNS resolver to forward each relevant subdomain used by the app or robot to your <strong>Bumper</strong> server.</p>
+<p>EcoVacs robots and the companion app connect to a variety of domains depending on the country or region selected during setup.
+The Bumper project doesn’t care which exact domain is used—as long as the request is forwarded, it will be intercepted correctly.</p>
+<blockquote>
+<p>🧠 The app dynamically retrieves its domain list from the endpoint:<br>
+<code>https://{region}.ecouser.net/api/appsvr/service/list</code><br>
+This means the required domains may vary across models, regions, and firmware versions.</p>
+</blockquote>
+<h3 id="replacement-examples">Replacement Examples</h3>
+<p>Most domains follow patterns based on country or region codes:</p>
+<ul>
+<li><code>{countrycode}</code><ul>
+<li>If you see <code>eco-{countrycode}-api.ecovacs.com</code> and you're in the US or North America, it would be:
+  <code>eco-us-api.ecovacs.com</code></li>
+<li><strong>Note:</strong> <code>{countrycode}</code> may also be general region codes like <code>EU</code>, <code>WW</code>, or <code>CN</code>.</li>
+</ul>
+</li>
+<li><code>{region}</code><ul>
+<li>If you see <code>portal-{region}.ecouser.net</code> and you're in North America, use:
+  <code>portal-na.ecouser.net</code></li>
+<li><strong>Note:</strong> <code>{region}</code> values may also include <code>eu</code>, <code>cn</code>, or <code>ww</code>.</li>
+</ul>
+</li>
+</ul>
+<h3 id="summary">Summary</h3>
+<ul>
+<li>✅ <strong>If your DNS supports wildcard or full-domain overrides</strong>, use them to catch all subdomains at once.</li>
+<li>❌ <strong>If it does not</strong>, you must manually define each used domain/subdomain to ensure proper redirection.</li>
+</ul>
+<hr>
+<h2 id="known-domains">💡 Known Domains</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Address</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>lb-{countrycode}.ecovacs.net</code></td>
+<td style="text-align: left;">Load-balancer checked by the app/robot</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>lb-{countrycode}.ecouser.net</code></td>
+<td style="text-align: left;">Load-balancer checked by the app/robot</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>lbus.ecouser.net</code></td>
+<td style="text-align: left;">Load-balancer checked by the app/robot</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>lb{countrycode}.ecouser.net</code></td>
+<td style="text-align: left;">Load-balancer checked by the app/robot</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>eco-{countrycode}-api.ecovacs.com</code></td>
+<td style="text-align: left;">Used for login</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>gl-{countrycode}-api.ecovacs.com</code></td>
+<td style="text-align: left;">Used by EcoVacs Home app</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>gl-{countrycode}-openapi.ecovacs.com</code></td>
+<td style="text-align: left;">Used by EcoVacs Home app</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>portal.ecouser.net</code></td>
+<td style="text-align: left;">Used for login and REST API</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>portal-{countrycode}.ecouser.net</code></td>
+<td style="text-align: left;">Used for login and REST API</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>portal-{region}.ecouser.net</code></td>
+<td style="text-align: left;">Used for login and REST API</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>portal-ww.ecouser.net</code></td>
+<td style="text-align: left;">Used for various REST APIs</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>msg-{countrycode}.ecouser.net</code></td>
+<td style="text-align: left;">Used for XMPP</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>msg-{region}.ecouser.net</code></td>
+<td style="text-align: left;">Used for XMPP</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>msg-ww.ecouser.net</code></td>
+<td style="text-align: left;">Used for XMPP</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>mq-{countrycode}.ecouser.net</code></td>
+<td style="text-align: left;">Used for MQTT</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>mq-{region}.ecouser.net</code></td>
+<td style="text-align: left;">Used for MQTT</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>mq-ww.ecouser.net</code></td>
+<td style="text-align: left;">Used for MQTT</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>recommender.ecovacs.com</code></td>
+<td style="text-align: left;">Used by EcoVacs Home app</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>bigdata-international.ecovacs.com</code></td>
+<td style="text-align: left;">Telemetry/tracking</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>bigdata-northamerica.ecovacs.com</code></td>
+<td style="text-align: left;">Telemetry/tracking</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>bigdata-europe.ecovacs.com</code></td>
+<td style="text-align: left;">Telemetry/tracking</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>bigdata-{unknown regions}.ecovacs.com</code></td>
+<td style="text-align: left;">Telemetry/tracking</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>api-app.ww.ecouser.net</code></td>
+<td style="text-align: left;">App v2+ API</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>api-app.dc-{region}.ww.ecouser.net</code></td>
+<td style="text-align: left;">App v2+ API</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>users-base.dc-{region}.ww.ecouser.net</code></td>
+<td style="text-align: left;">App v2+ accounts</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>jmq-ngiot-{region}.dc.ww.ecouser.net</code></td>
+<td style="text-align: left;">App v2+ MQTT</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>api-rop.dc-{region}.ww.ecouser.net</code></td>
+<td style="text-align: left;">App v2+ API</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>jmq-ngiot-{region}.area.ww.ecouser.net</code></td>
+<td style="text-align: left;">App v2+ MQTT</td>
+</tr>
+</tbody>
+</table>
+<h3 id="domains-with-known-ips">Domains with Known IPs</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Domain</th>
+<th style="text-align: left;">IP</th>
+<th style="text-align: left;">Port</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">api-app.dc-as.ww.ecouser.net</td>
+<td style="text-align: left;">13.213.212.149</td>
+<td style="text-align: left;">443</td>
+</tr>
+<tr>
+<td style="text-align: left;">api-app.dc-eu.ww.ecouser.net</td>
+<td style="text-align: left;">52.58.74.156</td>
+<td style="text-align: left;">443</td>
+</tr>
+<tr>
+<td style="text-align: left;">api-app.ww.ecouser.net</td>
+<td style="text-align: left;">52.58.74.156</td>
+<td style="text-align: left;">443</td>
+</tr>
+<tr>
+<td style="text-align: left;">portal-ww.ecouser.net</td>
+<td style="text-align: left;">3.68.172.231</td>
+<td style="text-align: left;">443</td>
+</tr>
+<tr>
+<td style="text-align: left;">users-base.dc-eu.ww.ecouser.net</td>
+<td style="text-align: left;">52.58.74.156</td>
+<td style="text-align: left;">443</td>
+</tr>
+<tr>
+<td style="text-align: left;">jmq-ngiot-eu.dc.ww.ecouser.net</td>
+<td style="text-align: left;">3.127.110.57</td>
+<td style="text-align: left;">8883</td>
+</tr>
+<tr>
+<td style="text-align: left;">msg-eu.ecouser.net</td>
+<td style="text-align: left;">18.196.130.16</td>
+<td style="text-align: left;">5223</td>
+</tr>
+<tr>
+<td style="text-align: left;">api-base.robotww.ecouser.net</td>
+<td style="text-align: left;">13.56.199.251</td>
+<td style="text-align: left;">443</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">gl-de-api.ecovacs.com</td>
+<td style="text-align: left;">3.123.55.28</td>
+<td style="text-align: left;">443</td>
+</tr>
+<tr>
+<td style="text-align: left;">gl-de-api.ecovacs.com</td>
+<td style="text-align: left;">52.58.23.18</td>
+<td style="text-align: left;">443</td>
+</tr>
+<tr>
+<td style="text-align: left;">gl-de-openapi.ecovacs.com</td>
+<td style="text-align: left;">3.123.55.28</td>
+<td style="text-align: left;">443</td>
+</tr>
+<tr>
+<td style="text-align: left;">gl-us-api.ecovacs.com</td>
+<td style="text-align: left;">52.10.83.13</td>
+<td style="text-align: left;">443</td>
+</tr>
+<tr>
+<td style="text-align: left;">gl-us-api.ecovacs.com</td>
+<td style="text-align: left;">54.186.31.147</td>
+<td style="text-align: left;">443</td>
+</tr>
+<tr>
+<td style="text-align: left;">gl-us-pub.ecovacs.com</td>
+<td style="text-align: left;">108.138.7.23</td>
+<td style="text-align: left;">443</td>
+</tr>
+<tr>
+<td style="text-align: left;">gl-us-pub.ecovacs.com</td>
+<td style="text-align: left;">108.138.7.64</td>
+<td style="text-align: left;">443</td>
+</tr>
+<tr>
+<td style="text-align: left;">gl-us-pub.ecovacs.com</td>
+<td style="text-align: left;">13.224.222.120</td>
+<td style="text-align: left;">443</td>
+</tr>
+<tr>
+<td style="text-align: left;">recommender.ecovacs.com</td>
+<td style="text-align: left;">116.62.93.217</td>
+<td style="text-align: left;">443</td>
+</tr>
+<tr>
+<td style="text-align: left;">sa-eu-datasink.ecovacs.com</td>
+<td style="text-align: left;">18.193.135.83</td>
+<td style="text-align: left;">443</td>
+</tr>
+<tr>
+<td style="text-align: left;">sa-eu-datasink.ecovacs.com</td>
+<td style="text-align: left;">3.123.96.17</td>
+<td style="text-align: left;">443</td>
+</tr>
+<tr>
+<td style="text-align: left;">site-static.ecovacs.com</td>
+<td style="text-align: left;">13.32.27.60</td>
+<td style="text-align: left;">443</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">living-account.eu-central-1.aliyuncs.com</td>
+<td style="text-align: left;">8.211.2.91</td>
+<td style="text-align: left;">443</td>
+</tr>
+<tr>
+<td style="text-align: left;">sgp-sdk.openaccount.aliyun.com</td>
+<td style="text-align: left;">8.219.176.88</td>
+<td style="text-align: left;">443</td>
+</tr>
+</tbody>
+</table>
+<h3 id="current-domains-with-tls-errors">Current Domains with TLS Errors</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Domain</th>
+<th style="text-align: left;">IP</th>
+<th style="text-align: left;">Port</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">a2JaaxoKXLq.iot-as-mqtt.cn-shanghai.aliyuncs.com</td>
+<td style="text-align: left;">106.14.207.159</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">jmq-ngiot-na.dc.robotww.ecouser.net</td>
+<td style="text-align: left;">184.72.41.195</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">jmq-ngiot-eu.dc.robotww.ecouser.net</td>
+<td style="text-align: left;">63.176.16.162</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">public.itls.eu-central-1.aliyuncs.com</td>
+<td style="text-align: left;">8.209.119.138</td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>🧩 This list will grow as more regions and device behaviors are observed.<br>
+Monitor DNS traffic if your robot or app isn’t connecting as expected.</p>
+</blockquote>
+<hr>
+<h2 id="troubleshooting">🔍 Troubleshooting</h2>
+<ul>
+<li><strong>App won’t connect</strong>: Test overrides with <code>dig</code> or <code>nslookup</code> against your DNS server.</li>
+<li><strong>Partial redirects</strong>: Clear device DNS cache or reboot.</li>
+<li><strong>IPv6 issues</strong>: If your network uses IPv6, add AAAA records as well.</li>
+</ul>
+<hr>
+<h2 id="resources">📚 Resources</h2>
+<ul>
+<li><a href="https://docs.opnsense.org/manual/unbound.html">OPNsense Unbound Host Overrides</a></li>
+<li><a href="http://www.thekelleys.org.uk/dnsmasq/docs/dnsmasq-man.html#address">dnsmasq address configuration</a></li>
+<li><a href="https://docs.pi-hole.net/">Pi-hole documentation</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/MVladislav/bumper" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  
+<script id="init-glightbox">document.querySelectorAll('.glightbox').forEach(function(element) {
+    try {
+        var img = element.querySelector('img');
+        if (img && img.src) {
+            element.setAttribute('href', img.src);
+        } else {
+            console.log('No img element with src attribute found');
+        }
+    } catch (error) {
+        console.log('Error:', error);
+    }
+});
+const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script></body></html>
