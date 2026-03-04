@@ -160,6 +160,56 @@ Most domains follow patterns based on country or region codes:
 
 ---
 
+## 🔀 Port Redirect for Newer Robots (jmq-ngiot on port 443)
+
+Some newer robots (confirmed: **Deebot OZMO 920 series**) do **not** connect to Bumper
+on the standard MQTT port (8883). Instead, they connect on **port 443** using the
+`jmq-ngiot-{region}.area.ww.ecouser.net` hostname — likely to traverse firewalls that
+block non-standard ports.
+
+Because Bumper's MQTT broker listens on port 8883, these connections must be redirected
+with an `iptables` rule. The existing DNS wildcard and certificate SANs already cover
+this hostname — it is purely a port interception issue.
+
+**Add the redirect rule** (replace `<BOT_IP>` with your robot's local IP):
+
+```bash
+sudo iptables -t nat -A PREROUTING -s <BOT_IP> -p tcp --dport 443 -j REDIRECT --to-port 8883
+```
+
+**Remove the rule** (e.g. to restore normal cloud access):
+
+```bash
+sudo iptables -t nat -D PREROUTING -s <BOT_IP> -p tcp --dport 443 -j REDIRECT --to-port 8883
+```
+
+> **Note:** This rule is lost on reboot. To persist it, use `iptables-persistent`:
+> ```bash
+> sudo apt install iptables-persistent
+> sudo netfilter-persistent save
+> ```
+
+### How to find your robot's IP
+
+Check your router's DHCP client list, or run:
+
+```bash
+sudo arp-scan --localnet
+```
+
+### How to tell if your robot needs this redirect
+
+After DNS redirection is in place, power-cycle the robot and monitor traffic:
+
+```bash
+sudo tcpdump -i any -n "src host <BOT_IP> and (port 443 or port 8883)"
+```
+
+If you see connections on port **443** with no activity on port **8883**, your robot
+needs this redirect rule.
+
+---
+
 ## 🔍 Troubleshooting
 
 - **App won’t connect**: Test overrides with `dig` or `nslookup` against your DNS server.
