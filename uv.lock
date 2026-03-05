@@ -259,7 +259,7 @@ requires-dist = [
     { name = "aiohttp-jinja2", specifier = "==1.6" },
     { name = "aiomqtt", specifier = "==2.5.0" },
     { name = "amqtt", specifier = "==0.11.3" },
-    { name = "cachetools", specifier = "==7.0.0" },
+    { name = "cachetools", specifier = "==7.0.2" },
     { name = "coloredlogs", specifier = "==15.0.1" },
     { name = "cryptography", specifier = "==46.0.4" },
     { name = "defusedxml", specifier = "==0.8.0rc2" },
@@ -301,11 +301,11 @@ docs = [
 
 [[package]]
 name = "cachetools"
-version = "7.0.0"
+version = "7.0.2"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/98/af/df70e9b65bc77a1cbe0768c0aa4617147f30f8306ded98c1744bcdc0ae1e/cachetools-7.0.0.tar.gz", hash = "sha256:a9abf18ff3b86c7d05b27ead412e235e16ae045925e531fae38d5fada5ed5b08", size = 35796, upload-time = "2026-02-01T18:59:47.411Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/6c/c7/342b33cc6877eebc6c9bb45cb9f78e170e575839699f6f3cc96050176431/cachetools-7.0.2.tar.gz", hash = "sha256:7e7f09a4ca8b791d8bb4864afc71e9c17e607a28e6839ca1a644253c97dbeae0", size = 36983, upload-time = "2026-03-02T19:45:16.926Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/28/df/2dd32cce20cbcf6f2ec456b58d44368161ad28320729f64e5e1d5d7bd0ae/cachetools-7.0.0-py3-none-any.whl", hash = "sha256:d52fef60e6e964a1969cfb61ccf6242a801b432790fe520d78720d757c81cbd2", size = 13487, upload-time = "2026-02-01T18:59:45.981Z" },
+    { url = "https://files.pythonhosted.org/packages/ef/04/4b6968e77c110f12da96fdbfcb39c6557c2e5e81bd7afcf8ed893d5bc588/cachetools-7.0.2-py3-none-any.whl", hash = "sha256:938dcad184827c5e94928c4fd5526e2b46692b7fb1ae94472da9131d0299343c", size = 13793, upload-time = "2026-03-02T19:45:15.495Z" },
 ]
 
 [[package]]
