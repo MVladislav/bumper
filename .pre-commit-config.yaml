@@ -73,7 +73,7 @@ repos:
           - --exclude-files=bumper/web/static_api/updateCheck.json
           - --exclude-files=tests/*
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.30.0
+    rev: v8.30.1
     hooks:
       - id: gitleaks
 
@@ -94,7 +94,7 @@ repos:
 
   # Python-specific hooks ######################################################
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.5
+    rev: v0.15.6
     hooks:
       - id: ruff-check
         args:
