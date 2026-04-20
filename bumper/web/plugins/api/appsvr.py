@@ -6,6 +6,7 @@ import json
 import logging
 import secrets
 from typing import Any
+from urllib.parse import parse_qs, urlparse
 
 from aiohttp import web
 from aiohttp.web_exceptions import HTTPInternalServerError
@@ -131,7 +132,54 @@ async def _handle_app_do(request: Request) -> Response:
                 },
             )
 
-        # if todo =="DecodeQrCode": # TODO: implement (add bot per qrcode)
+        if todo == "DecodeQrCode":
+            qrcode = post_body.get("qrcode", "")
+            if not isinstance(qrcode, str):
+                return response_success_v2(data={})
+
+            qrcode_q = parse_qs(urlparse(qrcode).query)
+            sn = qrcode_q.get("sn", [None])[0]
+            mid = qrcode_q.get("mid", [None])[0]
+            if not isinstance(sn, str) and not isinstance(mid, str):
+                return response_success_v2(data={})
+
+            robot = None
+            product_category = None
+            for botprod in get_product_iot_map():
+                if botprod["classid"] != mid:
+                    continue
+                name = botprod.get("product", {}).get("name")
+                robot = _get_config_groups_robot(value=name, key="groupName")
+                product_category = _get_product_category(device_name=name, robot=robot)
+                if robot:
+                    robot["mid"] = mid
+                    robot["customSteps"] = robot.pop("cusSteps")
+                    robot["name"] = robot.pop("groupName")
+                    robot.pop("groupId")
+                    robot.pop("service")
+                    robot.pop("products")
+                    robot.pop("smartTypes")
+                    robot.pop("icon")
+                    robot.pop("sort")
+                break
+
+            base_url = f"https://api-app.{bumper_isc.DOM_SUB_1}ecouser.net/api/pim"
+            return response_success_v2(
+                data={
+                    "supportApp": "global",
+                    "belongApp": ["ecoglobal", "yeedi"],
+                    "supportRegion": "International",
+                    "qrType": "config",
+                    "productCategory": product_category,
+                    "code_sn": sn,
+                    "configGuide": robot,
+                    "configFAQ": {
+                        "wifiFAQUrl": f"{base_url}/faqproblem.html?lang=en&defaultLang=iotclient_lang_english",
+                        "notFoundAPUrl": f"{base_url}/findDbWifi.html?lang=en&defaultLang=iotclient_lang_english",
+                        "configFailedUrl": f"{base_url}/configfail.html?lang=en&defaultLang=iotclient_lang_english",
+                    },
+                },
+            )
 
         _LOGGER.warning(f"todo is not know :: {todo!s}")
         return response_error_v5()
