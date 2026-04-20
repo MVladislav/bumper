@@ -158,28 +158,33 @@ This script:
 import time
 import serial
 
-uart_port = "/dev/ttyACM0"   # CHANGE THIS
+uart_port = "/dev/ttyACM0" # CHANGE THIS
 baud_rate = 115200
 # userdata partition index (0x10 → mmc 0:10)
 dev_part = 10
+address = 0xC2600000
 
 # Replace with your own PEM certificate
 pem = """-----BEGIN CERTIFICATE-----
 <YOUR CERTIFICATE HERE>
 -----END CERTIFICATE-----"""
 
-address = 0xC2600000
-size = 0
+data = pem.encode("utf-8")
+size = len(data)
 commands = []
-for line in pem.splitlines():
-    for c in line:
-        commands.append(f"mw.b {address:#010x} 0x{ord(c):02x} 1")
-        address += 1
-        size += 1
-    commands.append(f"mw.b {address:#010x} 0x0a 1")
-    address += 1
-    size += 1
+i = 0
+while i + 4 <= size:
+    word = int.from_bytes(data[i : i + 4], "little")
+    commands.append(f"mw.l {address:#010x} 0x{word:08x} 1")
+    address += 4
+    i += 4
 
+while i < size:
+    commands.append(f"mw.b {address:#010x} 0x{data[i]:02x} 1")
+    address += 1
+    i += 1
+
+ser = None
 try:
     ser = serial.serial_for_url(
         uart_port,
@@ -198,15 +203,15 @@ try:
     ser.open()
     time.sleep(2)
     print(f"Connected to {uart_port} at {baud_rate} baud.")
+    print("Writing... (takes time)")
     for cmd in commands:
         ser.write(cmd.encode("utf-8") + b"\n")
         ser.flush()
-        print(f"Sent: {cmd}")
-        time.sleep(0.01)
+        time.sleep(0.005)
 except serial.SerialException as e:
     print(f"UART error: {e}")
 finally:
-    if ser.is_open:
+    if ser and ser.is_open:
         ser.close()
         print("UART connection closed.")
 
