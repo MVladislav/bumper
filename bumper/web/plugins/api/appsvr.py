@@ -24,7 +24,6 @@ from bumper.web.static_api import (
     get_codepush_update_check,
     get_codepush_update_check_mapping,
     get_config_groups_response,
-    get_product_config_batch,
     get_product_iot_map,
 )
 from bumper.web.utils.models import VacBotDevice
@@ -403,6 +402,8 @@ def _include_product_iot_map_info(bot: VacBotDevice) -> dict[str, Any] | None:
         result.pop("mqtt_connection")
         result.pop("xmpp_connection")
 
+        robot = _get_config_groups_robot(result.get("class"))
+
         if (botprod_invent := botprod.get("product")) is not None:
             result["pid"] = botprod_invent["_id"]
             result["materialNo"] = botprod_invent["materialNo"]
@@ -411,7 +412,45 @@ def _include_product_iot_map_info(bot: VacBotDevice) -> dict[str, Any] | None:
             result["UILogicId"] = botprod_invent["UILogicId"]
             result["ota"] = botprod_invent["ota"]
             result["icon"] = botprod_invent["iconUrl"]
-            result["product_category"] = "DEEBOT" if botprod_invent["name"].startswith("DEEBOT") else "UNKNOWN"
+
+            if not robot:
+                # some class-id's are not located inside 'configGroupsResponse', fallback to 'groupName'
+                robot = _get_config_groups_robot(value=result.get("deviceName"), key="groupName")
+            result["product_category"] = _get_product_category(botprod_invent["name"], robot)
+
+            result["scode"] = {"battery": True}
+            smart_type: str | None = botprod_invent.get("smartType")
+            if smart_type and smart_type.startswith("MQ"):  # MQ_AP|MQ_APM
+                result["scode"].update(
+                    {
+                        "tmallstand": True,
+                        "video": True,
+                        "clean": True,
+                        "charge": True,
+                        "chargestate": True,
+                    },
+                )
+            elif smart_type and smart_type.startswith("BLAP"):  # BLAP|BLAP2|BLAPG
+                result["scode"].update(
+                    {
+                        "appArchVer": "2.0",
+                        "bt_mode": True,
+                        "ff_mode": True,
+                        "fwPlat": "DZ",
+                    },
+                )
+                result["btName"] = ""  # TODO: find logic where to get source from
+                result["btMac"] = ""  # TODO: find logic where to get source from
+            else:  # BT|HK_AP|QRP|SPA
+                result["scode"].update(
+                    {
+                        "tmallstand": False,
+                        "video": False,
+                        "clean": True,
+                        "charge": True,
+                        "chargestate": True,
+                    },
+                )
 
         result["status"] = 1 if bot.mqtt_connection or bot.xmpp_connection else 0
 
@@ -424,36 +463,13 @@ def _include_product_iot_map_info(bot: VacBotDevice) -> dict[str, Any] | None:
         result["homeId"] = bumper_isc.HOME_ID
         result["homeSort"] = 1
 
-        if bot.mqtt_connection:
-            result["bindTs"] = utils.get_current_time_as_millis()
-            result["offmap"] = True
+        result["bindTs"] = utils.get_current_time_as_millis()
+        result["offmap"] = True  # TODO: is this still needed/used?
 
-            product_config_batch: list[dict[str, Any]] = get_product_config_batch()
-
-            result["scode"] = {
-                "tmallstand": False,
-                "video": False,
-                "battery": True,
-                "clean": True,
-                "charge": True,
-                "chargestate": True,
-            }
-            for product_config in product_config_batch:
-                if botprod_invent and botprod_invent["_id"] == product_config.get("pid", ""):
-                    result["scode"] = {
-                        "tmallstand": product_config.get("tmallstand", False),
-                        "video": product_config.get("video", False),
-                        "battery": product_config.get("battery", True),
-                        "clean": product_config.get("clean", True),
-                        "charge": product_config.get("charge", True),
-                        "chargestate": product_config.get("", True),
-                    }
-                    break
-
-            result["service"] = {
-                "jmq": f"jmq-ngiot-eu.{bumper_isc.DOM_SUB_2}{bumper_isc.DOMAIN_MAIN}",
-                "mqs": f"api-ngiot.{bumper_isc.DOM_SUB_1}{bumper_isc.DOMAIN_MAIN}",
-            }
+        result["service"] = {
+            "jmq": f"jmq-ngiot-eu.{bumper_isc.DOM_SUB_2}{bumper_isc.DOMAIN_MAIN}",
+            "mqs": f"api-ngiot.{bumper_isc.DOM_SUB_1}{bumper_isc.DOMAIN_MAIN}",
+        }
 
         return result
     return None
@@ -549,3 +565,32 @@ def get_codepush_update_check_data(request: Request) -> dict[str, Any]:
         },
     )
     return response
+
+
+def _get_config_groups_robot(value: str | None, key: str = "mid") -> dict[str, Any] | None:
+    if not value:
+        return None
+
+    for group in get_config_groups_response():
+        robots: list[dict[str, Any]] = group.get("robots", [])
+        for robot in robots:
+            if robot.get(key) == value:
+                return robot
+    return None
+
+
+def _get_product_category(device_name: str, robot: dict[str, Any] | None) -> str:
+    if robot:
+        category: str = robot.get("category", "UNKNOWN")
+        return category
+    if device_name.startswith("DEEBOT"):
+        return "DEEBOT"
+    if device_name.startswith("GOAT"):
+        return "GOATBOT"
+    # if device_name.startswith("AIRBOT"):
+    #     return "AIRBOT"
+    # if device_name.startswith("ATMOBOT"):
+    #     return "AIRBOT"
+    # if device_name.startswith("WINBOT"):
+    #     return "WINBOT"
+    return "UNKNOWN"
