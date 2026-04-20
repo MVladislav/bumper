@@ -23,6 +23,7 @@ RAW_DOMAINS: list[str] = [
     "a1zYhiMF5J3.iot-as-mqtt.cn-shanghai.aliyuncs.com",
     "mpush-api.aliyun.com",
     "sdk.openaccount.aliyun.com",
+    "api.link.aliyun.com",
     "itls.eu-central-1.aliyuncs.com",
     "eu-central-1.aliyuncs.com",
     # Ecovacs robot domains
