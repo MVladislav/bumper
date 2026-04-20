@@ -77,6 +77,12 @@ def get_codepush_update_check() -> dict[str, Any]:
 
 
 @cache
+def get_codepush_update_check_mapping() -> dict[str, Any]:
+    """Get codepush update check mapping json."""
+    return load_json_object_files("updateCheck_mapping.json", get_static_dir())
+
+
+@cache
 def get_base_station_guide_newton_curi() -> str:
     """Get base station guide newton curi."""
     return load_text_files("BaseStationGuideNewtonCuri.html", get_static_dir())

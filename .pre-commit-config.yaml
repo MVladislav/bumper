@@ -71,6 +71,7 @@ repos:
           - --exclude-files=bumper/web/static_api/productEntryGroup.json
           - --exclude-files=bumper/web/static_api/productIotMap.json
           - --exclude-files=bumper/web/static_api/productIotMapUnofficial.json
+          - --exclude-files=bumper/web/static_api/updateCheck_mapping.json
           - --exclude-files=bumper/web/static_api/updateCheck.json
           - --exclude-files=tests/*
   - repo: https://github.com/gitleaks/gitleaks

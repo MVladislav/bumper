@@ -19,7 +19,14 @@ from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
 from bumper.web import auth_service
 from bumper.web.plugins import WebserverPlugin
-from bumper.web.static_api import get_code_push_config, get_config_groups_response, get_product_config_batch, get_product_iot_map
+from bumper.web.static_api import (
+    get_code_push_config,
+    get_codepush_update_check,
+    get_codepush_update_check_mapping,
+    get_config_groups_response,
+    get_product_config_batch,
+    get_product_iot_map,
+)
 from bumper.web.utils.models import VacBotDevice
 from bumper.web.utils.response_helper import response_error_v5, response_success_v2, response_success_v3, response_success_v4
 
@@ -48,6 +55,7 @@ class AppsvrPlugin(WebserverPlugin):
             web.route("*", "/appsvr/akvs/start_watch", _handle_akvs_start_watch),
             # web.route("*", "/appsvr/akvs/end_watch", _handle_akvs_end_watch), # TODO: implement
             web.route("*", "/appsvr/product/getConfigGroups", _handle_get_config_groups),
+            web.route("*", "/appsvr/codepush/checkupdate", _handle_codepush_update_check),
         ]
 
 
@@ -490,9 +498,9 @@ async def _handle_get_config_groups(_: Request) -> Response:
             msg="success",
             result_key="configFAQ",
             result={
-                "wifiFAQUrl": "https://portal-ww.ecouser.net/api/pim/faqproblem.html?lang=en&defaultLang=en",
-                "notFoundAPUrl": "https://portal-ww.ecouser.net/api/pim/findDbWifi.html?lang=en&defaultLang=en",
-                "configFailedUrl": "https://portal-ww.ecouser.net/api/pim/configfail.html?lang=en&defaultLang=en",
+                "wifiFAQUrl": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/faqproblem.html?lang=en&defaultLang=en",
+                "notFoundAPUrl": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/findDbWifi.html?lang=en&defaultLang=en",
+                "configFailedUrl": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/configfail.html?lang=en&defaultLang=en",
             },
             data_key="data",
             data=get_config_groups_response(),
@@ -500,3 +508,44 @@ async def _handle_get_config_groups(_: Request) -> Response:
     except Exception:
         _LOGGER.exception(utils.default_exception_str_builder(info="during handling request"))
     raise HTTPInternalServerError
+
+
+async def _handle_codepush_update_check(request: Request) -> Response:
+    """CodePush Update check."""
+    return response_success_v3(data=get_codepush_update_check_data(request))
+
+
+def get_codepush_update_check_data(request: Request) -> dict[str, Any]:
+    """Get CodePush Update check Data."""
+    deployment_key = request.query.get("deployment_key", "")
+    label = request.query.get("label", "")
+    package_hash = request.query.get("package_hash", "")
+    package_name = request.query.get("package_name", None)
+    app_version = request.query.get("app_version", "1.0.0")
+    deployment_name = request.query.get("deployment_name", "Production")
+
+    if deployment_key == "" and package_name:
+        deployment_key = get_codepush_update_check_mapping().get(package_name, "")
+
+    response: dict[str, Any] = get_codepush_update_check().get(
+        deployment_key,
+        {
+            "update_info": {
+                "download_url": "",
+                "description": "",
+                "is_available": False,
+                "is_disabled": True,
+                "target_binary_range": app_version,
+                "label": label,
+                "package_hash": package_hash,
+                "package_size": 0,
+                "should_run_binary_version": False,
+                "update_app_version": False,
+                "is_mandatory": False,
+                "deployment_key": deployment_key,
+                "deployment_name": deployment_name,
+                "publish_time": 0,
+            },
+        },
+    )
+    return response
