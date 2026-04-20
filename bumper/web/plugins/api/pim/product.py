@@ -13,12 +13,14 @@ from aiohttp.web_response import Response
 from aiohttp.web_routedef import AbstractRouteDef
 
 from bumper.utils import utils
+from bumper.utils.settings import config as bumper_isc
 from bumper.web.plugins import WebserverPlugin
 from bumper.web.static_api import (
     get_bot_image_path,
     get_config_groups_response,
     get_config_net_all_response,
     get_product_config_batch,
+    get_product_entry_group,
     get_product_iot_map,
 )
 from bumper.web.utils.response_helper import response_success_v3, response_success_v4
@@ -39,6 +41,7 @@ class ProductPlugin(WebserverPlugin):
             web.route("POST", "/product/software/config/batch", _handle_config_batch),
             web.route("POST", "/product/getShareInfo", _handle_get_share_info),
             web.route("GET", "/product/image", _get_bot_image),
+            web.route("GET", "/product/entry/group", _get_entry_group),
         ]
 
 
@@ -55,9 +58,9 @@ async def _handle_get_config_net_all(_: Request) -> Response:
         msg="success",
         result_key="configFAQ",
         result={
-            "wifiFAQUrl": "https://portal-ww.ecouser.net/api/pim/faqproblem.html?lang=en&defaultLang=en",
-            "notFoundAPUrl": "https://portal-ww.ecouser.net/api/pim/findDbWifi.html?lang=en&defaultLang=en",
-            "configFailedUrl": "https://portal-ww.ecouser.net/api/pim/configfail.html?lang=en&defaultLang=en",
+            "wifiFAQUrl": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/faqproblem.html?lang=en&defaultLang=en",
+            "notFoundAPUrl": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/findDbWifi.html?lang=en&defaultLang=en",
+            "configFailedUrl": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/configfail.html?lang=en&defaultLang=en",
         },
         data_key="data",
         data=get_config_net_all_response(),
@@ -72,9 +75,9 @@ async def _handle_get_config_groups(_: Request) -> Response:
         msg="success",
         result_key="configFAQ",
         result={
-            "wifiFAQUrl": "https://portal-ww.ecouser.net/api/pim/faqproblem.html?lang=en&defaultLang=en",
-            "notFoundAPUrl": "https://portal-ww.ecouser.net/api/pim/findDbWifi.html?lang=en&defaultLang=en",
-            "configFailedUrl": "https://portal-ww.ecouser.net/api/pim/configfail.html?lang=en&defaultLang=en",
+            "wifiFAQUrl": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/faqproblem.html?lang=en&defaultLang=en",
+            "notFoundAPUrl": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/findDbWifi.html?lang=en&defaultLang=en",
+            "configFailedUrl": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/configfail.html?lang=en&defaultLang=en",
         },
         data_key="data",
         data=get_config_groups_response(),
@@ -119,3 +122,8 @@ async def _handle_get_share_info(request: Request) -> Response:
 async def _get_bot_image(_: Request) -> FileResponse:
     """Get generic image of bot."""
     return FileResponse(get_bot_image_path())
+
+
+async def _get_entry_group(_: Request) -> Response:
+    """Get entry group."""
+    return response_success_v3(data=get_product_entry_group())

@@ -1,0 +1,497 @@
+[
+  {
+    "id": "69732d43f3bc48df3fe53d92",
+    "hidden": 0,
+    "name": "DEEBOT",
+    "child": [
+      {
+        "id": "69732d43f3bc48df3fe53d93",
+        "hidden": 0,
+        "name": "X Family",
+        "child": [
+          {
+            "id": "694cda426beb165e6d5d3935",
+            "hidden": 0,
+            "name": "DEEBOT X12",
+            "child": []
+          },
+          {
+            "id": "680850adbc63a31653bed2ae",
+            "hidden": 0,
+            "name": "DEEBOT X11",
+            "child": []
+          },
+          {
+            "id": "67bd25980d79d6461a3411a0",
+            "hidden": 0,
+            "name": "DEEBOT X9",
+            "child": []
+          },
+          {
+            "id": "6694c21f6565026a747900f9",
+            "hidden": 0,
+            "name": "DEEBOT X8",
+            "child": []
+          },
+          {
+            "id": "65bb032ffe7a0055f4ff2f7a",
+            "hidden": 0,
+            "name": "DEEBOT X5",
+            "child": []
+          },
+          {
+            "id": "634e4a1a08f47c816be3706c",
+            "hidden": 0,
+            "name": "DEEBOT X2",
+            "child": []
+          },
+          {
+            "id": "616d208febea231561aa8fef",
+            "hidden": 0,
+            "name": "DEEBOT X1",
+            "child": []
+          }
+        ]
+      },
+      {
+        "id": "69732d43f3bc48df3fe53d94",
+        "hidden": 0,
+        "name": "T Family",
+        "child": [
+          {
+            "id": "69cc8d8d38d6518bccac5fc2",
+            "hidden": 1,
+            "name": "Deebot T90S Family",
+            "child": []
+          },
+          {
+            "id": "6951f3b8392b4baef4b573ff",
+            "hidden": 0,
+            "name": "DEEBOT T50S",
+            "child": []
+          },
+          {
+            "id": "68fed83c7f08da00da1b7287",
+            "hidden": 0,
+            "name": "DEEBOT T80S",
+            "child": []
+          },
+          {
+            "id": "68c13d230e8750ff29cd8b2d",
+            "hidden": 0,
+            "name": "DEEBOT T90",
+            "child": []
+          },
+          {
+            "id": "678dbd7aa9d37df0a712d607",
+            "hidden": 0,
+            "name": "DEEBOT T80",
+            "child": []
+          },
+          {
+            "id": "6687b155d0a28841a9f9967e",
+            "hidden": 0,
+            "name": "DEEBOT T50",
+            "child": []
+          },
+          {
+            "id": "652251367c33ed3c2a06a46a",
+            "hidden": 0,
+            "name": "DEEBOT T30",
+            "child": []
+          },
+          {
+            "id": "63b6a08ee328590978b61eff",
+            "hidden": 0,
+            "name": "DEEBOT T20",
+            "child": []
+          },
+          {
+            "id": "61a57555186b376f618cd94c",
+            "hidden": 0,
+            "name": "DEEBOT T10",
+            "child": []
+          },
+          {
+            "id": "5f8815a463b43d0008cdcbe9",
+            "hidden": 0,
+            "name": "DEEBOT OZMO T9",
+            "child": []
+          },
+          {
+            "id": "5f88158263b43d0008cdcbe7",
+            "hidden": 0,
+            "name": "DEEBOT T9",
+            "child": []
+          },
+          {
+            "id": "636082804b606f6ef7b84222",
+            "hidden": 0,
+            "name": "DEEBOT TEO",
+            "child": []
+          },
+          {
+            "id": "5de0d717d885460001952394",
+            "hidden": 0,
+            "name": "DEEBOT T8",
+            "child": []
+          },
+          {
+            "id": "5f87a93b63b43d0008cdcbc1",
+            "hidden": 0,
+            "name": "DEEBOT OZMO T8",
+            "child": []
+          },
+          {
+            "id": "69b8ba54cf3f9d35039d6a28",
+            "hidden": 0,
+            "name": "T30e Family",
+            "child": []
+          },
+          {
+            "id": "69b8bae8f99080d0f2997926",
+            "hidden": 0,
+            "name": "T30C Family",
+            "child": []
+          },
+          {
+            "id": "69c3a1b551247e76619bbb27",
+            "hidden": 1,
+            "name": "T30S Family",
+            "child": []
+          }
+        ]
+      },
+      {
+        "id": "69732d43f3bc48df3fe53d95",
+        "hidden": 0,
+        "name": "N Family",
+        "child": [
+          {
+            "id": "66ebd1969dd37cf0ca898c58",
+            "hidden": 0,
+            "name": "DEEBOT N50",
+            "child": []
+          },
+          {
+            "id": "65f7ea7d8f3dcaa1077431a7",
+            "hidden": 0,
+            "name": "DEEBOT N30",
+            "child": []
+          },
+          {
+            "id": "66d81d0214c9f70681041d4f",
+            "hidden": 0,
+            "name": "DEEBOT N20e",
+            "child": []
+          },
+          {
+            "id": "65f95254d8fcb78257aede2f",
+            "hidden": 0,
+            "name": "DEEBOT N20",
+            "child": []
+          },
+          {
+            "id": "61ada2b7b7b105456d53a66c",
+            "hidden": 0,
+            "name": "DEEBOT Neo",
+            "child": []
+          },
+          {
+            "id": "635b43c34b606f0b81b84173",
+            "hidden": 0,
+            "name": "DEEBOT N10",
+            "child": []
+          },
+          {
+            "id": "5fe547215f437d0008e0dffd",
+            "hidden": 0,
+            "name": "DEEBOT N9",
+            "child": []
+          },
+          {
+            "id": "5f729366827e030006b25b87",
+            "hidden": 0,
+            "name": "DEEBOT N8",
+            "child": []
+          },
+          {
+            "id": "5fa2421ad16a99000667eb8f",
+            "hidden": 0,
+            "name": "DEEBOT N7",
+            "child": []
+          },
+          {
+            "id": "5ec390e5a03e830571f682c1",
+            "hidden": 0,
+            "name": "DEEBOT N5S",
+            "child": []
+          }
+        ]
+      },
+      {
+        "id": "69732d43f3bc48df3fe53d96",
+        "hidden": 0,
+        "name": "MINI Family",
+        "child": [
+          {
+            "id": "6951f00e9f6a84464a5bdbdc",
+            "hidden": 0,
+            "name": "DEEBOT mini 2",
+            "child": []
+          },
+          {
+            "id": "67594accbc2c5d17e822b22a",
+            "hidden": 0,
+            "name": "DEEBOT mini",
+            "child": []
+          }
+        ]
+      },
+      {
+        "id": "69732d43f3bc48df3fe53d97",
+        "hidden": 0,
+        "name": "OZMO Family",
+        "child": [
+          {
+            "id": "5c19a743e916ba00019a4e32",
+            "hidden": 0,
+            "name": "DEEBOT OZMO",
+            "child": []
+          }
+        ]
+      },
+      {
+        "id": "69732d43f3bc48df3fe53d98",
+        "hidden": 0,
+        "name": "Other",
+        "child": [
+          {
+            "id": "673ab1330aca1654ca727908",
+            "hidden": 0,
+            "name": "DEEBOT EULAR",
+            "child": []
+          },
+          {
+            "id": "666bdc050e86033adca33215",
+            "hidden": 0,
+            "name": "Halley",
+            "child": []
+          },
+          {
+            "id": "662f38380324612ec029518f",
+            "hidden": 0,
+            "name": "DEEBOT MATE",
+            "child": []
+          },
+          {
+            "id": "65a09586fb98867e2e8d7b25",
+            "hidden": 0,
+            "name": "YEEDI Y1 ",
+            "child": []
+          },
+          {
+            "id": "654ca54f545c5f5f81782bf3",
+            "hidden": 0,
+            "name": "DEEBOT Y1",
+            "child": []
+          },
+          {
+            "id": "658bc2d8fb98867b7e8d7aa2",
+            "hidden": 1,
+            "name": "哥伦布系列",
+            "child": []
+          },
+          {
+            "id": "5c2599b6a1e6ee0001782328",
+            "hidden": 0,
+            "name": "DEEBOT",
+            "child": []
+          },
+          {
+            "id": "5cfdf5bdda73e90001dc3bb0",
+            "hidden": 0,
+            "name": "IBOTO",
+            "child": []
+          },
+          {
+            "id": "5da0158f1636240001f988e8",
+            "hidden": 0,
+            "name": "CLEANER",
+            "child": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "69732d43f3bc48df3fe53d9d",
+    "hidden": 0,
+    "name": "WINBOT",
+    "child": [
+      {
+        "id": "69732d43f3bc48df3fe53d9e",
+        "hidden": 1,
+        "name": "WINBOT_DEFAULT",
+        "child": [
+          {
+            "id": "697827d1fe7ffc8f5f3d3663",
+            "hidden": 0,
+            "name": "W3 Family",
+            "child": []
+          },
+          {
+            "id": "69cdda12b9a59463863a45e3",
+            "hidden": 0,
+            "name": "W2S PRO Family",
+            "child": []
+          },
+          {
+            "id": "697827e3fe7ffc8f5f3d3665",
+            "hidden": 0,
+            "name": "MINI2 Family",
+            "child": []
+          },
+          {
+            "id": "697827f2fe7ffc8f5f3d3669",
+            "hidden": 0,
+            "name": "W2S Family",
+            "child": []
+          },
+          {
+            "id": "697827ff195f334d3a74cd2e",
+            "hidden": 0,
+            "name": "MINI Family",
+            "child": []
+          },
+          {
+            "id": "69782808fe7ffc8f5f3d366e",
+            "hidden": 0,
+            "name": "W1S Family",
+            "child": []
+          },
+          {
+            "id": "69782812fe7ffc8f5f3d3670",
+            "hidden": 0,
+            "name": "W2 Family",
+            "child": []
+          },
+          {
+            "id": "6978281c195f334d3a74cd33",
+            "hidden": 0,
+            "name": "W1 Family",
+            "child": []
+          },
+          {
+            "id": "69782827195f334d3a74cd37",
+            "hidden": 0,
+            "name": "W920 Family",
+            "child": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "69732d43f3bc48df3fe53d9f",
+    "hidden": 0,
+    "name": "GOAT",
+    "child": [
+      {
+        "id": "69732d43f3bc48df3fe53da0",
+        "hidden": 1,
+        "name": "GOATBOT",
+        "child": [
+          {
+            "id": "6938d43f0c9e7692ab672a97",
+            "hidden": 0,
+            "name": "GOAT T",
+            "child": []
+          },
+          {
+            "id": "6837b7747bfa883dff9e9617",
+            "hidden": 0,
+            "name": "GOAT A",
+            "child": []
+          },
+          {
+            "id": "6837b3877bfa88dbe29e94a1",
+            "hidden": 0,
+            "name": "GOAT O",
+            "child": []
+          },
+          {
+            "id": "621c1dab45f43cc2239e8c39",
+            "hidden": 0,
+            "name": "GOAT",
+            "child": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "6976d5a68089b21c165919cb",
+    "hidden": 0,
+    "name": "MORE",
+    "child": [
+      {
+        "id": "69732d43f3bc48df3fe53d9a",
+        "hidden": 1,
+        "name": "AIRBOT",
+        "child": [
+          {
+            "id": "642520d579141d4c95ee3af3",
+            "hidden": 0,
+            "name": "AIRBOT Z2",
+            "child": []
+          },
+          {
+            "id": "5c4ac9df0d3a220001e2a70c",
+            "hidden": 0,
+            "name": "ATMOBOT",
+            "child": []
+          },
+          {
+            "id": "5fc48242c7260e0008585e2e",
+            "hidden": 0,
+            "name": "AIRBOT",
+            "child": []
+          },
+          {
+            "id": "5d2c5e76ba13eb00013feab4",
+            "hidden": 0,
+            "name": "Air Detector",
+            "child": []
+          }
+        ]
+      },
+      {
+        "id": "69732d43f3bc48df3fe53da2",
+        "hidden": 1,
+        "name": "POOLBOT",
+        "child": [
+          {
+            "id": "68c3cab413179e41144b0dac",
+            "hidden": 0,
+            "name": "POOL",
+            "child": []
+          }
+        ]
+      },
+      {
+        "id": "69732d43f3bc48df3fe53da4",
+        "hidden": 1,
+        "name": "FAMIBOT",
+        "child": [
+          {
+            "id": "691d375c8f65e65c9f1ed7a7",
+            "hidden": 0,
+            "name": "FAMIBOT",
+            "child": []
+          }
+        ]
+      }
+    ]
+  }
+]
