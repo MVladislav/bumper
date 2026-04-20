@@ -81,6 +81,7 @@ class WebServer:
                     web.post("/v0.1/public/codepush/report_status/deploy", single_paths.handle_codepush_report_status_deploy),
                     web.get("/v0.1/public/codepush/update_check", single_paths.handle_codepush_update_check),
                     web.post("/Global_APP_BuryPoint/api", single_paths.handle_global_app_bury_point_api),
+                    web.post("/Global_APP_BuryPoint/api/appevent", single_paths.handle_global_app_bury_point_api_appevent),
                     web.post("/biz-app-config/api/v2/chat_bot_id/config", single_paths.handle_chat_bot_id_config),
                     web.get("/content/agreement", single_paths.handle_content_agreement),
                 ],
