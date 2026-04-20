@@ -135,7 +135,12 @@ async def _handle_get_config(request: Request) -> Response:
                         ),
                     },
                 )
-            # TODO: elif key == "FIND.PASSWORD.FAQ.CONF":
+            elif key == "FIND.PASSWORD.FAQ.CONF":
+                data.append({"key": key, "value": "https://gl-US-wap.ecovacs.com/web/page?no=qp8mz4iv"})
+            elif key == "PASSWORD.STRENGTH.URL":
+                data.append({"key": key, "value": "https://gl-de-wap.ecovacs.com/web/page?no=4vkpuvpy"})
+            elif key == "SUGGESTION.DEFAULT.FLAG":
+                data.append({"key": key, "value": "Y"})
             else:
                 _LOGGER.warning(f"NEW CONFIG KEY :: {key} :: needs further investigation")
                 data.append({"key": key, "value": "Y"})
