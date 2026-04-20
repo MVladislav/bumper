@@ -240,6 +240,18 @@ async def handle_global_app_bury_point_api(_: Request) -> Response:
     )
 
 
+async def handle_global_app_bury_point_api_appevent(_: Request) -> Response:
+    """Global APP BuryPoint API app-event (/Global_APP_BuryPoint/api/appevent)."""
+    return web.json_response(
+        {
+            "header": {
+                "result_code": "000000",
+            },
+            "body": {},
+        },
+    )
+
+
 async def handle_chat_bot_id_config(_: Request) -> Response:
     """Handle chat bot ID config (/biz-app-config/api/v2/chat_bot_id/config)."""
     return response_success_v3(
