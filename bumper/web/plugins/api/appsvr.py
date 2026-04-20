@@ -276,7 +276,29 @@ async def _handle_app_config(request: Request) -> Response:
             },
         ]
 
-    # elif code == "globalapp_netcfg_h5_url_list":  # TODO: implement (add bot per qrcode)
+    elif code == "home_teamwork_entry":
+        data = []
+
+    elif code == "globalapp_netcfg_h5_url_list":
+        base_url = f"https://api-app.{bumper_isc.DOM_SUB_1}ecouser.net/app_adv/pim"
+        data = [
+            {
+                "resId": "642fc135604348000681bfd2",  # pragma: allowlist secret
+                "code": "globalapp_netcfg_h5_url_list",
+                "name": "globalapp Distribution Network Process H5",
+                "description": "globalapp URL of the HTML5 page used in the distribution network process",
+                "type": "json",
+                "content": {
+                    "network_setup": f"{base_url}/network_setup_preparation_by_series.html?t=network",
+                    "findqrcodenew": f"{base_url}/find_qrcode.html?t=findqrcodenew",
+                    "faqproblem": f"{base_url}/faq_problem_new.html?t=faqproblem",
+                    "autofind": f"{base_url}/active_discovery.html?t=autofind",
+                    "notFoundAPUrl": f"{base_url}/network_setup_preparation_by_series.html?_t=findDbWifi",
+                    "notFoundBTUrl": f"{base_url}/active_discovery.html?t=notFoundBTUrl",
+                    "viewWiFi": f"{base_url}/viewWiFi.html?t=viewWiFi",
+                },
+            },
+        ]
 
     if data is None:
         _LOGGER.error(f"code is not know :: {code}")
