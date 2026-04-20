@@ -9,7 +9,7 @@ specific Ecovacs domains to your server’s IP.
 ## 🔧 Recommended: OPNsense + Unbound DNS
 
 If you're using OPNsense as your router/firewall, Unbound DNS is the default resolver.
-Override domain resolution by adding Host Overrides:
+Override domain resolution by adding host overrides:
 
 1. **Login** to the OPNsense web interface.
 2. Navigate to **Services → Unbound DNS → Overrides**.
@@ -50,12 +50,23 @@ Replace `<BUMPER_SERVER_IP>` with your server’s local IP (e.g. `192.168.1.100`
 - **dnsmasq**: `sudo systemctl reload dnsmasq`
 - **Pi-hole**: `pihole restartdns` or via the web UI
 
+### ⚠️ Pi-hole v6 and `dnsmasq.d`
+
+Pi-hole v6 does **not** ingest custom configs in `/etc/dnsmasq.d/` by default; this behavior is disabled in FTL. [discourse.pi-hole](https://discourse.pi-hole.net/t/etc-dnsmasq-d-is-disabled-after-upgrading-to-v6/76059)
+You must explicitly re-enable it:
+
+- **ENV**: add as environment variable:
+    - `FTLCONF_misc.dnsmasq_d=true`
+- **Via GUI**: in the Pi-hole web UI, go to **Settings > All settings page - Miscellaneous** and enable the option.
+
+Without this, custom `02-bumper.conf`-style entries will be silently ignored, explaining why DNS redirects may appear not to work.
+
 ---
 
 ## 📋 Notes on Domain Patterns
 
 If overriding DNS for top-level domains (like `*.ecovacs.com`) isn’t supported in your DNS setup,
-you’ll need to manually configure your router or DNS resolver to forward each relevant subdomain used by the app or robot to your **Bumper** server.
+you’ll need to manually configure each relevant subdomain used by the app or robot to point to your **Bumper** server.
 
 EcoVacs robots and the companion app connect to a variety of domains depending on the country or region selected during setup.
 The Bumper project doesn’t care which exact domain is used—as long as the request is forwarded, it will be intercepted correctly.
@@ -69,9 +80,9 @@ The Bumper project doesn’t care which exact domain is used—as long as the re
 Most domains follow patterns based on country or region codes:
 
 - `{countrycode}`
-    - If you see `eco-{countrycode}-api.ecovacs.com` and you're in the US or North America, it would be:
+    - If you see `eco-{countrycode}-api.ecovacs.com` and you're in the US/North America, use:
       `eco-us-api.ecovacs.com`
-    - **Note:** `{countrycode}` may also be general region codes like `EU`, `WW`, or `CN`.
+    - **Note:** `{countrycode}` may also be region codes like `EU`, `WW`, or `CN`.
 - `{region}`
     - If you see `portal-{region}.ecouser.net` and you're in North America, use:
       `portal-na.ecouser.net`
@@ -86,36 +97,36 @@ Most domains follow patterns based on country or region codes:
 
 ## 💡 Known Domains
 
-| Address                                  | Description                            |
-| :--------------------------------------- | :------------------------------------- |
-| `lb-{countrycode}.ecovacs.net`           | Load-balancer checked by the app/robot |
-| `lb-{countrycode}.ecouser.net`           | Load-balancer checked by the app/robot |
-| `lbus.ecouser.net`                       | Load-balancer checked by the app/robot |
-| `lb{countrycode}.ecouser.net`            | Load-balancer checked by the app/robot |
-| `eco-{countrycode}-api.ecovacs.com`      | Used for login                         |
-| `gl-{countrycode}-api.ecovacs.com`       | Used by EcoVacs Home app               |
-| `gl-{countrycode}-openapi.ecovacs.com`   | Used by EcoVacs Home app               |
-| `portal.ecouser.net`                     | Used for login and REST API            |
-| `portal-{countrycode}.ecouser.net`       | Used for login and REST API            |
-| `portal-{region}.ecouser.net`            | Used for login and REST API            |
-| `portal-ww.ecouser.net`                  | Used for various REST APIs             |
-| `msg-{countrycode}.ecouser.net`          | Used for XMPP                          |
-| `msg-{region}.ecouser.net`               | Used for XMPP                          |
-| `msg-ww.ecouser.net`                     | Used for XMPP                          |
-| `mq-{countrycode}.ecouser.net`           | Used for MQTT                          |
-| `mq-{region}.ecouser.net`                | Used for MQTT                          |
-| `mq-ww.ecouser.net`                      | Used for MQTT                          |
-| `recommender.ecovacs.com`                | Used by EcoVacs Home app               |
-| `bigdata-international.ecovacs.com`      | Telemetry/tracking                     |
-| `bigdata-northamerica.ecovacs.com`       | Telemetry/tracking                     |
-| `bigdata-europe.ecovacs.com`             | Telemetry/tracking                     |
-| `bigdata-{unknown regions}.ecovacs.com`  | Telemetry/tracking                     |
-| `api-app.ww.ecouser.net`                 | App v2+ API                            |
-| `api-app.dc-{region}.ww.ecouser.net`     | App v2+ API                            |
-| `users-base.dc-{region}.ww.ecouser.net`  | App v2+ accounts                       |
-| `jmq-ngiot-{region}.dc.ww.ecouser.net`   | App v2+ MQTT                           |
-| `api-rop.dc-{region}.ww.ecouser.net`     | App v2+ API                            |
-| `jmq-ngiot-{region}.area.ww.ecouser.net` | App v2+ MQTT                           |
+| Address                                  | Description                        |
+| :--------------------------------------- | :--------------------------------- |
+| `lb-{countrycode}.ecovacs.net`           | Load-balancer checked by app/robot |
+| `lb-{countrycode}.ecouser.net`           | Load-balancer checked by app/robot |
+| `lbus.ecouser.net`                       | Load-balancer checked by app/robot |
+| `lb{countrycode}.ecouser.net`            | Load-balancer checked by app/robot |
+| `eco-{countrycode}-api.ecovacs.com`      | Used for login                     |
+| `gl-{countrycode}-api.ecovacs.com`       | Used by EcoVacs Home app           |
+| `gl-{countrycode}-openapi.ecovacs.com`   | Used by EcoVacs Home app           |
+| `portal.ecouser.net`                     | Used for login and REST API        |
+| `portal-{countrycode}.ecouser.net`       | Used for login and REST API        |
+| `portal-{region}.ecouser.net`            | Used for login and REST API        |
+| `portal-ww.ecouser.net`                  | Used for various REST APIs         |
+| `msg-{countrycode}.ecouser.net`          | Used for XMPP                      |
+| `msg-{region}.ecouser.net`               | Used for XMPP                      |
+| `msg-ww.ecouser.net`                     | Used for XMPP                      |
+| `mq-{countrycode}.ecouser.net`           | Used for MQTT                      |
+| `mq-{region}.ecouser.net`                | Used for MQTT                      |
+| `mq-ww.ecouser.net`                      | Used for MQTT                      |
+| `recommender.ecovacs.com`                | Used by EcoVacs Home app           |
+| `bigdata-international.ecovacs.com`      | Telemetry/tracking                 |
+| `bigdata-northamerica.ecovacs.com`       | Telemetry/tracking                 |
+| `bigdata-europe.ecovacs.com`             | Telemetry/tracking                 |
+| `bigdata-{unknown regions}.ecovacs.com`  | Telemetry/tracking                 |
+| `api-app.ww.ecouser.net`                 | App v2+ API                        |
+| `api-app.dc-{region}.ww.ecouser.net`     | App v2+ API                        |
+| `users-base.dc-{region}.ww.ecouser.net`  | App v2+ accounts                   |
+| `jmq-ngiot-{region}.dc.ww.ecouser.net`   | App v2+ MQTT                       |
+| `api-rop.dc-{region}.ww.ecouser.net`     | App v2+ API                        |
+| `jmq-ngiot-{region}.area.ww.ecouser.net` | App v2+ MQTT                       |
 
 ### Domains with Known IPs
 
@@ -155,16 +166,17 @@ Most domains follow patterns based on country or region codes:
 | jmq-ngiot-eu.dc.robotww.ecouser.net              | 63.176.16.162  |      |
 | public.itls.eu-central-1.aliyuncs.com            | 8.209.119.138  |      |
 
-> 🧩 This list will grow as more regions and device behaviors are observed.  
+> 🧩 This list will grow as more regions and device behaviors are observed.
 > Monitor DNS traffic if your robot or app isn’t connecting as expected.
 
 ---
 
 ## 🔍 Troubleshooting
 
-- **App won’t connect**: Test overrides with `dig` or `nslookup` against your DNS server.
-- **Partial redirects**: Clear device DNS cache or reboot.
-- **IPv6 issues**: If your network uses IPv6, add AAAA records as well.
+- **App won’t connect**: Test overrides with `dig` or `nslookup` against your DNS server to confirm the Ecovacs domains resolve to your Bumper IP.
+- **Partial redirects**: Clear used device DNS cache or reboot the robot and used device.
+- **IPv6 issues**: If your network uses IPv6, add corresponding AAAA records for each domain.
+- **Pi-hole v6 confusion ([#165](https://github.com/MVladislav/bumper/issues/165))**: If `02-bumper.conf` changes have no effect, verify that `FTLCONF_misc.dnsmasq_d=true` (or the GUI equivalent) is enabled so FTL consumes `/etc/dnsmasq.d/`. [discourse.pi-hole](https://discourse.pi-hole.net/t/etc-dnsmasq-d-is-disabled-after-upgrading-to-v6/76059)
 
 ---
 
@@ -173,3 +185,4 @@ Most domains follow patterns based on country or region codes:
 - [OPNsense Unbound Host Overrides](https://docs.opnsense.org/manual/unbound.html)
 - [dnsmasq address configuration](http://www.thekelleys.org.uk/dnsmasq/docs/dnsmasq-man.html#address)
 - [Pi-hole documentation](https://docs.pi-hole.net/)
+- [Pi-hole v6 + `dnsmasq.d` disablement workaround](https://discourse.pi-hole.net/t/etc-dnsmasq-d-is-disabled-after-upgrading-to-v6/76059)
