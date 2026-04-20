@@ -26,10 +26,10 @@ trap 'echo -e "\n🛑  Script interrupted."; exit 130' INT TERM
 # ─── CONFIG ──────────────────────────────────────────────────────────────────
 CURL_USER_AGENT='Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:129.0) Gecko/20100101 Firefox/129.0'
 IMAGE='python:3-slim'
-# APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?version=latest' # >= 3.11.0
+APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?version=latest' # >= 3.12.0
 # APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?versionCode=129&nc=armeabi-v7a' # 3.11.0
 # APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?versionCode=128&nc=armeabi-v7a' # 3.10.0
-APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?versionCode=127&nc=arm64-v8a' # 3.9.1
+# APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?versionCode=127&nc=arm64-v8a' # 3.9.1
 # APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?versionCode=126&nc=arm64-v8a' # 3.9.0
 # APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?versionCode=124&nc=arm64-v8a' # 3.8.0
 # APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?versionCode=123&nc=arm64-v8a' # 3.7.0

@@ -278,6 +278,437 @@
         "confirmText": "",
         "btnText": ""
       },
+      "occupy": {
+        "guideImageType": "lottie",
+        "guideImageId": "63f5dd48576335fe6bec7988",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/63f5dd48576335fe6bec7988"
+      },
+      "input_sn_img": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      }
+    },
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6411872416d2f20076fc1bba"
+  },
+  {
+    "groupId": "68f87c998737914bd747bfaf",
+    "sort": 0,
+    "groupName": "WINBOT W3 OMNI",
+    "isPopular": true,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BT",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "2.0.0",
+      "IOS": "2.0.0",
+      "Harmony": "2.0.0"
+    },
+    "smartTypes": ["BT"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "68f0b60f7414f8450ac65d77",
+        "title": "Power on the robot.",
+        "guideText": "Press and hold Station POWER button for 2 seconds to turn it on. Wait for startup jingle to end.",
+        "retryText": "",
+        "confirmText": "I've switched on the robot",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/68f0b60f7414f8450ac65d77"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {},
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/68ef33377414f8450ac65d69"
+  },
+  {
+    "groupId": "690b0742da823d4c46516ea5",
+    "sort": 0,
+    "groupName": "ULTRAMARINE P1",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BT",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.2.0",
+      "IOS": "3.2.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["BT"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "697af43dfe7ffc8f5f3d385b",
+        "title": "Power ON",
+        "guideText": "Press and hold the power button for 3 seconds to power on.",
+        "retryText": "",
+        "confirmText": "I've switched on the robot",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/697af43dfe7ffc8f5f3d385b"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {},
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6964a571381f5fb82ea32222"
+  },
+  {
+    "groupId": "69706f1f0fe5d81fcdc30e18",
+    "sort": 0,
+    "groupName": "DEEBOT T90 PRO OMNI",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BLAP2",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "2.0.0",
+      "IOS": "3.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["BLAP2"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6ec88204f3303dcbd11",
+        "title": "Power ON",
+        "guideText": "Open the DEEBOT cover, switch on your DEEBOT and wait until a startup sound is played.",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6ec88204f3303dcbd11"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6f488204fe56adcbd2f",
+        "title": "Turn on Bluetooth hotspot",
+        "guideText": "Press the Reset button for 1 s and then release it. Make sure you have heard the prompt \"Bluetooth hotspot turned on\".",
+        "retryText": "",
+        "confirmText": "Done",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6f488204fe56adcbd2f"
+      }
+    ],
+    "qrpStep": {
+      "guideImageType": "",
+      "guideImageId": "",
+      "title": "",
+      "guideText": "",
+      "retryText": "",
+      "confirmText": "",
+      "btnText": ""
+    },
+    "customSteps": {
+      "occupy": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "apHostspot": {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6fa9fed7e1108fe3f29",
+        "title": "Release Hotspot",
+        "guideText": "Press the Reset button and the AUTO button at the same time, then release them after hearing the prompt \"Network setup mode switched\".",
+        "retryText": "",
+        "confirmText": "I've heard the prompt \"Network setup mode switched\".",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6fa9fed7e1108fe3f29"
+      },
+      "input_sn_img": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "scanQRStep": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      }
+    },
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6970782dd629494f008640b1"
+  },
+  {
+    "groupId": "6979a6243e461bfc7872fa40",
+    "sort": 0,
+    "groupName": "DEEBOT T90 OMNI ",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BLAP2",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "2.0.0",
+      "IOS": "3.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["BLAP2"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6ec88204f3303dcbd11",
+        "title": "Power ON",
+        "guideText": "Open the DEEBOT cover, switch on your DEEBOT and wait until a startup sound is played.",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6ec88204f3303dcbd11"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6f488204fe56adcbd2f",
+        "title": "Turn on Bluetooth hotspot",
+        "guideText": "Press the Reset button for 1 s and then release it. Make sure you have heard the prompt \"Bluetooth hotspot turned on\".",
+        "retryText": "",
+        "confirmText": "Done",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6f488204fe56adcbd2f"
+      }
+    ],
+    "qrpStep": {
+      "guideImageType": "",
+      "guideImageId": "",
+      "title": "",
+      "guideText": "",
+      "retryText": "",
+      "confirmText": "",
+      "btnText": ""
+    },
+    "customSteps": {
+      "input_sn_img": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "scanQRStep": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "occupy": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "apHostspot": {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6fa9fed7e1108fe3f29",
+        "title": "Release Hotspot",
+        "guideText": "Press the Reset button and the AUTO button at the same time, then release them after hearing the prompt \"Network setup mode switched\".",
+        "retryText": "",
+        "confirmText": "I've heard the prompt \"Network setup mode switched\".",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6fa9fed7e1108fe3f29"
+      }
+    },
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/69707844d629494f008640b7"
+  },
+  {
+    "groupId": "6979a62eb5dacb7361849e82",
+    "sort": 0,
+    "groupName": "DEEBOT T90 OMNI",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BLAP2",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "2.0.0",
+      "IOS": "3.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["BLAP2"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6ec88204f3303dcbd11",
+        "title": "Power ON",
+        "guideText": "Open the DEEBOT cover, switch on your DEEBOT and wait until a startup sound is played.",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6ec88204f3303dcbd11"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6f488204fe56adcbd2f",
+        "title": "Turn on Bluetooth hotspot",
+        "guideText": "Press the Reset button for 1 s and then release it. Make sure you have heard the prompt \"Bluetooth hotspot turned on\".",
+        "retryText": "",
+        "confirmText": "Done",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6f488204fe56adcbd2f"
+      }
+    ],
+    "qrpStep": {
+      "guideImageType": "",
+      "guideImageId": "",
+      "title": "",
+      "guideText": "",
+      "retryText": "",
+      "confirmText": "",
+      "btnText": ""
+    },
+    "customSteps": {
+      "occupy": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "apHostspot": {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6fa9fed7e1108fe3f29",
+        "title": "Release Hotspot",
+        "guideText": "Press the Reset button and the AUTO button at the same time, then release them after hearing the prompt \"Network setup mode switched\".",
+        "retryText": "",
+        "confirmText": "I've heard the prompt \"Network setup mode switched\".",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6fa9fed7e1108fe3f29"
+      },
+      "input_sn_img": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "scanQRStep": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      }
+    },
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/69707835d629494f008640b5"
+  },
+  {
+    "groupId": "6979a649b5dacbb40b849ea1",
+    "sort": 0,
+    "groupName": "DEEBOT T90 PRO OMNI Care Kit",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BLAP2",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "2.0.0",
+      "IOS": "3.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["BLAP2"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6ec88204f3303dcbd11",
+        "title": "Power ON",
+        "guideText": "Open the DEEBOT cover, switch on your DEEBOT and wait until a startup sound is played.",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6ec88204f3303dcbd11"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6f488204fe56adcbd2f",
+        "title": "Turn on Bluetooth hotspot",
+        "guideText": "Press the Reset button for 1 s and then release it. Make sure you have heard the prompt \"Bluetooth hotspot turned on\".",
+        "retryText": "",
+        "confirmText": "Done",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6f488204fe56adcbd2f"
+      }
+    ],
+    "qrpStep": {
+      "guideImageType": "",
+      "guideImageId": "",
+      "title": "",
+      "guideText": "",
+      "retryText": "",
+      "confirmText": "",
+      "btnText": ""
+    },
+    "customSteps": {
+      "apHostspot": {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6fa9fed7e1108fe3f29",
+        "title": "Release Hotspot",
+        "guideText": "Press the Reset button and the AUTO button at the same time, then release them after hearing the prompt \"Network setup mode switched\".",
+        "retryText": "",
+        "confirmText": "I've heard the prompt \"Network setup mode switched\".",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6fa9fed7e1108fe3f29"
+      },
+      "scanQRStep": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
       "input_sn_img": {
         "guideImageType": "",
         "guideImageId": "",
@@ -288,17 +719,152 @@
         "btnText": ""
       },
       "occupy": {
-        "guideImageType": "lottie",
-        "guideImageId": "63f5dd48576335fe6bec7988",
+        "guideImageType": "",
+        "guideImageId": "",
         "title": "",
         "guideText": "",
         "retryText": "",
         "confirmText": "",
-        "btnText": "",
-        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/63f5dd48576335fe6bec7988"
+        "btnText": ""
       }
     },
-    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6411872416d2f20076fc1bba"
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/69707835d629494f008640b5"
+  },
+  {
+    "groupId": "6979a6b03e461b7b1f72fa5f",
+    "sort": 0,
+    "groupName": "DEEBOT X9S PRO OMNI",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BLAP2",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "2.0.0",
+      "IOS": "3.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["BLAP2"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6ec88204f3303dcbd11",
+        "title": "Power ON",
+        "guideText": "Open the DEEBOT cover, switch on your DEEBOT and wait until a startup sound is played.",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6ec88204f3303dcbd11"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6f488204fe56adcbd2f",
+        "title": "Turn on Bluetooth hotspot",
+        "guideText": "Press the Reset button for 1 s and then release it. Make sure you have heard the prompt \"Bluetooth hotspot turned on\".",
+        "retryText": "",
+        "confirmText": "Done",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6f488204fe56adcbd2f"
+      }
+    ],
+    "qrpStep": {
+      "guideImageType": "",
+      "guideImageId": "",
+      "title": "",
+      "guideText": "",
+      "retryText": "",
+      "confirmText": "",
+      "btnText": ""
+    },
+    "customSteps": {
+      "scanQRStep": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "apHostspot": {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6fa9fed7e1108fe3f29",
+        "title": "Release Hotspot",
+        "guideText": "Press the Reset button and the AUTO button at the same time, then release them after hearing the prompt \"Network setup mode switched\".",
+        "retryText": "",
+        "confirmText": "I've heard the prompt \"Network setup mode switched\".",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6fa9fed7e1108fe3f29"
+      },
+      "input_sn_img": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "occupy": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      }
+    },
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/69707835d629494f008640b5"
+  },
+  {
+    "groupId": "69a163efb292522eef047bbf",
+    "sort": 0,
+    "groupName": "WINBOT W2 PRO OMNI",
+    "isPopular": true,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BT",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "2.0.0",
+      "IOS": "2.0.0",
+      "Harmony": "2.0.0"
+    },
+    "smartTypes": ["BT"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "6537309615f4231c0f747719",
+        "title": "Power ON",
+        "guideText": "Press and hold Station POWER button for 2 seconds to turn it on. Wait for startup jingle to end.",
+        "retryText": "",
+        "confirmText": "I've switched on the robot",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6537309615f4231c0f747719"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "653730de15f423293574771a",
+        "title": "Turn on your phone's Bluetooth.",
+        "guideText": "Please turn on Bluetooth and allow ECOVACS HOME to connect to WINBOT.",
+        "retryText": "",
+        "confirmText": "Enabled",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/653730de15f423293574771a"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {},
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/69a1642ca81db323d682caa7"
   },
   {
     "groupId": "5c19a835a1e6ee0001782245",
@@ -712,7 +1278,8 @@
     "ota": false,
     "supportVer": {
       "Android": "1.5.0",
-      "IOS": "1.5.0"
+      "IOS": "1.5.0",
+      "Harmony": "1.0.0"
     },
     "smartTypes": ["BT"],
     "steps": [
@@ -974,7 +1541,7 @@
   {
     "groupId": "61947751652fa06cd67ee18a",
     "sort": 1,
-    "groupName": "W1 PRO",
+    "groupName": "WINBOT W1 PRO",
     "isPopular": false,
     "belongApp": ["ecoglobal"],
     "smartType": "BT",
@@ -1481,26 +2048,7 @@
       "IOS": "2.0.0"
     },
     "smartTypes": ["MQ_AP"],
-    "steps": [
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      },
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      }
-    ],
+    "steps": [],
     "qrpStep": {},
     "customSteps": {},
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6243b185784d1652c082ef31"
@@ -1728,7 +2276,7 @@
         "btnText": "",
         "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/61dfc1dafe80234bdbd12e9c"
       },
-      "input_sn_img": {
+      "scanQRStep": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -1737,7 +2285,7 @@
         "confirmText": "",
         "btnText": ""
       },
-      "scanQRStep": {
+      "input_sn_img": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -1766,26 +2314,7 @@
       "IOS": "2.0.0"
     },
     "smartTypes": ["MQ_AP"],
-    "steps": [
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      },
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      }
-    ],
+    "steps": [],
     "qrpStep": {},
     "customSteps": {},
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/62ac2a8ad5e94f3b732102d0"
@@ -2042,26 +2571,7 @@
       "IOS": "2.0.0"
     },
     "smartTypes": ["MQ_AP"],
-    "steps": [
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      },
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      }
-    ],
+    "steps": [],
     "qrpStep": {},
     "customSteps": {},
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6363621b7fe5cbdcc1de8582"
@@ -2281,15 +2791,6 @@
       "btnText": ""
     },
     "customSteps": {
-      "input_sn_img": {
-        "guideImageType": "",
-        "guideImageId": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      },
       "occupy": {
         "guideImageType": "",
         "guideImageId": "",
@@ -2300,6 +2801,15 @@
         "btnText": ""
       },
       "scanQRStep": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "input_sn_img": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -2518,7 +3028,7 @@
   {
     "groupId": "64f5917cae02c41609994d3a",
     "sort": 1,
-    "groupName": "W2 OMNI",
+    "groupName": "WINBOT W2 OMNI",
     "isPopular": false,
     "belongApp": ["ecoglobal"],
     "smartType": "BT",
@@ -2559,12 +3069,12 @@
     ],
     "qrpStep": {},
     "customSteps": {},
-    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/656e8ca0645b0986fdb84509"
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/673fe41f8f7305b0a0f8f6c6"
   },
   {
     "groupId": "64f591d6f15974133c6aedcb",
     "sort": 1,
-    "groupName": "W2",
+    "groupName": "WINBOT W2",
     "isPopular": false,
     "belongApp": ["ecoglobal"],
     "smartType": "BT",
@@ -2575,7 +3085,8 @@
     "ota": false,
     "supportVer": {
       "Android": "2.0.0",
-      "IOS": "2.0.0"
+      "IOS": "2.0.0",
+      "Harmony": "1.0.0"
     },
     "smartTypes": ["BT"],
     "steps": [
@@ -3336,7 +3847,7 @@
         "guideImageType": "lottie",
         "guideImageId": "679096eba37fd163801e783e",
         "title": "Prepare the robot",
-        "guideText": "Press and hold the (Home) button. Release when the robot screen shows a 3-second countdown and confirm hearing \"Entering network setup mode.\"",
+        "guideText": "Press and hold the (Home) button until the 3-second countdown and setup voice prompt, then release.",
         "retryText": "",
         "confirmText": "I've heard the sound",
         "btnText": "Next",
@@ -4616,7 +5127,7 @@
   {
     "groupId": "66568bf5d0a288fe5ef98fda",
     "sort": 1,
-    "groupName": "W2 PRO OMNI",
+    "groupName": "WINBOT W2 PRO OMNI",
     "isPopular": false,
     "belongApp": ["ecoglobal"],
     "smartType": "BT",
@@ -4627,7 +5138,8 @@
     "ota": false,
     "supportVer": {
       "Android": "2.0.0",
-      "IOS": "2.0.0"
+      "IOS": "2.0.0",
+      "Harmony": "1.0.0"
     },
     "smartTypes": ["BT"],
     "steps": [
@@ -4656,7 +5168,7 @@
     ],
     "qrpStep": {},
     "customSteps": {},
-    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/67404fbb0aca160554acfd4f"
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/67404febec0f0908d3bcec40"
   },
   {
     "groupId": "666bdc2b0e860358b8a33218",
@@ -5070,7 +5582,7 @@
         "guideImageType": "lottie",
         "guideImageId": "67909704eac3f5be0c75eb8a",
         "title": "Prepare the robot",
-        "guideText": "Press and hold the (Home) button. Release when the robot screen shows a 3-second countdown and confirm hearing \"Entering network setup mode.\"",
+        "guideText": "Press and hold the (Home) button until the 3-second countdown and setup voice prompt, then release.",
         "retryText": "",
         "confirmText": "I've heard the sound",
         "btnText": "Next",
@@ -5790,7 +6302,7 @@
   {
     "groupId": "66f511892a31c402fc21d9db",
     "sort": 1,
-    "groupName": "W2 PRO",
+    "groupName": "WINBOT W2 PRO",
     "isPopular": false,
     "belongApp": ["ecoglobal"],
     "smartType": "BT",
@@ -6801,14 +7313,14 @@
     "steps": [
       {
         "guideImageType": "lottie",
-        "guideImageId": "685d1517fcae2d6ec8ee8726",
+        "guideImageId": "69cddc6d3202bc2dcebf9e77",
         "title": "Power on the robot.",
         "guideText": "Press and hold Station POWER button for 2 seconds to turn it on. Wait for startup jingle to end.",
         "retryText": "",
         "confirmText": "I've switched on the robot",
         "btnText": "Next",
         "mid": "",
-        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/685d1517fcae2d6ec8ee8726"
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/69cddc6d3202bc2dcebf9e77"
       },
       {
         "guideImageType": "lottie",
@@ -7899,6 +8411,180 @@
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/67d3f874b8e683264a1d432d"
   },
   {
+    "groupId": "6837b7917bfa88098c9e9618",
+    "sort": 1,
+    "groupName": "GOAT A3000 LiDAR Pro",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BLAPG",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.2.0",
+      "IOS": "3.2.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["BLAPG"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "677e45c12a583a0cc9c873af",
+        "title": "Power on",
+        "guideText": "Press and hold the (OK) button for 3 seconds to power on. Wait for the screen to display \"0000.\"",
+        "retryText": "",
+        "confirmText": "I've powered on the robot.",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/677e45c12a583a0cc9c873af"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "678f05c6a9d37d5e9412d608",
+        "title": "Prepare the robot",
+        "guideText": "Press and hold the (Home) button until the 3-second countdown and setup voice prompt, then release.",
+        "retryText": "",
+        "confirmText": "Done",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/678f05c6a9d37d5e9412d608"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {
+      "setPin": {
+        "guideImageType": "lottie",
+        "guideImageId": "65f3ee93b895cd309396359b",
+        "title": "Prepare your GOAT",
+        "guideText": "Set the power-on PIN code on GOAT",
+        "retryText": "",
+        "confirmText": "All set",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/65f3ee93b895cd309396359b"
+      }
+    },
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/68f9d9527f08da00da1b71a5"
+  },
+  {
+    "groupId": "6837bce67bfa8867fb9e965f",
+    "sort": 1,
+    "groupName": "GOAT A1600 LiDAR Pro",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BLAPG",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.2.0",
+      "IOS": "3.2.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["BLAPG"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "677e45c12a583a0cc9c873af",
+        "title": "Power on",
+        "guideText": "Press and hold the (OK) button for 3 seconds to power on. Wait for the screen to display \"0000.\"",
+        "retryText": "",
+        "confirmText": "I've powered on the robot.",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/677e45c12a583a0cc9c873af"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "678f05c6a9d37d5e9412d608",
+        "title": "Prepare the robot",
+        "guideText": "Press and hold the (Home) button until the 3-second countdown and setup voice prompt, then release.",
+        "retryText": "",
+        "confirmText": "Done",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/678f05c6a9d37d5e9412d608"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {
+      "setPin": {
+        "guideImageType": "lottie",
+        "guideImageId": "65f3ee93b895cd309396359b",
+        "title": "Prepare your GOAT",
+        "guideText": "Set the power-on PIN code on GOAT",
+        "retryText": "",
+        "confirmText": "All set",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/65f3ee93b895cd309396359b"
+      }
+    },
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/68f9d9617f08da00da1b71a7"
+  },
+  {
+    "groupId": "6837c21c7bfa888ae79e967c",
+    "sort": 1,
+    "groupName": "GOAT O1200 LiDAR Pro",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BLAPG",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.2.0",
+      "IOS": "3.2.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["BLAPG"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "677e45c12a583a0cc9c873af",
+        "title": "Power on",
+        "guideText": "Press and hold the (OK) button for 3 seconds to power on. Wait for the screen to display \"0000.\"",
+        "retryText": "",
+        "confirmText": "I've powered on the robot.",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/677e45c12a583a0cc9c873af"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "678f05c6a9d37d5e9412d608",
+        "title": "Prepare the robot",
+        "guideText": "Press and hold the (Home) button. Release when the robot screen shows a 3-second countdown.",
+        "retryText": "",
+        "confirmText": "Done",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/678f05c6a9d37d5e9412d608"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {
+      "setPin": {
+        "guideImageType": "lottie",
+        "guideImageId": "65f3ee93b895cd309396359b",
+        "title": "Prepare your GOAT",
+        "guideText": "Set the power-on PIN code on GOAT",
+        "retryText": "",
+        "confirmText": "All set",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/65f3ee93b895cd309396359b"
+      }
+    },
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/68f9d8ef7414f8450ac6608f"
+  },
+  {
     "groupId": "685a3ec1fcae2d52a1ee8562",
     "sort": 1,
     "groupName": "DEEBOT N30 PRO",
@@ -8009,6 +8695,61 @@
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6889b3fbf68ece46f311459c"
   },
   {
+    "groupId": "685a4459e919b020a97e88f5",
+    "sort": 1,
+    "groupName": "DEEBOT N30 PLUS",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "MQ_APM",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "1.0.0",
+      "IOS": "1.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["MQ_APM"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "666ffef2da9a1454984b1555",
+        "title": "Power on",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/666ffef2da9a1454984b1555"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "666ffee40e8603b82aa33237",
+        "title": "Release Hotspot",
+        "guideText": "Briefly press the [SPOT] and [HOME] buttons and then release. Make sure you hear the prompt \"Entering network setup mode\"",
+        "retryText": "",
+        "confirmText": "I've heard the sound",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/666ffee40e8603b82aa33237"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {
+      "apHostspot": {
+        "guideImageType": "lottie",
+        "guideImageId": "664c6465d0a288d509f98f96",
+        "title": "Release Hotspot",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "I've heard the sound",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/664c6465d0a288d509f98f96"
+      }
+    },
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/669a343e656502502579014e"
+  },
+  {
     "groupId": "685a45d1fcae2d092aee8586",
     "sort": 1,
     "groupName": "DEEBOT N30 PLUS",
@@ -8064,6 +8805,122 @@
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6882f62af68ece8247113a72"
   },
   {
+    "groupId": "6861f2c2e919b0a32b7e9826",
+    "sort": 1,
+    "groupName": "GOAT O600 RTK",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BLAPG",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.2.0",
+      "IOS": "3.2.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["BLAPG"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "677e459c2a583aee74c873ae",
+        "title": "Power on",
+        "guideText": "Press and hold the (OK) button for 3 seconds to power on. Wait for the screen to display \"0000.\"",
+        "retryText": "",
+        "confirmText": "I've powered on the robot.",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/677e459c2a583aee74c873ae"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "678f05af0636967dc08ae123",
+        "title": "Prepare the robot",
+        "guideText": "Press and hold the (Home) button. Release when GOAT screen shows a 3-second countdown and confirm hearing \"Beep Beep.\"",
+        "retryText": "",
+        "confirmText": "Done",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/678f05af0636967dc08ae123"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {
+      "setPin": {
+        "guideImageType": "lottie",
+        "guideImageId": "65f3ee93b895cd309396359b",
+        "title": "Prepare the robot",
+        "guideText": "Set the power-on PIN code on GOAT",
+        "retryText": "",
+        "confirmText": "All set",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/65f3ee93b895cd309396359b"
+      }
+    },
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/68f9d87e7f08da00da1b7199"
+  },
+  {
+    "groupId": "6861f3f2fcae2d3158ee8c50",
+    "sort": 1,
+    "groupName": "GOAT O800 RTK",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BLAPG",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.2.0",
+      "IOS": "3.2.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["BLAPG"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "677e459c2a583aee74c873ae",
+        "title": "Power on",
+        "guideText": "Press and hold the (OK) button for 3 seconds to power on. Wait for the screen to display \"0000.\"",
+        "retryText": "",
+        "confirmText": "I've powered on the robot.",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/677e459c2a583aee74c873ae"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "678f05af0636967dc08ae123",
+        "title": "Prepare the robot",
+        "guideText": "Press and hold the (Home) button. Release when GOAT screen shows a 3-second countdown and confirm hearing \"Beep Beep.\"",
+        "retryText": "",
+        "confirmText": "Done",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/678f05af0636967dc08ae123"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {
+      "setPin": {
+        "guideImageType": "lottie",
+        "guideImageId": "65f3ee93b895cd309396359b",
+        "title": "Prepare the robot",
+        "guideText": "Set the power-on PIN code on GOAT",
+        "retryText": "",
+        "confirmText": "All set",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/65f3ee93b895cd309396359b"
+      }
+    },
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/689d548f7e68c513e953983d"
+  },
+  {
     "groupId": "686230dfe919b086767e985d",
     "sort": 1,
     "groupName": "DEEBOT X11 PRO",
@@ -8113,7 +8970,7 @@
       "btnText": ""
     },
     "customSteps": {
-      "input_sn_img": {
+      "scanQRStep": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -8141,7 +8998,7 @@
         "confirmText": "",
         "btnText": ""
       },
-      "scanQRStep": {
+      "input_sn_img": {
         "guideImageType": "",
         "guideImageId": "",
         "title": "",
@@ -8244,6 +9101,1467 @@
     "qrpStep": {},
     "customSteps": {},
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6886ed98f68ece317111458b"
+  },
+  {
+    "groupId": "68a6d23a7e68c56f9b53a16b",
+    "sort": 1,
+    "groupName": "DEEBOT mini 2",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BLAP2",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "1.0.0",
+      "IOS": "1.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["BLAP2"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "67a563bea9d37d596812d69f",
+        "title": "Power on",
+        "guideText": "Press and hold the POWER button for 3s to turn it on. Wait for the startup music to end",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67a563bea9d37d596812d69f"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "67a563c1dd24eefafa04db01",
+        "title": "Turn on Bluetooth hotspot",
+        "guideText": "Briefly press the Reset button for 1 second, then release. Make sure you hear \"Bluetooth hotspot released.\"",
+        "retryText": "",
+        "confirmText": "Done",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67a563c1dd24eefafa04db01"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {
+      "apHostspot": {
+        "guideImageType": "lottie",
+        "guideImageId": "691ffc6a8f65e65c9f1ed86b",
+        "title": "Release Hotspot",
+        "guideText": "Press both the reset and power buttons, then release them together, making sure you hear \"network setup mode switched.\"",
+        "retryText": "",
+        "confirmText": "I've heard the prompt \"Network setup mode switched\".",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/691ffc6a8f65e65c9f1ed86b"
+      }
+    },
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/693143b688186041498a5c4c"
+  },
+  {
+    "groupId": "68fed920873791e8b847bfbb",
+    "sort": 1,
+    "groupName": "DEEBOT T80S OMNI",
+    "isPopular": true,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BLAP2",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "2.0.0",
+      "IOS": "2.0.0",
+      "Harmony": "2.0.0"
+    },
+    "smartTypes": ["BLAP2"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "68fecf2d7414f8450ac6616b",
+        "title": "Power ON",
+        "guideText": "Open the DEEBOT cover, switch on your DEEBOT and wait until a startup sound is played.",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/68fecf2d7414f8450ac6616b"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6f488204fe56adcbd2f",
+        "title": "Turn on Bluetooth hotspot",
+        "guideText": "Press the Reset button for 1 s and then release it. Make sure you have heard the prompt \"Bluetooth hotspot turned on\".",
+        "retryText": "",
+        "confirmText": "Done",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6f488204fe56adcbd2f"
+      }
+    ],
+    "qrpStep": {
+      "guideImageType": "",
+      "guideImageId": "",
+      "title": "",
+      "guideText": "",
+      "retryText": "",
+      "confirmText": "",
+      "btnText": ""
+    },
+    "customSteps": {
+      "scanQRStep": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "apHostspot": {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6fa9fed7e1108fe3f29",
+        "title": "Release Hotspot",
+        "guideText": "Press the Reset button and the AUTO button at the same time, then release them after hearing the prompt \"Network setup mode switched\".",
+        "retryText": "",
+        "confirmText": "I've heard the prompt \"Network setup mode switched\".",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6fa9fed7e1108fe3f29"
+      },
+      "input_sn_img": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "occupy": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      }
+    },
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6948f6fcefa6f6000e45580b"
+  },
+  {
+    "groupId": "6909a83ada823d4b20516e8d",
+    "sort": 1,
+    "groupName": "WINBOT mini 2",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BT",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "2.0.0",
+      "IOS": "2.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["BT"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "67404ec68f73054fc2ff0ac7",
+        "title": "Getting WINBOT Ready",
+        "guideText": "Connect in the following sequence:\n1. Connect the adapter to WINBOT.\n2. Plug the adapter into a power socket.",
+        "retryText": "",
+        "confirmText": "Done",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67404ec68f73054fc2ff0ac7"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "67404eff0aca16e986acf340",
+        "title": "Power ON",
+        "guideText": "Press and hold WINBOT START button for 2 seconds to turn it on.",
+        "retryText": "",
+        "confirmText": "I've switched on the robot",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67404eff0aca16e986acf340"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {},
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/694a2c7e496d7764a965c83f"
+  },
+  {
+    "groupId": "693bba857374d2a5189a64ff",
+    "sort": 1,
+    "groupName": "GOAT A2000 LiDAR Pro",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BLAPG",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.2.0",
+      "IOS": "3.2.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["BLAPG"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "677e45c12a583a0cc9c873af",
+        "title": "Power on",
+        "guideText": "Press and hold the (OK) button for 3 seconds to power on. Wait for the screen to display \"0000.\"",
+        "retryText": "",
+        "confirmText": "I've powered on the robot.",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/677e45c12a583a0cc9c873af"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "678f05c6a9d37d5e9412d608",
+        "title": "Prepare the robot",
+        "guideText": "Press and hold the (Home) button until the 3-second countdown and setup voice prompt, then release.",
+        "retryText": "",
+        "confirmText": "Done",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/678f05c6a9d37d5e9412d608"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {
+      "setPin": {
+        "guideImageType": "lottie",
+        "guideImageId": "65f3ee93b895cd309396359b",
+        "title": "Prepare your GOAT",
+        "guideText": "Set the power-on PIN code on GOAT",
+        "retryText": "",
+        "confirmText": "All set",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/65f3ee93b895cd309396359b"
+      }
+    },
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/68f9d9617f08da00da1b71a7"
+  },
+  {
+    "groupId": "693bce3c7374d2ecf89a6511",
+    "sort": 1,
+    "groupName": "GOAT O1000 LiDAR Pro",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BLAPG",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.2.0",
+      "IOS": "3.2.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["BLAPG"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "677e45c12a583a0cc9c873af",
+        "title": "Power on",
+        "guideText": "Press and hold the (OK) button for 3 seconds to power on. Wait for the screen to display \"0000.\"",
+        "retryText": "",
+        "confirmText": "I've powered on the robot.",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/677e45c12a583a0cc9c873af"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "678f05c6a9d37d5e9412d608",
+        "title": "Prepare the robot",
+        "guideText": "Press and hold the (Home) button. Release when the robot screen shows a 3-second countdown.",
+        "retryText": "",
+        "confirmText": "Done",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/678f05c6a9d37d5e9412d608"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {
+      "setPin": {
+        "guideImageType": "lottie",
+        "guideImageId": "65f3ee93b895cd309396359b",
+        "title": "Prepare your GOAT",
+        "guideText": "Set the power-on PIN code on GOAT",
+        "retryText": "",
+        "confirmText": "All set",
+        "btnText": "Next",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/65f3ee93b895cd309396359b"
+      }
+    },
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/68f9d8ef7414f8450ac6608f"
+  },
+  {
+    "groupId": "6951f3d270cc45676001ea09",
+    "sort": 1,
+    "groupName": "DEEBOT T50 PRO OMNI Gen3",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "MQ_APM",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.0.0",
+      "IOS": "3.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["MQ_APM"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66bd9a1b509373a72419d5e4",
+        "title": "Preparation",
+        "guideText": "Open the DEEBOT cover, switch on your DEEBOT and wait until a startup sound is played.",
+        "retryText": "",
+        "confirmText": "I've switched on the robot",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66bd9a1b509373a72419d5e4"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66bd9a30fae7dc319de7ecfb",
+        "title": "Preparation",
+        "guideText": "Short press the reset button 1S and then release, confirm to hear \"Start to enter the network distribution mode\"",
+        "retryText": "",
+        "confirmText": "I've heard the sound",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66bd9a30fae7dc319de7ecfb"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {},
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6980435cfe7ffc8f5f3d3a05"
+  },
+  {
+    "groupId": "6951f3f070cc45640601ea15",
+    "sort": 1,
+    "groupName": "DEEBOT T50 PRO OMNI Gen3",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "MQ_APM",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.0.0",
+      "IOS": "3.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["MQ_APM"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66bd9a1b509373a72419d5e4",
+        "title": "Preparation",
+        "guideText": "Open the DEEBOT cover, switch on your DEEBOT and wait until a startup sound is played.",
+        "retryText": "",
+        "confirmText": "I've switched on the robot",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66bd9a1b509373a72419d5e4"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66bd9a30fae7dc319de7ecfb",
+        "title": "Preparation",
+        "guideText": "Short press the reset button 1S and then release, confirm to hear \"Start to enter the network distribution mode\"",
+        "retryText": "",
+        "confirmText": "I've heard the sound",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66bd9a30fae7dc319de7ecfb"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {},
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6980434ffe7ffc8f5f3d39ff"
+  },
+  {
+    "groupId": "6951f431abc2b57afa5a749d",
+    "sort": 1,
+    "groupName": "DEEBOT T50S PRO OMNI",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "MQ_APM",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.0.0",
+      "IOS": "3.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["MQ_APM"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66bd9a1b509373a72419d5e4",
+        "title": "Preparation",
+        "guideText": "Open the DEEBOT cover, switch on your DEEBOT and wait until a startup sound is played.",
+        "retryText": "",
+        "confirmText": "I've switched on the robot",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66bd9a1b509373a72419d5e4"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66bd9a30fae7dc319de7ecfb",
+        "title": "Preparation",
+        "guideText": "Short press the reset button 1S and then release, confirm to hear \"Start to enter the network distribution mode\"",
+        "retryText": "",
+        "confirmText": "I've heard the sound",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66bd9a30fae7dc319de7ecfb"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {},
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6980434ffe7ffc8f5f3d39ff"
+  },
+  {
+    "groupId": "6951f43aabc2b5109c5a74a9",
+    "sort": 1,
+    "groupName": "DEEBOT T50S PRO OMNI",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "MQ_APM",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.0.0",
+      "IOS": "3.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["MQ_APM"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66bd9a1b509373a72419d5e4",
+        "title": "Preparation",
+        "guideText": "Open the DEEBOT cover, switch on your DEEBOT and wait until a startup sound is played.",
+        "retryText": "",
+        "confirmText": "I've switched on the robot",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66bd9a1b509373a72419d5e4"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66bd9a30fae7dc319de7ecfb",
+        "title": "Preparation",
+        "guideText": "Short press the reset button 1S and then release, confirm to hear \"Start to enter the network distribution mode\"",
+        "retryText": "",
+        "confirmText": "I've heard the sound",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66bd9a30fae7dc319de7ecfb"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {},
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6980435cfe7ffc8f5f3d3a05"
+  },
+  {
+    "groupId": "69829ef8b5dacb25eb849ffb",
+    "sort": 1,
+    "groupName": "DEEBOT X12 PRO OMNI",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BLAP2",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.0.0",
+      "IOS": "3.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["BLAP2"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6ec88204f3303dcbd11",
+        "title": "Power ON",
+        "guideText": "Open the DEEBOT cover, switch on your DEEBOT and wait until a startup sound is played.",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6ec88204f3303dcbd11"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6f488204fe56adcbd2f",
+        "title": "Turn on Bluetooth hotspot",
+        "guideText": "Press the Reset button for 1 s and then release it. Make sure you have heard the prompt \"Bluetooth hotspot turned on\".",
+        "retryText": "",
+        "confirmText": "Done",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6f488204fe56adcbd2f"
+      }
+    ],
+    "qrpStep": {
+      "guideImageType": "",
+      "guideImageId": "",
+      "title": "",
+      "guideText": "",
+      "retryText": "",
+      "confirmText": "",
+      "btnText": ""
+    },
+    "customSteps": {
+      "input_sn_img": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "scanQRStep": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "occupy": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "apHostspot": {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6fa9fed7e1108fe3f29",
+        "title": "Release Hotspot",
+        "guideText": "Press the Reset button and the AUTO button at the same time, then release them after hearing the prompt \"Network setup mode switched\".",
+        "retryText": "",
+        "confirmText": "I've heard the prompt \"Network setup mode switched\".",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6fa9fed7e1108fe3f29"
+      }
+    },
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/68f89a467f08da00da1b6ff1"
+  },
+  {
+    "groupId": "69829f46b5dacb463e84a01a",
+    "sort": 1,
+    "groupName": "DEEBOT X12 PRO OMNI Care",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BLAP2",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.0.0",
+      "IOS": "3.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["BLAP2"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6ec88204f3303dcbd11",
+        "title": "Power ON",
+        "guideText": "Open the DEEBOT cover, switch on your DEEBOT and wait until a startup sound is played.",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6ec88204f3303dcbd11"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6f488204fe56adcbd2f",
+        "title": "Turn on Bluetooth hotspot",
+        "guideText": "Press the Reset button for 1 s and then release it. Make sure you have heard the prompt \"Bluetooth hotspot turned on\".",
+        "retryText": "",
+        "confirmText": "Done",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6f488204fe56adcbd2f"
+      }
+    ],
+    "qrpStep": {
+      "guideImageType": "",
+      "guideImageId": "",
+      "title": "",
+      "guideText": "",
+      "retryText": "",
+      "confirmText": "",
+      "btnText": ""
+    },
+    "customSteps": {
+      "occupy": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "scanQRStep": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "apHostspot": {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6fa9fed7e1108fe3f29",
+        "title": "Release Hotspot",
+        "guideText": "Press the Reset button and the AUTO button at the same time, then release them after hearing the prompt \"Network setup mode switched\".",
+        "retryText": "",
+        "confirmText": "I've heard the prompt \"Network setup mode switched\".",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6fa9fed7e1108fe3f29"
+      },
+      "input_sn_img": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      }
+    },
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/68f89a467f08da00da1b6ff1"
+  },
+  {
+    "groupId": "69829f8f3e461b61e172fc3e",
+    "sort": 1,
+    "groupName": "DEEBOT X12 PRO OMNI",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BLAP2",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.0.0",
+      "IOS": "3.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["BLAP2"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6ec88204f3303dcbd11",
+        "title": "Power ON",
+        "guideText": "Open the DEEBOT cover, switch on your DEEBOT and wait until a startup sound is played.",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6ec88204f3303dcbd11"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6f488204fe56adcbd2f",
+        "title": "Turn on Bluetooth hotspot",
+        "guideText": "Press the Reset button for 1 s and then release it. Make sure you have heard the prompt \"Bluetooth hotspot turned on\".",
+        "retryText": "",
+        "confirmText": "Done",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6f488204fe56adcbd2f"
+      }
+    ],
+    "qrpStep": {
+      "guideImageType": "",
+      "guideImageId": "",
+      "title": "",
+      "guideText": "",
+      "retryText": "",
+      "confirmText": "",
+      "btnText": ""
+    },
+    "customSteps": {
+      "input_sn_img": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "scanQRStep": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "apHostspot": {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6fa9fed7e1108fe3f29",
+        "title": "Release Hotspot",
+        "guideText": "Press the Reset button and the AUTO button at the same time, then release them after hearing the prompt \"Network setup mode switched\".",
+        "retryText": "",
+        "confirmText": "I've heard the prompt \"Network setup mode switched\".",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6fa9fed7e1108fe3f29"
+      },
+      "occupy": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      }
+    },
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6979999f8089b21c16592d5d"
+  },
+  {
+    "groupId": "6982a0c3b5dacbd79984a058",
+    "sort": 1,
+    "groupName": "DEEBOT X12 OmniCyclone",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BLAP2",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.0.0",
+      "IOS": "3.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["BLAP2"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6ec88204f3303dcbd11",
+        "title": "Power ON",
+        "guideText": "Open the DEEBOT cover, switch on your DEEBOT and wait until a startup sound is played.",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6ec88204f3303dcbd11"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6f488204fe56adcbd2f",
+        "title": "Turn on Bluetooth hotspot",
+        "guideText": "Press the Reset button for 1 s and then release it. Make sure you have heard the prompt \"Bluetooth hotspot turned on\".",
+        "retryText": "",
+        "confirmText": "Done",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6f488204fe56adcbd2f"
+      }
+    ],
+    "qrpStep": {
+      "guideImageType": "",
+      "guideImageId": "",
+      "title": "",
+      "guideText": "",
+      "retryText": "",
+      "confirmText": "",
+      "btnText": ""
+    },
+    "customSteps": {
+      "apHostspot": {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6fa9fed7e1108fe3f29",
+        "title": "Release Hotspot",
+        "guideText": "Press the Reset button and the AUTO button at the same time, then release them after hearing the prompt \"Network setup mode switched\".",
+        "retryText": "",
+        "confirmText": "I've heard the prompt \"Network setup mode switched\".",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6fa9fed7e1108fe3f29"
+      },
+      "scanQRStep": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "occupy": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "input_sn_img": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      }
+    },
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6979999f195f334d3a74cd82"
+  },
+  {
+    "groupId": "6982a0f0c4839c205341d482",
+    "sort": 1,
+    "groupName": "DEEBOT X12 OmniCyclone Care Complete",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BLAP2",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.0.0",
+      "IOS": "3.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["BLAP2"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6ec88204f3303dcbd11",
+        "title": "Power ON",
+        "guideText": "Open the DEEBOT cover, switch on your DEEBOT and wait until a startup sound is played.",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6ec88204f3303dcbd11"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6f488204fe56adcbd2f",
+        "title": "Turn on Bluetooth hotspot",
+        "guideText": "Press the Reset button for 1 s and then release it. Make sure you have heard the prompt \"Bluetooth hotspot turned on\".",
+        "retryText": "",
+        "confirmText": "Done",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6f488204fe56adcbd2f"
+      }
+    ],
+    "qrpStep": {
+      "guideImageType": "",
+      "guideImageId": "",
+      "title": "",
+      "guideText": "",
+      "retryText": "",
+      "confirmText": "",
+      "btnText": ""
+    },
+    "customSteps": {
+      "occupy": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "input_sn_img": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "apHostspot": {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6fa9fed7e1108fe3f29",
+        "title": "Release Hotspot",
+        "guideText": "Press the Reset button and the AUTO button at the same time, then release them after hearing the prompt \"Network setup mode switched\".",
+        "retryText": "",
+        "confirmText": "I've heard the prompt \"Network setup mode switched\".",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6fa9fed7e1108fe3f29"
+      },
+      "scanQRStep": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      }
+    },
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6979999f195f334d3a74cd82"
+  },
+  {
+    "groupId": "6982a104b5dacb442a84a077",
+    "sort": 1,
+    "groupName": "DEEBOT X12 OmniCyclone Care Kit",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BLAP2",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.0.0",
+      "IOS": "3.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["BLAP2"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6ec88204f3303dcbd11",
+        "title": "Power ON",
+        "guideText": "Open the DEEBOT cover, switch on your DEEBOT and wait until a startup sound is played.",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6ec88204f3303dcbd11"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6f488204fe56adcbd2f",
+        "title": "Turn on Bluetooth hotspot",
+        "guideText": "Press the Reset button for 1 s and then release it. Make sure you have heard the prompt \"Bluetooth hotspot turned on\".",
+        "retryText": "",
+        "confirmText": "Done",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6f488204fe56adcbd2f"
+      }
+    ],
+    "qrpStep": {
+      "guideImageType": "",
+      "guideImageId": "",
+      "title": "",
+      "guideText": "",
+      "retryText": "",
+      "confirmText": "",
+      "btnText": ""
+    },
+    "customSteps": {
+      "input_sn_img": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "occupy": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      },
+      "apHostspot": {
+        "guideImageType": "lottie",
+        "guideImageId": "66dac6fa9fed7e1108fe3f29",
+        "title": "Release Hotspot",
+        "guideText": "Press the Reset button and the AUTO button at the same time, then release them after hearing the prompt \"Network setup mode switched\".",
+        "retryText": "",
+        "confirmText": "I've heard the prompt \"Network setup mode switched\".",
+        "btnText": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66dac6fa9fed7e1108fe3f29"
+      },
+      "scanQRStep": {
+        "guideImageType": "",
+        "guideImageId": "",
+        "title": "",
+        "guideText": "",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": ""
+      }
+    },
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/6979999f195f334d3a74cd82"
+  },
+  {
+    "groupId": "69a0fe3c53f71393b91f4a7b",
+    "sort": 1,
+    "groupName": "DEEBOT T50 OMNI Gen3",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "MQ_APM",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.0.0",
+      "IOS": "3.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["MQ_APM"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66bd9a1b509373a72419d5e4",
+        "title": "Preparation",
+        "guideText": "Open the DEEBOT cover, switch on your DEEBOT and wait until a startup sound is played.",
+        "retryText": "",
+        "confirmText": "I've switched on the robot",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66bd9a1b509373a72419d5e4"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66bd9a30fae7dc319de7ecfb",
+        "title": "Preparation",
+        "guideText": "Short press the reset button 1S and then release, confirm to hear \"Start to enter the network distribution mode\"",
+        "retryText": "",
+        "confirmText": "I've heard the sound",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66bd9a30fae7dc319de7ecfb"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {},
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/69804346195f334d3a74cf24"
+  },
+  {
+    "groupId": "69a0fe4f53f713d2ea1f4a87",
+    "sort": 1,
+    "groupName": "DEEBOT T50 OMNI Gen3",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "MQ_APM",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.0.0",
+      "IOS": "3.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["MQ_APM"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66bd9a1b509373a72419d5e4",
+        "title": "Preparation",
+        "guideText": "Open the DEEBOT cover, switch on your DEEBOT and wait until a startup sound is played.",
+        "retryText": "",
+        "confirmText": "I've switched on the robot",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66bd9a1b509373a72419d5e4"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66bd9a30fae7dc319de7ecfb",
+        "title": "Preparation",
+        "guideText": "Short press the reset button 1S and then release, confirm to hear \"Start to enter the network distribution mode\"",
+        "retryText": "",
+        "confirmText": "I've heard the sound",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66bd9a30fae7dc319de7ecfb"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {},
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/69804356fe7ffc8f5f3d3a03"
+  },
+  {
+    "groupId": "69a12912e815a4708da4530e",
+    "sort": 1,
+    "groupName": "DEEBOT T50S OMNI",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "MQ_APM",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.0.0",
+      "IOS": "3.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["MQ_APM"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66bd9a1b509373a72419d5e4",
+        "title": "Preparation",
+        "guideText": "Open the DEEBOT cover, switch on your DEEBOT and wait until a startup sound is played.",
+        "retryText": "",
+        "confirmText": "I've switched on the robot",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66bd9a1b509373a72419d5e4"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66bd9a30fae7dc319de7ecfb",
+        "title": "Preparation",
+        "guideText": "Short press the reset button 1S and then release, confirm to hear \"Start to enter the network distribution mode\"",
+        "retryText": "",
+        "confirmText": "I've heard the sound",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66bd9a30fae7dc319de7ecfb"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {},
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/69804356fe7ffc8f5f3d3a03"
+  },
+  {
+    "groupId": "69a12923e815a4be12a4531a",
+    "sort": 1,
+    "groupName": "DEEBOT T50S OMNI",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "MQ_APM",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.0.0",
+      "IOS": "3.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["MQ_APM"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66bd9a1b509373a72419d5e4",
+        "title": "Preparation",
+        "guideText": "Open the DEEBOT cover, switch on your DEEBOT and wait until a startup sound is played.",
+        "retryText": "",
+        "confirmText": "I've switched on the robot",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66bd9a1b509373a72419d5e4"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "66bd9a30fae7dc319de7ecfb",
+        "title": "Preparation",
+        "guideText": "Short press the reset button 1S and then release, confirm to hear \"Start to enter the network distribution mode\"",
+        "retryText": "",
+        "confirmText": "I've heard the sound",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/66bd9a30fae7dc319de7ecfb"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {},
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/69804346195f334d3a74cf24"
+  },
+  {
+    "groupId": "69b8bb8518d14531595c2881",
+    "sort": 1,
+    "groupName": "DEEBOT T30e OMNI",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "MQ_APM",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.0.0",
+      "IOS": "3.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["MQ_APM"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "67bffa5f6480113a7b5be53c",
+        "title": "Power ON",
+        "guideText": "Press and hold the middle switch of the robot and wait for the startup sound to end.",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67bffa5f6480113a7b5be53c"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "67bffa6364801154f65be53d",
+        "title": "Release Hotspot",
+        "guideText": "Briefly press the RESET button for 1 second and then release. You will hear that DEEBOT is ready for network setup.",
+        "retryText": "",
+        "confirmText": "I've heard the sound",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67bffa6364801154f65be53d"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {},
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/69aa346f4066fead5641e534"
+  },
+  {
+    "groupId": "69b8bbee717f1594bacdff82",
+    "sort": 1,
+    "groupName": "DEEBOT T30e OMNI",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "MQ_APM",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.0.0",
+      "IOS": "3.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["MQ_APM"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "67bffa5f6480113a7b5be53c",
+        "title": "Power ON",
+        "guideText": "Press and hold the middle switch of the robot and wait for the startup sound to end.",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67bffa5f6480113a7b5be53c"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "67bffa6364801154f65be53d",
+        "title": "Release Hotspot",
+        "guideText": "Briefly press the RESET button for 1 second and then release. You will hear that DEEBOT is ready for network setup.",
+        "retryText": "",
+        "confirmText": "I've heard the sound",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67bffa6364801154f65be53d"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {},
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/69a8ebdfefc58689990d5009"
+  },
+  {
+    "groupId": "69b8bc017d7e6e83bcb9595f",
+    "sort": 1,
+    "groupName": "DEEBOT T30C Prime OMNI",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "MQ_APM",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.0.0",
+      "IOS": "3.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["MQ_APM"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "67bffa5f6480113a7b5be53c",
+        "title": "Power ON",
+        "guideText": "Press and hold the middle switch of the robot and wait for the startup sound to end.",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67bffa5f6480113a7b5be53c"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "67bffa6364801154f65be53d",
+        "title": "Release Hotspot",
+        "guideText": "Briefly press the RESET button for 1 second and then release. You will hear that DEEBOT is ready for network setup.",
+        "retryText": "",
+        "confirmText": "I've heard the sound",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67bffa6364801154f65be53d"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {},
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/69a8ebdfefc58689990d5009"
+  },
+  {
+    "groupId": "69b8bc167d7e6ef681b9596b",
+    "sort": 1,
+    "groupName": "DEEBOT T30C Prime OMNI",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "MQ_APM",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.0.0",
+      "IOS": "3.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["MQ_APM"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "67bffa5f6480113a7b5be53c",
+        "title": "Power ON",
+        "guideText": "Press and hold the middle switch of the robot and wait for the startup sound to end.",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67bffa5f6480113a7b5be53c"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "67bffa6364801154f65be53d",
+        "title": "Release Hotspot",
+        "guideText": "Briefly press the RESET button for 1 second and then release. You will hear that DEEBOT is ready for network setup.",
+        "retryText": "",
+        "confirmText": "I've heard the sound",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67bffa6364801154f65be53d"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {},
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/69aa346f4066fead5641e534"
+  },
+  {
+    "groupId": "69cba01a5195da9014044e1d",
+    "sort": 1,
+    "groupName": "DEEBOT X8 MAX PRO OMNI",
+    "isPopular": false,
+    "belongApp": ["ecoglobal"],
+    "smartType": "BLAP2",
+    "failCount": 0,
+    "checkTips": 0,
+    "materialNo": "",
+    "mid": "",
+    "ota": false,
+    "supportVer": {
+      "Android": "3.0.0",
+      "IOS": "3.0.0",
+      "Harmony": "1.0.0"
+    },
+    "smartTypes": ["BLAP2"],
+    "steps": [
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "67b849cc64801160db5be194",
+        "title": "Turn on the power switch.",
+        "guideText": "Open the DEEBOT cover, switch on your DEEBOT and wait until a startup sound is played.",
+        "retryText": "",
+        "confirmText": "",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67b849cc64801160db5be194"
+      },
+      {
+        "guideImageType": "lottie",
+        "guideImageId": "67b849d36480115c7c5be195",
+        "title": "Turn on Bluetooth hotspot",
+        "guideText": "Briefly press the RESET button for 1 second and then release. You will hear that DEEBOT is ready for network setup.",
+        "retryText": "",
+        "confirmText": "Done",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67b849d36480115c7c5be195"
+      }
+    ],
+    "qrpStep": {},
+    "customSteps": {
+      "apHostspot": {
+        "guideImageType": "lottie",
+        "guideImageId": "67b849ec97e7463439d35e21",
+        "title": "Release Hotspot",
+        "guideText": "Press the Reset button and the AUTO button at the same time, then release them after hearing the prompt \"Network setup mode switched\".",
+        "retryText": "",
+        "confirmText": "I've heard the prompt \"Network setup mode switched\".",
+        "btnText": "",
+        "mid": "",
+        "guideImageUrl": "https://portal-ww.ecouser.net/api/pim/file/get/67b849ec97e7463439d35e21"
+      }
+    },
+    "icon": "https://portal-ww.ecouser.net/api/pim/file/get/67bd25cd0d79d61c6f3411a1"
   },
   {
     "groupId": "5c19a8a0ddfc1f0001ede8e0",
@@ -8794,26 +11112,7 @@
       "Android": "1.0.0"
     },
     "smartTypes": ["MQ_AP"],
-    "steps": [
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      },
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      }
-    ],
+    "steps": [],
     "qrpStep": {},
     "customSteps": {},
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/5d1474632a6bd50001b5b6f3"
@@ -8835,26 +11134,7 @@
       "Android": "1.1.8"
     },
     "smartTypes": ["HK_AP"],
-    "steps": [
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      },
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      }
-    ],
+    "steps": [],
     "qrpStep": {},
     "customSteps": {},
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/5cf711aeb0acfc000179ff8a"
@@ -8917,26 +11197,7 @@
       "Android": "1.1.5"
     },
     "smartTypes": ["MQ_AP"],
-    "steps": [
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      },
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      }
-    ],
+    "steps": [],
     "qrpStep": {},
     "customSteps": {},
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/5e8da019032edd9008c66bf0"
@@ -8958,26 +11219,7 @@
       "IOS": "1.0.0"
     },
     "smartTypes": ["MQ_AP"],
-    "steps": [
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      },
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      }
-    ],
+    "steps": [],
     "qrpStep": {},
     "customSteps": {},
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/60810dddd18cbd0008e2fd27"
@@ -9132,26 +11374,7 @@
       "Android": "1.1.7"
     },
     "smartTypes": ["SPA"],
-    "steps": [
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      },
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      }
-    ],
+    "steps": [],
     "qrpStep": {},
     "customSteps": {},
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/5d4b7640de51dd0001fee131"
@@ -9302,26 +11525,7 @@
       "Android": "1.0.7"
     },
     "smartTypes": ["MQ_AP"],
-    "steps": [
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      },
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      }
-    ],
+    "steps": [],
     "qrpStep": {},
     "customSteps": {},
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/5ba4a2cb6c2f120001c32839"
@@ -9343,26 +11547,7 @@
       "Android": "1.1.7"
     },
     "smartTypes": ["SPA"],
-    "steps": [
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      },
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      }
-    ],
+    "steps": [],
     "qrpStep": {},
     "customSteps": {},
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/5ca32a1012851900016858c6"
@@ -9384,26 +11569,7 @@
       "Android": "1.1.7"
     },
     "smartTypes": ["SPA"],
-    "steps": [
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      },
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      }
-    ],
+    "steps": [],
     "qrpStep": {},
     "customSteps": {},
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/5d2c14414d60de0001eaf1f2"
@@ -9425,26 +11591,7 @@
       "Android": "1.1.7"
     },
     "smartTypes": ["SPA"],
-    "steps": [
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      },
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      }
-    ],
+    "steps": [],
     "qrpStep": {},
     "customSteps": {},
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/5d2c2aa64d60de0001eaf1f6"
@@ -9466,26 +11613,7 @@
       "Android": "1.1.7"
     },
     "smartTypes": ["SPA"],
-    "steps": [
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      },
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      }
-    ],
+    "steps": [],
     "qrpStep": {},
     "customSteps": {},
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/5ca31df112851900016858c0"
@@ -9507,26 +11635,7 @@
       "Android": "1.1.7"
     },
     "smartTypes": ["SPA"],
-    "steps": [
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      },
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      }
-    ],
+    "steps": [],
     "qrpStep": {},
     "customSteps": {},
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/5d2c150dba13eb00013feaae"
@@ -9548,26 +11657,7 @@
       "Android": "1.1.7"
     },
     "smartTypes": ["SPA"],
-    "steps": [
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      },
-      {
-        "guideImageType": "",
-        "guideImageUrl": "",
-        "title": "",
-        "guideText": "",
-        "retryText": "",
-        "confirmText": "",
-        "btnText": ""
-      }
-    ],
+    "steps": [],
     "qrpStep": {},
     "customSteps": {},
     "icon": "https://portal-ww.ecouser.net/api/pim/file/get/5ca1ca79e9e9270001354b2d"

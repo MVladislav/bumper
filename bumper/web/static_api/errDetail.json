@@ -5,7 +5,7 @@
   },
   {
     "code": "10002",
-    "msg": "Error code: 2, 10002, 10024 -Programe error\r\n"
+    "msg": "Error code: 2, 10002, 10024 -Programe error\r\nPlease restart the App, reboot Robot (turn it off, and then turn it back on), and try again."
   },
   {
     "code": "10006",
@@ -41,7 +41,7 @@
   },
   {
     "code": "10024",
-    "msg": "Error code: 2, 10002, 10024 -Programe error\r\n"
+    "msg": "Error code: 2, 10002, 10024 -Programe error\r\nPlease restart the App, reboot Robot (turn it off, and then turn it back on), and try again."
   },
   {
     "code": "10025",
@@ -53,7 +53,7 @@
   },
   {
     "code": "2",
-    "msg": "Error code: 2, 10002, 10024 -Programe error\r\n"
+    "msg": "Error code: 2, 10002, 10024 -Programe error\r\nPlease restart the App, reboot Robot (turn it off, and then turn it back on), and try again."
   },
   {
     "code": "3",
