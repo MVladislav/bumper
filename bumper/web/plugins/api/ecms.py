@@ -32,6 +32,7 @@ class EcmsPlugin(WebserverPlugin):
             web.route("*", "/ecms/app/element/hint", _handle_hint),
             web.route("*", "/ecms/app/resources", _handle_resources),
             web.route("*", "/ecms/app/push/event", _handle_push_event),
+            web.route("*", "/ecms/app/user/theme", _handle_user_theme),
         ]
 
 
@@ -120,7 +121,17 @@ async def _handle_resources(request: Request) -> Response:
 
 
 async def _handle_push_event(_: Request) -> Response:
-    """Ad res."""
+    """Push Event."""
     # dataCategory = request.query.get("dataCategory", "Discover-Hint")
     # resourceId = request.query.get("resourceId", "Robot")
     return response_success_v3(data="ok", result_key=None, include_success=True)
+
+
+async def _handle_user_theme(_: Request) -> Response:
+    """User Theme."""
+    # lang = request.query.get("lang", "EN")
+    # country = request.query.get("country", "US")
+    # plat = request.query.get("plat", "android")
+    # version = request.query.get("v", "3.9")
+    # section = request.query.get("section", "PUBLIC")
+    return response_success_v3(data=None, result_key=None, include_success=True)
