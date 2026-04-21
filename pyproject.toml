@@ -193,7 +193,7 @@ max-complexity = 20
 max-args = 12
 max-branches = 25
 max-statements = 70
-max-returns = 10
+max-returns = 12
 
 # ----------------------------------- PYTEST -----------------------------------
 [tool.pytest.ini_options]
@@ -290,6 +290,6 @@ never-returning-functions = ["sys.exit", "argparse.parse_error"]
 max-branches = 20             # too-many-branches
 max-parents = 10
 max-positional-arguments = 10 # too-many-positional-arguments
-max-returns = 10              # too-many-return-statements
+max-returns = 12              # too-many-return-statements
 max-statements = 62           # too-many-statements
 max-module-lines = 1128       # too-many-lines

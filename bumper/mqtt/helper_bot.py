@@ -63,11 +63,14 @@ class MQTTCommandModel:
     def from_version_1(self, cmdjson: dict[str, Any]) -> None:
         """Parse command information from version 1."""
         self.payload_type = cmdjson.get("payloadType", "j")
-        self.cmd_name = cmdjson.get("cmdName")
         self.did = cmdjson.get("toId")
         self.to_type = cmdjson.get("toType")
         self.to_res = cmdjson.get("toRes")
         self.td = cmdjson.get("td")
+
+        self.cmd_name = cmdjson.get("cmdName")
+        if self.cmd_name == "clean_V2":
+            self.cmd_name = "clean"
 
         payload_j = cmdjson.get("payload")
         self.payload = json.dumps(payload_j) if self.payload_type == "j" else str(payload_j)
@@ -109,9 +112,8 @@ class MQTTCommandModel:
             }
             if act := payload_j.get("act"):
                 payload_j["act"] = act_translation.get(act, act)
-        if payload_j:
-            payload_j = {"body": {"data": payload_j}}
 
+        payload_j = {"body": {"data": payload_j}}
         self.payload = json.dumps(payload_j) if self.payload_type == "j" else str(payload_j)
 
     def create_topic(self) -> str:

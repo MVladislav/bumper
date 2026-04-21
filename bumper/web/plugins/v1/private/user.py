@@ -41,6 +41,7 @@ class UserPlugin(WebserverPlugin):
             web.route("*", f"{BASE_URL}user/changeArea", _handle_change_area),
             web.route("*", f"{BASE_URL}user/queryChangeArea", _handle_change_area),
             web.route("*", f"{BASE_URL}user/acceptAgreementBatch", _handle_accept_agreement_batch),
+            web.route("*", f"{BASE_URL}user/getMemberInfo", _handle_get_member_info),
         ]
 
 
@@ -307,3 +308,32 @@ async def _handle_change_area(_: Request) -> Response:
 async def _handle_accept_agreement_batch(_: Request) -> Response:
     """Accept agreement batch."""
     return response_success_v1(None)
+
+
+async def _handle_get_member_info(request: Request) -> Response:
+    """Get Member Info."""
+    user_id = request.query.get("uid")
+    user_name = bumper_isc.USER_USERNAME_DEFAULT
+
+    if user_id and (user := user_repo.get_by_id(user_id)):
+        user_name = user.username
+    return response_success_v1(
+        {
+            "name": "smart eco",  # TODO: improve as non static
+            "memberNo": f"1337.{user_name}",  # TODO: improve as non static
+            "userName": user_name,
+            "integral": None,
+            "exp": None,
+            "headIco": None,
+            "nickName": bumper_isc.USER_NICKNAME_DEFAULT,  # TODO: improve as non static
+            "mobile": None,
+            "email": bumper_isc.USER_MAIL_DEFAULT,  # TODO: improve as non static
+            "isMember": None,
+            "slogan": None,
+            "sloganUrl": None,
+            "expUpNeed": None,
+            "userlevel": None,
+            "userlevelName": "default",
+            "levelList": None,
+        },
+    )

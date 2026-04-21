@@ -1,4 +1,4 @@
-"""Offline plugin module."""
+"""Notice plugin module."""
 
 from collections.abc import Iterable
 import logging
@@ -9,22 +9,21 @@ from aiohttp.web_response import Response
 from aiohttp.web_routedef import AbstractRouteDef
 
 from bumper.web.plugins import WebserverPlugin
-from bumper.web.static_api import get_offline
+from bumper.web.utils.response_helper import response_success_v4
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class OfflinePlugin(WebserverPlugin):
-    """Offline plugin."""
+class NoticePlugin(WebserverPlugin):
+    """Notice plugin."""
 
     @property
     def routes(self) -> Iterable[AbstractRouteDef]:
         """Plugin routes."""
         return [
-            web.route("*", "/offline.html", _handle_offline),
+            web.route("*", "/notice/app", _handle_notice_app),
         ]
 
 
-async def _handle_offline(_: Request) -> Response:
-    """Handle Offline."""
-    return web.Response(text=get_offline(), content_type="text/html")
+async def _handle_notice_app(_: Request) -> Response:
+    return response_success_v4(data={})

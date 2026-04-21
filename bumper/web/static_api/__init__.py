@@ -53,6 +53,12 @@ def get_product_iot_map() -> list[dict[str, Any]]:
 
 
 @cache
+def get_product_entry_group() -> dict[str, Any]:
+    """Get product entry group."""
+    return load_json_object_files("productEntryGroup.json", get_static_dir())
+
+
+@cache
 def get_err_detail() -> list[dict[str, Any]]:
     """Get error detail json."""
     return load_json_array_files(["errDetail.json"], get_static_dir())
@@ -68,6 +74,12 @@ def get_common_area() -> dict[str, Any]:
 def get_codepush_update_check() -> dict[str, Any]:
     """Get codepush update check json."""
     return load_json_object_files("updateCheck.json", get_static_dir())
+
+
+@cache
+def get_codepush_update_check_mapping() -> dict[str, Any]:
+    """Get codepush update check mapping json."""
+    return load_json_object_files("updateCheck_mapping.json", get_static_dir())
 
 
 @cache

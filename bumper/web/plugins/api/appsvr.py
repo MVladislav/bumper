@@ -6,6 +6,7 @@ import json
 import logging
 import secrets
 from typing import Any
+from urllib.parse import parse_qs, urlparse
 
 from aiohttp import web
 from aiohttp.web_exceptions import HTTPInternalServerError
@@ -19,7 +20,13 @@ from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
 from bumper.web import auth_service
 from bumper.web.plugins import WebserverPlugin
-from bumper.web.static_api import get_code_push_config, get_config_groups_response, get_product_config_batch, get_product_iot_map
+from bumper.web.static_api import (
+    get_code_push_config,
+    get_codepush_update_check,
+    get_codepush_update_check_mapping,
+    get_config_groups_response,
+    get_product_iot_map,
+)
 from bumper.web.utils.models import VacBotDevice
 from bumper.web.utils.response_helper import response_error_v5, response_success_v2, response_success_v3, response_success_v4
 
@@ -48,6 +55,7 @@ class AppsvrPlugin(WebserverPlugin):
             web.route("*", "/appsvr/akvs/start_watch", _handle_akvs_start_watch),
             # web.route("*", "/appsvr/akvs/end_watch", _handle_akvs_end_watch), # TODO: implement
             web.route("*", "/appsvr/product/getConfigGroups", _handle_get_config_groups),
+            web.route("*", "/appsvr/codepush/checkupdate", _handle_codepush_update_check),
         ]
 
 
@@ -124,7 +132,54 @@ async def _handle_app_do(request: Request) -> Response:
                 },
             )
 
-        # if todo =="DecodeQrCode": # TODO: implement (add bot per qrcode)
+        if todo == "DecodeQrCode":
+            qrcode = post_body.get("qrcode", "")
+            if not isinstance(qrcode, str):
+                return response_success_v2(data={})
+
+            qrcode_q = parse_qs(urlparse(qrcode).query)
+            sn = qrcode_q.get("sn", [None])[0]
+            mid = qrcode_q.get("mid", [None])[0]
+            if not isinstance(sn, str) and not isinstance(mid, str):
+                return response_success_v2(data={})
+
+            robot = None
+            product_category = None
+            for botprod in get_product_iot_map():
+                if botprod["classid"] != mid:
+                    continue
+                name = botprod.get("product", {}).get("name")
+                robot = _get_config_groups_robot(value=name, key="groupName")
+                product_category = _get_product_category(device_name=name, robot=robot)
+                if robot:
+                    robot["mid"] = mid
+                    robot["customSteps"] = robot.pop("cusSteps")
+                    robot["name"] = robot.pop("groupName")
+                    robot.pop("groupId")
+                    robot.pop("service")
+                    robot.pop("products")
+                    robot.pop("smartTypes")
+                    robot.pop("icon")
+                    robot.pop("sort")
+                break
+
+            base_url = f"https://api-app.{bumper_isc.DOM_SUB_1}ecouser.net/api/pim"
+            return response_success_v2(
+                data={
+                    "supportApp": "global",
+                    "belongApp": ["ecoglobal", "yeedi"],
+                    "supportRegion": "International",
+                    "qrType": "config",
+                    "productCategory": product_category,
+                    "code_sn": sn,
+                    "configGuide": robot,
+                    "configFAQ": {
+                        "wifiFAQUrl": f"{base_url}/faqproblem.html?lang=en&defaultLang=iotclient_lang_english",
+                        "notFoundAPUrl": f"{base_url}/findDbWifi.html?lang=en&defaultLang=iotclient_lang_english",
+                        "configFailedUrl": f"{base_url}/configfail.html?lang=en&defaultLang=iotclient_lang_english",
+                    },
+                },
+            )
 
         _LOGGER.warning(f"todo is not know :: {todo!s}")
         return response_error_v5()
@@ -269,7 +324,29 @@ async def _handle_app_config(request: Request) -> Response:
             },
         ]
 
-    # elif code == "globalapp_netcfg_h5_url_list":  # TODO: implement (add bot per qrcode)
+    elif code == "home_teamwork_entry":
+        data = []
+
+    elif code == "globalapp_netcfg_h5_url_list":
+        base_url = f"https://api-app.{bumper_isc.DOM_SUB_1}ecouser.net/app_adv/pim"
+        data = [
+            {
+                "resId": "642fc135604348000681bfd2",  # pragma: allowlist secret
+                "code": "globalapp_netcfg_h5_url_list",
+                "name": "globalapp Distribution Network Process H5",
+                "description": "globalapp URL of the HTML5 page used in the distribution network process",
+                "type": "json",
+                "content": {
+                    "network_setup": f"{base_url}/network_setup_preparation_by_series.html?t=network",
+                    "findqrcodenew": f"{base_url}/find_qrcode.html?t=findqrcodenew",
+                    "faqproblem": f"{base_url}/faq_problem_new.html?t=faqproblem",
+                    "autofind": f"{base_url}/active_discovery.html?t=autofind",
+                    "notFoundAPUrl": f"{base_url}/network_setup_preparation_by_series.html?_t=findDbWifi",
+                    "notFoundBTUrl": f"{base_url}/active_discovery.html?t=notFoundBTUrl",
+                    "viewWiFi": f"{base_url}/viewWiFi.html?t=viewWiFi",
+                },
+            },
+        ]
 
     if data is None:
         _LOGGER.error(f"code is not know :: {code}")
@@ -395,6 +472,8 @@ def _include_product_iot_map_info(bot: VacBotDevice) -> dict[str, Any] | None:
         result.pop("mqtt_connection")
         result.pop("xmpp_connection")
 
+        robot = _get_config_groups_robot(result.get("class"))
+
         if (botprod_invent := botprod.get("product")) is not None:
             result["pid"] = botprod_invent["_id"]
             result["materialNo"] = botprod_invent["materialNo"]
@@ -403,7 +482,45 @@ def _include_product_iot_map_info(bot: VacBotDevice) -> dict[str, Any] | None:
             result["UILogicId"] = botprod_invent["UILogicId"]
             result["ota"] = botprod_invent["ota"]
             result["icon"] = botprod_invent["iconUrl"]
-            result["product_category"] = "DEEBOT" if botprod_invent["name"].startswith("DEEBOT") else "UNKNOWN"
+
+            if not robot:
+                # some class-id's are not located inside 'configGroupsResponse', fallback to 'groupName'
+                robot = _get_config_groups_robot(value=result.get("deviceName"), key="groupName")
+            result["product_category"] = _get_product_category(botprod_invent["name"], robot)
+
+            result["scode"] = {"battery": True}
+            smart_type: str | None = botprod_invent.get("smartType")
+            if smart_type and smart_type.startswith("MQ"):  # MQ_AP|MQ_APM
+                result["scode"].update(
+                    {
+                        "tmallstand": True,
+                        "video": True,
+                        "clean": True,
+                        "charge": True,
+                        "chargestate": True,
+                    },
+                )
+            elif smart_type and smart_type.startswith("BLAP"):  # BLAP|BLAP2|BLAPG
+                result["scode"].update(
+                    {
+                        "appArchVer": "2.0",
+                        "bt_mode": True,
+                        "ff_mode": True,
+                        "fwPlat": "DZ",
+                    },
+                )
+                result["btName"] = ""  # TODO: find logic where to get source from
+                result["btMac"] = ""  # TODO: find logic where to get source from
+            else:  # BT|HK_AP|QRP|SPA
+                result["scode"].update(
+                    {
+                        "tmallstand": False,
+                        "video": False,
+                        "clean": True,
+                        "charge": True,
+                        "chargestate": True,
+                    },
+                )
 
         result["status"] = 1 if bot.mqtt_connection or bot.xmpp_connection else 0
 
@@ -416,36 +533,13 @@ def _include_product_iot_map_info(bot: VacBotDevice) -> dict[str, Any] | None:
         result["homeId"] = bumper_isc.HOME_ID
         result["homeSort"] = 1
 
-        if bot.mqtt_connection:
-            result["bindTs"] = utils.get_current_time_as_millis()
-            result["offmap"] = True
+        result["bindTs"] = utils.get_current_time_as_millis()
+        result["offmap"] = True  # TODO: is this still needed/used?
 
-            product_config_batch: list[dict[str, Any]] = get_product_config_batch()
-
-            result["scode"] = {
-                "tmallstand": False,
-                "video": False,
-                "battery": True,
-                "clean": True,
-                "charge": True,
-                "chargestate": True,
-            }
-            for product_config in product_config_batch:
-                if botprod_invent and botprod_invent["_id"] == product_config.get("pid", ""):
-                    result["scode"] = {
-                        "tmallstand": product_config.get("tmallstand", False),
-                        "video": product_config.get("video", False),
-                        "battery": product_config.get("battery", True),
-                        "clean": product_config.get("clean", True),
-                        "charge": product_config.get("charge", True),
-                        "chargestate": product_config.get("", True),
-                    }
-                    break
-
-            result["service"] = {
-                "jmq": f"jmq-ngiot-eu.{bumper_isc.DOM_SUB_2}{bumper_isc.DOMAIN_MAIN}",
-                "mqs": f"api-ngiot.{bumper_isc.DOM_SUB_1}{bumper_isc.DOMAIN_MAIN}",
-            }
+        result["service"] = {
+            "jmq": f"jmq-ngiot-eu.{bumper_isc.DOM_SUB_2}{bumper_isc.DOMAIN_MAIN}",
+            "mqs": f"api-ngiot.{bumper_isc.DOM_SUB_1}{bumper_isc.DOMAIN_MAIN}",
+        }
 
         return result
     return None
@@ -490,9 +584,9 @@ async def _handle_get_config_groups(_: Request) -> Response:
             msg="success",
             result_key="configFAQ",
             result={
-                "wifiFAQUrl": "https://portal-ww.ecouser.net/api/pim/faqproblem.html?lang=en&defaultLang=en",
-                "notFoundAPUrl": "https://portal-ww.ecouser.net/api/pim/findDbWifi.html?lang=en&defaultLang=en",
-                "configFailedUrl": "https://portal-ww.ecouser.net/api/pim/configfail.html?lang=en&defaultLang=en",
+                "wifiFAQUrl": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/faqproblem.html?lang=en&defaultLang=en",
+                "notFoundAPUrl": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/findDbWifi.html?lang=en&defaultLang=en",
+                "configFailedUrl": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/configfail.html?lang=en&defaultLang=en",
             },
             data_key="data",
             data=get_config_groups_response(),
@@ -500,3 +594,73 @@ async def _handle_get_config_groups(_: Request) -> Response:
     except Exception:
         _LOGGER.exception(utils.default_exception_str_builder(info="during handling request"))
     raise HTTPInternalServerError
+
+
+async def _handle_codepush_update_check(request: Request) -> Response:
+    """CodePush Update check."""
+    return response_success_v3(data=get_codepush_update_check_data(request))
+
+
+def get_codepush_update_check_data(request: Request) -> dict[str, Any]:
+    """Get CodePush Update check Data."""
+    deployment_key = request.query.get("deployment_key", "")
+    label = request.query.get("label", "")
+    package_hash = request.query.get("package_hash", "")
+    package_name = request.query.get("package_name", None)
+    app_version = request.query.get("app_version", "1.0.0")
+    deployment_name = request.query.get("deployment_name", "Production")
+
+    if deployment_key == "" and package_name:
+        deployment_key = get_codepush_update_check_mapping().get(package_name, "")
+
+    response: dict[str, Any] = get_codepush_update_check().get(
+        deployment_key,
+        {
+            "update_info": {
+                "download_url": "",
+                "description": "",
+                "is_available": False,
+                "is_disabled": True,
+                "target_binary_range": app_version,
+                "label": label,
+                "package_hash": package_hash,
+                "package_size": 0,
+                "should_run_binary_version": False,
+                "update_app_version": False,
+                "is_mandatory": False,
+                "deployment_key": deployment_key,
+                "deployment_name": deployment_name,
+                "publish_time": 0,
+            },
+        },
+    )
+    return response
+
+
+def _get_config_groups_robot(value: str | None, key: str = "mid") -> dict[str, Any] | None:
+    if not value:
+        return None
+
+    for group in get_config_groups_response():
+        robots: list[dict[str, Any]] = group.get("robots", [])
+        for robot in robots:
+            if robot.get(key) == value:
+                return robot
+    return None
+
+
+def _get_product_category(device_name: str, robot: dict[str, Any] | None) -> str:
+    if robot:
+        category: str = robot.get("category", "UNKNOWN")
+        return category
+    if device_name.startswith("DEEBOT"):
+        return "DEEBOT"
+    if device_name.startswith("GOAT"):
+        return "GOATBOT"
+    # if device_name.startswith("AIRBOT"):
+    #     return "AIRBOT"
+    # if device_name.startswith("ATMOBOT"):
+    #     return "AIRBOT"
+    # if device_name.startswith("WINBOT"):
+    #     return "WINBOT"
+    return "UNKNOWN"

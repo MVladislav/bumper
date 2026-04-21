@@ -19,7 +19,7 @@ from aiohttp.web_response import Response
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
 from bumper.web.auth_service import get_new_auth
-from bumper.web.static_api import get_codepush_update_check
+from bumper.web.plugins.api.appsvr import get_codepush_update_check_data
 from bumper.web.utils.response_helper import ERR_UNKNOWN_TODO, response_error_v2, response_success_v3
 
 _LOGGER = logging.getLogger(__name__)
@@ -194,35 +194,12 @@ async def handle_codepush_report_status_deploy(_: Request) -> Response:
 
 async def handle_codepush_update_check(request: Request) -> Response:
     """CodePush Update check (/v0.1/public/codepush/update_check)."""
-    deployment_key = request.query.get("deployment_key", "")
-    label = request.query.get("label", "")
-    package_hash = request.query.get("package_hash", "")
-    app_version = request.query.get("app_version", "1.0.0")
-
-    response = get_codepush_update_check().get(
-        deployment_key,
-        {
-            "update_info": {
-                "download_url": "",
-                "description": "",
-                "is_available": False,
-                "is_disabled": True,
-                "target_binary_range": app_version,
-                "label": label,
-                "package_hash": package_hash,
-                "package_size": 0,
-                "should_run_binary_version": False,
-                "update_app_version": False,
-                "is_mandatory": False,
-                "deployment_key": deployment_key,
-            },
-        },
-    )
+    response = get_codepush_update_check_data(request)
     return web.json_response(response)
 
 
 async def handle_global_app_bury_point_api(_: Request) -> Response:
-    """Codepush Report Status Deploy (/Global_APP_BuryPoint/api)."""
+    """Global APP BuryPoint API (/Global_APP_BuryPoint/api)."""
     return web.json_response(
         {
             "header": {
@@ -237,6 +214,18 @@ async def handle_global_app_bury_point_api(_: Request) -> Response:
         #     },
         #     "body": {},
         # },
+    )
+
+
+async def handle_global_app_bury_point_api_appevent(_: Request) -> Response:
+    """Global APP BuryPoint API app-event (/Global_APP_BuryPoint/api/appevent)."""
+    return web.json_response(
+        {
+            "header": {
+                "result_code": "000000",
+            },
+            "body": {},
+        },
     )
 
 
