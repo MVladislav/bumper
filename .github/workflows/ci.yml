@@ -27,7 +27,7 @@ jobs:
 
       # https://github.com/j178/prek-action
       - name: Run prek
-        uses: j178/prek-action@v1.1.1
+        uses: j178/prek-action@v2.0.3
         env:
           PREK_SKIP: no-commit-to-branch,mypy,pylint
 
@@ -42,7 +42,7 @@ jobs:
 
       # https://github.com/astral-sh/setup-uv
       - name: 🏗 Install uv and Python
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v8.1.0
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
@@ -78,7 +78,7 @@ jobs:
 
       # https://github.com/astral-sh/setup-uv
       - name: 🏗 Install uv and Python ${{ matrix.python-version }}
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v8.1.0
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
@@ -100,7 +100,7 @@ jobs:
 
       # https://github.com/codecov/codecov-action
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
