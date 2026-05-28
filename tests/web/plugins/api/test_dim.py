@@ -43,7 +43,7 @@ async def test_dim_devmanager(webserver_client: TestClient) -> None:
         test_resp = await resp.json()
         assert test_resp["ret"] == "fail"
         assert test_resp["errno"] == 500
-        assert test_resp["debug"] == "wait for response timed out"
+        assert test_resp["debug"] == "mqtt wait for response failed, see logs form more information"
 
     # Set bot not on mqtt
     bot_repo.set_mqtt("did_1234", False)

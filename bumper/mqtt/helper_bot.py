@@ -93,9 +93,12 @@ class MQTTCommandModel:
 
         self.cmd_name = cmdjson.get("cmd")
         self.cmd_name_orig = cmdjson.get("cmd")
-        self.cmd_name = self.cmd_name[0].lower() + self.cmd_name[1:] if self.cmd_name else None
+        if self.cmd_name and self.cmd_name.lower().startswith("get"):
+            self.cmd_name = self.cmd_name[0].lower() + self.cmd_name[1:] if self.cmd_name else None
         if self.cmd_name == "getBatteryInfo":
             self.cmd_name = "getBattery"
+        # if self.cmd_name == "clean_V2":
+        #     self.cmd_name = "clean"
 
         self.did = cmdjson.get("did")
         self.to_type = cmdjson.get("mid")
@@ -103,6 +106,7 @@ class MQTTCommandModel:
         # self.td = cmdjson.get("")
 
         payload_j: dict[str, Any] | None = cmdjson.get("data")
+        # if payload_j and self.cmd_name in {"clean", "clean_V2"}:
         if payload_j and self.cmd_name == "clean":
             act_translation = {
                 "s": "start",
@@ -199,6 +203,87 @@ class MQTTHelperBot:
 
     async def send_command(self, cmd: MQTTCommandModel) -> Response:
         """Send command over MQTT."""
+        if cmd.version == cmd.VERSION_OLD:
+            return await self._send_command_old(cmd)
+        if cmd.version == cmd.VERSION_NEW:
+            return await self._send_command_new(cmd)
+        if cmd.version == cmd.VERSION_P2P:
+            return await self._send_command_p2p(cmd)
+
+        msg = f"Unsupported version :: '{cmd.version}'"
+        _LOGGER.error(msg)
+        return response_error_v8(cmd.request_id, msg)
+
+    async def _send_command_old(self, cmd: MQTTCommandModel) -> Response:
+        """Send command over MQTT - called by '/iot/devmanager.do'."""
+        if cmd.version != cmd.VERSION_OLD:
+            return response_error_v8(
+                cmd.request_id,
+                f"Wrong api call used - used: {cmd.version} :: expected: '{cmd.VERSION_OLD}'!",
+            )
+        cmd_response = await self.send_command_plain(cmd)
+        if not cmd_response:
+            return response_error_v8(cmd.request_id, "mqtt wait for response failed, see logs form more information")
+
+        return web.json_response(
+            {
+                "id": cmd.request_id,
+                "ret": "ok",
+                "resp": cmd_response,
+                "payloadType": cmd.payload_type,
+            },
+        )
+
+    async def _send_command_new(self, cmd: MQTTCommandModel) -> Response:
+        """Send command over MQTT - called by 'iot/endpoint/control'."""
+        if cmd.version != cmd.VERSION_NEW:
+            return response_error_v8(
+                cmd.request_id,
+                f"Wrong api call used - used: {cmd.version} :: expected: '{cmd.VERSION_NEW}'!",
+            )
+        cmd_response = await self.send_command_plain(cmd)
+        if not cmd_response:
+            return response_error_v8(cmd.request_id, "mqtt wait for response failed, see logs form more information")
+
+        return web.Response(
+            body=json.dumps(cmd_response, separators=(",", ":")).encode("utf-8"),
+            content_type="application/octet-stream",
+            charset="utf-8",
+            headers={"x-ngiot-fmt": "b", "x-ngiot-ret": "ok"},
+        )
+
+    async def _send_command_p2p(self, cmd: MQTTCommandModel) -> Response:
+        """Send command over MQTT - called by 'appsvr/app.do' with 'RobotControl'."""
+        if cmd.version != cmd.VERSION_P2P:
+            return response_error_v8(
+                cmd.request_id,
+                f"Wrong api call used - used: {cmd.version} :: expected: '{cmd.VERSION_P2P}'!",
+            )
+        cmd_response = await self.send_command_plain(cmd)
+        if not cmd_response:
+            return response_error_v8(cmd.request_id, "mqtt wait for response failed, see logs form more information")
+        if not isinstance(cmd_response, dict):
+            return response_error_v8(cmd.request_id, "Unknown result return from bot")
+
+        ret_type: dict[str, Any] | None = None
+        if cmd.cmd_name == "getBattery":
+            ret_type = {"key": "power", "value": cmd_response.get("body", {}).get("data", {}).get("value")}
+        elif cmd.cmd_name == "getChargeState":
+            is_charging: int = cmd_response.get("body", {}).get("data", {}).get("isCharging")
+            mode = "SlotCharging" if is_charging == 1 else "SlotIdle"
+            ret_type = {"key": "type", "value": mode}
+        elif cmd.cmd_name in {"charge", "clean"}:
+            return response_success_v2(
+                data={cmd.cmd_name_orig: {"did": cmd.did, "ret": cmd_response.get("body", {}).get("msg", "error")}},
+            )
+        if ret_type is not None:
+            return response_success_v2(
+                data={cmd.cmd_name_orig: {"ret": "ok", "did": cmd.did, ret_type["key"]: ret_type["value"]}},
+            )
+        return response_success_v2(data={cmd.cmd_name_orig: {"ret": "ok", "did": cmd.did}})
+
+    async def send_command_plain(self, cmd: MQTTCommandModel) -> str | dict[str, Any] | None:
+        """Send command over MQTT."""
         try:
             if not await self.is_connected:
                 await self.start()
@@ -214,69 +299,15 @@ class MQTTHelperBot:
             _LOGGER.debug(f"To   Bot  Request :: {cmd.__dict__}")
             _LOGGER.debug(f"From Bot Response :: {cmd_response}")
 
-            # try:
-            #     if cmd_response.get("header", {}).get("fwVer"):
-            #         cmd_response["header"]["fwVer"] = "1.7.5"
-            #     if cmd_response.get("header", {}).get("tzm"):
-            #         cmd_response["header"]["tzm"] = 120
-            #     if cmd_response.get("body", {}).get("data", {}).get("ver"):
-            #         cmd_response["body"]["data"]["ver"] = "1.7.5"
-            # except Exception:
-            #     pass
+            if not cmd_response:
+                _LOGGER.warning(f"wait_for_resp empty :: did='{cmd.did}' :: api_v={cmd.version} :: cmd='{cmd.cmd_name}'")
 
-            if cmd_response is None:
-                return response_error_v8(cmd.request_id, "wait for response timed out")
-
-            # Calls by '/iot/devmanager.do'
-            if cmd.version == cmd.VERSION_OLD:
-                return web.json_response(
-                    {
-                        "id": cmd.request_id,
-                        "ret": "ok",
-                        "resp": cmd_response,
-                        "payloadType": cmd.payload_type,
-                    },
-                )
-
-            # Calls by 'iot/endpoint/control'
-            if cmd.version == cmd.VERSION_NEW:
-                return web.Response(
-                    body=json.dumps(cmd_response, separators=(",", ":")).encode("utf-8"),
-                    content_type="application/octet-stream",
-                    charset="utf-8",
-                    headers={
-                        "x-ngiot-fmt": "b",
-                        "x-ngiot-ret": "ok",
-                    },
-                )
-
-            # Calls by 'appsvr/app.do' with 'RobotControl'
-            if cmd.version == cmd.VERSION_P2P and isinstance(cmd_response, dict):
-                ret_type: dict[str, Any] | None = None
-                if cmd.cmd_name == "getBattery":
-                    ret_type = {"key": "power", "value": cmd_response.get("body", {}).get("data", {}).get("value")}
-                elif cmd.cmd_name == "getChargeState":
-                    is_charging: int = cmd_response.get("body", {}).get("data", {}).get("isCharging")
-                    mode = "SlotCharging" if is_charging == 1 else "SlotIdle"
-                    ret_type = {"key": "type", "value": mode}
-                elif cmd.cmd_name in {"charge", "clean"}:
-                    return response_success_v2(
-                        data={cmd.cmd_name_orig: {"did": cmd.did, "ret": cmd_response.get("body", {}).get("msg", "error")}},
-                    )
-                if ret_type is not None:
-                    return response_success_v2(
-                        data={cmd.cmd_name_orig: {"ret": "ok", "did": cmd.did, ret_type["key"]: ret_type["value"]}},
-                    )
-                return response_success_v2(data={cmd.cmd_name_orig: {"ret": "ok", "did": cmd.did}})
-
-            msg = f"Unsupported version :: '{cmd.version}' :: {cmd_response}"
-            _LOGGER.error(msg)
-            return response_error_v8(cmd.request_id, msg)
+            return cmd_response
         except Exception:
             _LOGGER.exception("Could not send command")
-            return response_error_v8(cmd.request_id, "exception occurred please check bumper logs")
         finally:
             self._commands.pop(cmd.request_id, None)
+        return None
 
     async def publish(self, topic: str, payload: str) -> None:
         """Publish message."""
@@ -292,7 +323,7 @@ class MQTTHelperBot:
         except TimeoutError:
             _LOGGER.debug("wait_for_resp timeout reached")
         except asyncio.CancelledError:
-            _LOGGER.debug("wait_for_resp cancelled by asyncio", exc_info=True)
+            _LOGGER.warning("wait_for_resp cancelled by asyncio", exc_info=True)
         except Exception:
             _LOGGER.exception(utils.default_exception_str_builder(info="during wait for response"))
         return None
