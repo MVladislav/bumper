@@ -204,7 +204,7 @@ async def test_helperbot_sendcommand(mqtt_client: Client, helper_bot: MQTTHelper
         "id": "testfail",
         "errno": 500,
         "ret": "fail",
-        "debug": "wait for response timed out",
+        "debug": "mqtt wait for response failed, see logs form more information",
     }  # Check timeout
 
     # Send response beforehand

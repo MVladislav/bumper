@@ -54,7 +54,7 @@ async def test_devmgr(webserver_client: TestClient, helper_bot: MQTTHelperBot) -
         assert resp.status == 200
         test_resp = await resp.json()
         assert test_resp["ret"] == "fail"
-        assert test_resp["debug"] == "wait for response timed out"
+        assert test_resp["debug"] == "mqtt wait for response failed, see logs form more information"
 
     # Test return get status (NOTE: Fake, not useful, needs to be improved)
     command_getstatus_resp = {
