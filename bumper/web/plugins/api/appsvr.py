@@ -56,6 +56,7 @@ class AppsvrPlugin(WebserverPlugin):
             # web.route("*", "/appsvr/akvs/end_watch", _handle_akvs_end_watch), # TODO: implement
             web.route("*", "/appsvr/product/getConfigGroups", _handle_get_config_groups),
             web.route("*", "/appsvr/codepush/checkupdate", _handle_codepush_update_check),
+            web.route("GET", "/appsvr/device/prop/list", _handle_device_prop_list),
         ]
 
 
@@ -599,6 +600,47 @@ async def _handle_get_config_groups(_: Request) -> Response:
 async def _handle_codepush_update_check(request: Request) -> Response:
     """CodePush Update check."""
     return response_success_v3(data=get_codepush_update_check_data(request))
+
+
+async def _handle_device_prop_list(request: Request) -> Response:
+    """Device prop list."""
+    did = request.query.get("did")
+    res = request.query.get("res")
+    mid = request.query.get("mid")
+    props: list[str] = request.query.get("props", "").split(",")  # OfflineReason,onBattery,onChargeState,...
+    ts = utils.get_current_time_as_millis()
+
+    props_result = []
+    for prop_o in props:
+        prop = "get" + prop_o[2:] if prop_o.startswith("on") else prop_o
+        cmd_json: dict[str, Any] = {
+            "cmd": prop,
+            "did": did,
+            "mid": mid,
+            "res": res,
+            "data": {"td": prop},
+        }
+        cmd_request = MQTTCommandModel(cmd_json, version=MQTTCommandModel.VERSION_P2P)
+        if bumper_isc.mqtt_helperbot is not None:
+            cmd_response = await bumper_isc.mqtt_helperbot.send_command_plain(cmd_request)
+            if not isinstance(cmd_response, dict):
+                continue
+            if body_value := cmd_response.get("body", {}).get("data"):
+                props_result.append(
+                    {
+                        "key": prop_o,
+                        "value": json.dumps({"body": {"data": body_value}}, separators=(",", ":")),
+                        "ts": utils.get_millis_to_iso_z(ts),
+                    },
+                )
+
+    return response_success_v3(
+        data={
+            "did": did,
+            "ts": ts,
+            "props": props_result,
+        },
+    )
 
 
 def get_codepush_update_check_data(request: Request) -> dict[str, Any]:

@@ -76,6 +76,12 @@ def get_current_time_as_millis() -> int:
     return convert_to_millis(datetime.now(tz=bumper_isc.LOCAL_TIMEZONE).timestamp())
 
 
+def get_millis_to_iso_z(ms: int) -> str:
+    """Convert millis timestamp to ISO 8601 UTC string ending with 'Z'."""
+    dt = datetime.fromtimestamp(ms / 1000, tz=bumper_isc.LOCAL_TIMEZONE)
+    return dt.isoformat(timespec="milliseconds").replace("+00:00", "Z")
+
+
 def get_tzm_and_ts() -> tuple[int, int]:
     """Get tzm offset and current timestamp (seconds)."""
     now = datetime.now(bumper_isc.LOCAL_TIMEZONE)
