@@ -254,6 +254,9 @@ async def get_auth_code_v2(request: Request) -> Response:
         user: models.BumperUser | None = None
         if user_id is not None:
             user = user_repo.get_by_id(user_id)
+        # if user is None:
+        #     user_repo.add(user_id)
+        #     user = user_repo.get_by_id(user_id)
         if user is None:
             _LOGGER.warning(f"No user found for {user_id} (get_auth_code_v2)")
             return response_error_v2(msg=f"No user found for {user_id}", code=ERR_USER_DISABLE)

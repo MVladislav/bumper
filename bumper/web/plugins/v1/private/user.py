@@ -312,6 +312,8 @@ async def _handle_accept_agreement_batch(_: Request) -> Response:
 
 async def _handle_get_member_info(request: Request) -> Response:
     """Get Member Info."""
+    # TODO: check what's needed to be implemented
+    utils.default_log_warn_not_impl("_handle_get_member_info")
     user_id = request.query.get("uid")
     user_name = bumper_isc.USER_USERNAME_DEFAULT
 
