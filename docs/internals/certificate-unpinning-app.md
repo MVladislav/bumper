@@ -11,29 +11,28 @@ This guide covers methods to bypass certificate pinning in the Ecovacs Home Andr
 ## 📋 Prerequisites
 
 - **Automated Script (NEW)**
-    > NOTE:
-    > Currently **working as well as possible** with newer app versions.
-    > However, **some app features may still fail** due to unresolved certificate pinning.
+    - > **NOTE:** Currently **working as well as possible** with newer app versions.  
+      > However, **some app features may still fail** due to unresolved certificate pinning.
     - Docker (for building and running the patching container)
     - Android SDK platform-tools (`adb` in your PATH)
 - **Automated Script (Old)**
-    > NOTE: Currently **not working well** with newer app versions `>3.4.0`
+    - > **NOTE:** Currently **not working well** with newer app versions `>3.4.0`
     - Docker (for building and running the patching container)
     - Android SDK platform-tools (`adb` in your PATH)
     - CA certificate at `./certs/ca.crt` (see [Create Certificates](../getting_started/certificates.md))
 - **Manual apk-mitm Method**
-    > NOTE: Currently **not working well** with newer app versions `>3.4.0`
+    - > **NOTE:** Currently **not working well** with newer app versions `>3.4.0`
     - Node.js & npm
     - Java JDK
     - Android SDK platform-tools (`adb`)
     - `apk-mitm` (install via `npm install -g apk-mitm`)
 - **Manual apktool Method**
-    > NOTE: Currently **not working well** with newer app versions `>3.4.0`
+    - > **NOTE:** Currently **not working well** with newer app versions `>3.4.0`
     - `apktool` (for decompile/recompile)
     - `keytool` and `apksigner` (part of Java JDK or Android build-tools)
     - Android SDK platform-tools (`adb`)
 - **Manual android-unpinner Method**
-    > NOTE: Currently **not working well** with newer app versions `>3.4.0`
+    - > **NOTE:** Currently **not working well** with newer app versions `>3.4.0`
     - Python and `pip`
     - OpenJDK
     - Android SDK platform-tools (`adb`)
@@ -41,7 +40,7 @@ This guide covers methods to bypass certificate pinning in the Ecovacs Home Andr
 
 ---
 
-## Recommended
+## ⭐ Recommended
 
 ### 🚀 Automated Script (NEW)
 
@@ -142,7 +141,7 @@ scripts/create-unpinned-app-old.sh
 
 ---
 
-## Alternatives
+## 🔧 Alternatives
 
 > These methods are provided for reference and may work for specific app versions.
 > They are not officially supported and may require adjustments.
