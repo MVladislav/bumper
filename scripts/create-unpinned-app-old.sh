@@ -37,7 +37,7 @@ APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?versionCode=119&nc=arm6
 # APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?versionCode=117&nc=arm64-v8a' # 3.3.0
 # APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?versionCode=109&nc=arm64-v8a' # 3.0.0
 # APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?versionCode=107&nc=arm64-v8a' # 2.5.9
-# APK_URL='https://d.apkpure.net/b/APK/com.eco.global.app?versionCode=87&nc=arm64-v8a' # 2.4.1
+# APK_URL='https://d.apkpure.net/b/APK/com.eco.global.app?versionCode=81&nc=arm64-v8a' # 2.3.5
 echo "💡 Collecting base information..."
 APK_NAME="$(curl -H "User-Agent: ${CURL_USER_AGENT}" -sI -L "$APK_URL" | grep -o -E 'filename="[^"]+"' | cut -d'"' -f2)"
 APK_BASENAME="${APK_NAME%.*}"

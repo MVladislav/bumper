@@ -10,6 +10,7 @@ from aiohttp.web_request import Request
 from aiohttp.web_response import Response
 from aiohttp.web_routedef import AbstractRouteDef
 
+from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
 from bumper.web.plugins import WebserverPlugin
 from bumper.web.static_api import get_bot_image_path
@@ -129,6 +130,8 @@ async def _handle_push_event(_: Request) -> Response:
 
 async def _handle_user_theme(_: Request) -> Response:
     """User Theme."""
+    # TODO: check what's needed to be implemented
+    utils.default_log_warn_not_impl("_handle_member_list")
     # lang = request.query.get("lang", "EN")
     # country = request.query.get("country", "US")
     # plat = request.query.get("plat", "android")

@@ -79,6 +79,7 @@ async def handle_commands(
 
         if cmd_request.td is not None:
             if cmd_request.td == "PollSCResult":  # Seen when doing initial wifi config
+                # TODO: check how to use "sck" in request info
                 return web.json_response(
                     {
                         "ret": "ok",  # TODO: extend below

@@ -27,6 +27,8 @@ class RappPlugin(WebserverPlugin):
 
 async def _handle_map_get(_: Request) -> Response:
     """Map get."""
+    # TODO: check what's needed to be implemented
+    utils.default_log_warn_not_impl("_handle_user_data_del")
     return response_success_v3(
         result_key=None,
         data={
@@ -38,11 +40,15 @@ async def _handle_map_get(_: Request) -> Response:
 
 async def _handle_user_data_del(_: Request) -> Response:
     """User data del."""
+    # TODO: check what's needed to be implemented
+    utils.default_log_warn_not_impl("_handle_user_data_del")
     return response_success_v3(result_key=None, data=None)
 
 
 async def _handle_user_data_list(_: Request) -> Response:
     """User data list."""
+    # TODO: check what's needed to be implemented
+    utils.default_log_warn_not_impl("_handle_user_data_list")
     return response_success_v3(
         result_key=None,
         data=[
