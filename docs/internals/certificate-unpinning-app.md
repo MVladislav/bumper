@@ -2,105 +2,176 @@
 
 This guide covers methods to bypass certificate pinning in the Ecovacs Home Android application, enabling HTTPS interception for local Bumper usage.
 
-> **Disclaimer:** Modifying the Ecovacs app may break future updates. Proceed at your own risk.
+> **⚠️ Disclaimer:**
+>
+> Modifying the Ecovacs app may break future updates. Proceed at your own risk.
 
 ---
 
 ## 📋 Prerequisites
 
+- **Automated Script (NEW)**
+    > NOTE:
+    > Currently **working as well as possible** with newer app versions.
+    > However, **some app features may still fail** due to unresolved certificate pinning.
+    - Docker (for building and running the patching container)
+    - Android SDK platform-tools (`adb` in your PATH)
 - **Automated Script (Old)**
-    > NOTE: Current **not working** with newer app version `>3.4.0`
+    > NOTE: Currently **not working well** with newer app versions `>3.4.0`
     - Docker (for building and running the patching container)
     - Android SDK platform-tools (`adb` in your PATH)
     - CA certificate at `./certs/ca.crt` (see [Create Certificates](../getting_started/certificates.md))
 - **Manual apk-mitm Method**
-    > NOTE: Current **not working** with newer app version `>3.4.0`
+    > NOTE: Currently **not working well** with newer app versions `>3.4.0`
     - Node.js & npm
     - Java JDK
     - Android SDK platform-tools (`adb`)
     - `apk-mitm` (install via `npm install -g apk-mitm`)
 - **Manual apktool Method**
-    > NOTE: Current **not working** with newer app version `>3.4.0`
+    > NOTE: Currently **not working well** with newer app versions `>3.4.0`
     - `apktool` (for decompile/recompile)
     - `keytool` and `apksigner` (part of Java JDK or Android build-tools)
     - Android SDK platform-tools (`adb`)
 - **Manual android-unpinner Method**
-    > NOTE: Current **working** with newer app version `>3.4.0`
-    - `android-unpinner` (for patch apk)
+    > NOTE: Currently **not working well** with newer app versions `>3.4.0`
+    - Python and `pip`
+    - OpenJDK
     - Android SDK platform-tools (`adb`)
+    - `android-unpinner` (for patch apk)
 
 ---
 
-## 🚀 Automated Script
+## Recommended
+
+### 🚀 Automated Script (NEW)
 
 Bumper includes a Bash script at
-[`scripts/create-unpinned-app-old.sh`](https://github.com/MVladislav/bumper/blob/main/scripts/create-unpined-app.sh)
+[`scripts/create-unpinned-app.sh`](https://github.com/MVladislav/bumper/blob/main/scripts/create-unpinned-app.sh)
 that automates the XAPK patching process inside Docker.
 
-### How the Script Works
+!!! note
+
+    This script **only supports XAPK files** (not APKs) because `android-unpinner` patches each APK inside the XAPK individually.
+    While most functionality works after patching, **some app features may still fail due to remaining certificate checks**.
+
+#### How the Script Works
 
 The script performs these steps internally:
 
 1. **Environment Validation**  
-   Checks for `docker`; warns if `adb` is missing (skipping host‑side install).
+   Checks for `docker`; exits if not found.
 
 2. **Configuration**  
-   Defines variables for the base Docker image (`node:18-slim`), the Ecovacs XAPK URL(s), certificate path, and a temporary working directory.
+   Defines variables for:
+    - Base Docker image (`python:3-slim`)
+    - Ecovacs XAPK URL (configurable via `APK_URL`)
+    - Temporary working directory
 
 3. **Docker Image Build**  
    Constructs a minimal image named `apk-mitm-unpin` with:
-    - OpenJDK 17 JRE
-    - `apktool`, `apk-mitm`, `zip`, `unzip`, `curl`
+    - OpenJDK 21 JRE
+    - Python 3, `uv`, and `android-unpinner` (installed via `pip` and `uv`)
+    - `git`, `curl`, `unzip`
 
 4. **Download & Unpin**  
-   Runs a container mount:
-    - Downloads the XAPK via `curl` using the defined URL
-    - Executes `apk-mitm` with the mounted CA certificate
+   Runs a container that:
+    - Downloads the XAPK via `curl`
+    - Extracts the XAPK and patches each APK using `android-unpinner`
+    - Renames the patched APKs for clarity
 
 5. **Extract & Save**  
-   Copies the patched XAPK to `./data`, extracts APK files under `data/apks`.
+   Copies the patched APKs to `data/<original-basename>/`.
 
-6. **Optional ADB Install**  
-   If `adb` is available, installs all APK parts via `adb install-multiple`.
+6. **Manual Installation**  
+   Prints instructions for manual installation via `adb install-multiple`.
 
-### Running the Script
+#### Running the Script
+
+```sh
+scripts/create-unpinned-app.sh
+```
+
+> On completion, the patched APKs are saved under `data/<original-basename>/`.
+> The script does **not** automatically install the APKs; it only provides the commands for manual installation.
+
+### 🚀 Automated Script (OLD)
+
+Bumper includes a Bash script at
+[`scripts/create-unpinned-app-old.sh`](https://github.com/MVladislav/bumper/blob/main/scripts/create-unpinned-app-old.sh)
+that automates the XAPK/APK patching process inside Docker.
+
+#### How the Script Works
+
+The script performs these steps internally:
+
+1. **Environment Validation**
+   Checks for `docker`; exits if not found.
+
+2. **Configuration**
+   Defines variables for:
+    - Base Docker image (`node:25-slim`)
+    - Ecovacs XAPK/APK URL (configurable via `APK_URL`)
+    - Certificate path (`certs/ca.crt`)
+    - Temporary working directory
+
+3. **Docker Image Build**
+   Constructs a minimal image named `apk-mitm-unpin` with:
+    - OpenJDK 17 JRE
+    - `apk-mitm` (installed via npm)
+    - `curl`, `zip`, `unzip`
+
+4. **Download & Unpin**
+   Runs a container that:
+    - Downloads the (X)APK via `curl`
+    - Executes `apk-mitm` with the mounted CA certificate
+
+5. **Extract & Save**
+   Copies the patched (X)APK to `./data`; if the file is an XAPK, it is extracted to `data/apks`.
+
+6. **Manual Installation**
+   Prints instructions for manual installation via `adb install` (for APK) or `adb install-multiple` (for XAPK).
+
+#### Running the Script
 
 ```sh
 scripts/create-unpinned-app-old.sh
 ```
 
-> On completion, the patched XAPK is saved as `data/<original>-patched.xapk`.
-> If `adb` was available, the APK is installed on a connected device.
+> On completion, the patched (X)APK is saved as `data/<original>-patched.<ext>`.
+> The script does **not** automatically install the APK; it only provides the commands for manual installation.
 
 ---
 
-## 🔧 Manual apk-mitm Method
+## Alternatives
+
+> These methods are provided for reference and may work for specific app versions.
+> They are not officially supported and may require adjustments.
+
+### 🛠️ Manual apk-mitm Method
 
 This method leverages `apk-mitm` to patch the XAPK directly.
 
-**Download original XAPK:**
+**1. Download original XAPK:**
 
 ```sh
 curl -SLo ./data/eco.xapk \
   'https://d.apkpure.net/b/XAPK/com.eco.global.app?version=latest'
 ```
 
-**Patch with apk-mitm:**
+**2. Patch with apk-mitm:**
 
 ```sh
 apk-mitm './data/eco.xapk' --certificate './certs/ca.crt'
 ```
 
-**Extract and install:**
+**3. Extract and install:**
 
 ```sh
 unzip -o './data/eco-patched.xapk' -d ./data/apks
 adb install-multiple ./data/apks/*.apk
 ```
 
----
-
-## 🛠️ Manual apktool Method
+### 🛠️ Manual apktool Method
 
 Full manual unpack, patch, and re-sign process.
 
@@ -110,24 +181,28 @@ Full manual unpack, patch, and re-sign process.
 cd ./data
 APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?versionCode=127&nc=arm64-v8a'
 APK_NAME="$(curl -sI -L "$APK_URL" | grep -o -E 'filename="[^"]+"' | cut -d'"' -f2)"
-curl -SL "$APK_URL" -o "$APK_NAME"
+curl -SLo "$APK_NAME" "$APK_URL"
 unzip "$APK_NAME" -d bump && cd bump
 ```
 
 **2. Prepare:**
 
 ```sh
-curl -Lo apktool.jar https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.12.1.jar
+curl -SLo apktool.jar https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.12.1.jar
 export _JAVA_OPTIONS="-Djava.io.tmpdir=$HOME/.tmp"
 ```
 
-**2. Decode with apktool:**
+**3. Decode with apktool:**
 
 ```sh
 java -jar apktool.jar d 'com.eco.global.app.apk' --frame-path ~/.tmp/apktool-framework
 ```
 
-**3. Insert network security config:**
+**4. Insert network security config:**
+
+??? note
+
+    This step allows the app to trust user-installed certificates (e.g., your CA cert).
 
 ```sh
 tee 'com.eco.global.app/res/xml/network_security_config.xml' > /dev/null <<'EOF'
@@ -143,7 +218,7 @@ tee 'com.eco.global.app/res/xml/network_security_config.xml' > /dev/null <<'EOF'
 EOF
 ```
 
-**4. Rebuild the APK:**
+**5. Rebuild the APK:**
 
 ```sh
 sed -i 's/android:gravity="0x0"/android:gravity="center"/g' com.eco.global.app/res/layout/aa30_activity_air_auto.xml
@@ -151,7 +226,7 @@ java -jar apktool.jar b 'com.eco.global.app' --frame-path ~/.tmp/apktool-framewo
 cp 'com.eco.global.app/dist/com.eco.global.app.apk' 'com.eco.global.app.apk'
 ```
 
-**5. Sign the APK(s):**
+**6. Sign the APK(s):**
 
 ```sh
 keytool -genkey -v -keystore bumper-key.jks -alias bumper-key \
@@ -162,8 +237,7 @@ keytool -genkey -v -keystore bumper-key.jks -alias bumper-key \
 for apk in *.apk; do
   echo "Zipalign $apk"
   cp "$apk" "$apk.tmp"
-  zipalign -p -f -v 4 \
-    "$apk.tmp" "$apk" 1>/dev/null
+  zipalign -p -f -v 4 "$apk.tmp" "$apk" 1>/dev/null
   rm -f "$apk.tmp"
 done
 
@@ -181,13 +255,13 @@ for apk in *.apk; do
 done
 ```
 
-**6. Install on device:**
+**7. Install on device:**
 
 ```sh
 adb install-multiple *.apk
 ```
 
-## 🛠️ Manual android-unpinner Method
+### 🛠️ Manual android-unpinner Method
 
 Full manual unpack, patch, and re-sign process.
 
@@ -197,7 +271,7 @@ Full manual unpack, patch, and re-sign process.
 cd ./data
 APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?versionCode=127&nc=arm64-v8a'
 APK_NAME="$(curl -sI -L "$APK_URL" | grep -o -E 'filename="[^"]+"' | cut -d'"' -f2)"
-curl -SL "$APK_URL" -o "$APK_NAME"
+curl -SLo "$APK_NAME" "$APK_URL"
 unzip "$APK_NAME" -d bump && cd bump
 ```
 
@@ -212,14 +286,14 @@ uv tool install git+https://github.com/mitmproxy/android-unpinner
 export _JAVA_OPTIONS="-Djava.io.tmpdir=$HOME/.tmp"
 ```
 
-**3. Patch APK:**
+**3. Patch APKs:**
 
 ```sh
 android-unpinner patch-apks *.apk
 for file in *.unpinned.apk; do mv -f "$file" "${file%.unpinned.apk}.apk"; done
 ```
 
-**6. Install on device:**
+**4. Install on device:**
 
 ```sh
 adb install-multiple *.apk
@@ -229,11 +303,11 @@ adb install-multiple *.apk
 
 ## 📚 References
 
-- <https://github.com/niklashigi/apk-mitm>
-- <https://github.com/APKLab/APKLab>
-- <https://apktool.org>
-- <https://github.com/sensepost/objection>
-- <https://httptoolkit.com/blog/frida-certificate-pinning/>
+- [apk-mitm (GitHub)](https://github.com/niklashigi/apk-mitm)
+- [APKLab (GitHub)](https://github.com/APKLab/APKLab)
+- [apktool](https://apktool.org)
+- [objection (GitHub)](https://github.com/sensepost/objection)
+- [Frida Certificate Pinning Bypass (HTTP Toolkit)](https://httptoolkit.com/blog/frida-certificate-pinning)
 
 ---
 
