@@ -108,12 +108,12 @@ services:
       test:
         [
           "CMD-SHELL",
-          "wget --no-verbose --tries=1 --spider --no-check-certificate ${PROTOCOL:-https}://127.0.0.1:${WEB_SERVER_HTTPS_PORT:-443} || exit 1",
+          "wget --no-verbose --tries=1 --spider --no-check-certificate http://127.0.0.1:${WEB_SERVER_LISTEN_PORT:-8007} || exit 1",
         ]
       start_period: 10s
-      interval: 10s
-      timeout: 3s
-      retries: 10
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
   ##############################################################################
   ##############################################################################
