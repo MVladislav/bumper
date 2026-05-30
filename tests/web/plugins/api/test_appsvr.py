@@ -1,5 +1,6 @@
 import json
-from unittest.mock import MagicMock
+from typing import Any
+from unittest.mock import AsyncMock, MagicMock, patch
 
 from aiohttp.test_utils import TestClient
 import pytest
@@ -9,14 +10,16 @@ from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
 from bumper.web.auth_service import _generate_uid
 from bumper.web.plugins.api import appsvr
+from bumper.web.static_api import (
+    get_codepush_update_check_mapping,
+)
 
 USER_ID = _generate_uid(bumper_isc.USER_USERNAME_DEFAULT)
 
 
-@pytest.mark.usefixtures("clean_database", "helper_bot")
-async def test_handle_app_do(webserver_client: TestClient) -> None:
-    # Test GetGlobalDeviceList
-    postbody = {
+@pytest.fixture
+def app_do_base_payload() -> dict[str, Any]:
+    return {
         "aliliving": False,
         "appVer": "1.1.6",
         "auth": {
@@ -30,32 +33,47 @@ async def test_handle_app_do(webserver_client: TestClient) -> None:
         "defaultLang": "en",
         "lang": "en",
         "platform": "Android",
-        "todo": "GetGlobalDeviceList",
+        # "todo": "GetGlobalDeviceList",
         "userid": USER_ID,
     }
-    async with webserver_client.post("/api/appsvr/app.do", json=postbody) as resp:
+
+
+@pytest.mark.usefixtures("clean_database", "helper_bot")
+async def test_handle_app_do_global_device_list(webserver_client: TestClient, app_do_base_payload: dict[str, Any]) -> None:
+    # Test GetGlobalDeviceList
+    data_global_device_list = app_do_base_payload.copy()
+    data_global_device_list["todo"] = "GetGlobalDeviceList"
+    async with webserver_client.post("/api/appsvr/app.do", json=data_global_device_list) as resp:
         assert resp.status == 200
         json_resp = await resp.json()
         assert json_resp["ret"] == "ok"
+        assert len(json_resp["devices"]) == 0
 
+    # Test GetGlobalDeviceList - with bot added
     bot_repo.add("sn_1234", "did_1234", "ls1ok3", "res_1234", "eco-ng")
-
-    # Test again with bot added
-    async with webserver_client.post("/api/appsvr/app.do", json=postbody) as resp:
+    async with webserver_client.post("/api/appsvr/app.do", json=data_global_device_list) as resp:
         assert resp.status == 200
         json_resp = await resp.json()
         assert json_resp["ret"] == "ok"
+        assert len(json_resp["devices"]) == 1
 
+
+@pytest.mark.usefixtures("clean_database", "helper_bot")
+async def test_handle_app_do_codepush(webserver_client: TestClient, app_do_base_payload: dict[str, Any]) -> None:
     # Test GetCodepush
-    data_codepush = postbody.copy()
+    data_codepush = app_do_base_payload.copy()
     data_codepush["todo"] = "GetCodepush"
     async with webserver_client.post("/api/appsvr/app.do", json=data_codepush) as resp:
         assert resp.status == 200
         json_resp = await resp.json()
         assert json_resp["ret"] == "ok"
+        assert json_resp["data"]["type"] == "microsoft"
 
-    # Test RobotControl with invalid data
-    data_robot_invalid = postbody.copy()
+
+@pytest.mark.usefixtures("clean_database", "helper_bot")
+async def test_handle_app_do_robot(webserver_client: TestClient, app_do_base_payload: dict[str, Any]) -> None:
+    # Test RobotControl - with invalid data
+    data_robot_invalid = app_do_base_payload.copy()
     data_robot_invalid["todo"] = "RobotControl"
     data_robot_invalid["data"] = "not_a_dict"
     async with webserver_client.post("/api/appsvr/app.do", json=data_robot_invalid) as resp:
@@ -63,8 +81,8 @@ async def test_handle_app_do(webserver_client: TestClient) -> None:
         json_resp = await resp.json()
         assert json_resp["ret"] == "fail"
 
-    # Test RobotControl with valid data but missing ctl
-    data_robot_missing_ctl = postbody.copy()
+    # Test RobotControl - with valid data but missing ctl
+    data_robot_missing_ctl = app_do_base_payload.copy()
     data_robot_missing_ctl["todo"] = "RobotControl"
     data_robot_missing_ctl["data"] = {}
     async with webserver_client.post("/api/appsvr/app.do", json=data_robot_missing_ctl) as resp:
@@ -72,24 +90,28 @@ async def test_handle_app_do(webserver_client: TestClient) -> None:
         json_resp = await resp.json()
         assert json_resp["ret"] == "fail"
 
-    # Test RobotControl with valid data and ctl
-    data_robot_valid = postbody.copy()
+    # Test RobotControl - with valid data and ctl
+    data_robot_valid = app_do_base_payload.copy()
     data_robot_valid["todo"] = "RobotControl"
     data_robot_valid["data"] = {"ctl": {"testcmd": {"foo": "bar"}}}
     async with webserver_client.post("/api/appsvr/app.do", json=data_robot_valid) as resp:
         assert resp.status in (200, 500)  # 500 if no helperbot, 200 if mocked
 
-        # Test GetAppVideoUrl with valid keys
-        data_video = postbody.copy()
+
+@pytest.mark.usefixtures("clean_database", "helper_bot")
+async def test_handle_app_do_video(webserver_client: TestClient, app_do_base_payload: dict[str, Any]) -> None:
+    # Test GetAppVideoUrl - with valid keys
+    data_video = app_do_base_payload.copy()
     data_video["todo"] = "GetAppVideoUrl"
     data_video["keys"] = ["t9_promotional_video"]
     async with webserver_client.post("/api/appsvr/app.do", json=data_video) as resp:
         assert resp.status == 200
         json_resp = await resp.json()
         assert json_resp["ret"] == "ok"
+        assert json_resp["data"]["t9_promotional_video"]
 
-    # Test GetAppVideoUrl with invalid keys
-    data_video_invalid = postbody.copy()
+    # Test GetAppVideoUrl - with invalid keys
+    data_video_invalid = app_do_base_payload.copy()
     data_video_invalid["todo"] = "GetAppVideoUrl"
     data_video_invalid["keys"] = "not_a_list"
     async with webserver_client.post("/api/appsvr/app.do", json=data_video_invalid) as resp:
@@ -97,18 +119,80 @@ async def test_handle_app_do(webserver_client: TestClient) -> None:
         json_resp = await resp.json()
         assert json_resp["ret"] == "fail"
 
+
+@pytest.mark.usefixtures("clean_database", "helper_bot")
+async def test_handle_app_do_protocol(webserver_client: TestClient, app_do_base_payload: dict[str, Any]) -> None:
     # Test GetDeviceProtocolV2
-    data_protocol = postbody.copy()
+    data_protocol = app_do_base_payload.copy()
     data_protocol["todo"] = "GetDeviceProtocolV2"
     async with webserver_client.post("/api/appsvr/app.do", json=data_protocol) as resp:
         assert resp.status == 200
         json_resp = await resp.json()
         assert json_resp["ret"] == "ok"
+        assert json_resp["data"]["video"]
+        assert json_resp["data"]["improve"]
 
+
+@pytest.mark.usefixtures("clean_database", "helper_bot")
+async def test_handle_app_do_decode_qr_code(webserver_client: TestClient, app_do_base_payload: dict[str, Any]) -> None:
+    # Test DecodeQrCode - wrong qrcode
+    data_decode_qr_code_wrong_qrcode = app_do_base_payload.copy()
+    data_decode_qr_code_wrong_qrcode["todo"] = "DecodeQrCode"
+    data_decode_qr_code_wrong_qrcode["qrcode"] = {"test": 1}
+    async with webserver_client.post("/api/appsvr/app.do", json=data_decode_qr_code_wrong_qrcode) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert json_resp["data"] == {}
+
+    # Test DecodeQrCode - empty qrcode
+    data_decode_qr_code_empty_qrcode = app_do_base_payload.copy()
+    data_decode_qr_code_empty_qrcode["todo"] = "DecodeQrCode"
+    data_decode_qr_code_empty_qrcode["qrcode"] = ""
+    async with webserver_client.post("/api/appsvr/app.do", json=data_decode_qr_code_empty_qrcode) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert json_resp["data"] == {}
+
+    # Test DecodeQrCode - wrong product
+    data_decode_qr_code_wrong = app_do_base_payload.copy()
+    data_decode_qr_code_wrong["todo"] = "DecodeQrCode"
+    data_decode_qr_code_wrong["qrcode"] = "?sn=sn_1234&mid=wrong"
+    async with webserver_client.post("/api/appsvr/app.do", json=data_decode_qr_code_wrong) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert json_resp["data"].get("productCategory") is None
+        assert json_resp["data"].get("configGuide") is None
+        assert json_resp["data"]["code_sn"] == "sn_1234"
+
+    # Test DecodeQrCode - valid product
+    data_decode_qr_code_valid = app_do_base_payload.copy()
+    data_decode_qr_code_valid["todo"] = "DecodeQrCode"
+    data_decode_qr_code_valid["qrcode"] = "?sn=sn_1234&mid=jtmf04"
+    async with webserver_client.post("/api/appsvr/app.do", json=data_decode_qr_code_valid) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert json_resp["data"]["productCategory"]
+        assert json_resp["data"]["configGuide"]
+        assert json_resp["data"]["code_sn"] == "sn_1234"
+
+
+@pytest.mark.usefixtures("clean_database", "helper_bot")
+async def test_handle_app_do(webserver_client: TestClient, app_do_base_payload: dict[str, Any]) -> None:
     # Test unknown todo
-    data_unknown = postbody.copy()
+    data_unknown = app_do_base_payload.copy()
     data_unknown["todo"] = "UnknownTodo"
     async with webserver_client.post("/api/appsvr/app.do", json=data_unknown) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "fail"
+
+    data_missing = app_do_base_payload.copy()
+    # del data_missing["todo"]
+    async with webserver_client.post("/api/appsvr/app.do", json=data_missing) as resp:
         assert resp.status == 200
         json_resp = await resp.json()
         assert json_resp["ret"] == "fail"
@@ -119,7 +203,7 @@ async def test_handle_app_do(webserver_client: TestClient) -> None:
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_app_config_api(webserver_client: TestClient) -> None:
+async def test_handle_app_config(webserver_client: TestClient) -> None:
     # Test known code: app_lang_enum
     async with webserver_client.get("/api/appsvr/app/config?code=app_lang_enum") as resp:
         assert resp.status == 200
@@ -177,6 +261,20 @@ async def test_app_config_api(webserver_client: TestClient) -> None:
         json_resp = await resp.json()
         assert json_resp["ret"] == "ok"
         assert json_resp["data"][0]["code"] == "yiko_support_lang"
+
+    # Test known code: home_teamwork_entry
+    async with webserver_client.get("/api/appsvr/app/config?code=home_teamwork_entry") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert json_resp["data"] == []
+
+    # Test known code: globalapp_netcfg_h5_url_list
+    async with webserver_client.get("/api/appsvr/app/config?code=globalapp_netcfg_h5_url_list") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert json_resp["data"][0]["code"] == "globalapp_netcfg_h5_url_list"
 
     # Test unknown code
     async with webserver_client.get("/api/appsvr/app/config?code=unknown_code") as resp:
@@ -303,21 +401,22 @@ def test_include_product_iot_map_info() -> None:
     bot.mqtt_connection = True
     bot.xmpp_connection = False
     bot.as_dict.return_value = {"class_id": "ls1ok3", "mqtt_connection": True, "xmpp_connection": False}
-    # Patch get_product_iot_map to return a matching classid
-    appsvr.get_product_iot_map = lambda: [
-        {
-            "classid": "ls1ok3",
-            "product": {
-                "_id": "pid1",
-                "materialNo": "mat1",
-                "name": "DEEBOT X",
-                "model": "m1",
-                "UILogicId": "ui1",
-                "ota": {},
-                "iconUrl": "icon1",
-            },
+    product_iot = {
+        "classid": "ls1ok3",
+        "product": {
+            "_id": "pid1",
+            "materialNo": "mat1",
+            "name": "DEEBOT X",
+            "model": "m1",
+            "UILogicId": "ui1",
+            "ota": {},
+            "iconUrl": "icon1",
         },
-    ]
+    }
+    # Patch get_product_iot_map to return a matching classid
+    appsvr.get_product_iot_map = lambda: [product_iot]
+
+    # Test - no smartType set
     result = appsvr._include_product_iot_map_info(bot)
     assert result is not None
     assert result["pid"] == "pid1"
@@ -327,3 +426,129 @@ def test_include_product_iot_map_info() -> None:
     assert result["icon"] == "icon1"
     assert result["status"] == 1
     assert result["shareable"] is True
+    assert result["scode"]["tmallstand"] is False
+    assert result["scode"].get("bt_mode") is None
+
+    # Test - smartType set as 'MQ_AP'
+    product_iot["product"]["smartType"] = "MQ_AP"
+    result = appsvr._include_product_iot_map_info(bot)
+    assert result is not None
+    assert result["pid"] == "pid1"
+    assert result["product_category"] == "DEEBOT"
+    assert result["deviceName"] == "DEEBOT X"
+    assert result["model"] == "m1"
+    assert result["icon"] == "icon1"
+    assert result["status"] == 1
+    assert result["shareable"] is True
+    assert result["scode"]["tmallstand"] is True
+    assert result["scode"].get("bt_mode") is None
+
+    # Test - smartType set as 'BLAP'
+    product_iot["product"]["smartType"] = "BLAP"
+    result = appsvr._include_product_iot_map_info(bot)
+    assert result is not None
+    assert result["pid"] == "pid1"
+    assert result["product_category"] == "DEEBOT"
+    assert result["deviceName"] == "DEEBOT X"
+    assert result["model"] == "m1"
+    assert result["icon"] == "icon1"
+    assert result["status"] == 1
+    assert result["shareable"] is True
+    assert result["scode"]["bt_mode"] is True
+    assert result["scode"].get("tmallstand") is None
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_get_config_groups_api(webserver_client: TestClient) -> None:
+    async with webserver_client.get("/api/appsvr/product/getConfigGroups") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert isinstance(json_resp["configFAQ"], dict)
+        assert "wifiFAQUrl" in json_resp["configFAQ"]
+        assert "notFoundAPUrl" in json_resp["configFAQ"]
+        assert "configFailedUrl" in json_resp["configFAQ"]
+        assert "data" in json_resp
+        assert len(json_resp["data"]) > 0
+
+
+@pytest.mark.usefixtures("clean_database", "helper_bot")
+async def test_device_prop_list_api(webserver_client: TestClient) -> None:
+    # Test with no props
+    params = "?did=did_1234&res=res_1234&mid=mid_1234&props="
+    async with webserver_client.get(f"/api/appsvr/device/prop/list{params}") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert json_resp["data"]["did"] == "did_1234"
+        assert json_resp["data"]["props"] == []
+
+    # Test with props, but no helperbot (should return empty props)
+    params = "?did=did_1234&res=res_1234&mid=mid_1234&props=onBattery,onChargeState"
+    async with webserver_client.get(f"/api/appsvr/device/prop/list{params}") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert json_resp["data"]["did"] == "did_1234"
+        assert json_resp["data"]["props"] == []
+
+    # Test with props and mocked helperbot
+    params = "?did=did_1234&res=res_1234&mid=mid_1234&props=onBattery,onChargeState"
+    with patch.object(bumper_isc, "mqtt_helperbot", new_callable=MagicMock) as mock_helperbot:
+        mock_helperbot.send_command_plain = AsyncMock(return_value={"body": {"data": {"battery": 100}}})
+        async with webserver_client.get(f"/api/appsvr/device/prop/list{params}") as resp:
+            assert resp.status == 200
+            json_resp = await resp.json()
+            assert json_resp["ret"] == "ok"
+            assert json_resp["data"]["did"] == "did_1234"
+            assert len(json_resp["data"]["props"]) == 2
+            assert json_resp["data"]["props"][0]["key"] == "onBattery"
+            assert json_resp["data"]["props"][1]["key"] == "onChargeState"
+            for prop in json_resp["data"]["props"]:
+                assert "value" in prop
+                assert "ts" in prop
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_get_codepush_update_check_data(webserver_client: TestClient) -> None:
+    # Test with deployment_key - non existing
+    async with webserver_client.get("/api/appsvr/codepush/checkupdate?deployment_key=test_key") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert "update_info" in json_resp["data"]
+        assert json_resp["data"]["update_info"]["deployment_key"] == "test_key"
+        assert len(json_resp["data"]["update_info"]["download_url"]) == 0
+
+    # Test with deployment_key - existing
+    async with webserver_client.get(
+        "/api/appsvr/codepush/checkupdate?deployment_key=gkhxiPWw5-v7UPEj0ImuPLMBME57DqrNmMHdtt",
+    ) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert "update_info" in json_resp["data"]
+        assert json_resp["data"]["update_info"]["deployment_key"] == "gkhxiPWw5-v7UPEj0ImuPLMBME57DqrNmMHdtt"
+        assert len(json_resp["data"]["update_info"]["download_url"]) > 0
+
+    # Test with package_name (should map to deployment_key)
+    async with webserver_client.get("/api/appsvr/codepush/checkupdate?package_name=test_package") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert "update_info" in json_resp["data"]
+        # If get_codepush_update_check_mapping() returns a key for "test_package", use it; otherwise, fallback to empty
+        assert json_resp["data"]["update_info"]["deployment_key"] in [
+            "",
+            get_codepush_update_check_mapping().get("test_package", ""),
+        ]
+
+    # Test with no deployment_key or package_name (should return default)
+    async with webserver_client.get("/api/appsvr/codepush/checkupdate") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert "update_info" in json_resp["data"]
+        assert json_resp["data"]["update_info"]["download_url"] == ""
+        assert json_resp["data"]["update_info"]["deployment_key"] == ""
+        assert json_resp["data"]["update_info"]["is_available"] is False
+        assert json_resp["data"]["update_info"]["is_disabled"] is True

@@ -612,6 +612,9 @@ async def _handle_device_prop_list(request: Request) -> Response:
 
     props_result = []
     for prop_o in props:
+        if bumper_isc.mqtt_helperbot is None:
+            break
+
         prop = "get" + prop_o[2:] if prop_o.startswith("on") else prop_o
         cmd_json: dict[str, Any] = {
             "cmd": prop,
@@ -621,18 +624,18 @@ async def _handle_device_prop_list(request: Request) -> Response:
             "data": {"td": prop},
         }
         cmd_request = MQTTCommandModel(cmd_json, version=MQTTCommandModel.VERSION_P2P)
-        if bumper_isc.mqtt_helperbot is not None:
-            cmd_response = await bumper_isc.mqtt_helperbot.send_command_plain(cmd_request)
-            if not isinstance(cmd_response, dict):
-                continue
-            if body_value := cmd_response.get("body", {}).get("data"):
-                props_result.append(
-                    {
-                        "key": prop_o,
-                        "value": json.dumps({"body": {"data": body_value}}, separators=(",", ":")),
-                        "ts": utils.get_millis_to_iso_z(ts),
-                    },
-                )
+
+        cmd_response = await bumper_isc.mqtt_helperbot.send_command_plain(cmd_request)
+        if not isinstance(cmd_response, dict):
+            continue
+        if body_value := cmd_response.get("body", {}).get("data"):
+            props_result.append(
+                {
+                    "key": prop_o,
+                    "value": json.dumps({"body": {"data": body_value}}, separators=(",", ":")),
+                    "ts": utils.get_millis_to_iso_z(ts),
+                },
+            )
 
     return response_success_v3(
         data={
