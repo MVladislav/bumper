@@ -20,7 +20,7 @@ jobs:
     steps:
       # https://github.com/actions/checkout
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.3
 
       - name: Configure Git Credentials
         run: |
@@ -28,13 +28,13 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
 
       # https://github.com/actions/setup-python
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v6.2.0
         with:
           python-version: 3.14.5
 
       - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
       # https://github.com/actions/cache
-      - uses: actions/cache@v5
+      - uses: actions/cache@v5.0.5
         with:
           key: mkdocs-material-${{ env.cache_id }}
           path: .cache

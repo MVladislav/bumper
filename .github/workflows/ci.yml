@@ -23,7 +23,7 @@ jobs:
     steps:
       # https://github.com/actions/checkout
       - name: ⤵️ Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.3
 
       # https://github.com/j178/prek-action
       - name: Run prek
@@ -38,7 +38,7 @@ jobs:
     steps:
       # https://github.com/actions/checkout
       - name: ⤵️ Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.3
 
       # https://github.com/astral-sh/setup-uv
       - name: 🏗 Install uv and Python
@@ -74,7 +74,7 @@ jobs:
     steps:
       # https://github.com/actions/checkout
       - name: ⤵️ Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.3
 
       # https://github.com/astral-sh/setup-uv
       - name: 🏗 Install uv and Python ${{ matrix.python-version }}
@@ -93,14 +93,14 @@ jobs:
 
       # https://github.com/actions/upload-artifact
       - name: Upload test report
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: pytest-report-${{ matrix.python-version }}
           path: pytest-report.xml
 
       # https://github.com/codecov/codecov-action
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v6.0.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
