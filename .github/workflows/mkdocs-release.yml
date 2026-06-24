@@ -28,7 +28,7 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
 
       # https://github.com/actions/setup-python
-      - uses: actions/setup-python@v6.2.0
+      - uses: actions/setup-python@v6.3.0
         with:
           python-version: 3.14.6
 
