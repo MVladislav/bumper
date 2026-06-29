@@ -27,7 +27,7 @@ jobs:
 
       # https://github.com/j178/prek-action
       - name: Run prek
-        uses: j178/prek-action@v2.0.4
+        uses: j178/prek-action@v2.0.5
         env:
           PREK_SKIP: no-commit-to-branch,mypy,pylint
 
