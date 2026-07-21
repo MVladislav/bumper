@@ -20,6 +20,7 @@ class UserPlugin(WebserverPlugin):
         """Plugin routes."""
         return [
             web.route("*", f"{BASE_URL}user/login", auth_service.login),
+            web.route("*", f"{BASE_URL}user/login2", auth_service.login),
             web.route("*", f"{BASE_URL}user/checkLogin", auth_service.login),
             web.route("*", f"{BASE_URL}user/checkAgreementBatch", handle_check_agreement_batch),
         ]

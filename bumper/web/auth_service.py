@@ -420,7 +420,7 @@ async def generate_jwt_helper(
     payload = {
         "t": t,
         "iat": int(now_dt.timestamp()),
-        "exp": int(exp_dt.timestamp()) if t != "a" else int(now_dt.timestamp()),
+        "exp": int(exp_dt.timestamp()),
     }
     if data:
         payload.update(data)
