@@ -1,5 +1,6 @@
 """Api pim module plugin."""
 
+from collections.abc import Iterable
 from functools import cache
 import logging
 from pathlib import Path
@@ -53,9 +54,76 @@ def get_product_iot_map() -> list[dict[str, Any]]:
 
 
 @cache
-def get_product_entry_group() -> dict[str, Any]:
+def get_product_entry_group() -> list[dict[str, Any]]:
     """Get product entry group."""
-    return load_json_object_files("productEntryGroup.json", get_static_dir())
+    return load_json_array_files(["productEntryGroup.json"], get_static_dir())
+
+
+@cache
+def _get_config_groups_by_mid() -> dict[str, dict[str, Any]]:
+    """Build a mid -> robot config lookup from the config groups response.
+
+    The config groups response is a list of families, each with a ``robots`` list.
+    Flatten it into a single mid-keyed dict so per-device lookups (e.g. for
+    ``/product/info``) are O(1). Later duplicate mids win (unofficial overrides).
+    """
+    lookup: dict[str, dict[str, Any]] = {}
+    for family in get_config_groups_response():
+        for robot in family.get("robots", []):
+            mid = robot.get("mid")
+            if mid:
+                lookup[mid] = robot
+    return lookup
+
+
+def _robot_to_product_info(robot: dict[str, Any]) -> dict[str, Any]:
+    """Transform a config-groups robot entry into a ``/product/info`` object.
+
+    The two endpoints serve the same underlying product data but with different
+    envelopes: config groups exposes flat ``steps``/``qrpStep``/``cusSteps`` while
+    ``/product/info`` nests them under ``configNetSteps``. Only the fields the
+    wizard actually reads (mid, status, smartType, groupName) are guaranteed; the
+    rest mirror the real cloud response for a faithful guide UX.
+    """
+    steps = robot.get("steps") or []
+    config_net_steps: dict[str, Any] = {
+        "qrpStep": robot.get("qrpStep", {}),
+        "cusSteps": robot.get("cusSteps", {}),
+    }
+    for index, step in enumerate(steps, start=1):
+        config_net_steps[f"step{index}"] = step
+
+    group_name = robot.get("groupName", "")
+    return {
+        "id": robot.get("groupId", ""),
+        "name": group_name,
+        "groupName": group_name,
+        "mid": robot.get("mid", ""),
+        "smartType": robot.get("smartType", ""),
+        "status": robot.get("status", "valid") or "valid",
+        "snCfgNet": False,
+        "materialNo": robot.get("materialNo", ""),
+        "icon": robot.get("icon", ""),
+        "failCount": robot.get("failCount", 0),
+        "belongApp": robot.get("belongApp", []),
+        "supportType": {"share": True},
+        "configNetSteps": config_net_steps,
+    }
+
+
+def get_product_info_by_mids(mids: Iterable[str]) -> list[dict[str, Any]]:
+    """Get ``/product/info`` objects for the given mids.
+
+    Synthesized generically from the config groups data so any known device mid
+    works, not just a hardcoded subset. Unknown mids are skipped (the real cloud
+    likewise returns only resolvable entries).
+    """
+    lookup = _get_config_groups_by_mid()
+    result: list[dict[str, Any]] = []
+    for mid in mids:
+        if robot := lookup.get(mid):
+            result.append(_robot_to_product_info(robot))
+    return result
 
 
 @cache

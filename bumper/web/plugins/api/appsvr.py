@@ -495,7 +495,7 @@ def _include_product_iot_map_info(bot: VacBotDevice) -> dict[str, Any] | None:
                 result["scode"].update(
                     {
                         "tmallstand": True,
-                        "video": True,
+                        "video": botprod_invent.get("video", True),
                         "clean": True,
                         "charge": True,
                         "chargestate": True,
