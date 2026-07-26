@@ -28,7 +28,7 @@ jobs:
     steps:
       # https://github.com/actions/checkout
       - name: Checkout repository
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
 
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata (tags, labels)
@@ -56,7 +56,7 @@ jobs:
 
       # https://github.com/docker/login-action
       - name: Login to registry ${{ env.REGISTRY }}
-        uses: docker/login-action@v4.4.0
+        uses: docker/login-action@v4.5.1
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
