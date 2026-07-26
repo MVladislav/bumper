@@ -23,11 +23,11 @@ jobs:
     steps:
       # https://github.com/actions/checkout
       - name: ⤵️ Checkout repository
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
 
       # https://github.com/j178/prek-action
       - name: Run prek
-        uses: j178/prek-action@v2.0.5
+        uses: j178/prek-action@v2.0.6
         env:
           PREK_SKIP: no-commit-to-branch,mypy,pylint
 
@@ -38,7 +38,7 @@ jobs:
     steps:
       # https://github.com/actions/checkout
       - name: ⤵️ Checkout repository
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
 
       # https://github.com/astral-sh/setup-uv
       - name: 🏗 Install uv and Python
@@ -74,7 +74,7 @@ jobs:
     steps:
       # https://github.com/actions/checkout
       - name: ⤵️ Checkout repository
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
 
       # https://github.com/astral-sh/setup-uv
       - name: 🏗 Install uv and Python ${{ matrix.python-version }}

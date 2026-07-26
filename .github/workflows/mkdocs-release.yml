@@ -20,7 +20,7 @@ jobs:
     steps:
       # https://github.com/actions/checkout
       - name: Checkout repository
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
 
       - name: Configure Git Credentials
         run: |

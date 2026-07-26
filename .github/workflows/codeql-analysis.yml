@@ -29,20 +29,20 @@ jobs:
     steps:
       # https://github.com/actions/checkout
       - name: Checkout repository
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
 
       # https://github.com/github/codeql-action
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4.36.3
+        uses: github/codeql-action/init@v4.37.3
         with:
           languages: ${{ matrix.language }}
 
       # https://github.com/github/codeql-action
       - name: Autobuild
-        uses: github/codeql-action/autobuild@v4.36.3
+        uses: github/codeql-action/autobuild@v4.37.3
 
       # https://github.com/github/codeql-action
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4.36.3
+        uses: github/codeql-action/analyze@v4.37.3
         with:
           category: "/language:${{matrix.language}}"
