@@ -157,7 +157,7 @@ wheels = [
 
 [[package]]
 name = "amqtt"
-version = "0.11.3"
+version = "0.11.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "dacite" },
@@ -168,9 +168,9 @@ dependencies = [
     { name = "typer" },
     { name = "websockets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3c/52/329c655644b6ffc36fb15a49bd245dec31bb45a91f1c8291c84b84fa1695/amqtt-0.11.3.tar.gz", hash = "sha256:8818bc3037ac027368228098852007c0a77e367fc11389c1405169618d4c8b8b", size = 88136, upload-time = "2025-08-12T13:46:14.871Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ed/6d/72af0119f9ff60fe2a9dbeef7a37f671043d257c4be1d99bfbd563b329e9/amqtt-0.11.4.tar.gz", hash = "sha256:ab6ff549ce22dafa6fe9a6c7c38b2abd9867d30df60121085446d8290230a79f", size = 88044, upload-time = "2026-07-29T23:08:28.402Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/93/95/d484a1bcb22868247bbbb3c3a61c7f4dd6713e92052e862ac2b6873ca3b0/amqtt-0.11.3-py3-none-any.whl", hash = "sha256:c774eb68087fe8cda17b7e9d40a8016ea782ba637c272d97df86bf1cd23c658d", size = 118712, upload-time = "2025-08-12T13:46:13.607Z" },
+    { url = "https://files.pythonhosted.org/packages/b6/74/37fcccbe5cfdd32a56c024f4d4ad13788a9a7a72700a3535f099dc5e9463/amqtt-0.11.4-py3-none-any.whl", hash = "sha256:5101430d624a62872be6e7a3d400d30b77d3a9cc887e177e1016394359282405", size = 118642, upload-time = "2026-07-29T23:08:29.37Z" },
 ]
 
 [[package]]
@@ -312,7 +312,7 @@ requires-dist = [
     { name = "aiohttp", specifier = "==3.14.3" },
     { name = "aiohttp-jinja2", specifier = "==1.6" },
     { name = "aiomqtt", specifier = "==2.5.1" },
-    { name = "amqtt", specifier = "==0.11.3" },
+    { name = "amqtt", specifier = "==0.11.4" },
     { name = "cachetools", specifier = "==7.1.6" },
     { name = "coloredlogs", specifier = "==15.0.1" },
     { name = "cryptography", specifier = "==48.0.1" },
