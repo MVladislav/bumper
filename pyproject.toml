@@ -134,6 +134,7 @@ ignore = [
   "TRY002",  # Checks for code that raises Exception or BaseException directly.
   "TRY300",  # Checks for return statements in try blocks.
   "TRY301",  # Checks for raise statements within try blocks.
+  "CPY001",  # Checks for the absence of copyright notices within Python files.
 ]
 
 [tool.ruff.lint.per-file-ignores]
