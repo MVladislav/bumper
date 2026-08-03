@@ -69,9 +69,6 @@ class MQTTCommandModel:
         self.td = cmdjson.get("td")
 
         self.cmd_name = cmdjson.get("cmdName")
-        if self.cmd_name == "clean_V2":
-            self.cmd_name = "clean"
-
         payload_j = cmdjson.get("payload")
         self.payload = json.dumps(payload_j) if self.payload_type == "j" else str(payload_j)
 
@@ -97,8 +94,6 @@ class MQTTCommandModel:
             self.cmd_name = self.cmd_name[0].lower() + self.cmd_name[1:] if self.cmd_name else None
         if self.cmd_name == "getBatteryInfo":
             self.cmd_name = "getBattery"
-        # if self.cmd_name == "clean_V2":
-        #     self.cmd_name = "clean"
 
         self.did = cmdjson.get("did")
         self.to_type = cmdjson.get("mid")
@@ -106,7 +101,6 @@ class MQTTCommandModel:
         # self.td = cmdjson.get("")
 
         payload_j: dict[str, Any] | None = cmdjson.get("data")
-        # if payload_j and self.cmd_name in {"clean", "clean_V2"}:
         if payload_j and self.cmd_name == "clean":
             act_translation = {
                 "s": "start",

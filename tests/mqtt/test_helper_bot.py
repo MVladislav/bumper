@@ -26,7 +26,7 @@ def test_mqtt_command_model_version_1() -> None:
     assert cmd.to_type == "ls1ok3"
     assert cmd.to_res == "res_123"
     assert cmd.td == "test_td"
-    assert cmd.cmd_name == "clean"  # clean_V2 -> clean
+    assert cmd.cmd_name == "clean_V2"
     assert cmd.payload == '{"key": "value"}'
     assert cmd.payload_type == "j"
 
