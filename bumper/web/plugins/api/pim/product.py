@@ -21,6 +21,7 @@ from bumper.web.static_api import (
     get_config_net_all_response,
     get_product_config_batch,
     get_product_entry_group,
+    get_product_info_by_mids,
     get_product_iot_map,
 )
 from bumper.web.utils.response_helper import response_success_v3, response_success_v4
@@ -42,6 +43,7 @@ class ProductPlugin(WebserverPlugin):
             web.route("POST", "/product/getShareInfo", _handle_get_share_info),
             web.route("GET", "/product/image", _get_bot_image),
             web.route("GET", "/product/entry/group", _get_entry_group),
+            web.route("GET", "/product/info", _handle_product_info),
         ]
 
 
@@ -127,3 +129,19 @@ async def _get_bot_image(_: Request) -> FileResponse:
 async def _get_entry_group(_: Request) -> Response:
     """Get entry group."""
     return response_success_v3(data=get_product_entry_group())
+
+
+async def _handle_product_info(request: Request) -> Response:
+    """Get product info for the requested mids.
+
+    Served locally so the request is not proxied upstream (the real cloud rejects
+    bumper-minted credentials). Synthesized generically per-mid from the config
+    groups data, so any known device works, not just a hardcoded subset.
+    """
+    try:
+        mids_param = request.query.get("mids", "")
+        mids = [mid for mid in (m.strip() for m in mids_param.split(",")) if mid]
+        return response_success_v4(get_product_info_by_mids(mids))
+    except Exception:
+        _LOGGER.exception(utils.default_exception_str_builder(info="during handling request"))
+    raise HTTPInternalServerError

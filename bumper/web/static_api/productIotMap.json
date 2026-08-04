@@ -4132,6 +4132,7 @@
       "model": "DARWIN_OMNI",
       "UILogicId": "t10_ww_n_darwin",
       "ota": true,
+      "video": false,
       "supportType": {
         "share": true
       },
