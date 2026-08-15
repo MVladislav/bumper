@@ -116,14 +116,14 @@ repos:
     hooks:
       - id: mypy
         name: Run Mypy in Virtualenv
-        entry: scripts/run-in-env.sh python3 -m mypy
+        entry: scripts/run-in-dev-env.sh python3 -m mypy
         language: script
         types: [python]
         require_serial: true
         exclude: (^tests/.+)|(^scripts/.+)|(^configs/.+)
       - id: pylint
         name: Run Pylint in Virtualenv
-        entry: scripts/run-in-env.sh python3 -m pylint
+        entry: scripts/run-in-dev-env.sh python3 -m pylint
         language: script
         types: [python]
         require_serial: true
