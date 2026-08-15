@@ -23,6 +23,7 @@ nav:
       - Certificate Pinning Bypass (GOAT): internals/certificate-unpinning-goat.md
   - Development:
       - Development Guide: development/dev-guide.md
+      - Static Data Update: development/static-data-update.md
       - Testing & CI: https://github.com/MVladislav/bumper/actions
   - Origins & Credits: origins.md
 
