@@ -12,16 +12,22 @@ if [[ -z "${ECOVACS_ACCOUNT_ID:-}" || -z "${ECOVACS_PASSWORD:-}" ]]; then
   exit 1
 fi
 
+# Dependency checks
+command -v curl >/dev/null 2>&1 || { echo "[ERROR] curl required" >&2; exit 1; }
+command -v jq >/dev/null 2>&1 || { echo "[ERROR] jq required" >&2; exit 1; }
+command -v openssl >/dev/null 2>&1 || { echo "[ERROR] openssl required" >&2; exit 1; }
+
 # --- Configuration ------------------------------------------------------------
 ACCOUNT_ID="$ECOVACS_ACCOUNT_ID"
 PASSWORD="$ECOVACS_PASSWORD"
-DEVICE_ID="$(openssl rand -hex 8)"
 LANG="EN"
 APP_CODE="global_e"
-APP_VERSION="1.6.3"
-CHANNEL="google_play"
+APP_VERSION="3.14.0"
+CHANNEL="${ECO_CHANNEL:-google_play}"
 DEVICE_TYPE="1"
 REALM="ecouser.net"
+ANDROID_MODEL="Pixel 7"
+ANDROID_SYSTEM="Android 14"
 
 CLIENT_KEY="1520391301804"
 CLIENT_SECRET="6c319b2a5cd3e66e39159c2e28f2fce9" # pragma: allowlist secret gitleaks:allow
@@ -31,6 +37,14 @@ AUTH_CLIENT_SECRET="77ef58ce3afbe337da74aa8c5ab963a9" # pragma: allowlist secret
 USER_AGENT="Dalvik/2.1.0 (Linux; U; Android 5.1.1; A5010 Build/LMY48Z)"
 COUNTRIES=("DE" "US" "JP")
 LOGIN_COUNTRY="${COUNTRIES[0]}"
+meta_params=(
+  "lang=$LANG"
+  "appCode=$APP_CODE"
+  "appVersion=$APP_VERSION"
+  "channel=$CHANNEL"
+  "deviceType=$DEVICE_TYPE"
+  "country=${LOGIN_COUNTRY,,}"
+)
 
 TARGET_JSON_PATH="bumper/web/static_api"
 
@@ -60,63 +74,134 @@ timestamp_ms() { echo $(($(date +%s%N) / 1000000)); }
 default_curl() {
   local m="$1" u="$2"
   shift 2
-  curl -k -s -X "$m" -H "User-Agent: $USER_AGENT" --url "$u" "$@"
+  curl -k -sS --connect-timeout 10 --max-time 60 -X "$m" -H "User-Agent: $USER_AGENT" --url "$u" "$@"
+}
+call_private_api() {
+  local endpoint="$1" key="$2" secret="$3"
+  shift 3
+  local params=("$@")
+  local url timestamp request_id sign args resp rc p query_args=()
+  timestamp="$(timestamp_ms)"
+  request_id="$(md5 "$(date +%s.%N)")"
+  args=( "${meta_params[@]}" "deviceId=$DEVICE_ID" "requestId=$request_id" "authTimespan=$timestamp" "authTimeZone=GMT-8" "${params[@]}" )
+  sign="$(build_login_signature "$key" "$secret" "${args[@]}")"
+  url="https://gl-${LOGIN_COUNTRY,,}-api.ecovacs.com/v1/private/${LOGIN_COUNTRY,,}/${LANG}/${DEVICE_ID}/${APP_CODE}/${APP_VERSION}/${CHANNEL}/${DEVICE_TYPE}/${endpoint}"
+  for p in "${params[@]}"; do
+    query_args+=( --data-urlencode "$p" )
+  done
+  resp="$(default_curl GET "$url" --get \
+    --data-urlencode "requestId=$request_id" \
+    --data-urlencode "authTimespan=$timestamp" \
+    --data-urlencode "authTimeZone=GMT-8" \
+    "${query_args[@]}" \
+    --data-urlencode "authSign=$sign" \
+    --data-urlencode "authAppkey=$key")" || rc=$?
+  if [[ -n "${rc:-}" ]]; then
+    echo "❌ Request to $url failed (curl exit $rc). Check DNS / proxy / firewall." >&2
+    exit 1
+  fi
+  printf '%s' "$resp"
 }
 
 # --- Step 1: Login (get accessToken and uid) ----------------------------------
+# Device verification flow (Ecovacs returns error 1013 for unverified device IDs)
+verify_device() {
+  echo "🔐 Step 1b: Device verification required (Ecovacs error 1013)..."
+  local pub_key_b64 encrypted email_resp email_code verify_resp verification_code config_resp
+  TMP_DIR="$(mktemp -d)"
+
+  echo "  ⬇️  Fetching Ecovacs public key..."
+  local config_resp
+  config_resp="$(call_private_api "common/getConfig" "$CLIENT_KEY" "$CLIENT_SECRET" "keys=PUBLIC.KEY.CONFIG")"
+  pub_key_b64="$(jq -r '.data[] | select(.key == "PUBLIC.KEY.CONFIG") | .value | fromjson | .publicKey // empty' <<<"$config_resp")"
+  if [[ -z "$pub_key_b64" ]]; then
+    echo "❌ Failed to fetch public key: $config_resp" >&2
+    exit 1
+  fi
+
+  echo "  🔐 Encrypting account with Ecovacs public key..."
+  printf '%s' "$pub_key_b64" | base64 -d >"$TMP_DIR/pub.der"
+  openssl pkey -pubin -inform DER -in "$TMP_DIR/pub.der" -out "$TMP_DIR/pub.pem" 2>/dev/null
+  encrypted="$(printf '%s' "$ACCOUNT_ID" | openssl pkeyutl -encrypt -pubin -inkey "$TMP_DIR/pub.pem" -pkeyopt rsa_padding_mode:pkcs1 | base64 -w0)"
+
+  echo "  📧 Requesting verification code for '$ACCOUNT_ID'..."
+  email_resp="$(call_private_api "user/sendEmailVerifyCode" "$CLIENT_KEY" "$CLIENT_SECRET" \
+    "encryptEmail=$encrypted" "verifyType=EMAIL_VERIFY_DEVICE" "supportChar=N" "isForce=N")"
+  email_code="$(jq -r '.code // empty' <<<"$email_resp")"
+  if [[ "$email_code" != "0000" ]]; then
+    echo "❌ sendEmailVerifyCode failed: $email_resp" >&2
+    echo "   Note: '0002 Parameter error' after repeated runs usually means Ecovacs is" >&2
+    echo "   rate-limiting verification-code requests. Wait 10-30 minutes before retrying." >&2
+    echo "   Alternatively try: ECO_CHANNEL=google $0" >&2
+    exit 1
+  fi
+
+  if [[ -n "${ECO_VERIFY_CODE:-}" ]]; then
+    verification_code="$ECO_VERIFY_CODE"
+  else
+    read -r -p "  📩 Enter the verification code from your email: " verification_code
+  fi
+  if [[ -z "$verification_code" ]]; then
+    echo "❌ No verification code provided." >&2
+    exit 1
+  fi
+
+  verify_resp="$(call_private_api "user/verifyDevice" "$CLIENT_KEY" "$CLIENT_SECRET" \
+    "encryptAccount=$encrypted" "backUpEmail=" "verifyCode=$verification_code" \
+    "model=$ANDROID_MODEL" "system=$ANDROID_SYSTEM")"
+  ACCESS_TOKEN="$(jq -r '.data.accessToken // empty' <<<"$verify_resp")"
+  USER_ID="$(jq -r '.data.uid // empty' <<<"$verify_resp")"
+  if [[ -z "$ACCESS_TOKEN" || -z "$USER_ID" ]]; then
+    echo "❌ verifyDevice failed: $verify_resp" >&2
+    exit 1
+  fi
+  echo "✅ Device verified. UID: '$USER_ID'"
+}
+
+# Stable device ID required: verification is bound to it and it must not change
+# across runs. Override with ECO_DEVICE_ID or store in ECO_DEVICE_ID_FILE.
+DEVICE_ID_FILE="${ECO_DEVICE_ID_FILE:-.eco-device-id}"
+if [[ -n "${ECO_DEVICE_ID:-}" ]]; then
+  DEVICE_ID="$ECO_DEVICE_ID"
+elif [[ -f "$DEVICE_ID_FILE" ]]; then
+  DEVICE_ID="$(<"$DEVICE_ID_FILE")"
+else
+  DEVICE_ID="$(tr -dc 'A-Z0-9' </dev/urandom | head -c 8 || true)"
+  printf '%s\n' "$DEVICE_ID" >"$DEVICE_ID_FILE"
+  echo "🔑 Generated new device ID '$DEVICE_ID' (stored in $DEVICE_ID_FILE)"
+fi
+
+# Device verification uses a temp dir; clean it up on exit (also on failure).
+# TMP_DIR is global because verify_device's locals are gone by the time the
+# EXIT trap runs.
+TMP_DIR=""
+trap 'if [ -n "${TMP_DIR:-}" ]; then rm -rf "$TMP_DIR"; fi' EXIT
+
 echo "🔑 Step 1: Logging in..."
 PASSWORD_HASH=$(md5 "$PASSWORD")
-AUTH_TIMESTAMP=$(timestamp_ms)
-REQUEST_ID=$(md5 "$(date +%s)")
 
-meta_params=(
-  "lang=$LANG"
-  "appCode=$APP_CODE"
-  "appVersion=$APP_VERSION"
-  "channel=$CHANNEL"
-  "deviceType=$DEVICE_TYPE"
-  "country=${LOGIN_COUNTRY,,}"
-  "deviceId=$DEVICE_ID"
-)
 login_params=(
   "account=$ACCOUNT_ID"
   "password=$PASSWORD_HASH"
-  "requestId=$REQUEST_ID"
-  "authTimespan=$AUTH_TIMESTAMP"
-  "authTimeZone=GMT-8"
 )
 
-AUTH_SIGN=$(build_login_signature "$CLIENT_KEY" "$CLIENT_SECRET" "${meta_params[@]}" "${login_params[@]}")
+LOGIN_JSON=$(call_private_api "user/login" "$CLIENT_KEY" "$CLIENT_SECRET" "${login_params[@]}")
+LOGIN_CODE=$(jq -r '.code // empty' <<<"$LOGIN_JSON")
 
-LOGIN_URL="https://gl-${LOGIN_COUNTRY,,}-api.ecovacs.com/v1/private/${LOGIN_COUNTRY,,}/${LANG}/${DEVICE_ID}/${APP_CODE}/${APP_VERSION}/${CHANNEL}/${DEVICE_TYPE}/user/login"
-
-LOGIN_JSON=$(
-  default_curl GET "$LOGIN_URL" --get \
-    --data-urlencode "account=$ACCOUNT_ID" \
-    --data-urlencode "password=$PASSWORD_HASH" \
-    --data-urlencode "requestId=$REQUEST_ID" \
-    --data-urlencode "authTimespan=$AUTH_TIMESTAMP" \
-    --data-urlencode "authTimeZone=GMT-8" \
-    --data-urlencode "appCode=$APP_CODE" \
-    --data-urlencode "appVersion=$APP_VERSION" \
-    --data-urlencode "channel=$CHANNEL" \
-    --data-urlencode "deviceType=$DEVICE_TYPE" \
-    --data-urlencode "country=${LOGIN_COUNTRY,,}" \
-    --data-urlencode "lang=$LANG" \
-    --data-urlencode "deviceId=$DEVICE_ID" \
-    --data-urlencode "authSign=$AUTH_SIGN" \
-    --data-urlencode "authAppkey=$CLIENT_KEY"
-)
-
-ACCESS_TOKEN=$(jq -r '.data.accessToken // empty' <<<"$LOGIN_JSON")
-USER_ID=$(jq -r '.data.uid // empty' <<<"$LOGIN_JSON")
-
-if [[ -z "$ACCESS_TOKEN" || -z "$USER_ID" ]]; then
+if [[ "$LOGIN_CODE" == "1013" ]]; then
+  verify_device
+elif [[ "$LOGIN_CODE" != "0000" ]]; then
   echo "❌ Login failed: $LOGIN_JSON" >&2
   exit 1
+else
+  ACCESS_TOKEN=$(jq -r '.data.accessToken // empty' <<<"$LOGIN_JSON")
+  USER_ID=$(jq -r '.data.uid // empty' <<<"$LOGIN_JSON")
+  if [[ -z "$ACCESS_TOKEN" || -z "$USER_ID" ]]; then
+    echo "❌ Login failed: $LOGIN_JSON" >&2
+    exit 1
+  fi
+  echo "✅ Login successful. UID: '$USER_ID'"
 fi
-
-echo "✅ Login successful. UID: '$USER_ID'"
 
 # --- Step 2: Get authCode -----------------------------------------------------
 echo "🔐 Step 2: Fetching authCode..."
@@ -197,7 +282,7 @@ declare -A FILES=(
   ["pim/product/getProductIotMap"]="productIotMap"
 )
 
-for ENDPOINT in "${!FILES[@]}"; do
+for ENDPOINT in $(printf '%s\n' "${!FILES[@]}" | sort); do
   OUTBASE="${FILES[$ENDPOINT]}"
   echo "  📡 Fetching '$ENDPOINT':"
   for COUNTRY_CODE in "${COUNTRIES[@]}"; do
@@ -233,38 +318,64 @@ for ENDPOINT in "${!FILES[@]}"; do
       jq '.data' "$OUTFILE" >"$OUTFILE.tmp" && mv "$OUTFILE.tmp" "$OUTFILE"
       echo "    🔄 Parsed 'data' for '$COUNTRY_CODE'"
     else
-      echo "    ⚠️ Warning: '$OUTFILE' did not return code 0, file left unchanged." >&2
+      echo "    ⚠️ Warning: '$OUTFILE' did not return code 0, removing it so it is not combined." >&2
+      rm -f "$OUTFILE"
     fi
   done
 done
 
-# --- Step 4: Download & combine config files ----------------------------------
-echo "🛠️ Step 5: Combining config files..."
-for ENDPOINT in "${!FILES[@]}"; do
+# --- Step 5: Combine config files ---------------------------------------------
+echo "🛠️ Step 5: Combining config files (country priority: DE > US > other)..."
+# Recursively sort object keys so upstream key reordering does not change the
+# combined output (stable diffs, same output every run).
+# shellcheck disable=SC2016  # $key/$in are jq variables, not bash expansions
+JQ_NORMALIZE='def walk(f): . as $in | if type == "object" then reduce keys_unsorted[] as $key ({}; . + {($key): ($in[$key] | walk(f))}) | f elif type == "array" then map(walk(f)) | f else f end; '
+JQ_SORT_KEYS='walk(if type == "object" then (to_entries | sort_by(.key) | from_entries) else . end)'
+
+# Per-file combine rules: unique key, ordering, optional per-entry extra.
+declare -A COMBINE_SPECS=(
+  ["configGroupsResponse"]='unique_by(.id) | sort_by(.sort, .id) | map(if .robots != null then .robots |= sort_by(.sort, .groupId) else . end)'
+  ["configNetAllResponse"]='unique_by(.groupId) | sort_by(.sort, .groupId)'
+  ["productIotMap"]='unique_by(.classid) | sort_by(.classid)'
+)
+
+# Country priority: DE first, then US, then the remaining countries in order.
+PRIORITY_COUNTRIES=()
+for c in DE US; do
+  if [[ " ${COUNTRIES[*]} " == *" $c "* ]]; then PRIORITY_COUNTRIES+=("$c"); fi
+done
+for c in "${COUNTRIES[@]}"; do
+  if [[ " ${PRIORITY_COUNTRIES[*]} " != *" $c "* ]]; then PRIORITY_COUNTRIES+=("$c"); fi
+done
+
+for ENDPOINT in $(printf '%s\n' "${!FILES[@]}" | sort); do
   OUTBASE="${FILES[$ENDPOINT]}"
   echo "  🔀 Combining JSON '$OUTBASE'"
 
   COMBINED_FILE="$OUTPUT_FOLDER/${OUTBASE}Combined.json"
-  # Find all per-country files for this type
+  # Only combine valid country responses, in country priority order.
   FILES_TO_COMBINE=()
-  for COUNTRY_CODE in "${COUNTRIES[@]}"; do
-    FILES_TO_COMBINE+=("$OUTPUT_FOLDER/${OUTBASE}V2-${COUNTRY_CODE}.json")
+  for COUNTRY_CODE in "${PRIORITY_COUNTRIES[@]}"; do
+    FILE="$OUTPUT_FOLDER/${OUTBASE}V2-${COUNTRY_CODE}.json"
+    if [[ -s "$FILE" ]] && jq -e 'type == "array"' "$FILE" >/dev/null 2>&1; then
+      FILES_TO_COMBINE+=("$FILE")
+    else
+      echo "    ⚠️ Skipping invalid or missing '$FILE'"
+    fi
   done
 
   if [ ${#FILES_TO_COMBINE[@]} -gt 0 ]; then
-    if [[ "$OUTBASE" == "configGroupsResponse" ]]; then
-      jq -s 'add | group_by(.id) | map(.[0]) | sort_by(.sort, .id) | map(.robots |= sort_by(.sort, .groupId))' "${FILES_TO_COMBINE[@]}" "${TARGET_JSON_PATH}/configGroupsResponse.json" >"$COMBINED_FILE"
-    elif [[ "$OUTBASE" == "configNetAllResponse" ]]; then
-      jq -s 'add | unique_by(.groupId) | sort_by(.sort, .groupId)' "${FILES_TO_COMBINE[@]}" "${TARGET_JSON_PATH}/configNetAllResponse.json" >"$COMBINED_FILE"
-    elif [[ "$OUTBASE" == "productIotMap" ]]; then
-      jq -s 'add | unique_by(.classid) | sort_by(.classid)' "${FILES_TO_COMBINE[@]}" "${TARGET_JSON_PATH}/productIotMap.json" >"$COMBINED_FILE"
-    fi
+    # First occurrence wins per unique key, so an entry present in a
+    # higher-priority country is preferred; the committed target file is
+    # appended last, keeping entries no country supplies anymore.
+    jq -s "${JQ_NORMALIZE}add | ${COMBINE_SPECS[$OUTBASE]} | ${JQ_SORT_KEYS}" \
+      "${FILES_TO_COMBINE[@]}" "${TARGET_JSON_PATH}/${OUTBASE}.json" >"$COMBINED_FILE"
     cp "$COMBINED_FILE" "${TARGET_JSON_PATH}/${OUTBASE}.json"
     echo "    ✅ Combined JSON '$OUTBASE' :: copied JSON: '$COMBINED_FILE' -> '${TARGET_JSON_PATH}/${OUTBASE}.json'"
   fi
 done
 
-# --- Step 4: Replacing URLs in combined JSON files-----------------------------
+# --- Step 6: Replacing URLs in combined JSON files-----------------------------
 echo "🧼 Step 6: Replacing URLs in combined JSON files..."
 REPLACEMENTS=(
   "api-app.dc-na.ww"
