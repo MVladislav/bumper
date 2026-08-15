@@ -96,7 +96,7 @@ scripts/create-unpinned-app.sh
 ### 🚀 Automated Script (OLD)
 
 Bumper includes a Bash script at
-[`scripts/create-unpinned-app-old.sh`](https://github.com/MVladislav/bumper/blob/main/scripts/create-unpinned-app-old.sh)
+[`scripts/create-unpinned-app-legacy.sh`](https://github.com/MVladislav/bumper/blob/main/scripts/create-unpinned-app-legacy.sh)
 that automates the XAPK/APK patching process inside Docker.
 
 #### How the Script Works
@@ -133,7 +133,7 @@ The script performs these steps internally:
 #### Running the Script
 
 ```sh
-scripts/create-unpinned-app-old.sh
+scripts/create-unpinned-app-legacy.sh
 ```
 
 > On completion, the patched (X)APK is saved as `data/<original>-patched.<ext>`.
