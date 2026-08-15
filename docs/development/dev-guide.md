@@ -39,7 +39,7 @@ $uv sync --all-groups --upgrade
 ## 🚀 Running the Application
 
 ```sh
-$./scripts/create_cert.sh
+$./scripts/create-cert.sh
 $WEB_SERVER_HTTPS_PORT=8443 uv run bumper
 ```
 
@@ -96,6 +96,13 @@ The HTML report is located at `tests/report/index.html`.
 ## 📖 Understanding the Code
 
 Refer to the [How It Works](../internals/architecture.md) guide for an overview of the core architecture and data flows.
+
+---
+
+## 🔄 Updating Static Ecovacs Data
+
+Bumper ships with pre-fetched Ecovacs data under `bumper/web/static_api/`.
+See [Static Data Update Guide](static-data-update.md).
 
 ---
 
