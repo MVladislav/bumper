@@ -56,7 +56,7 @@ def test_files(tmp_path_factory: pytest.TempPathFactory) -> dict[str, Path]:
     tmp_dir = tmp_path_factory.mktemp("test_files")
     passwd_file = tmp_dir / "passwd"
     passwd_file.write_text(
-        "test-client:$6$e9026a738b07b5a1$WaoYMI61aIPhhjfe3FG3uzV1oqyRdLi/TvLbBbvvzFyJ7T6PrileHGkzKkJUMLGQm/dhcq0fUT8mcu2kVcjbX/\n",
+        "test-client:$argon2id$v=19$m=65536,t=3,p=4$C0YnfmmfIWjbVgectg+kaA$VdMaeiMDqY66RXKFKYglW8bQ7ZU5om1Ms3zxXBHVXak\n",
     )
     passwd_bad = tmp_dir / "passwd_bad"
     passwd_bad.write_text("test-client:badhash\n")
