@@ -14,7 +14,8 @@ from amqtt.client import ClientConfig
 from amqtt.contexts import BaseContext, BrokerConfig, ListenerConfig, ListenerType
 from amqtt.plugins.base import BaseAuthPlugin
 from amqtt.session import IncomingApplicationMessage, Session
-from passlib.apps import custom_app_context as pwd_context
+from pwdlib import PasswordHash
+from pwdlib.exceptions import UnknownHashError
 
 from bumper.db import bot_repo, client_repo, token_repo
 from bumper.mqtt import helper_bot, proxy as mqtt_proxy
@@ -25,6 +26,8 @@ _LOGGER = logging.getLogger(__name__)
 _LOGGER_MESSAGES = logging.getLogger(f"{__name__}.messages")
 _LOGGER_PROXY = logging.getLogger(f"{__name__}.proxy")
 _LOGGER_BROKER = logging.getLogger(f"{__name__}.broker")
+
+_pwd_hasher = PasswordHash.recommended()
 
 
 def _log__helperbot_message(custom_log_message: str, topic: str, data: str) -> None:
@@ -217,9 +220,12 @@ class BumperMQTTServerPlugin(BaseAuthPlugin):  # type: ignore[misc]
                 if password_hash is None:
                     _LOGGER.info(f"File Authentication Failed :: No Entry for :: {message_suffix}")
                     raise Exception(error_msg)
-                if pwd_context.verify(password, password_hash):
-                    _LOGGER.info(f"File Authentication Success :: {message_suffix}")
-                    return True
+                try:
+                    if _pwd_hasher.verify(password, password_hash):
+                        _LOGGER.info(f"File Authentication Success :: {message_suffix}")
+                        return True
+                except UnknownHashError:
+                    _LOGGER.warning(f"File Authentication Failed :: Unsupported hash format :: {message_suffix}")
                 _LOGGER.info(f"File Authentication Failed :: {message_suffix}")
                 raise Exception(error_msg)
 
@@ -256,7 +262,11 @@ class BumperMQTTServerPlugin(BaseAuthPlugin):  # type: ignore[misc]
                 if bumper_isc.BUMPER_PROXY_MQTT and username is not None and password is not None:
                     mqtt_server = await utils.resolve(bumper_isc.PROXY_MQTT_DOMAIN)
                     _LOGGER_PROXY.info(f"MQTT Proxy Mode :: Using server {mqtt_server} for client {client_id}")
-                    proxy = mqtt_proxy.ProxyClient(client_id, mqtt_server, config=ClientConfig(check_hostname=False))
+                    proxy = mqtt_proxy.ProxyClient(
+                        client_id,
+                        mqtt_server,
+                        config=ClientConfig(check_hostname=False, verify_cert=False),
+                    )
                     self._proxy_clients[client_id] = proxy
                     await proxy.connect(username, password)
 
@@ -352,7 +362,14 @@ class BumperMQTTServerPlugin(BaseAuthPlugin):  # type: ignore[misc]
                 try:
                     # Send back to ecovacs
                     _LOGGER_PROXY.info(f"Proxy Forward Message to Ecovacs :: Topic: {ttopic_join} :: Message: {data_decoded}")
-                    await self._proxy_clients[client_id].publish(ttopic_join, data_decoded.encode(), message.qos)
+                    await asyncio.wait_for(
+                        self._proxy_clients[client_id].publish(ttopic_join, data_decoded.encode(), message.qos),
+                        timeout=bumper_isc.PROXY_PUBLISH_TIMEOUT,
+                    )
+                except TimeoutError:
+                    _LOGGER_PROXY.error(
+                        f"Forwarding to Ecovacs :: Timeout after {bumper_isc.PROXY_PUBLISH_TIMEOUT}s :: Topic: {ttopic_join}",
+                    )
                 except Exception as e:
                     _LOGGER_PROXY.error(f"Forwarding to Ecovacs :: Exception :: {e}", exc_info=True)
         except Exception as e:
