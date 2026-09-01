@@ -262,7 +262,11 @@ class BumperMQTTServerPlugin(BaseAuthPlugin):  # type: ignore[misc]
                 if bumper_isc.BUMPER_PROXY_MQTT and username is not None and password is not None:
                     mqtt_server = await utils.resolve(bumper_isc.PROXY_MQTT_DOMAIN)
                     _LOGGER_PROXY.info(f"MQTT Proxy Mode :: Using server {mqtt_server} for client {client_id}")
-                    proxy = mqtt_proxy.ProxyClient(client_id, mqtt_server, config=ClientConfig(check_hostname=False))
+                    proxy = mqtt_proxy.ProxyClient(
+                        client_id,
+                        mqtt_server,
+                        config=ClientConfig(check_hostname=False, verify_cert=False),
+                    )
                     self._proxy_clients[client_id] = proxy
                     await proxy.connect(username, password)
 
@@ -358,7 +362,14 @@ class BumperMQTTServerPlugin(BaseAuthPlugin):  # type: ignore[misc]
                 try:
                     # Send back to ecovacs
                     _LOGGER_PROXY.info(f"Proxy Forward Message to Ecovacs :: Topic: {ttopic_join} :: Message: {data_decoded}")
-                    await self._proxy_clients[client_id].publish(ttopic_join, data_decoded.encode(), message.qos)
+                    await asyncio.wait_for(
+                        self._proxy_clients[client_id].publish(ttopic_join, data_decoded.encode(), message.qos),
+                        timeout=bumper_isc.PROXY_PUBLISH_TIMEOUT,
+                    )
+                except TimeoutError:
+                    _LOGGER_PROXY.error(
+                        f"Forwarding to Ecovacs :: Timeout after {bumper_isc.PROXY_PUBLISH_TIMEOUT}s :: Topic: {ttopic_join}",
+                    )
                 except Exception as e:
                     _LOGGER_PROXY.error(f"Forwarding to Ecovacs :: Exception :: {e}", exc_info=True)
         except Exception as e:

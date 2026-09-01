@@ -94,6 +94,7 @@ class Config:
     # Proxy
     PROXY_NAMESERVER: list[str] = ["1.1.1.1", "8.8.8.8"]
     PROXY_MQTT_DOMAIN: str = "mq-ww.ecouser.net"
+    PROXY_PUBLISH_TIMEOUT: float = float(os.environ.get("PROXY_PUBLISH_TIMEOUT") or 10.0)
 
     # Domains
     DOMAIN_ALI: str = "globalapp-eu.oss-eu-central-1.aliyuncs.com"
