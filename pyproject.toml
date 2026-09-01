@@ -33,22 +33,22 @@ authors = [
 ]
 
 dependencies = [
-  "aiodns==4.0.4",        # https://pypi.org/project/aiodns
-  "aiofiles==25.1.0",     # https://pypi.org/project/aiofiles
-  "aiohttp-jinja2==1.6",  # https://pypi.org/project/aiohttp-jinja2
-  "aiohttp==3.14.3",      # https://pypi.org/project/aiohttp
-  "aiomqtt==2.5.1",       # https://pypi.org/project/aiomqtt
-  "amqtt==0.11.4",        # https://pypi.org/project/amqtt
-  "cachetools==7.1.7",    # https://pypi.org/project/cachetools
-  "coloredlogs==15.0.1",  # https://pypi.org/project/coloredlogs
-  "cryptography==50.0.0", # https://pypi.org/project/cryptography
-  "defusedxml==0.8.0rc2", # https://pypi.org/project/defusedxml
-  "Jinja2==3.1.6",        # https://pypi.org/project/Jinja2
-  "passlib==1.7.4",       # https://pypi.org/project/passlib
-  "PyJWT==2.13.0",        # https://pypi.org/project/PyJWT
-  "tinydb==4.8.2",        # https://pypi.org/project/tinydb
-  "validators==0.35.0",   # https://pypi.org/project/validators
-  "websockets==15.0.1",   # https://pypi.org/project/websockets
+  "aiodns==4.0.4",         # https://pypi.org/project/aiodns
+  "aiofiles==25.1.0",      # https://pypi.org/project/aiofiles
+  "aiohttp-jinja2==1.6",   # https://pypi.org/project/aiohttp-jinja2
+  "aiohttp==3.14.3",       # https://pypi.org/project/aiohttp
+  "aiomqtt==2.5.1",        # https://pypi.org/project/aiomqtt
+  "amqtt==0.12.0",         # https://pypi.org/project/amqtt
+  "cachetools==7.1.8",     # https://pypi.org/project/cachetools
+  "coloredlogs==15.0.1",   # https://pypi.org/project/coloredlogs
+  "cryptography==50.0.1",  # https://pypi.org/project/cryptography
+  "defusedxml==0.8.0rc2",  # https://pypi.org/project/defusedxml
+  "Jinja2==3.1.6",         # https://pypi.org/project/Jinja2
+  "pwdlib[argon2]==0.3.1", # https://pypi.org/project/pwdlib
+  "PyJWT==2.13.0",         # https://pypi.org/project/PyJWT
+  "tinydb==4.9.0",         # https://pypi.org/project/tinydb
+  "validators==0.35.0",    # https://pypi.org/project/validators
+  "websockets==15.0.1",    # https://pypi.org/project/websockets
 ]
 
 [dependency-groups]
