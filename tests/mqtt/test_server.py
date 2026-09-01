@@ -1,13 +1,15 @@
 import asyncio
+from pathlib import Path
 import ssl
 from unittest import mock
 
 from aiomqtt import Client
+from amqtt.session import IncomingApplicationMessage, Session
 import pytest
 from testfixtures import LogCapture
 
 from bumper.db import client_repo, user_repo
-from bumper.mqtt.server import MQTTBinding, MQTTServer, _log__helperbot_message, mqtt_proxy
+from bumper.mqtt.server import BumperMQTTServerPlugin, MQTTBinding, MQTTServer, _log__helperbot_message, mqtt_proxy
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
 from tests import HOST, MQTT_PORT
@@ -17,7 +19,7 @@ from .mqtt_util import verify_subscribe
 _LOGGER_NAME = "bumper.mqtt.server"
 
 
-def async_return(result: str | bool) -> asyncio.Future:
+def async_return(result: str | bool | None) -> asyncio.Future:
     """Return an async result."""
     f = asyncio.Future()
     f.set_result(result)
@@ -158,6 +160,8 @@ async def test_mqttserver(proxy: bool) -> None:
             utils.resolve = mock.MagicMock(return_value=async_return("127.0.0.1"))
             mqtt_proxy.ProxyClient.connect = mock.MagicMock(return_value=async_return(True))
             mqtt_proxy.ProxyClient.disconnect = mock.MagicMock(return_value=async_return(True))
+            mqtt_proxy.ProxyClient.subscribe = mock.MagicMock(return_value=async_return(None))
+            mqtt_proxy.ProxyClient.publish = mock.MagicMock(return_value=async_return(None))
 
             async with Client(
                 hostname=HOST,
@@ -332,3 +336,83 @@ async def test_mqttserver_shutdown() -> None:
                 ),
                 order_matters=False,
             )
+
+
+class _FakeContext:
+    """Minimal stand-in for a plugin context backed by the plugin's Config dataclass."""
+
+    def __init__(self, password_file: str, allow_anonymous: bool) -> None:
+        self.config: BumperMQTTServerPlugin.Config = BumperMQTTServerPlugin.Config(
+            allow_anonymous=allow_anonymous,
+            password_file=password_file,
+        )
+        self.logger = mock.MagicMock()
+
+
+def _make_plugin(password_file: str, allow_anonymous: bool = False) -> BumperMQTTServerPlugin:
+    """Build a BumperMQTTServerPlugin with a lightweight fake context."""
+    return BumperMQTTServerPlugin(_FakeContext(password_file, allow_anonymous))
+
+
+@pytest.mark.parametrize(
+    "passwd_line",
+    [
+        "$6$e9026a738b07b5a1$WaoYMI61aIPhhjfe3FG3uzV1oqyRdLi/TvLbBbvvzFyJ7T6PrileHGkzKkJUMLGQm/dhcq0fUT8mcu2kVcjbX/",
+        "not-a-hash",
+    ],
+)
+async def test_file_auth_unsupported_hash_rejected(tmp_path: Path, passwd_line: str) -> None:
+    """Legacy/unknown hash formats must not authenticate after the pwdlib (argon2) migration."""
+    passwd = tmp_path / "passwd"
+    passwd.write_text(f"{'test-user'}:{passwd_line}\n")
+    plugin = _make_plugin(str(passwd), allow_anonymous=False)
+
+    session = Session()
+    session.username = "test-user"
+    session.password = "abc123!"  # noqa: S105
+    session.client_id = "test-file-auth"
+
+    with mock.patch("bumper.mqtt.server.bot_repo.add"), mock.patch("bumper.mqtt.server.client_repo.add"):
+        result = await plugin.authenticate(session=session)
+
+    assert result is False
+
+
+async def test_file_auth_valid_argon2_success(tmp_path: Path) -> None:
+    """A valid argon2 hash authenticates after the pwdlib migration."""
+    passwd = tmp_path / "passwd"
+    passwd.write_text(
+        "test-user:$argon2id$v=19$m=65536,t=3,p=4$C0YnfmmfIWjbVgectg+kaA$VdMaeiMDqY66RXKFKYglW8bQ7ZU5om1Ms3zxXBHVXak\n",
+    )
+    plugin = _make_plugin(str(passwd), allow_anonymous=False)
+
+    session = Session()
+    session.username = "test-user"
+    session.password = "abc123!"  # noqa: S105
+    session.client_id = "test-file-auth"
+
+    assert await plugin.authenticate(session=session) is True
+
+
+async def test_on_broker_message_received_proxy_timeout(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """A hanging proxy publish is bounded by PROXY_PUBLISH_TIMEOUT and does not block."""
+    monkeypatch.setattr(bumper_isc, "BUMPER_PROXY_MQTT", True)
+    monkeypatch.setattr(bumper_isc, "PROXY_PUBLISH_TIMEOUT", 0.05)
+
+    plugin = _make_plugin(str(tmp_path / "passwd"))
+
+    async def _never_returns(_topic: str, _message: bytes, _qos: int | None) -> None:
+        await asyncio.sleep(60)
+
+    proxy = mock.AsyncMock()
+    proxy.publish = mock.AsyncMock(side_effect=_never_returns)
+    plugin._proxy_clients["user_123@ls1ok3/wC3g"] = proxy
+
+    msg = IncomingApplicationMessage(None, "iot/atr/test/user_123/ls1ok3/wC3g/j", 0, b"payload", False)
+
+    # Must return promptly (bounded by the timeout), not hang for the full sleep(60).
+    await asyncio.wait_for(
+        plugin.on_broker_message_received(msg, "user_123@ls1ok3/wC3g"),
+        timeout=2.0,
+    )
+    proxy.publish.assert_awaited_once()
