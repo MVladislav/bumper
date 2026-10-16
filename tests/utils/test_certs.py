@@ -1,6 +1,6 @@
 """Tests for certificate generation module."""
 
-import datetime
+import datetime as dt
 from pathlib import Path
 
 from cryptography import x509
@@ -172,7 +172,7 @@ class TestCreateCaCertificate:
         key = _generate_key()
         cert = _create_ca_certificate(key)
         validity = cert.not_valid_after_utc - cert.not_valid_before_utc
-        expected_days = datetime.timedelta(days=bumper_isc.ca_valid_days)
+        expected_days = dt.timedelta(days=bumper_isc.ca_valid_days)
         assert validity == expected_days
 
     def test_certificate_has_ca_basic_constraints(self) -> None:
@@ -232,7 +232,7 @@ class TestCreateServerCertificate:
         server_key = _generate_key()
         cert = _create_server_certificate(server_key, ca_key, ca_cert)
         validity = cert.not_valid_after_utc - cert.not_valid_before_utc
-        expected_days = datetime.timedelta(days=bumper_isc.server_valid_days)
+        expected_days = dt.timedelta(days=bumper_isc.server_valid_days)
         assert validity == expected_days
 
     def test_certificate_has_key_usage(self, ca_key_and_cert: CaKeyAndCert) -> None:
