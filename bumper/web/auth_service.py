@@ -1,6 +1,6 @@
 """Auth util module."""
 
-import datetime
+import datetime as dt
 import hashlib
 import json
 import logging
@@ -410,8 +410,8 @@ async def generate_jwt_helper(
     """Generate JWT."""
     if data is None:
         data = {}
-    now_dt = datetime.datetime.now(tz=bumper_isc.LOCAL_TIMEZONE)
-    exp_dt = now_dt + datetime.timedelta(seconds=int(exp_seconds))
+    now_dt = dt.datetime.now(tz=bumper_isc.LOCAL_TIMEZONE)
+    exp_dt = now_dt + dt.timedelta(seconds=int(exp_seconds))
 
     headers = {
         "alg": algorithm,

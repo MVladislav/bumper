@@ -1,7 +1,7 @@
 """Certificate generation module for Bumper."""
 
 from collections import defaultdict
-import datetime
+import datetime as dt
 from ipaddress import ip_address
 import logging
 from pathlib import Path
@@ -253,7 +253,7 @@ def _create_ca_certificate(ca_key: ec.EllipticCurvePrivateKey | rsa.RSAPrivateKe
         ],
     )
 
-    now = datetime.datetime.now(datetime.UTC)
+    now = dt.datetime.now(dt.UTC)
     return (
         x509.CertificateBuilder()
         .subject_name(subject)
@@ -261,7 +261,7 @@ def _create_ca_certificate(ca_key: ec.EllipticCurvePrivateKey | rsa.RSAPrivateKe
         .public_key(ca_key.public_key())
         .serial_number(x509.random_serial_number())
         .not_valid_before(now)
-        .not_valid_after(now + datetime.timedelta(days=bumper_isc.ca_valid_days))
+        .not_valid_after(now + dt.timedelta(days=bumper_isc.ca_valid_days))
         .add_extension(
             x509.BasicConstraints(ca=True, path_length=None),
             critical=True,
@@ -301,7 +301,7 @@ def _create_server_certificate(
         ],
     )
 
-    now = datetime.datetime.now(datetime.UTC)
+    now = dt.datetime.now(dt.UTC)
     return (
         x509.CertificateBuilder()
         .subject_name(subject)
@@ -309,7 +309,7 @@ def _create_server_certificate(
         .public_key(server_key.public_key())
         .serial_number(x509.random_serial_number())
         .not_valid_before(now)
-        .not_valid_after(now + datetime.timedelta(days=bumper_isc.server_valid_days))
+        .not_valid_after(now + dt.timedelta(days=bumper_isc.server_valid_days))
         .add_extension(
             x509.KeyUsage(
                 digital_signature=True,

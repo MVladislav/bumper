@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
-import datetime
+import datetime as dt
 import json
 from typing import TYPE_CHECKING
 
@@ -25,7 +25,7 @@ async def verify_subscribe(
 ) -> None:
     """Verify that a subscription works by publishing a test message."""
     command = "test"
-    data = json.dumps({"test": str(datetime.datetime.now(datetime.UTC))}).encode("utf-8")
+    data = json.dumps({"test": str(dt.datetime.now(dt.UTC))}).encode("utf-8")
     topic = f"iot/atr/{command}/{did}/{device_class}/{resource}/j"
 
     # Subscribe to the topic

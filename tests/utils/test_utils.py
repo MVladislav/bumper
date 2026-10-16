@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 import json
 import logging
 from pathlib import Path
@@ -51,7 +51,7 @@ def test_default_exception_str_builder_no_info() -> None:
 
 def test_get_milli_time() -> None:
     assert (
-        utils.convert_to_millis(datetime.datetime(2018, 1, 1, 1, 0, 0, 0, tzinfo=bumper_isc.LOCAL_TIMEZONE).timestamp())
+        utils.convert_to_millis(dt.datetime(2018, 1, 1, 1, 0, 0, 0, tzinfo=bumper_isc.LOCAL_TIMEZONE).timestamp())
         == 1514768400000
     )
 
@@ -61,7 +61,7 @@ def test_get_current_time_as_millis() -> None:
     current_time = utils.get_current_time_as_millis()
 
     # Get the current time using Python's datetime module
-    expected_time = int(datetime.datetime.now(tz=bumper_isc.LOCAL_TIMEZONE).timestamp() * 1000)
+    expected_time = int(dt.datetime.now(tz=bumper_isc.LOCAL_TIMEZONE).timestamp() * 1000)
 
     # Assert that the current time obtained from the function is close to the expected time
     # This is to account for potential slight variations due to the time it takes to execute the test
@@ -71,8 +71,8 @@ def test_get_current_time_as_millis() -> None:
 def test_get_tzm_and_ts() -> None:
     bumper_isc.LOCAL_TIMEZONE = ZoneInfo("Europe/Berlin")
     offset_minutes, timestamp_s = utils.get_tzm_and_ts()
-    assert timestamp_s == int(datetime.datetime.now(tz=bumper_isc.LOCAL_TIMEZONE).timestamp())
-    assert offset_minutes == int(datetime.datetime.now(tz=bumper_isc.LOCAL_TIMEZONE).utcoffset().total_seconds() // 60)
+    assert timestamp_s == int(dt.datetime.now(tz=bumper_isc.LOCAL_TIMEZONE).timestamp())
+    assert offset_minutes == int(dt.datetime.now(tz=bumper_isc.LOCAL_TIMEZONE).utcoffset().total_seconds() // 60)
 
 
 def test_get_tzm_and_ts_raises() -> None:
