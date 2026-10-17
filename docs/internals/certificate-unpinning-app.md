@@ -92,6 +92,7 @@ scripts/create-unpinned-app.sh
 
 > On completion, the patched APKs are saved under `data/<original-basename>/`.
 > The script does **not** automatically install the APKs; it only provides the commands for manual installation.
+> After installing them, also install `certs/ca.crt` on the phone as a **user CA certificate**. The script does not install the CA in the app or on the phone.
 
 ### 🚀 Automated Script (OLD)
 
@@ -138,6 +139,7 @@ scripts/create-unpinned-app-legacy.sh
 
 > On completion, the patched (X)APK is saved as `data/<original>-patched.<ext>`.
 > The script does **not** automatically install the APK; it only provides the commands for manual installation.
+> This legacy method embeds Bumper's CA in the patched APK, so a separate Android CA installation is not needed for this method.
 
 ---
 
