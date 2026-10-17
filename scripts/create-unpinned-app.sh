@@ -83,5 +83,6 @@ cp -r "${WORKDIR}/"*.apk "${PATCHED_VERSION_PATH}/"
 echo "💡 Install patched APKs manually; patched (X)APK version saved under: '${PATCHED_VERSION_PATH}/'"
 echo '   - Manually install with:'
 echo "     - xapk: 'adb install-multiple ${PATCHED_VERSION_PATH}/*.apk'"
+echo "   - Install Bumper's CA on the phone as a user CA certificate: 'certs/ca.crt'"
 
 echo "✅ All done! Patched (X)APK → '${PATCHED_VERSION_PATH}/'"
