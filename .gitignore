@@ -19,6 +19,8 @@
 !LICENSE
 !SECURITY.md
 
+!AGENTS.md
+
 !README.md
 
 !.pre-commit-config.yaml
@@ -48,6 +50,10 @@
 scripts/*
 !scripts/*.sh
 !scripts/*.py
+!scripts/apk-patch/
+!scripts/apk-patch/*.py
+!scripts/apk-patch/*.sh
+!scripts/apk-patch/Dockerfile
 
 !tests/
 !tests/db/

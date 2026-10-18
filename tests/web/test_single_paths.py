@@ -123,6 +123,22 @@ async def test_codepush_report_status(webserver_client: TestClient) -> None:
         assert "msg" in data
 
 
+@pytest.mark.parametrize(
+    "path",
+    [
+        "/v0.1/public/codepush/report_status/download",
+        "/v0.1/public/codepush/report_Status/deploy",
+        "/v0.1/public/codepush/report_Status/download",
+    ],
+)
+async def test_codepush_report_status_variants(webserver_client: TestClient, path: str) -> None:
+    """The app uses both capitalisations and both actions; routes are case-sensitive."""
+    async with webserver_client.post(path) as resp:
+        assert resp.status == 200
+        data = await resp.json()
+        assert "msg" in data
+
+
 async def test_codepush_update_check_default(webserver_client: TestClient) -> None:
     async with webserver_client.get("/v0.1/public/codepush/update_check") as resp:
         assert resp.status == 200

@@ -128,6 +128,18 @@ async def test_check_agreement(webserver_client: TestClient) -> None:
 
 
 @pytest.mark.usefixtures("clean_database")
+async def test_change_lang(webserver_client: TestClient) -> None:
+    """The app blocks the language switch on this response, so it must not 404."""
+    async with webserver_client.get(
+        "/v1/private/de/de/dev_1234/global_e/1/0/0/user/changeLang?fromLang=DE&toLang=EN",
+    ) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["code"] == RETURN_API_SUCCESS
+        assert json_resp["success"] is True
+
+
+@pytest.mark.usefixtures("clean_database")
 async def test_get_user_account_info(webserver_client: TestClient) -> None:
     user_repo.add(USER_ID)
     user_repo.add_device(USER_ID, "dev_1234")

@@ -40,6 +40,7 @@ class UserPlugin(WebserverPlugin):
             web.route("*", f"{BASE_URL}user/getMyUserMenuInfo", _handle_get_my_user_menu_info),
             web.route("*", f"{BASE_URL}user/changeArea", _handle_change_area),
             web.route("*", f"{BASE_URL}user/queryChangeArea", _handle_change_area),
+            web.route("*", f"{BASE_URL}user/changeLang", _handle_change_lang),
             web.route("*", f"{BASE_URL}user/acceptAgreementBatch", _handle_accept_agreement_batch),
             web.route("*", f"{BASE_URL}user/getMemberInfo", _handle_get_member_info),
         ]
@@ -303,6 +304,11 @@ async def _handle_get_my_user_menu_info(_: Request) -> Response:
 async def _handle_change_area(_: Request) -> Response:
     """Change area."""
     return response_success_v1({"isNeedReLogin": "N"})
+
+
+async def _handle_change_lang(_: Request) -> Response:
+    """Change language."""
+    return response_success_v1(None)
 
 
 async def _handle_accept_agreement_batch(_: Request) -> Response:
