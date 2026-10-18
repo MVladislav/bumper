@@ -30,6 +30,7 @@ class EcmsPlugin(WebserverPlugin):
             web.route("*", "/ecms/app/ad/res", _handle_ad_res),
             web.route("*", "/ecms/app/ad/res/v2", _handle_ad_res),
             web.route("*", "/ecms/app/ad/res/v3", _handle_ad_res),
+            web.route("*", "/ecms/app/ad/res/v3/", _handle_ad_res),
             web.route("*", "/ecms/app/element/hint", _handle_hint),
             web.route("*", "/ecms/app/resources", _handle_resources),
             web.route("*", "/ecms/app/push/event", _handle_push_event),

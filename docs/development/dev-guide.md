@@ -16,22 +16,22 @@ This guide covers setting up a local development environment, running the applic
 **Step 1 – Clone the repository**
 
 ```sh
-$git clone https://github.com/MVladislav/bumper.git
-$cd bumper
+git clone https://github.com/MVladislav/bumper.git
+cd bumper
 ```
 
 **Step 2 – Create and activate virtual environment, install uv**
 
 ```sh
-$python3 -m venv .venv
-$source .venv/bin/activate
-$python3 -m pip install uv
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install uv
 ```
 
 **Step 3 – Install project dependencies**
 
 ```sh
-$uv sync --all-groups --upgrade
+uv sync --active --all-groups --upgrade
 ```
 
 ---
@@ -39,8 +39,8 @@ $uv sync --all-groups --upgrade
 ## 🚀 Running the Application
 
 ```sh
-$./scripts/create-cert.sh
-$WEB_SERVER_HTTPS_PORT=8443 uv run bumper
+./scripts/create-cert.sh
+WEB_SERVER_HTTPS_PORT=8443 uv run bumper
 ```
 
 The web UI will be available at `https://127.0.1.1:8443` by default.
@@ -54,19 +54,19 @@ The web UI will be available at `https://127.0.1.1:8443` by default.
 **Run prek hooks**
 
 ```sh
-$prek run --all-files
+prek run --all-files
 ```
 
 **Type checking with mypy**
 
 ```sh
-$uv run --frozen mypy bumper/
+uv run --active --frozen mypy bumper/
 ```
 
 **Linting with pylint**
 
 ```sh
-$uv run --frozen pylint bumper/
+uv run --active --frozen pylint bumper/
 ```
 
 ### Unit Tests
@@ -74,19 +74,19 @@ $uv run --frozen pylint bumper/
 **Run tests**
 
 ```sh
-$uv run pytest tests
+uv run --active pytest tests
 ```
 
 **Tests with coverage report**
 
 ```sh
-$uv run pytest --cov=./ tests --cov-report xml --junitxml=pytest-report.xml
+uv run --active pytest --cov=./ tests --cov-report xml --junitxml=pytest-report.xml
 ```
 
 **Generate HTML coverage report**
 
 ```sh
-$uv run pytest --cov=./ tests --cov-report html:tests/report
+uv run --active pytest --cov=./ tests --cov-report html:tests/report
 ```
 
 The HTML report is located at `tests/report/index.html`.
