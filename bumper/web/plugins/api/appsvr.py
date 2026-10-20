@@ -57,6 +57,7 @@ class AppsvrPlugin(WebserverPlugin):
             web.route("*", "/appsvr/product/getConfigGroups", _handle_get_config_groups),
             web.route("*", "/appsvr/codepush/checkupdate", _handle_codepush_update_check),
             web.route("GET", "/appsvr/device/prop/list", _handle_device_prop_list),
+            web.route("*", "/appsvr/device/{did}/nickname", _handle_device_nickname),
         ]
 
 
@@ -316,12 +317,42 @@ async def _handle_app_config(request: Request) -> Response:
     elif code == "yiko_support_lang":
         data = [
             {
-                "resId": "675681bca7c061000750cb05",
+                "resId": "6892ab439937790007c4f2b1",  # pragma: allowlist secret
                 "code": "yiko_support_lang",
                 "name": "Languages supported by Full Stack YIKO",  # 全栈YIKO支持的语种
                 "description": "Languages supported by Full Stack YIKO",  # 全栈YIKO支持的语种
                 "type": "json",
-                "content": {"lang": ["en"]},
+                "content": {
+                    "lang": [
+                        "ar",
+                        "de",
+                        "en",
+                        "fr",
+                        "he",
+                        "id",
+                        "it",
+                        "ja",
+                        "ko",
+                        "pl",
+                        "ru",
+                        "th",
+                        "tr",
+                        "vi",
+                        "zh_cn",
+                        "zh_tw",
+                    ],
+                },
+            },
+        ]
+
+    elif code == "webview_trusted_host_suffixes":
+        data = [
+            {
+                "code": "webview_trusted_host_suffixes",
+                "name": "Webview trusted host suffixes",
+                "description": "Webview trusted host suffixes",
+                "type": "json",
+                "content": {"suffixes": list(bumper_isc.WEBVIEW_TRUSTED_HOST_SUFFIXES)},
             },
         ]
 
@@ -709,3 +740,22 @@ def _get_product_category(device_name: str, robot: dict[str, Any] | None) -> str
     # if device_name.startswith("WINBOT"):
     #     return "WINBOT"
     return "UNKNOWN"
+
+
+async def _handle_device_nickname(request: Request) -> Response:
+    """Rename a device."""
+    try:
+        did = request.match_info.get("did", "")
+        body = await request.json()
+        nickname = str(body.get("nickname", "")).strip()
+        if not did or not nickname:
+            _LOGGER.warning("No did or nickname in the request")
+            return response_success_v3(data=None, result_key=None, include_success=True)
+        if bot_repo.get(did) is None:
+            _LOGGER.warning(f"No bot found for {did} (nickname)")
+            return response_success_v3(data=None, result_key=None, include_success=True)
+        bot_repo.set_nick(did, nickname)
+        return response_success_v3(data=None, result_key=None, include_success=True)
+    except Exception:
+        _LOGGER.exception(utils.default_exception_str_builder(info="during handling request"))
+    raise HTTPInternalServerError

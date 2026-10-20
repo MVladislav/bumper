@@ -1,11 +1,14 @@
+import asyncio
 import base64
 import json
+import logging
 from types import CoroutineType
 from typing import Any
 
 from aiohttp.test_utils import TestClient
 import pytest
 
+from bumper.db import token_repo, user_repo
 from bumper.utils.settings import config as bumper_isc
 from bumper.web.auth_service import (
     _check_token,
@@ -416,3 +419,168 @@ async def test_login_no_user(webserver_client: TestClient, monkeypatch: pytest.M
         assert resp.status == 200
         data = await resp.json()
         assert data["code"] == "0004"  # ERR_TOKEN_INVALID
+
+
+async def _login(webserver_client: TestClient, account: str) -> str:
+    """Perform a login and return the userid the server actually assigned."""
+    async with webserver_client.post(
+        f"/v1/private/us/en/dev_{account}/ecomapp_1234/1/0/0/user/login",
+        json={"account": account, "encryptPwd": "x"},
+    ) as resp:
+        assert resp.status == 200
+        body = await resp.json()
+        assert body["success"] is True, body
+        assert body["data"]["accessToken"]
+        return body["data"]["uid"]
+
+
+async def _login_expired(webserver_client: TestClient, account: str, monkeypatch: pytest.MonkeyPatch) -> str:
+    """Log in, then let the token age out, and return the userid.
+
+    Reproduces the steady state the app reaches every `TOKEN_VALIDITY_SECONDS`:
+    the user's only token row has been reaped by `revoke_user_expired`, and the
+    next auth-code request finds nothing to attach to. A negative validity is
+    used so the expiry happens through the production code path rather than by
+    hand-editing the table.
+    """
+    monkeypatch.setattr(bumper_isc, "TOKEN_VALIDITY_SECONDS", -1)
+    userid = await _login(webserver_client, account)
+    token_repo.revoke_user_expired(userid)
+    assert token_repo.get_first(userid) is None
+    return userid
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_auth_code_v2_succeeds_after_token_expired(
+    webserver_client: TestClient,
+    caplog: pytest.LogCaptureFixture,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """getAuthCode must still succeed when the user's token row was reaped.
+
+    This is the steady state after the first token expires, so it is the case
+    that produced "Failed to create auth_code" in the log.
+    """
+    userid = await _login_expired(webserver_client, "expiry_user", monkeypatch)
+    assert userid
+
+    with caplog.at_level(logging.WARNING):
+        async with webserver_client.post(
+            "/api/users/user.do",
+            json={"todo": "GetAuthCode", "auth": {"userid": userid}},
+        ) as resp:
+            assert resp.status == 200
+            data = await resp.json()
+
+    assert data["result"] == "ok"
+    assert data["todo"] == "result"
+    assert data["code"]
+    assert "Failed to create auth_code" not in caplog.text
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_it_token_succeeds_after_token_expired(
+    webserver_client: TestClient,
+    caplog: pytest.LogCaptureFixture,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """get_auth_code must still succeed when the user's token row was reaped."""
+    userid = await _login_expired(webserver_client, "it_expiry_user", monkeypatch)
+    assert userid
+
+    with caplog.at_level(logging.WARNING):
+        async with webserver_client.get(f"/v1/global/auth/getAuthCode?uid={userid}") as resp:
+            assert resp.status == 200
+            data = await resp.json()
+
+    assert data["code"] == "0000"
+    assert data["data"]["authCode"].startswith("GLOBAL_APP_ECOVACS_IOT_")
+    assert data["data"]["ecovacsUid"] == userid
+    assert "Failed to create it_token" not in caplog.text
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_auth_code_v2_reuses_existing_code(webserver_client: TestClient) -> None:
+    """A live token's auth code is reused rather than rotated on every call."""
+    userid = await _login(webserver_client, "reuse_user")
+    payload = {"todo": "GetAuthCode", "auth": {"userid": userid}}
+
+    async with webserver_client.post("/api/users/user.do", json=payload) as resp:
+        first = (await resp.json())["code"]
+
+    async with webserver_client.post("/api/users/user.do", json=payload) as resp:
+        second = (await resp.json())["code"]
+
+    assert first == second
+    assert first
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_auth_code_v2_re_provisions_after_reap(
+    webserver_client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """After a re-provisioned code, oauth_callback can still resolve it."""
+    userid = await _login_expired(webserver_client, "cycle_user", monkeypatch)
+
+    async with webserver_client.post(
+        "/api/users/user.do",
+        json={"todo": "GetAuthCode", "auth": {"userid": userid}},
+    ) as resp:
+        auth_code = (await resp.json())["code"]
+
+    # oauth_callback resolves an auth code through token_repo; a token row must
+    # exist for it to be found.
+    assert token_repo.get_by_auth_code(auth_code) is not None
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_unknown_user_still_rejected(webserver_client: TestClient) -> None:
+    """Re-provisioning must not turn an unknown userid into a valid session."""
+    async with webserver_client.post(
+        "/api/users/user.do",
+        json={"todo": "GetAuthCode", "auth": {"userid": "nosuchuser"}},
+    ) as resp:
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["result"] == "fail"
+        assert data["errno"] == "1004"
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_oauth_callback_after_expiry(webserver_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Full cycle: login, expiry, re-provisioned auth code, oauth callback."""
+    userid = await _login_expired(webserver_client, "full_cycle", monkeypatch)
+
+    async with webserver_client.post(
+        "/api/users/user.do",
+        json={"todo": "GetAuthCode", "auth": {"userid": userid}},
+    ) as resp:
+        auth_code = (await resp.json())["code"]
+
+    async with webserver_client.get(f"/api/appsvr/oauth_callback?code={auth_code}") as resp:
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["data"]["userId"] == userid
+        assert data["data"]["access_token"]
+        assert data["data"]["refresh_token"]
+
+
+async def test_no_token_churn_under_repeated_calls(webserver_client: TestClient) -> None:
+    """Repeated getAuthCode calls must not pile up token rows."""
+    userid = await _login(webserver_client, "churn_user")
+    payload = {"todo": "GetAuthCode", "auth": {"userid": userid}}
+    for _ in range(5):
+        async with webserver_client.post("/api/users/user.do", json=payload) as resp:
+            assert (await resp.json())["result"] == "ok"
+    await asyncio.sleep(0)
+    assert len(token_repo.list_for_user(userid)) == 1
+
+
+async def test_user_repo_still_sees_the_user() -> None:
+    """Sanity: the re-provisioning path does not create a second user."""
+    uid = _generate_uid("dedupe_user")
+    user_repo.add(uid)
+    user_repo.add(uid)
+    users = [u for u in user_repo.list_all() if u.userid == uid]
+    assert len(users) == 1

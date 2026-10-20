@@ -42,6 +42,7 @@ class ProductPlugin(WebserverPlugin):
             web.route("POST", "/product/getShareInfo", _handle_get_share_info),
             web.route("GET", "/product/image", _get_bot_image),
             web.route("GET", "/product/entry/group", _get_entry_group),
+            web.route("*", "/product/setting", _handle_product_setting),
         ]
 
 
@@ -113,7 +114,18 @@ async def _handle_get_share_info(request: Request) -> Response:
         json_body = json.loads(await request.text())
         scene = json_body.get("scene")
         _LOGGER.debug(f"Share info :: {scene}")
-        return response_success_v4([])
+        return web.json_response(
+            {
+                "code": 0,
+                "shareInfo": {
+                    "keyword": "",
+                    "url": "",
+                    "shareText": "",
+                    "shareDesc": "",
+                    "shareUrl": "",
+                },
+            },
+        )
     except Exception:
         _LOGGER.exception(utils.default_exception_str_builder(info="during handling request"))
     raise HTTPInternalServerError
@@ -127,3 +139,11 @@ async def _get_bot_image(_: Request) -> FileResponse:
 async def _get_entry_group(_: Request) -> Response:
     """Get entry group."""
     return response_success_v3(data=get_product_entry_group())
+
+
+async def _handle_product_setting(request: Request) -> Response:
+    """Get product settings."""
+    _LOGGER.debug(
+        f"Product setting requested :: mids={request.query.get('mids', '')} :: modules={request.query.get('modules', '')}",
+    )
+    return response_success_v3(data={}, result_key=None, include_success=True)

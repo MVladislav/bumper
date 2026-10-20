@@ -168,6 +168,7 @@ async def get_auth_code(request: Request) -> Response:
             _LOGGER.warning(f"No user found for {user_id} (get_auth_code)")
             return response_error_v9(msg=f"No user found for {user_id}", code=ERR_TOKEN_INVALID)
 
+        _ensure_token(user.userid)
         if (auth_code := _generate_it_token(user.userid)) is not None:
             return response_success_v1(
                 {
@@ -202,6 +203,26 @@ def _generate_it_token(user_id: str) -> str | None:
     return None
 
 
+def _ensure_token(user_id: str) -> models.Token | None:
+    """Return the user's token, re-provisioning one if it has been reaped.
+
+    `TOKEN_VALIDITY_SECONDS` is short - 30 minutes by default - and
+    `revoke_user_expired` deletes the row once it lapses. `add_auth_code` and
+    `add_it_token` attach to an *existing* token row, so without re-provisioning
+    the next auth-code request finds nothing to attach to and logs "Failed to
+    create auth_code" / "Failed to create it_token" while returning an error to
+    the app. That was the steady state after the first 30 minutes.
+
+    Re-provisioning only ever happens for a userid the caller has already
+    resolved from the request; an unknown user is still rejected earlier.
+    """
+    if (token := token_repo.get_first(user_id)) is not None:
+        return token
+    _LOGGER.info(f"No active token for {user_id}, provisioning a new one")
+    _generate_token(user_id)
+    return token_repo.get_first(user_id)
+
+
 # ******************************************************************************
 #
 # AUTH UTILS :: New Auth
@@ -227,6 +248,7 @@ async def get_new_auth(request: Request) -> Response:
         auth_code: str | None = None
         if token.auth_code and (auth_code := token.auth_code) is not None:
             return response_success_v2(data=auth_code, data_key="authCode", code=None, result_key="result")
+        _ensure_token(token.userid)
         if (auth_code := _generate_auth_code(token.userid)) is not None:
             return response_success_v2(data=auth_code, data_key="authCode", code=None, result_key="result")
 
@@ -262,7 +284,7 @@ async def get_auth_code_v2(request: Request) -> Response:
             return response_error_v2(msg=f"No user found for {user_id}", code=ERR_USER_DISABLE)
 
         token_repo.revoke_user_expired(user_id)
-        token = token_repo.get_first(user_id)
+        token = _ensure_token(user.userid)
 
         if (token and (auth_code := token.auth_code)) is not None:
             return response_success_v2(data=auth_code, data_key="code", code=None, result_key="result")

@@ -552,3 +552,45 @@ async def test_get_codepush_update_check_data(webserver_client: TestClient) -> N
         assert json_resp["data"]["update_info"]["deployment_key"] == ""
         assert json_resp["data"]["update_info"]["is_available"] is False
         assert json_resp["data"]["update_info"]["is_disabled"] is True
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_app_config_yiko_support_lang_lists_the_languages(webserver_client: TestClient) -> None:
+    """The app names the language of the robot from this list.
+
+    With the language of the robot missing from it the app shows the raw
+    resource placeholder instead of the language.
+    """
+    async with webserver_client.get("/api/appsvr/app/config?code=yiko_support_lang") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+
+    languages = json_resp["data"][0]["content"]["lang"]
+    assert "de" in languages
+    assert "en" in languages
+    assert len(languages) > 1
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_app_config_webview_trusted_host_suffixes(webserver_client: TestClient) -> None:
+    """The hosts the app may open in a webview."""
+    async with webserver_client.get("/api/appsvr/app/config?code=webview_trusted_host_suffixes") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+
+    assert json_resp["data"][0]["code"] == "webview_trusted_host_suffixes"
+    assert "ecouser.net" in json_resp["data"][0]["content"]["suffixes"]
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_device_nickname(webserver_client: TestClient) -> None:
+    """The app renames the robot from the device settings."""
+    bot_repo.add("sn_1234", "did_1234", "p95mgv", "rljY", "eco-ng")
+
+    async with webserver_client.put(
+        "/api/appsvr/device/did_1234/nickname",
+        json={"nickname": "DEEBOT T10 Test", "res": "rljY"},
+    ) as resp:
+        assert resp.status == 200
+
+    assert bot_repo.get("did_1234").nick == "DEEBOT T10 Test"
