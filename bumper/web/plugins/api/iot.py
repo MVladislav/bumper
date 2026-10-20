@@ -15,7 +15,12 @@ from bumper.mqtt.helper_bot import MQTTCommandModel
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
 from bumper.web.plugins import WebserverPlugin
-from bumper.web.utils.response_helper import response_error_v7, response_error_v8
+from bumper.web.utils.models import VacBotDevice
+from bumper.web.utils.response_helper import (
+    response_error_v7,
+    response_error_v8,
+    response_ngiot_offline,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -29,6 +34,7 @@ class IotPlugin(WebserverPlugin):
         return [
             web.route("POST", "/iot/devmanager.do", _handle_devmanager_bot_command),
             web.route("POST", "/iot/endpoint/control", _handle_endpoint_control),
+            web.route("POST", "/iot/endpoint/control/v2", _handle_endpoint_control),
         ]
 
 
@@ -40,6 +46,16 @@ async def _handle_devmanager_bot_command(request: Request) -> Response:
 async def _handle_endpoint_control(request: Request) -> Response:
     """Endpoint control bot command."""
     return await handle_commands(request, version=MQTTCommandModel.VERSION_NEW)
+
+
+def _bot_mqtt_connected(bot: VacBotDevice) -> bool | None:
+    """Report whether the bot currently holds a session on the MQTT broker."""
+    mqtt_server = bumper_isc.mqtt_server
+    if mqtt_server is None or mqtt_server.state != "started":
+        return None
+
+    expected_client_id = f"{bot.did}@{bot.class_id}/{bot.resource}"
+    return any(session.client_id == expected_client_id for session in mqtt_server.sessions)
 
 
 async def handle_commands(
@@ -71,6 +87,12 @@ async def handle_commands(
             if bot.company != "eco-ng":
                 _LOGGER.warning(f"No bots with DID :: {cmd_request.did} :: connected to MQTT")
                 return response_error_v8(cmd_request.request_id, "requested bot is not supported")
+
+            # Answer "offline" straight away rather than publishing.
+            if version == MQTTCommandModel.VERSION_NEW and _bot_mqtt_connected(bot) is False:
+                _LOGGER.info(f"Bot {cmd_request.did} is not connected to MQTT :: reporting endpoint offline")
+                return response_ngiot_offline(cmd_request.request_id)
+
             if extended_check and (bot.company != "eco-ng" or not bot.mqtt_connection):
                 _LOGGER.warning(f"No bots with DID :: {cmd_request.did} :: connected to MQTT")
                 return response_error_v8(cmd_request.request_id, "requested bot is not supported")
@@ -91,7 +113,7 @@ async def handle_commands(
                 )
             if cmd_request.td == "HasUnreadMsg":  # EcoVacs Home
                 return web.json_response({"ret": "ok", "unRead": False})
-            if cmd_request.td == "PreWifiConfig":  # EcoVacs Home
+            if cmd_request.td.startswith("PreWifiConfig"):
                 return web.json_response({"ret": "ok"})
             _LOGGER.warning(f"TD is not know :: {cmd_request.td} :: connected to MQTT")
 
