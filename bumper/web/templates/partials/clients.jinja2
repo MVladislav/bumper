@@ -1,39 +1,53 @@
-<div class="table-responsive">
-  <table class="table table-sm table-striped table-hover">
-    <thead class="table-dark">
-      <tr>
-        <th>Username</th>
-        <th>UID</th>
-        <th>Realm</th>
-        <th>Resource</th>
-        <th>Connected</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for client in clients %}
-      <tr>
-        <td title="{{ client.name }}">{{ client.name }}</td>
-        <td title="{{ client.userid }}">{{ client.userid }}</td>
-        <td title="{{ client.realm }}">{{ client.realm }}</td>
-        <td title="{{ client.resource }}">{{ client.resource }}</td>
-        <td>
-          {% if client.mqtt_connection and client.xmpp_connection %}
-          <span class="badge bg-success" title="MQTT & XMPP">MQTT & XMPP</span>
-          {% elif client.mqtt_connection %}
-          <span class="badge bg-success" title="MQTT">MQTT</span>
-          {% elif client.xmpp_connection %}
-          <span class="badge bg-success" title="XMPP">XMPP</span>
-          {% else %}
-          <span class="badge bg-danger" title="Disconnected">Disconnected</span>
-          {% endif %}
-        </td>
-        <td>
-          <button type="button" class="btn btn-outline-danger btn-sm"
-                  onclick="removeEntity('client', '{{ client.userid }}', this)">Remove</button>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+{% from 'partials/menu.jinja2' import action_menu %}
+<div class="card-header bg-dark text-white">
+  <div class="card-title-with-badge">
+    <h2 class="card-title mb-0">Clients</h2>
+    <span class="badge bg-dark-subtle text-dark-emphasis rounded-pill" title="{{ clients | length }} client(s) registered">
+      {{ clients | length }}
+    </span>
+  </div>
+</div>
+<div class="card-body">
+  <div class="table-responsive">
+    <table class="table table-sm table-striped table-hover">
+      <thead class="table-dark">
+        <tr>
+          <th>Username</th>
+          <th>UID</th>
+          <th>Realm</th>
+          <th>Resource</th>
+          <th>Connected</th>
+          <th class="text-end">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for client in clients %}
+        <tr>
+          <td title="{{ client.name }}">{{ client.name }}</td>
+          <td title="{{ client.userid }}">{{ client.userid }}</td>
+          <td title="{{ client.realm }}">{{ client.realm }}</td>
+          <td title="{{ client.resource }}">{{ client.resource }}</td>
+          <td>
+            {% if client.mqtt_connection and client.xmpp_connection %}
+            <span class="badge bg-success" title="MQTT & XMPP">MQTT & XMPP</span>
+            {% elif client.mqtt_connection %}
+            <span class="badge bg-success" title="MQTT">MQTT</span>
+            {% elif client.xmpp_connection %}
+            <span class="badge bg-success" title="XMPP">XMPP</span>
+            {% else %}
+            <span class="badge bg-danger" title="Disconnected">Disconnected</span>
+            {% endif %}
+          </td>
+          <td class="actions">
+            {{ action_menu('client', client.userid, 'client ' ~ client.name) }}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="text-center">No clients found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>

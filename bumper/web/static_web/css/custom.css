@@ -63,6 +63,17 @@ h3 {
     position: relative;
     max-width: 8rem;
   }
+
+  td.actions {
+    position: sticky;
+    right: 0;
+    z-index: 5;
+    max-width: none;
+    overflow: visible;
+    text-align: right;
+    background-color: var(--bs-table-bg);
+    box-shadow: -1px 0 0 var(--bs-table-border-color);
+  }
 }
 
 .table-dark {
@@ -148,6 +159,97 @@ footer {
 
 .table-responsive {
   border-radius: calc(var(--radius) - 6px);
+}
+
+/* The map of a job, shown over the page. */
+.map-viewer {
+  max-width: 95vw;
+  max-height: 95vh;
+  padding: 0.5rem;
+  border: 0;
+  border-radius: var(--radius);
+  background-color: var(--bs-body-bg);
+}
+
+.map-viewer::backdrop {
+  background-color: rgba(0, 0, 0, 0.85);
+}
+
+.map-viewer img {
+  display: block;
+  max-width: 90vw;
+  max-height: 82vh;
+}
+
+.map-viewer-close {
+  margin-top: 0.5rem;
+}
+
+/* The menu of the actions of a row. */
+.menu {
+  position: relative;
+  display: inline-block;
+}
+
+.menu > summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  cursor: pointer;
+  list-style: none;
+  border: 1px solid var(--bs-table-border-color);
+  border-radius: calc(var(--radius) - 6px);
+  color: var(--muted-color);
+}
+
+.menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.menu > summary:hover {
+  color: var(--text-color);
+  background-color: var(--background-color-hover, var(--bs-tertiary-bg));
+}
+
+.menu svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* The panel of the menu. */
+.menu-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  transition: none;
+  z-index: 1050;
+  min-width: 7rem;
+  margin: 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  text-align: left;
+  background-color: var(--bs-body-bg);
+  border: 1px solid var(--bs-table-border-color);
+  border-radius: calc(var(--radius) - 6px);
+  box-shadow: 0 0.25rem 0.5rem hsla(0, 0%, 0%, 0.15);
+}
+
+.menu-panel button {
+  display: block;
+  width: 100%;
+  padding: 0.25rem 0.75rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-size: inherit;
+  text-align: left;
+}
+
+.menu-panel button:hover {
+  background-color: var(--bs-tertiary-bg);
 }
 
 ul.pagination {

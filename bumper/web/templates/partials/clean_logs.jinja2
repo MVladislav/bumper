@@ -1,3 +1,4 @@
+{% from 'partials/menu.jinja2' import action_menu %}
 {% set total_pages = ((count + limit - 1) // limit) %}
 {% set current_page = (offset // limit) + 1 %}
 {% set prev_offset = 0 if (offset - limit) < 0 else (offset - limit) %}
@@ -5,7 +6,7 @@
 {% set last_offset=0 if ((total_pages - 1) * limit) < 0 else ((total_pages - 1) * limit) %}
 
 <div
-  class="card-header bg-dark text-white" hx-get="/clean_logs?offset={{ offset }}&limit={{ limit }}"
+  class="card-header bg-dark text-white" hx-get="/clean_logs?offset={{ offset }}&limit={{ limit }}&did={{ did }}"
   hx-target="#clean-logs-container" hx-swap="innerHTML" hx-trigger="every 5s">
   <div class="d-flex justify-content-between align-items-center">
     <div class="text-start me-3">
@@ -15,11 +16,23 @@
           {{ count }}
         </span>
       </div>
-      <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeEntity('clean_logs', 'all', this)"
-              hx-get="/clean_logs?offset={{ offset }}&limit={{ limit }}" hx-target="#clean-logs-container" hx-swap="innerHTML"
-              hx-trigger="entity-removed">
+      <button type="button" class="btn btn-outline-danger btn-sm" data-type="clean_logs" data-id="all"
+              data-name="all clean logs" onclick="removeEntity(this)"
+              hx-get="/clean_logs?offset={{ offset }}&limit={{ limit }}&did={{ did }}" hx-target="#clean-logs-container"
+              hx-swap="innerHTML" hx-trigger="entity-removed">
         Clean-Up
       </button>
+    </div>
+    <div>
+      <label class="visually-hidden" for="clean-logs-robot">Robot</label>
+      <select id="clean-logs-robot" name="did" class="form-select form-select-sm" title="Show the jobs of one robot"
+              hx-preserve hx-get="/clean_logs?offset=0&limit={{ limit }}" hx-target="#clean-logs-container"
+              hx-swap="innerHTML" hx-trigger="change">
+        <option value="" {% if not did %}selected{% endif %}>All robots</option>
+        {% for robot in robots %}
+        <option value="{{ robot.did }}" {% if did == robot.did %}selected{% endif %}>{{ robot.name }}</option>
+        {% endfor %}
+      </select>
     </div>
   </div>
   </div>
@@ -35,7 +48,7 @@
             <th>Area</th>
             <th>Type</th>
             <th>Stop Reason</th>
-            <th>Action</th>
+            <th class="text-end">Action</th>
           </tr>
         </thead>
         <tbody id="table-body-clean-logs">
@@ -49,13 +62,8 @@
             <td title="{{ clean_log.area }}">{{ clean_log.area }}m²</td>
             <td title="{{ clean_log.type }}">{{ clean_log.type }}</td>
             <td title="{{ clean_log.stop_reason }}">{{ clean_log.stop_reason }}</td>
-            <td>
-              <button type="button" class="btn btn-outline-danger btn-sm"
-                      onclick="removeEntity('clean_log', '{{ clean_log.clean_log_id }}', this)"
-                      hx-get="/clean_logs?offset={{ offset }}&limit={{ limit }}" hx-target="#clean-logs-container"
-                      hx-swap="innerHTML" hx-trigger="entity-removed">
-                Remove
-              </button>
+            <td class="actions">
+              {{ action_menu('clean_log', clean_log.clean_log_id, 'clean log ' ~ clean_log.clean_log_id, reload='/clean_logs?offset=' ~ offset ~ '&limit=' ~ limit ~ '&did=' ~ did, map=maps.get(clean_log.clean_log_id)) }}
             </td>
           </tr>
           {% endfor %}
@@ -73,13 +81,13 @@
 
         <!-- Previous -->
         <li class="page-item {% if not has_prev %}disabled{% endif %}">
-          <a class="page-link" href="#" hx-get="/clean_logs?offset={{ prev_offset }}&limit={{ limit }}"
+          <a class="page-link" href="#" hx-get="/clean_logs?offset={{ prev_offset }}&limit={{ limit }}&did={{ did }}"
              hx-target="#clean-logs-container" hx-swap="innerHTML" hx-trigger="click">«</a>
         </li>
 
         <!-- First page -->
         <li class="page-item {% if current_page == 1 %}disabled{% endif %}">
-          <a class="page-link" href="#" hx-get="/clean_logs?offset=0&limit={{ limit }}" hx-target="#clean-logs-container"
+          <a class="page-link" href="#" hx-get="/clean_logs?offset=0&limit={{ limit }}&did={{ did }}" hx-target="#clean-logs-container"
              hx-swap="innerHTML" hx-trigger="click">1</a>
         </li>
 
@@ -90,13 +98,13 @@
 
         <!-- Last page -->
         <li class="page-item {% if current_page == total_pages or not has_next %}disabled{% endif %}">
-          <a class="page-link" href="#" hx-get="/clean_logs?offset={{ last_offset }}&limit={{ limit }}"
+          <a class="page-link" href="#" hx-get="/clean_logs?offset={{ last_offset }}&limit={{ limit }}&did={{ did }}"
              hx-target="#clean-logs-container" hx-swap="innerHTML" hx-trigger="click">{{ total_pages }}</a>
         </li>
 
         <!-- Next -->
         <li class="page-item {% if not has_next %}disabled{% endif %}">
-          <a class="page-link" href="#" hx-get="/clean_logs?offset={{ next_offset }}&limit={{ limit }}"
+          <a class="page-link" href="#" hx-get="/clean_logs?offset={{ next_offset }}&limit={{ limit }}&did={{ did }}"
              hx-target="#clean-logs-container" hx-swap="innerHTML" hx-trigger="click">»</a>
         </li>
       </ul>

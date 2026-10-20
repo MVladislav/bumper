@@ -14,7 +14,7 @@ from aiohttp.web_response import Response
 from aiohttp.web_routedef import RouteDef, StaticDef
 import aiohttp_jinja2
 
-from bumper.db import bot_repo, clean_log_repo, client_repo, user_repo
+from bumper.db import bot_repo, clean_log_repo, client_repo, photo_repo, user_repo
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
 
@@ -33,10 +33,12 @@ def bumper_routes() -> Iterable[RouteDef | StaticDef]:
         web.get("/server-status", _handle_partial("server_status")),
         web.get("/bots", _handle_partial("bots")),
         web.get("/bot/remove/{did}", _handle_remove_entity("bot")),
+        web.get("/bot/nickname/{did}", _handle_set_bot_nickname),
         web.get("/clients", _handle_partial("clients")),
         web.get("/client/remove/{userid}", _handle_remove_entity("client")),
         web.get("/users", _handle_partial("users")),
         web.get("/user/remove/{userid}", _handle_remove_entity("user")),
+        web.get("/user/nickname/{userid}", _handle_set_user_nickname),
         web.get("/clean_logs", _handle_partial("clean_logs")),
         web.get("/clean_log/remove/{clean_log_id}", _handle_remove_entity("clean_log")),
         web.get("/clean_logs/remove/{placeholder}", _handle_remove_entity("clean_logs")),
@@ -217,6 +219,7 @@ async def _get_context(request: Request, template_name: str | None = None) -> di
             "users": [
                 {
                     "username": user.username,
+                    "nickname": user.nickname,
                     "userid": user.userid,
                     "devices": user.devices,
                 }
@@ -226,7 +229,10 @@ async def _get_context(request: Request, template_name: str | None = None) -> di
     if template_name and template_name == "clean_logs":
         offset = int(request.query.get("offset", 0))
         limit = int(request.query.get("limit", 5))
+        did = request.query.get("did", "")
         clean_log_repo_list = sorted(clean_log_repo.list_all(), key=lambda x: (x.ts, x.did), reverse=True)
+        if did:
+            clean_log_repo_list = [log for log in clean_log_repo_list if log.did == did]
         clean_log_repo_list_count = len(clean_log_repo_list)
         clean_log_repo_list_limit = clean_log_repo_list[offset : offset + limit]
         return {
@@ -253,6 +259,15 @@ async def _get_context(request: Request, template_name: str | None = None) -> di
                 }
                 for clean_log in clean_log_repo_list_limit
             ],
+            "maps": photo_repo.maps_for_logs(clean_log_repo.list_all()),
+            "robots": [
+                {
+                    "did": bot.did,
+                    "name": bot.nick or bot.name or bot.did,
+                }
+                for bot in sorted(bot_repo.list_all(), key=lambda bot: bot.nick or bot.name or bot.did)
+            ],
+            "did": did,
             "offset": offset,
             "limit": limit,
             "has_next": offset + limit < clean_log_repo_list_count,
@@ -309,3 +324,35 @@ def _handle_remove_entity(entity_type: str) -> Callable[[Request], Awaitable[Res
         raise HTTPInternalServerError
 
     return _handler
+
+
+async def _handle_set_bot_nickname(request: Request) -> Response:
+    """Set the display name of a robot."""
+    try:
+        did = request.match_info.get("did", "")
+        nickname = request.query.get("nickname", "").strip()
+        if not did or not nickname:
+            return web.json_response({"status": "failed to set nickname"})
+        if bot_repo.get(did) is None:
+            return web.json_response({"status": f"failed to set nickname for {did}"})
+        bot_repo.set_nick(did, nickname)
+        return web.json_response({"status": f"successfully set nickname for {did}"})
+    except Exception:
+        _LOGGER.exception(utils.default_exception_str_builder())
+    raise HTTPInternalServerError
+
+
+async def _handle_set_user_nickname(request: Request) -> Response:
+    """Set the display name of a user."""
+    try:
+        user_id = request.match_info.get("userid", "")
+        nickname = request.query.get("nickname", "").strip()
+        if not user_id or not nickname:
+            return web.json_response({"status": "failed to set nickname"})
+        if user_repo.get_by_id(user_id) is None:
+            return web.json_response({"status": f"failed to set nickname for {user_id}"})
+        user_repo.set_nickname(user_id, nickname)
+        return web.json_response({"status": f"successfully set nickname for {user_id}"})
+    except Exception:
+        _LOGGER.exception(utils.default_exception_str_builder())
+    raise HTTPInternalServerError
