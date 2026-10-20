@@ -9,6 +9,7 @@ import pytest
 from testfixtures import LogCapture
 
 from bumper.db import client_repo, user_repo
+from bumper.mqtt import server as server_module
 from bumper.mqtt.server import BumperMQTTServerPlugin, MQTTBinding, MQTTServer, _log__helperbot_message, mqtt_proxy
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
@@ -336,6 +337,40 @@ async def test_mqttserver_shutdown() -> None:
                 ),
                 order_matters=False,
             )
+
+
+async def test_mqttserver_shutdown_with_a_client_that_does_not_go(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The server stops even when a client stays connected.
+
+    The broker waits for the clients that are still connected, and a robot that
+    is online never says goodbye. The server has to stop anyway, or it stays
+    down for good.
+    """
+    monkeypatch.setattr(server_module, "SHUTDOWN_TIMEOUT", 0.1)
+    mqtt_server = MQTTServer(MQTTBinding(HOST, MQTT_PORT, True))
+    shutdown = mqtt_server._broker.shutdown
+    try:
+        await mqtt_server.start()
+
+        # A broker that hangs while it stops, like one with a client that
+        # stays connected.
+        async def _hanging_shutdown() -> None:
+            mqtt_server._broker.transitions.shutdown()
+            await asyncio.sleep(60)
+
+        mqtt_server._broker.shutdown = _hanging_shutdown
+
+        await mqtt_server.shutdown()
+
+        assert mqtt_server.state == "stopped"
+    finally:
+        mqtt_server._broker.shutdown = shutdown
+        # The broker never closed its listener, so it is closed here.
+        for server in mqtt_server._broker._servers.values():
+            await server.close_instance()
+        await mqtt_server.shutdown()
 
 
 class _FakeContext:

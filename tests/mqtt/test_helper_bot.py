@@ -564,6 +564,40 @@ async def test_helperbot_send_command_p2p_get_charge_state(mqtt_client: Client, 
     assert json_resp["data"]["getChargeState"]["type"] == "SlotCharging"
 
 
+async def test_helperbot_send_command_p2p_preserves_generic_command_data(
+    mqtt_client: Client,
+    helper_bot: MQTTHelperBot,
+) -> None:
+    """Legacy commands without custom projections must not lose their data."""
+    cmdjson = {
+        "cmd": "getBindToken",
+        "did": "did_bind_token",
+        "mid": "ls1ok3",
+        "res": "res_bind_token",
+        "data": {},
+    }
+    cmd = MQTTCommandModel(cmdjson, version=MQTTCommandModel.VERSION_P2P)
+    send_task = asyncio.create_task(helper_bot._send_command_p2p(cmd))
+
+    msg_payload = (
+        '{"body":{"data":{"region":"eu-central-1","channel":"production-did_bind_token",'
+        '"credentials":{"AccessKeyId":"ASIAexample","TtlSec":3600}}}}'
+    )
+    msg_topic_name = f"iot/p2p/getBindToken/did_bind_token/ls1ok3/res_bind_token/helperbot/bumper/helperbot/p/{cmd.request_id}/j"
+    await mqtt_client.publish(msg_topic_name, msg_payload.encode())
+
+    result = await send_task
+    assert result.status == 200
+    json_resp = json.loads(result.text)
+    assert json_resp["ret"] == "ok"
+    command_data = json_resp["data"]["getBindToken"]
+    assert command_data["ret"] == "ok"
+    assert command_data["did"] == "did_bind_token"
+    assert command_data["region"] == "eu-central-1"
+    assert command_data["channel"] == "production-did_bind_token"
+    assert command_data["credentials"] == {"AccessKeyId": "ASIAexample", "TtlSec": 3600}
+
+
 async def test_helperbot_send_command_p2p_charge(mqtt_client: Client, helper_bot: MQTTHelperBot) -> None:
     cmdjson = {
         "cmd": "charge",
@@ -586,3 +620,152 @@ async def test_helperbot_send_command_p2p_charge(mqtt_client: Client, helper_bot
     assert json_resp["ret"] == "ok"
     assert json_resp["data"]["charge"]["ret"] == "ok"
     assert json_resp["data"]["charge"]["did"] == "did_charge_cmd"
+
+
+def test_version_2_adopts_si_as_request_id() -> None:
+    cmdjson = {
+        "fmt": "j",
+        "apn": "getPos",
+        "eid": "did_1",
+        "et": "p95mgv",
+        "er": "rljY",
+        "ct": "q",
+        "si": "LaxGMMNuGoCFgnnJ",
+        "payload": {"body": {"data": ["chargePos", "deebotPos"]}},
+    }
+    cmd = MQTTCommandModel(cmdjson, version=MQTTCommandModel.VERSION_NEW)
+    assert cmd.request_id == "LaxGMMNuGoCFgnnJ"
+
+
+def test_version_2_generates_request_id_without_si() -> None:
+    cmdjson = {
+        "fmt": "j",
+        "apn": "getPos",
+        "eid": "did_1",
+        "et": "p95mgv",
+        "er": "rljY",
+        "ct": "q",
+        "payload": {"body": {"data": []}},
+    }
+    cmd = MQTTCommandModel(cmdjson, version=MQTTCommandModel.VERSION_NEW)
+    # Falls back to the generated id rather than an empty string, which would
+    # otherwise collapse every pending command onto one cache key.
+    assert cmd.request_id != ""
+    assert len(cmd.request_id) == 4
+
+
+def test_request_id_cannot_inject_a_topic_level() -> None:
+    """A caller-supplied si must never be able to reshape the MQTT topic."""
+    cmdjson = {
+        "fmt": "j",
+        "apn": "getPos",
+        "eid": "did_1",
+        "et": "p95mgv",
+        "er": "rljY",
+        "ct": "q",
+        "si": "evil/../../other/topic",
+        "payload": {"body": {"data": []}},
+    }
+    cmd = MQTTCommandModel(cmdjson, version=MQTTCommandModel.VERSION_NEW)
+    assert cmd.request_id != "evil/../../other/topic"
+    assert "/" not in cmd.request_id
+
+
+def test_non_string_si_is_ignored() -> None:
+    cmdjson = {
+        "fmt": "j",
+        "apn": "getPos",
+        "eid": "did_1",
+        "et": "p95mgv",
+        "er": "rljY",
+        "ct": "q",
+        "si": 1234,
+        "payload": {"body": {"data": []}},
+    }
+    cmd = MQTTCommandModel(cmdjson, version=MQTTCommandModel.VERSION_NEW)
+    assert len(cmd.request_id) == 4
+
+
+def test_oversized_si_is_ignored() -> None:
+    cmdjson = {
+        "fmt": "j",
+        "apn": "getPos",
+        "eid": "did_1",
+        "et": "p95mgv",
+        "er": "rljY",
+        "ct": "q",
+        "si": "a" * 200,
+        "payload": {"body": {"data": []}},
+    }
+    cmd = MQTTCommandModel(cmdjson, version=MQTTCommandModel.VERSION_NEW)
+    assert len(cmd.request_id) == 4
+
+
+def _decode(response: object) -> dict[str, object]:
+    """Return the JSON body of a response as a dict."""
+    body = getattr(response, "body", None)
+    if body in (None, b""):
+        return {}
+    return json.loads(body)
+
+
+@pytest.mark.usefixtures("mqtt_client")
+async def test_send_command_new_offline_returns_ngiot_offline(helper_bot: object) -> None:
+    cmd = MQTTCommandModel(
+        {
+            "fmt": "j",
+            "apn": "getPos",
+            "eid": "did_offline",
+            "et": "p95mgv",
+            "er": "rljY",
+            "ct": "q",
+            "si": "si_offline",
+            "payload": {"body": {"data": []}},
+        },
+        version=MQTTCommandModel.VERSION_NEW,
+    )
+    # No robot on the broker answers, so the helper bot times out with None.
+    helper_bot._timeout = 0.1
+    response = await helper_bot.send_command(cmd)
+
+    assert response.status == 200
+    assert response.headers["x-ngiot-errno"] == "4200"
+    assert response.headers["x-ngiot-ret"] == "error"
+    assert response.headers["X-ECO-REQUEST-ID"] == "si_offline"
+    assert response.body == b""
+
+
+@pytest.mark.usefixtures("mqtt_client")
+async def test_send_command_new_fire_and_forget_does_not_wait(helper_bot: object) -> None:
+    """`ct=m` must be acknowledged without waiting for the robot."""
+    cmd = MQTTCommandModel(
+        {
+            "fmt": "j",
+            "apn": "setChargePos",
+            "eid": "did_ff",
+            "et": "p95mgv",
+            "er": "rljY",
+            "ct": "m",
+            "si": "si_ff",
+            "payload": {"body": {"data": {}}},
+        },
+        version=MQTTCommandModel.VERSION_NEW,
+    )
+    # A long timeout that the fire-and-forget path must never reach.
+    helper_bot._timeout = 30
+    response = await helper_bot.send_command(cmd)
+
+    assert response.status == 200
+    assert response.headers["x-ngiot-ret"] == "ok"
+    assert response.headers["X-ECO-REQUEST-ID"] == "si_ff"
+    assert _decode(response)["body"]["code"] == 0
+
+
+@pytest.mark.usefixtures("mqtt_client")
+async def test_send_command_new_rejects_wrong_version(helper_bot: object) -> None:
+    cmd = MQTTCommandModel(
+        {"toId": "did_x", "cmdName": "getBattery", "payload": {}, "payloadType": "j"},
+        version=MQTTCommandModel.VERSION_OLD,
+    )
+    response = await helper_bot.send_command(cmd)
+    assert _decode(response)["ret"] == "fail"

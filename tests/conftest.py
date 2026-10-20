@@ -122,6 +122,10 @@ async def mqtt_server(test_files: dict[str, Path]) -> AsyncIterator[MQTTServer]:
     """Start authenticated MQTT server."""
     bumper_isc.mqtt_server = await _start_mqtt_server(str(test_files["passwd"]))
     yield bumper_isc.mqtt_server
+    # The helper bot is a client of the server, it has to let go of the
+    # connection first, or the server waits for it while it stops.
+    if bumper_isc.mqtt_helperbot is not None:
+        await bumper_isc.mqtt_helperbot.disconnect()
     await bumper_isc.mqtt_server.shutdown()
 
 
