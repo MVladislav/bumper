@@ -60,7 +60,7 @@ BUMPER_KEY=certs/bumper.key
 Mount `ca.pem` into your mitmproxy container or CLI:
 
 ```sh
-$docker run --rm -it \
+docker run --rm -it \
   -v $PWD/certs/ca.pem:/home/mitm/ca.pem:ro \
   mitmproxy/mitmproxy mitmweb \
     --certs '*=/home/mitm/ca.pem'

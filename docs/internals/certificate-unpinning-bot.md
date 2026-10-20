@@ -8,7 +8,7 @@
 
 This guide explains two approaches to enable your Ecovacs bot to trust a self-signed certificate for use with a self-hosted Bumper server:
 
-- **Option 1 (Recommended, Safer):** Replace certificate files on the bot—no firmware modification required.
+- **Option 1 (Recommended, Safer):** Replace certificate files on the bot-no firmware modification required.
 - **Option 2 (Advanced):** Extract, modify, and reflash the root filesystem for deeper changes.
 
 ---

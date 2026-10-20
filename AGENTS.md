@@ -65,6 +65,18 @@ Run the three linters and pytest before opening a PR - CI gates on all of them.
 - Strings are formatted lazily: assign to a variable and `raise`/`return` it,
   since `EM101`/`TRY003` are active.
 
+**Logging**
+
+- `SanitizeFilter` (`bumper/utils/log_helper.py`) redacts by **substring**, not by
+  key: `auth`, `did`, `email`, `login`, `mobile`, `token`, `uid`, `user`. Any log
+  string containing one of those is replaced wholesale, and any dict _value_ under
+  such a key is replaced. So `candidate_type` is redacted - "candidate" contains
+  "did" - and a JSON blob containing "embedded" dies with it. Pick field names
+  that avoid the list, or log a dict instead of a pre-serialized string.
+- The filter **mutates the record in place**, so a log line can look different
+  depending on which handlers ran before the one you read. Do not assert on
+  sanitized output in a test without applying the filter yourself first.
+
 **Web layer**
 
 - Routes are **auto-discovered**. A module under `bumper/web/plugins/` is
@@ -75,14 +87,14 @@ Run the three linters and pytest before opening a PR - CI gates on all of them.
   editing a router.
 - `bumper/web/web_paths.py` is separate and hand-registered - it is Bumper's own
   UI, not the Ecovacs API surface.
-- When you add a route, also add its regex to
-  `bumper/utils/utils_implemented_apis.json`. That list is hand-maintained and
-  drives the middleware's "unknown API" warning; a route missing from it is
-  invisible in debug output.
 - aiohttp matches paths **case-sensitively**, and the app is not consistent
   about casing (it posts CodePush status to both `report_status` and
   `report_Status`). When observed traffic shows a variant, register each one
   explicitly rather than assuming one covers the other.
+- The middleware decides whether a request is served by asking the aiohttp
+  router (`request.match_info.route.resource is None` means "not covered"),
+  which cannot drift from the route table. Set
+  `DEBUG_LOGGING_API_REQUEST_MISSING=true` to see only those.
 
 **Persistence**
 
@@ -128,6 +140,16 @@ adding a handler.
 concrete hostname by the portal at runtime, so do not assume a single `lb` host.
 Region routing (which portal, which `lb` shard, which language) is driven by
 `assets/app_config_domain.json` inside the app.
+
+**The NGIoT bridge is a third envelope family.** `/api/iot/endpoint/control`
+does not answer with a JSON error document: it answers HTTP 200 with an empty
+body and carries the outcome in the `x-ngiot-*` headers. The app reads those
+headers, so a JSON error body makes an offline robot indistinguishable from a
+broken server. `x-ngiot-fmt: b` is returned even for JSON payloads - that is
+what the real server does, do not "fix" it. An offline robot is
+`x-ngiot-errno: 4200` / `x-ngiot-ret: error`. The request's `ct` selects the
+variant: `q` is request/response, `m` is fire-and-forget (ack, no robot
+answer). See `response_ngiot_*` in `bumper/web/utils/response_helper.py`.
 
 **Time skew matters.** The modern API answers a stale clock with `code == "0005"`
 plus the server time; the client stores the offset, replays the request once,
@@ -213,6 +235,32 @@ A route that returns 404 in this tally is a real gap, and so is a call that is
 missing from it entirely (the app gives up on the screen instead). Note which
 host each call went to: the app uses more than one, for example both
 `codepush-base.dc-na.ww.ecouser.net` and `codepush-base.ecouser.net`.
+
+**The map of a job is a grid, and the picture of it has rules.** The robot
+uploads the map of a finished job to the data-collect endpoint as a JSON
+document. `minorMap.value` is the grid, one byte per cell, compressed with the
+"7z" format - which is the LZMA "alone" format with a four byte size instead
+of an eight byte one (`bumper/utils/map_doc.py` decodes it).
+
+- The grid is `pieceWidth` by `pieceHeight` pieces of `cellWidth` by
+  `cellHeight` cells, so 800 by 800 cells for the usual robot.
+- Every cell holds an **index into the palette of the map**: 0 transparent, 1
+  floor, 2 wall, 3 carpet, 4 not scanned space, 5 possible obstacle, and 6 and
+  up are the rooms. Newer robots give every room a number of its own, so a room
+  is drawn with the colour `(value % 6) + 6`.
+- The picture of the map is the grid **turned a quarter turn clockwise**, the
+  same way the app and the Home Assistant client draw it
+  (`bumper/utils/map_image.py`, which was verified against the picture the
+  `DeebotUniverse/client.py` Rust code produces).
+- `majorMap.value` is the checksum of every piece. The value `1295764014` is
+  the checksum of an empty piece and means **the robot has no map for that
+  piece** - it does not mean the piece is empty.
+- The app asks for the map of a job with `lg/log.do` and `td: "GetCleanedMap"`
+  and expects the pieces of the grid and the driven path, both compressed the
+  same way, keyed by the piece number and the trace id. The work log screen
+  uses `/app/dln/api/log/clean_result/list` instead, and the picture of the
+  job comes from the `imageUrl` of the entry, which has to point at the map
+  that is stored here.
 
 ## Repository layout
 

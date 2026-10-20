@@ -21,7 +21,7 @@ You can use the official “Ecovacs” or “Ecovacs Home” app to control your
 
 ### Android
 
-#### Android < 7 (API 23–27)
+#### Android < 7 (API 23-27)
 
 For older releases, install the CA as a user certificate:
 
@@ -37,12 +37,12 @@ On Android Pie (9) and lower, you can install the CA as a system certificate via
 
 ```sh
 # Start adb as root
-$adb root
+adb root
 # Remount /system writable
-$adb remount
+adb remount
 # Push CA into system store
-$adb push certs/ca.crt "/system/etc/security/cacerts/$(openssl x509 -inform PEM -subject_hash_old -in certs/ca.crt | head -1).0"
-$adb reboot
+adb push certs/ca.crt "/system/etc/security/cacerts/$(openssl x509 -inform PEM -subject_hash_old -in certs/ca.crt | head -1).0"
+adb reboot
 ```
 
 Verify in **Settings → Security → Trusted credentials → System**.
@@ -65,6 +65,44 @@ Starting with Android 10, user or system CA installation does not work for apps 
 4. Tap the robot; the app pings it over MQTT or XMPP and opens the control interface.
 
 > **Note:** No real credential validation occurs; Bumper accepts all logins for compatibility.
+
+---
+
+## 🗣️ Robot Voice Languages
+
+The app can switch the voice language of the robot. The robot downloads the new
+voice from Bumper before it installs it, so the file has to be there:
+
+1. Fetch the voice files with
+   [`scripts/update-eco-voices.sh`](../development/static-data-update.md). They
+   land in the voice directory (`${BUMPER_DATA}/voices` by default) and are not
+   part of the repository.
+2. Start Bumper with `BUMPER_VOICES` pointing at that directory. In a
+   container the files belong in the data volume, see
+   [Docker](../usage/docker.md).
+
+Without the file the robot answers the switch with a download error and stays
+on the language it has. The list of languages the app offers is served by
+Bumper, the files themselves are fetched from the Ecovacs cloud.
+
+---
+
+## 🗺️ The Work Log
+
+The app can show the list of the jobs of a robot and the map of every job.
+Bumper stores the map the robot uploads after a job and draws it as a
+picture, so the app has something to show:
+
+- the work log screen reads the list from
+  `/app/dln/api/log/clean_result/list`,
+- the picture of a job is the map that is stored for it, drawn the same way
+  the app draws the live map.
+
+The pictures are kept per robot, the newest ones win when there are more than
+`PHOTO_MAX_PER_DEVICE` of them.
+
+The same map is shown in the web page of Bumper, under **Clean Logs**: the menu
+of a job has **Show map**, which opens the picture over the page.
 
 ---
 

@@ -24,6 +24,8 @@ Bumper's own web server instead of the Ecovacs cloud:
 | `productIotMap.json`        | `POST /product/getProductIotMap`         | `classid` → product info (QR-code decoding, bot list enrichment)                             |
 | `updateCheck.json`          | `GET /v0.1/public/codepush/update_check` | `deployment_key` → latest bundle info (`download_url`, `is_available`, `is_mandatory`, …)    |
 | `updateCheck_mapping.json`  | (lookup for the codepush update check)   | `main_folder` → `deployment_key`, resolves update checks sent by package name                |
+| `timezones.json`            | `GET /basis/time/timezones`              | The time zones of the app, with their name in every language                                 |
+| `voices.json`               | `GET /pim/voice/get`                     | The voice of every language the app offers, with the file the robot has to download          |
 
 ---
 
@@ -34,56 +36,102 @@ Bumper's own web server instead of the Ecovacs cloud:
 | `update-eco-data.sh`             | ✅ (password + optional email code) | Ecovacs private API   | `configGroupsResponse.json`, `configNetAllResponse.json`, `productIotMap.json` |
 | `update-eco-codepush.sh`         | ❌                                  | `codePushConfig.json` | `updateCheck.json`                                                             |
 | `update-eco-codepush-mapping.sh` | ❌                                  | `updateCheck.json`    | `updateCheck_mapping.json`                                                     |
+| `update-eco-timezones.sh`        | ✅ (password + optional email code) | Ecovacs api base      | `timezones.json`                                                               |
+| `update-eco-voices.sh`           | ✅ (password + optional email code) | Ecovacs portal API    | `voices.json` and the voice files in the voice directory                       |
 
 Run them in this order, as each script needs the previous one's output:
 
-1. **`scripts/update-eco-data.sh`** — logs in to the Ecovacs private API and
+1. **`scripts/update-eco-data.sh`** - logs in to the Ecovacs private API and
    downloads the per-country product configs (`DE`, `US`, other countries from
    `COUNTRIES`), combines them with the committed files and rewrites the
    download URLs to local domains (see [combination rules](#combination-rules)).
-2. **`scripts/update-eco-codepush.sh`** — queries the public codepush
+2. **`scripts/update-eco-codepush.sh`** - queries the public codepush
    `update_check` endpoint for every deployment key in `codePushConfig.json`
    and combines the results into `updateCheck.json`. Download URLs are stripped
    of their AWS signing parameters. Downloads run in parallel (`ECO_PARALLEL`).
-3. **`scripts/update-eco-codepush-mapping.sh`** — downloads the codepush
+3. **`scripts/update-eco-codepush-mapping.sh`** - downloads the codepush
    bundles referenced by `updateCheck.json`, extracts the main folder of each
    bundle and writes the `{main_folder: deployment_key}` mapping used by the
    app (see `appsvr.py` `get_codepush_update_check_data`).
+4. **`scripts/update-eco-timezones.sh`** - fetches the time zones the app shows,
+   with their name in every language, and writes them to `timezones.json`.
+5. **`scripts/update-eco-voices.sh`** - fetches the voice of every language the
+   app offers and writes the metadata to `voices.json`. The voice files
+   themselves are a few MB each and are **not** part of the repository: they
+   land in the voice directory (`BUMPER_VOICES`, `${BUMPER_DATA}/voices` by
+   default) and have to be present before the server starts if the robot should
+   be able to change its voice language.
 
 All scripts write their per-run artefacts to `json_mappings/` (gitignored) and
 copy the final files into `bumper/web/static_api/`. All outputs are sorted, so
 re-runs produce stable diffs.
 
+> **Note:** run the scripts **before the DNS override is in place**, or from a
+> machine that can still reach the Ecovacs cloud - the override points the
+> cloud names at Bumper.
+
+> **Note:** the voice files are the one exception to "everything ends up in
+> `static_api/`". They are large and they are fetched from the cloud, so they
+> are kept out of the repository on purpose.
+
 ---
 
 ## 🚀 Usage
 
-**Step 1 – Refresh the product data** (needs an Ecovacs account):
+**Step 1 - Refresh the product data** (needs an Ecovacs account):
 
 ```sh
-$ ECOVACS_ACCOUNT_ID=your@email.com ECOVACS_PASSWORD=your_password scripts/update-eco-data.sh
+ECOVACS_ACCOUNT_ID=your@email.com ECOVACS_PASSWORD=your_password scripts/update-eco-data.sh
 ```
 
 On the first login from a new device, Ecovacs answers with error `1013` and the
 script triggers a device verification: a code is emailed to the account address
-and you are prompted for it. Provide it upfront to skip the prompt:
+and you are prompted for it.
+
+> **Note:** verification codes are single-use and repeated requests are
+> rate-limited by Ecovacs (`0002 "Parameter error. Please try again later."`).
+> Wait 10-30 minutes before retrying.
+>
+> > Verification is bound to the device id stored in `.eco-device-id` (gitignored),
+> > so subsequent runs log in directly without a code.
+
+**Step 2 - Refresh the codepush data** (no login needed):
 
 ```sh
-$ ECO_VERIFY_CODE=123456 scripts/update-eco-data.sh
+scripts/update-eco-codepush.sh
+scripts/update-eco-codepush-mapping.sh
+```
+
+**Step 3 - Refresh the time zones** (needs an Ecovacs account):
+
+```sh
+ECOVACS_ACCOUNT_ID=your@email.com ECOVACS_PASSWORD=your_password scripts/update-eco-timezones.sh
+```
+
+The time zones are the same for every user, but the api wants a login. The host
+of the api belongs to the region of the account, `API_BASE_HOST` sets it.
+
+**Step 4 - Refresh the voice files** (needs an Ecovacs account):
+
+```sh
+ECOVACS_ACCOUNT_ID=your@email.com ECOVACS_PASSWORD=your_password scripts/update-eco-voices.sh
 ```
 
 > **Note:** verification codes are single-use and repeated requests are
 > rate-limited by Ecovacs (`0002 "Parameter error. Please try again later."`).
-> Wait 10–30 minutes before retrying.
+> Wait 10-30 minutes before retrying.
+>
+> > Verification is bound to the device id stored in `.eco-device-id` (gitignored),
+> > so subsequent runs log in directly without a code.
 
-Verification is bound to the device id stored in `.eco-device-id` (gitignored),
-so subsequent runs log in directly without a code.
+The files are written to `${BUMPER_DATA}/voices` unless `BUMPER_VOICES` says
+otherwise, and the metadata to `bumper/web/static_api/voices.json`.
 
-**Step 2 – Refresh the codepush data** (no login needed):
+In a container the data directory is a volume, so the files either live in
+that volume or are copied into it:
 
 ```sh
-$ scripts/update-eco-codepush.sh
-$ scripts/update-eco-codepush-mapping.sh
+docker cp ./data/voices/. <container>:/bumper/data/voices/
 ```
 
 ---
@@ -107,9 +155,12 @@ committed files:
 
 | Variable                                 | Used by                                                    | Purpose                                                                   |
 | ---------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------- |
-| `ECOVACS_ACCOUNT_ID`, `ECOVACS_PASSWORD` | `update-eco-data.sh`                                       | Ecovacs account credentials (required)                                    |
-| `ECO_DEVICE_ID`                          | `update-eco-data.sh`                                       | Stable device id (default: generated once and stored in `.eco-device-id`) |
-| `ECO_DEVICE_ID_FILE`                     | `update-eco-data.sh`                                       | Custom path for the device id file                                        |
-| `ECO_VERIFY_CODE`                        | `update-eco-data.sh`                                       | Skip the prompt with a pre-fetched email verification code                |
+| `ECOVACS_ACCOUNT_ID`, `ECOVACS_PASSWORD` | `update-eco-data.sh`, `update-eco-voices.sh`               | Ecovacs account credentials (required)                                    |
+| `ECO_DEVICE_ID`                          | `update-eco-data.sh`, `update-eco-voices.sh`               | Stable device id (default: generated once and stored in `.eco-device-id`) |
+| `ECO_DEVICE_ID_FILE`                     | `update-eco-data.sh`, `update-eco-voices.sh`               | Custom path for the device id file                                        |
+| `ECO_VERIFY_CODE`                        | `update-eco-data.sh`, `update-eco-voices.sh`               | Skip the prompt with a pre-fetched email verification code                |
 | `ECO_CHANNEL`                            | `update-eco-data.sh`                                       | App channel (`google_play` default; `google` worked in some regions)      |
 | `ECO_PARALLEL`                           | `update-eco-codepush.sh`, `update-eco-codepush-mapping.sh` | Number of parallel downloads (default `4`)                                |
+| `BUMPER_VOICES`                          | `update-eco-voices.sh`                                     | Where the voice files are written (default: `${BUMPER_DATA}/voices`)      |
+| `VOICE_LANGS`                            | `update-eco-voices.sh`                                     | The languages to fetch, comma separated (default: every language)         |
+| `API_BASE_HOST`                          | `update-eco-timezones.sh`                                  | The api host of the region (default: `api-base.dc-eu.ww.ecouser.net`)     |

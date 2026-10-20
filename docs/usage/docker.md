@@ -1,6 +1,6 @@
 # Docker
 
-Manage Bumper via Docker—pull the official image, deploy with Compose or Swarm, build custom images, or run directly.
+Manage Bumper via Docker-pull the official image, deploy with Compose or Swarm, build custom images, or run directly.
 
 ---
 
@@ -30,7 +30,7 @@ Full environment variable reference: [Environment Variables](../configuration/en
 ## ✨ Pull the Official Image
 
 ```sh
-$docker pull ghcr.io/mvladislav/bumper:develop
+docker pull ghcr.io/mvladislav/bumper:develop
 ```
 
 See the package on GitHub Container Registry [here](https://github.com/MVladislav/bumper/pkgs/container/bumper).
@@ -39,48 +39,78 @@ See the package on GitHub Container Registry [here](https://github.com/MVladisla
 
 ## 🚀 Docker Swarm Deployment
 
-**Step 1 – Clone the repository**
+**Step 1 - Clone the repository**
 
 ```sh
-$git clone https://github.com/MVladislav/bumper.git
-$cd bumper
+git clone https://github.com/MVladislav/bumper.git
+cd bumper
 ```
 
-**Step 2 – Initiate Docker in Swarm mode**
+**Step 2 - Initiate Docker in Swarm mode**
 
 ```sh
-$docker swarm init
+docker swarm init
 ```
 
-**Step 3 – Start services**
+**Step 3 - Start services**
 
 > alias for [docker-swarm](https://github.com/MVladislav/.dotfiles/blob/0b069b6a8435a43037789d8b5c4e1c0c65c6a142/zsh/profile-append#L146)
 
 ```sh
-$docker-swarm-compose deebot      # alias for Docker Swarm Compose
+docker-swarm-compose deebot      # alias for Docker Swarm Compose
 # or
-$docker compose up -d             # standard Docker Compose
+docker compose up -d             # standard Docker Compose
 ```
 
-**Step 4 – Access the UI**
+**Step 4 - Access the UI**
 
 Visit `https://ecovacs.net/` in your browser.
 
 ---
 
-## 🛠 Build a Custom Image
+## 🗣️ Voice Files
 
-**Step 1 – Clone the repository** (if not already done)
+The robot can change its voice language, but it downloads the new voice from
+Bumper first. The files are fetched from the Ecovacs cloud with
+[`scripts/update-eco-voices.sh`](../development/static-data-update.md) and are
+not part of the image.
+
+They belong in the voice directory of the deployment, which is
+`/bumper/data/voices` inside the container. The data directory is a volume in
+every deployment style, so the files either live in that volume or are copied
+into it:
 
 ```sh
-$git clone https://github.com/MVladislav/bumper.git
-$cd bumper
+docker cp ./data/voices/. <container>:/bumper/data/voices/
 ```
 
-**Step 2 – Build**
+With a swarm the volume is shared between the nodes, so the files have to be
+on every node that can run a task. `BUMPER_VOICES` points the server at
+another directory.
+
+Bumper reports what it found at startup:
+
+```text
+INFO :: bumper.web.server - Voice files :: 13 in '/bumper/data/voices'
+```
+
+Without the files the robot keeps the language it has. The rest of the app is unaffected.
+
+---
+
+## 🛠 Build a Custom Image
+
+**Step 1 - Clone the repository** (if not already done)
 
 ```sh
-$docker build -t mvladislav/bumper .
+git clone https://github.com/MVladislav/bumper.git
+cd bumper
+```
+
+**Step 2 - Build**
+
+```sh
+docker build -t mvladislav/bumper .
 ```
 
 Requires Docker ≥17.09 or Podman.
@@ -89,18 +119,18 @@ Requires Docker ≥17.09 or Podman.
 
 ## 🎯 Direct Docker Run
 
-**Step 1 – Create a Docker volume**
+**Step 1 - Create a Docker volume**
 
 ```sh
-$docker volume create bumper_data
+docker volume create bumper_data
 ```
 
 (Or use a host directory: `-v /path/to/data:/bumper/data`.)
 
-**Step 2 – Run the container**
+**Step 2 - Run the container**
 
 ```sh
-$docker run -it \
+docker run -it \
   --mount source=bumper_data,target=/bumper/data \
   -p 443:443 -p 8007:8007 -p 8883:8883 -p 5223:5223 \
   --name bumper \
