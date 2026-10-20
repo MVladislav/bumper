@@ -96,6 +96,7 @@ class WebServer:
         """Start server."""
         try:
             _LOGGER.info("Starting WebServer")
+            self._log_voice_files()
             for binding in self._bindings:
                 _LOGGER.info(f"Starting WebServer Server at {binding.host}:{binding.port}")
                 runner = web.AppRunner(self._app)
@@ -119,6 +120,19 @@ class WebServer:
         except Exception:
             _LOGGER.exception(utils.default_exception_str_builder())
             raise
+
+    @staticmethod
+    def _log_voice_files() -> None:
+        """Report the voice files, so it is clear whether the robot can switch its language."""
+        voice_dir = bumper_isc.voice_dir
+        try:
+            voice_files = [file for file in voice_dir.iterdir() if file.is_file() and file.name != ".gitkeep"]
+        except OSError:
+            voice_files = []
+        if voice_files:
+            _LOGGER.info(f"Voice files :: {len(voice_files)} in '{voice_dir}'")
+        else:
+            _LOGGER.info(f"Voice files :: none in '{voice_dir}' - the robot cannot change its voice language")
 
     async def shutdown(self) -> None:
         """Shutdown server."""

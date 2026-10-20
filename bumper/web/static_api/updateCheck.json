@@ -18,19 +18,19 @@
   },
   "1G0NyoBfoCKlO4AaVnHOypCKeXMbc7YIePPa1": {
     "update_info": {
-      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lqeT9H8dEC5wuI_aXpV10EkHBpGi",
-      "description": "1.0.0-20260811",
+      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lue1-lrDj_sus1OKtG3Owq67dEln",
+      "description": "1.0.0-20261020",
       "is_available": true,
       "is_disabled": false,
       "target_binary_range": "1.0.0",
-      "label": "v8",
-      "package_hash": "73f2d988de445205a88e5ed145f21fff3a2fe90bcfc5784b11b4730658a1d150",
-      "package_size": 4776984,
+      "label": "v10",
+      "package_hash": "894562c899b68bb5cfb41ce4bc82279abd0e36349e4ef1b1b57b10db3aa1fded",
+      "package_size": 13077456,
       "should_run_binary_version": false,
       "update_app_version": false,
       "is_mandatory": false,
       "deployment_key": "1G0NyoBfoCKlO4AaVnHOypCKeXMbc7YIePPa1",
-      "publish_time": 1786437322000
+      "publish_time": 1792466344000
     }
   },
   "1W2Lw4KvqTz0D-UMxzfZSEcv2yWpoD7SZyGzb4": {
@@ -69,19 +69,19 @@
   },
   "1fUXmT4dm4TDZe6L1NXk3ubdUQ4dc7YIePPa1": {
     "update_info": {
-      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/loIpRE-2tosWjqhKgbgZQ5HRaK-j",
-      "description": "1.0.0-20260806",
+      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lvYRH5DU6p9JAk4e-56RhOW3dDLS",
+      "description": "1.0.0-20261008",
       "is_available": true,
       "is_disabled": false,
       "target_binary_range": "1.0.0",
-      "label": "v10",
-      "package_hash": "74db7ecfcdd98392bd8aa2d25585c8edc86f1fd3ad82aafcd65a7ec7aa9c01d4",
-      "package_size": 21705492,
+      "label": "v11",
+      "package_hash": "5856d50e45f0c986bd74273b8cc485be076d17f0ac63c1110994ea73d03bc637",
+      "package_size": 22042970,
       "should_run_binary_version": false,
       "update_app_version": false,
       "is_mandatory": false,
       "deployment_key": "1fUXmT4dm4TDZe6L1NXk3ubdUQ4dc7YIePPa1",
-      "publish_time": 1785983098000
+      "publish_time": 1791425779000
     }
   },
   "26p8nXPBq_eugaHR-cVBFil_ef7YYiVE68PjbT": {
@@ -154,36 +154,36 @@
   },
   "3KUNJU26Ovs27QwNyBnB7bJRZlH3c7YIePPa1": {
     "update_info": {
-      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lg24Mw9igxyapUJh53MgF9HsWQXj",
-      "description": "1.0.0-20260717",
+      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lsz4PqALEqSUJ4ytxcZq42wi3f-K",
+      "description": "1.0.0-20260820",
       "is_available": true,
       "is_disabled": false,
       "target_binary_range": "1.0.0",
-      "label": "v6",
-      "package_hash": "8be1be1bd744ea0ddf0e74006f394f22486ffeedf3b5f2d4e9e84d9c082d3c87",
-      "package_size": 23812538,
+      "label": "v7",
+      "package_hash": "ecfdbdc880679d47d571a21775e0976450c7259cb76d3a6e1e2fe5694a7140c2",
+      "package_size": 23878819,
       "should_run_binary_version": false,
       "update_app_version": false,
       "is_mandatory": false,
       "deployment_key": "3KUNJU26Ovs27QwNyBnB7bJRZlH3c7YIePPa1",
-      "publish_time": 1784257427000
+      "publish_time": 1787196530000
     }
   },
   "44sTmog6kWLe7CKAAHGqFe58EmA0c7YIePPa1": {
     "update_info": {
-      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/liVcrLTI5Fm0CZGWj4aOGfDq1nuv",
-      "description": "1.0.0-20260807",
+      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/ljltwD3-KPhwleC2tgy-BlvtF8uL",
+      "description": "1.0.0-20260915",
       "is_available": true,
       "is_disabled": false,
       "target_binary_range": "1.0.0",
-      "label": "v8",
-      "package_hash": "ba0d215c57991cac4261d9ae566d89769d28a389272f24b1efcbf5fc9a787a69",
-      "package_size": 29919908,
+      "label": "v10",
+      "package_hash": "953355d33d6ea24a2337dff0c50f72b77556f4018da5127b5ff89b0cdd7287ac",
+      "package_size": 30069456,
       "should_run_binary_version": false,
       "update_app_version": false,
       "is_mandatory": false,
       "deployment_key": "44sTmog6kWLe7CKAAHGqFe58EmA0c7YIePPa1",
-      "publish_time": 1786094841000
+      "publish_time": 1789449749000
     }
   },
   "4BNGgbVnlX72LzmReCJ6Wk8kip7-r7Ryzvq3ML": {
@@ -205,19 +205,19 @@
   },
   "4Nnw8g77WhNckneT0OfH0PcBuqnRc7YIePPa1": {
     "update_info": {
-      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/ltIyBTcYI7cSTjEPBpu2unvA87_U",
-      "description": "1.0.0-20260803",
+      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/locXVGLCf5gLyl10IgpKLQ8RTqWF",
+      "description": "1.0.0-20260821",
       "is_available": true,
       "is_disabled": false,
       "target_binary_range": "1.0.0",
-      "label": "v13",
-      "package_hash": "9922fc7b5500d127fa0fd5025b81d965dd11942af9e51b865c53b99c44e2262a",
-      "package_size": 24954297,
+      "label": "v14",
+      "package_hash": "fbbe379fa87d45a0cfcdd98a2a70fec3fdcf42a30e5b79bacb7ca5d8edf763be",
+      "package_size": 24954370,
       "should_run_binary_version": false,
       "update_app_version": false,
       "is_mandatory": false,
       "deployment_key": "4Nnw8g77WhNckneT0OfH0PcBuqnRc7YIePPa1",
-      "publish_time": 1785752908000
+      "publish_time": 1787292374000
     }
   },
   "4VjXXho7kXaRs5SPBQeMOHgzqHZm2lQKYMSChX": {
@@ -290,36 +290,36 @@
   },
   "AMIDgMX5uEnmNVnMvxpMAQtBaj6gc7YIePPa1": {
     "update_info": {
-      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lnpwlojBqFBW25yHmjf5Hp6KOO4K",
-      "description": "1.0.0-20260706",
+      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lvPsCtffhIbL9p9sD0TZXDcBiL-l",
+      "description": "1.0.0-20260916",
       "is_available": true,
       "is_disabled": false,
       "target_binary_range": "1.0.0",
-      "label": "v21",
-      "package_hash": "5513e88c7cc3f4032a2238b9f09e4ac174df4bb47b6bb000ffbf0afdc549fe8a",
-      "package_size": 29601941,
+      "label": "v22",
+      "package_hash": "2cc64224204a7fb3db6318e9d59cedbb93b4bed9ffb377605264235d0f925bd2",
+      "package_size": 29902426,
       "should_run_binary_version": false,
       "update_app_version": false,
       "is_mandatory": false,
       "deployment_key": "AMIDgMX5uEnmNVnMvxpMAQtBaj6gc7YIePPa1",
-      "publish_time": 1783320036000
+      "publish_time": 1789524065000
     }
   },
   "AwV60bVIL5-f_bsQubbR5Cr3p-7lKg0wIKhdF4K": {
     "update_info": {
-      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lg4DpKID5D3V-zOOHykvT8vGqBjt",
-      "description": "\"1.0.0-\"",
+      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lpdD7Rbi6fI4FRSA1Y_pbLzJkATB",
+      "description": "1.0.0-20260916",
       "is_available": true,
       "is_disabled": false,
       "target_binary_range": "1.0.0",
-      "label": "v10",
-      "package_hash": "60a081718a25504fe33ac556bc15b75a6bfe23c3fdb5a5bcc651ef7eb1f7ce5b",
-      "package_size": 15412882,
+      "label": "v11",
+      "package_hash": "139a5eade76cb613494bceb122141ce6003dc0c0278ff746a04dfe232a9aa5dc",
+      "package_size": 15718023,
       "should_run_binary_version": false,
       "update_app_version": false,
       "is_mandatory": false,
       "deployment_key": "AwV60bVIL5-f_bsQubbR5Cr3p-7lKg0wIKhdF4K",
-      "publish_time": 1772070698000
+      "publish_time": 1789527067000
     }
   },
   "DWfSnnORMkobKsaS3V0e7VMGVwSiHZqEvtEsJA": {
@@ -341,19 +341,19 @@
   },
   "FKk06D18kgJF89hmXCNYM9QOr3_XhCQ57H2S_G": {
     "update_info": {
-      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lrtsrSqFJ2oylOf6n8K2k2BdAIgf",
-      "description": "\"1.0.0-\"",
+      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lr-HT5-Z4ECUCSbycT0Jwe4Ido8E",
+      "description": "1.0.0-20260916",
       "is_available": true,
       "is_disabled": false,
       "target_binary_range": "1.0.0",
-      "label": "v26",
-      "package_hash": "d6f53ad34c559cc92d2a2d500da563a094ff509c34126d7cc3d86168dfd6c6b8",
-      "package_size": 8379116,
+      "label": "v27",
+      "package_hash": "da0e20cf6f103258ba73f6d56b8cccae7e2e49f9d075a8fbf766fb98c6519c04",
+      "package_size": 8669674,
       "should_run_binary_version": false,
       "update_app_version": false,
       "is_mandatory": false,
       "deployment_key": "FKk06D18kgJF89hmXCNYM9QOr3_XhCQ57H2S_G",
-      "publish_time": 1766146828000
+      "publish_time": 1789525708000
     }
   },
   "FYrj_wRehjTJv19ELubhoVdz7YlcZj-KQ66Q8G": {
@@ -375,19 +375,19 @@
   },
   "GNvUH5F6DzZUNqQKH6NLohc3-PTOrJaaSYSSti": {
     "update_info": {
-      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lg4hcN0zUdKaaBuu9ROH2Sl88d4D",
-      "description": "1.0.0-20260810",
+      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lkV7i0GXS-B5plLIavMKy09GI-uh",
+      "description": "1.0.0-20261019",
       "is_available": true,
       "is_disabled": false,
       "target_binary_range": "1.0.0",
-      "label": "v12",
-      "package_hash": "907dcb859bc7aa25c75cd46af867fe6a6bfe6b62c8a34745a87f4528a3f1cf6d",
-      "package_size": 6615367,
+      "label": "v13",
+      "package_hash": "fac625ab0b4ba3334e823395df96ced7b4fb5c3a4c6ad50802edc840aeaf2df7",
+      "package_size": 6753520,
       "should_run_binary_version": false,
       "update_app_version": false,
       "is_mandatory": false,
       "deployment_key": "GNvUH5F6DzZUNqQKH6NLohc3-PTOrJaaSYSSti",
-      "publish_time": 1786356945000
+      "publish_time": 1792379740000
     }
   },
   "GceiSRVFbgpgJfHnx43H4yX7OIBpc7YIePPa1": {
@@ -562,19 +562,19 @@
   },
   "QEdpHlrNp1ANHhYFbEJ63dYo1bcsZCShQ9H938": {
     "update_info": {
-      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/FmnxLK2u-wypAletknp824qkmybN",
-      "description": "\"1.0.0-\"",
+      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/Fv-wnDVA9hwvD2gXzgDYdcCXHLDK",
+      "description": "1.0.0-20260924",
       "is_available": true,
       "is_disabled": false,
       "target_binary_range": "1.0.0",
-      "label": "v1",
-      "package_hash": "2bdd93320d61b90f785a10bfbdff07cbd6c363ef2329db0a2e0753f900b904bf",
-      "package_size": 859543,
+      "label": "v3",
+      "package_hash": "9922951b298b641d223b6e7be58b99d5377c2a926c030025b6c2d08af92d1d75",
+      "package_size": 1167970,
       "should_run_binary_version": false,
       "update_app_version": false,
-      "is_mandatory": true,
+      "is_mandatory": false,
       "deployment_key": "QEdpHlrNp1ANHhYFbEJ63dYo1bcsZCShQ9H938",
-      "publish_time": 1720157411000
+      "publish_time": 1790229550000
     }
   },
   "QUWwhrVVTWguUhMlp9u_MydbtiEfoGuTi6RKdt": {
@@ -800,19 +800,19 @@
   },
   "bjPgGQImxLfkkwaGfJSdiOQJjqY8zePT0Zn3EE": {
     "update_info": {
-      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/FsrLbaTR-Mrr07kK8Rxou4Kl1Hie",
-      "description": "1.0.0-20260810",
+      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/FqnwunMmh76-TZa9m4_UjZkPX6u3",
+      "description": "1.0.0-20261019",
       "is_available": true,
       "is_disabled": false,
       "target_binary_range": "1.0.0",
-      "label": "v17",
-      "package_hash": "a2e51b736ae525accab8ca8629a4c66035718b89600c611fcd61213c7752498e",
-      "package_size": 3513084,
+      "label": "v21",
+      "package_hash": "7837d6758794f96e9e0ffadd30773304541d7ae43cdc70f6dfeb254d232afc98",
+      "package_size": 3633204,
       "should_run_binary_version": false,
       "update_app_version": false,
       "is_mandatory": false,
       "deployment_key": "bjPgGQImxLfkkwaGfJSdiOQJjqY8zePT0Zn3EE",
-      "publish_time": 1786357915000
+      "publish_time": 1792379679000
     }
   },
   "bxoAxfmnUrBiA10VESVZO4CkTmVySR0JwRACg8": {
@@ -868,19 +868,19 @@
   },
   "e7OedIayl7LKMEw30_OVQIOjmtGywD5uU2x_yiR": {
     "update_info": {
-      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lspcdL5L_P23AHsnCnozBo2wrhq_",
-      "description": "1.0.0-20260514",
+      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lpxYyb-FJtKBkVMDGh3GvuPH1fMq",
+      "description": "1.0.0-20261008",
       "is_available": true,
       "is_disabled": false,
       "target_binary_range": "1.0.0",
-      "label": "v18",
-      "package_hash": "f6c00a34db3cf00f72ecafb1f461f95ef2e6097d542f2ef6d9265c24d69aeb33",
-      "package_size": 12916176,
+      "label": "v20",
+      "package_hash": "f534ff185ea30da4d4318d207a27392603d62e0aa6dc0ec253d4a8773ebdce1e",
+      "package_size": 13282278,
       "should_run_binary_version": false,
       "update_app_version": false,
       "is_mandatory": false,
       "deployment_key": "e7OedIayl7LKMEw30_OVQIOjmtGywD5uU2x_yiR",
-      "publish_time": 1778749145000
+      "publish_time": 1791427006000
     }
   },
   "evKyaIwluML4TNNZfp5NKd0Zv40bc7YIePPa1": {
@@ -987,36 +987,36 @@
   },
   "pcXv3JBxegPXU61tevi7KnnGqBOJc7YIePPa1": {
     "update_info": {
-      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lnYO69Ve3kmyWgRdrjKW3eFhoNUb",
-      "description": "1.0.0-20260811",
+      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lu97CKsnZoDtXS94iWlwY1AteE9k",
+      "description": "1.0.0-20260915",
       "is_available": true,
       "is_disabled": false,
       "target_binary_range": "1.0.0",
-      "label": "v11",
-      "package_hash": "8c627f26fd25b6c207f887c20a3139e8f931fabf820e160ae461ed424461a430",
-      "package_size": 30612924,
+      "label": "v13",
+      "package_hash": "98514fb45882757994ef8090615c96843996ba5d7fed4b6106d493c6f830b9fd",
+      "package_size": 30137495,
       "should_run_binary_version": false,
       "update_app_version": false,
       "is_mandatory": false,
       "deployment_key": "pcXv3JBxegPXU61tevi7KnnGqBOJc7YIePPa1",
-      "publish_time": 1786430456000
+      "publish_time": 1789442963000
     }
   },
   "pfcrO0FxzYxmzg7FiGUxeiuwgshmc7YIePPa1": {
     "update_info": {
-      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lguTEty5Y5H4l5LHfzmBQNMyydfs",
-      "description": "1.0.0-20260626",
+      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lsZTBrn2QBjMzweipVfTRQHv-1p9",
+      "description": "1.0.0-20260930",
       "is_available": true,
       "is_disabled": false,
       "target_binary_range": "1.0.0",
-      "label": "v11",
-      "package_hash": "d6012b00e72f3905ea810e8636cc3ceee50632c29a85cb4a45147fed5521e0f7",
-      "package_size": 26216365,
+      "label": "v12",
+      "package_hash": "a28e4d1cfecb3ffc0411e697fe33464ebba4fb5192f7c82eb407f00bb8b8a9de",
+      "package_size": 29362151,
       "should_run_binary_version": false,
       "update_app_version": false,
       "is_mandatory": true,
       "deployment_key": "pfcrO0FxzYxmzg7FiGUxeiuwgshmc7YIePPa1",
-      "publish_time": 1782437743000
+      "publish_time": 1790766680000
     }
   },
   "r3hqBPMQgR3jEjKCoGfEZ_EQ-dwJpJ3o08Q764": {
@@ -1055,19 +1055,19 @@
   },
   "vU_8bGlVcJpLoZK1p3zSHtu0NYgMstbOm4eP8wB": {
     "update_info": {
-      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lkgXXGzroR_jV0QK8N9Yvu8j55ti",
-      "description": "1.0.0-20260518",
+      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lr4DUvAq_XSbQbWQDTbCe5h5s8cF",
+      "description": "1.0.0-20260916",
       "is_available": true,
       "is_disabled": false,
       "target_binary_range": "1.0.0",
-      "label": "v10",
-      "package_hash": "7fe84a79bb5f64f7ba42540c77462264c0ce186e3e3979cc5e29fab01ae91f47",
-      "package_size": 12922470,
+      "label": "v11",
+      "package_hash": "df32f6e500bcfa53ead31387ca0ab7eaeded5b1e871ce13032d48cb3a6a2b4e9",
+      "package_size": 13290023,
       "should_run_binary_version": false,
       "update_app_version": false,
       "is_mandatory": false,
       "deployment_key": "vU_8bGlVcJpLoZK1p3zSHtu0NYgMstbOm4eP8wB",
-      "publish_time": 1779093413000
+      "publish_time": 1789525691000
     }
   },
   "vhaH5f2nNpKiXPFDhVq6yf4gr6xFGAOKoMGTFT": {
@@ -1089,36 +1089,36 @@
   },
   "xTtjPf2Q0Ydo-NHvqHHukvnq2oqN1Ybb1Tr8QC": {
     "update_info": {
-      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/ljnCOt57HMEZsP3mcbfk-dusW47y",
-      "description": "1.0.0-20260518",
+      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lvlThHYd0T5ne7nzhC3AG_vbEfoZ",
+      "description": "1.0.0-20260916",
       "is_available": true,
       "is_disabled": false,
       "target_binary_range": "1.0.0",
-      "label": "v35",
-      "package_hash": "d6eaa849f903c21bf7a031f92f429290a7b82fadd25ed267c0f218e50a60ea46",
-      "package_size": 12922561,
+      "label": "v36",
+      "package_hash": "7b05859186d98eb09ed5690a78f154f1bce8025ceaf9ee775c7a13f1f2f6de4e",
+      "package_size": 13290403,
       "should_run_binary_version": false,
       "update_app_version": false,
       "is_mandatory": false,
       "deployment_key": "xTtjPf2Q0Ydo-NHvqHHukvnq2oqN1Ybb1Tr8QC",
-      "publish_time": 1779089259000
+      "publish_time": 1789524039000
     }
   },
   "xahVsOeExr8oKEbUnyL2LoH7Vypfc7YIePPa1": {
     "update_info": {
-      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lmMZNnx6jrE1G9W4aF6P1_0HAjHp",
-      "description": "1.0.0-20260706",
+      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lv_lhhmwfoPkByZUuBtuOY8tYMrh",
+      "description": "1.0.0-20260911",
       "is_available": true,
       "is_disabled": false,
       "target_binary_range": "1.0.0",
-      "label": "v13",
-      "package_hash": "bb7c82167f4bb27a3cf18580db8d82679f4caee595f017d39477fa5940b557dc",
-      "package_size": 31607096,
+      "label": "v14",
+      "package_hash": "e9f562672db285a8ecfae89452a7c892b7d938e3539aae2d6b9aec7b03272aa2",
+      "package_size": 31019479,
       "should_run_binary_version": false,
       "update_app_version": false,
       "is_mandatory": false,
       "deployment_key": "xahVsOeExr8oKEbUnyL2LoH7Vypfc7YIePPa1",
-      "publish_time": 1783322758000
+      "publish_time": 1789132490000
     }
   },
   "xfpg077WmAycqI0avmPp2CEneEbPudBW-cIdOO": {
@@ -1140,36 +1140,36 @@
   },
   "xiLCJcXau1-LFeQ-VH-ygd_rGT-yXZIVONIEGqK": {
     "update_info": {
-      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lmQPVZ3SyYW-nMEjITTsgQNaJefr",
-      "description": "1.0.0-20260514",
+      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lhj4jCBN9qDI0m1M4jeDxA5C9Rvs",
+      "description": "1.0.0-20260911",
       "is_available": true,
       "is_disabled": false,
       "target_binary_range": "1.0.0",
-      "label": "v24",
-      "package_hash": "4eeec835ffb89543f039cab7e6af0b669c78dd033faa01279fd0b0504d5c169d",
-      "package_size": 12916321,
+      "label": "v25",
+      "package_hash": "0e7e8d163924bc743cf8a50dfde31d2a374f6c22e811762e45b568a6a79dfdfc",
+      "package_size": 13282007,
       "should_run_binary_version": false,
       "update_app_version": false,
       "is_mandatory": false,
       "deployment_key": "xiLCJcXau1-LFeQ-VH-ygd_rGT-yXZIVONIEGqK",
-      "publish_time": 1778749188000
+      "publish_time": 1789132465000
     }
   },
   "xqKsm76KLDIBvoXmFSRgMwzrcbVic7YIePPa1": {
     "update_info": {
-      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lsM9vorB5ThWUpBjqxysO2wGy6nu",
-      "description": "1.0.0-20260806",
+      "download_url": "https://ecovacs-na-codepush.s3.us-west-1.amazonaws.com/lpTZT8RR0ElKMWpeN5UIpYQuzQbN",
+      "description": "1.0.0-20261008",
       "is_available": true,
       "is_disabled": false,
       "target_binary_range": "1.0.0",
-      "label": "v9",
-      "package_hash": "e47e9fa071137f24a5d2e5813525500243600e807f23938e5591ad0c0cf66301",
-      "package_size": 20666708,
+      "label": "v10",
+      "package_hash": "f867cccaf51f1c5349632fa71c1a8502502d9bb0b6558f415639ce057897c2e5",
+      "package_size": 21004536,
       "should_run_binary_version": false,
       "update_app_version": false,
       "is_mandatory": false,
       "deployment_key": "xqKsm76KLDIBvoXmFSRgMwzrcbVic7YIePPa1",
-      "publish_time": 1785982195000
+      "publish_time": 1791425795000
     }
   },
   "z94xCOc2FnBqdw6IJMFvMoWFLALxVNGsK0wHuJ": {

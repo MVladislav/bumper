@@ -101,7 +101,7 @@ result() {
   if [ -n "${RESULT_DIR:-}" ] && [ -n "$(find "$RESULT_DIR" -mindepth 1 -maxdepth 1 -type f 2>/dev/null)" ]; then
     # Valid JSON: {"main_folder": "deployment_key", ...}
     # Sorted by main folder (with deployment key as tie-break) so the output
-    # is deterministic across runs — parallel downloads finish in a different
+    # is deterministic across runs - parallel downloads finish in a different
     # order every time.
     jq -Rn '
       [inputs | select(length > 0) | split("\t")] |

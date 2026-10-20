@@ -40,6 +40,9 @@
 
 !certs/
 !data/
+!data/voices/
+data/voices/*
+!data/voices/.gitkeep
 !logs/
 
 !configs/
@@ -50,6 +53,8 @@
 scripts/*
 !scripts/*.sh
 !scripts/*.py
+!scripts/shared/
+!scripts/shared/*.sh
 !scripts/apk-patch/
 !scripts/apk-patch/*.py
 !scripts/apk-patch/*.sh

@@ -13,6 +13,7 @@ from aiohttp.web_routedef import AbstractRouteDef
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
 from bumper.web.plugins import WebserverPlugin
+from bumper.web.static_api import get_timezones
 from bumper.web.utils.response_helper import response_success_v4
 
 _LOGGER = logging.getLogger(__name__)
@@ -26,7 +27,17 @@ class BasisPlugin(WebserverPlugin):
         """Plugin routes."""
         return [
             web.route("*", "/basis/dc/get-by-area", _handle_get_by_area),
+            web.route("*", "/basis/time/timezones", _handle_get_timezones),
         ]
+
+
+async def _handle_get_timezones(_: Request) -> Response:
+    """Get the timezone list."""
+    try:
+        return response_success_v4(get_timezones())
+    except Exception:
+        _LOGGER.exception(utils.default_exception_str_builder(info="during handling request"))
+    raise HTTPInternalServerError
 
 
 async def _handle_get_by_area(request: Request) -> Response:
