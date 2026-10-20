@@ -4,6 +4,8 @@ import logging
 
 from tinydb.table import Document
 
+from bumper.utils.settings import config as bumper_isc
+from bumper.utils.utils import to_int
 from bumper.web.utils.models import CleanLog
 
 from .base import BaseRepo
@@ -22,6 +24,15 @@ class CleanLogRepo(BaseRepo):
         """Add or update a clean log entry (ensures uniqueness based on LOG_ID, and TYPE)."""
         q = (query_instance.clean_log_id == log.clean_log_id) & (query_instance.type == log.type)
         self._upsert(log.to_db(), q)
+        if log.did:
+            self.prune(log.did, bumper_isc.CLEAN_LOG_MAX_PER_DEVICE)
+
+    def prune(self, did: str, keep: int) -> None:
+        """Drop all but the `keep` newest clean logs of a device."""
+        records = self._get_multi(query_instance.did == did)
+        ordered = sorted(records, key=lambda record: to_int(record.get("ts"), 0) or 0, reverse=True)
+        for record in ordered[keep:]:
+            self.table.remove(doc_ids=[record.doc_id])
 
     def list_by_did(self, did: str) -> list[CleanLog]:
         """List clean logs by device ID."""

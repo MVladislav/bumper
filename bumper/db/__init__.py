@@ -3,6 +3,7 @@
 from .bots import BotRepo
 from .clean_logs import CleanLogRepo
 from .clients import ClientRepo
+from .photos import PhotoRepo
 from .tokens import TokenRepo
 from .users import UserRepo
 
@@ -11,5 +12,6 @@ token_repo = TokenRepo()
 clean_log_repo = CleanLogRepo()
 client_repo = ClientRepo()
 bot_repo = BotRepo()
+photo_repo = PhotoRepo()
 
-__all__ = ["BotRepo", "CleanLogRepo", "ClientRepo", "TokenRepo", "UserRepo"]
+__all__ = ["BotRepo", "CleanLogRepo", "ClientRepo", "PhotoRepo", "TokenRepo", "UserRepo"]

@@ -76,7 +76,7 @@ class WebServer:
                     web.post("/newauth.do", single_paths.handle_new_auth),
                     web.post("/lookup.do", single_paths.handle_lookup),
                     web.get("/config/Android.conf", single_paths.handle_config_android_conf),
-                    web.get("/data_collect/upload/generalData", single_paths.handle_data_collect),
+                    web.route("*", "/data_collect/upload/generalData", single_paths.handle_data_collect),
                     web.post("/sa", single_paths.handle_sa),
                     web.post("/v0.1/public/codepush/report_status/deploy", single_paths.handle_codepush_report_status_deploy),
                     web.post("/v0.1/public/codepush/report_status/download", single_paths.handle_codepush_report_status_deploy),

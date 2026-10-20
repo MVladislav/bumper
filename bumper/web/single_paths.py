@@ -9,6 +9,8 @@ import json
 import logging
 from pathlib import Path
 import tarfile
+from typing import Any
+from urllib.parse import unquote
 
 from aiohttp import web
 from aiohttp.web_exceptions import HTTPInternalServerError, HTTPNotFound
@@ -16,8 +18,11 @@ from aiohttp.web_fileresponse import FileResponse
 from aiohttp.web_request import Request
 from aiohttp.web_response import Response
 
+from bumper.db import bot_repo, photo_repo
+from bumper.db.photos import KIND_MAP, KIND_PICTURE
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
+from bumper.utils.utils import to_milliseconds
 from bumper.web.auth_service import get_new_auth
 from bumper.web.plugins.api.appsvr import get_codepush_update_check_data
 from bumper.web.utils.response_helper import ERR_UNKNOWN_TODO, response_error_v2, response_success_v3
@@ -157,13 +162,91 @@ async def handle_config_android_conf(_: Request) -> Response:
     raise HTTPInternalServerError
 
 
-async def handle_data_collect(_: Request) -> Response:
-    """Handle data collect (/data_collect/upload/generalData)."""
+async def handle_data_collect(request: Request) -> Response:
+    """Handle data collect (/data_collect/upload/generalData).
+
+    The device POSTs the raw payload with the metadata in the query string
+
+    Two kinds of payload arrive on this endpoint. A picture is a raw JPEG; a
+    cleaned map is a JSON document. The two are stored apart, because the app
+    reads them back through different endpoints: pictures through
+    `/api/photo/*`, maps through `lg/log.do` with `td: "GetCleanedMap"`.
+    """
     try:
-        return web.json_response(None)
+        did = request.query.get("auth.did", "")
+        bot = bot_repo.get(did) if did else None
+        if bot is None:
+            _LOGGER.warning(f"Upload for unknown bot :: did={did}")
+
+        meta = _parse_upload_meta(request.query.get("meta", ""))
+        bind_evt = str(meta.get("bindEvt", "cruise"))
+        if bind_evt not in {"cruise", "findPet"}:
+            _LOGGER.warning(f"Upload with unknown bindEvt :: {bind_evt}")
+
+        if bot is not None:
+            mismatches = [
+                field
+                for field, expected, actual in (
+                    ("name", bot.name, request.query.get("auth.name", "")),
+                    ("mid", bot.class_id, request.query.get("auth.mid", "")),
+                    ("res", bot.resource, request.query.get("auth.res", "")),
+                )
+                if expected and actual and expected != actual
+            ]
+            if mismatches:
+                _LOGGER.warning(f"Upload identity mismatch :: did={did} :: fields={mismatches}")
+
+        payload = await request.read()
+        # The robot sends the time of a picture in milliseconds and the time of
+        # a map in seconds, so the time is scaled up to milliseconds.
+        ts = to_milliseconds(utils.to_int(meta.get("ts"), utils.to_int(request.query.get("auth.ts"), 0) * 1000))
+
+        _LOGGER.info(
+            f"Upload :: did={did} :: bindEvt={bind_evt} :: bindID={meta.get('bindID', '')} "
+            f":: bytes={len(payload)} :: sign={request.query.get('auth.sign', '')}",
+        )
+
+        if payload:
+            photo_id = f"{ts}{did}" if ts else did
+            kind = KIND_MAP if _is_map_payload(payload) else KIND_PICTURE
+            photo_repo.add(
+                {
+                    "id": photo_id,
+                    "did": did,
+                    "ts": ts,
+                    "size": len(payload),
+                    "bindEvt": bind_evt,
+                    "bindID": str(meta.get("bindID", "")),
+                    "type": "robot",
+                    "mtype": "pic",
+                    "kind": kind,
+                    "image": photo_repo.encode_image(payload),
+                },
+            )
+            photo_repo.prune(did, bumper_isc.PHOTO_MAX_PER_DEVICE)
+            _LOGGER.info(f"Upload stored :: id={photo_id} :: kind={kind}")
+
+        return web.Response(body=b"", content_type="text/plain", charset="utf-8")
     except Exception:
         _LOGGER.exception(utils.default_exception_str_builder())
     raise HTTPInternalServerError
+
+
+def _is_map_payload(payload: bytes) -> bool:
+    """Return whether an upload carries a map document rather than a picture."""
+    return payload.lstrip()[:1] == b"{"
+
+
+def _parse_upload_meta(raw: str) -> dict[str, Any]:
+    """Parse the `meta` query parameter, which is a URL-encoded JSON object."""
+    if not raw:
+        return {}
+    try:
+        parsed = json.loads(unquote(raw))
+    except Exception:
+        _LOGGER.warning("Camera upload meta is not valid URL-encoded JSON")
+        return {}
+    return parsed if isinstance(parsed, dict) else {}
 
 
 async def handle_sa(request: Request) -> Response:

@@ -1,1 +1,2 @@
 tests/web/plugins/api/test_appsvr.py:generic-api-key:514
+tests/web/plugins/api/test_photo.py:generic-api-key:32

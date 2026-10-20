@@ -1,7 +1,7 @@
 from aiohttp.test_utils import TestClient
 import pytest
 
-from bumper.db import bot_repo, clean_log_repo
+from bumper.db import bot_repo, clean_log_repo, photo_repo
 from bumper.web.utils.models import CleanLog
 
 
@@ -171,3 +171,101 @@ async def test_clean_result_del_nonexistent_ids(webserver_client: TestClient) ->
         json_resp = await resp.json()
         assert json_resp["ret"] == "ok"
         assert json_resp.get("data") is None
+
+
+def _clean_log(did: str, start: int) -> CleanLog:
+    """Return a clean log of a robot."""
+    clean_log = CleanLog(f"{did}@{start}@sdu9")
+    clean_log.did = did
+    clean_log.ts = start
+    clean_log.type = "auto"
+    clean_log.area = 28
+    clean_log.last = 600
+    return clean_log
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_the_clean_result_list_works_without_a_log_type(webserver_client: TestClient) -> None:
+    """The newer app leaves the type of the log out."""
+    did = "did_1234"
+    bot_repo.add("sn_1234", did, "p95mgv", "rljY", "eco-ng")
+    clean_log_repo.add_or_update(_clean_log(did, 1699297517))
+
+    async with webserver_client.get(f"/app/dln/api/log/clean_result/list?did={did}&res=rljY&size=10") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+
+    assert json_resp["code"] == 0
+    assert len(json_resp["data"]) == 1
+    assert json_resp["data"][0]["id"] == f"{did}@1699297517@sdu9"
+    assert json_resp["data"][0]["ts"] == 1699297517
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_the_clean_result_list_honours_the_size(webserver_client: TestClient) -> None:
+    """The app asks for a number of jobs."""
+    did = "did_1234"
+    bot_repo.add("sn_1234", did, "p95mgv", "rljY", "eco-ng")
+    for start in (1699297517, 1699297518, 1699297519):
+        clean_log_repo.add_or_update(_clean_log(did, start))
+
+    async with webserver_client.get(f"/app/dln/api/log/clean_result/list?did={did}&size=2") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+
+    assert len(json_resp["data"]) == 2
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_the_clean_result_list_pages_backwards(webserver_client: TestClient) -> None:
+    """The app pages backwards through the jobs."""
+    did = "did_1234"
+    bot_repo.add("sn_1234", did, "p95mgv", "rljY", "eco-ng")
+    for start in (1699297517, 1699297518, 1699297519):
+        clean_log_repo.add_or_update(_clean_log(did, start))
+
+    async with webserver_client.get(f"/app/dln/api/log/clean_result/list?did={did}&before=1699297519") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+
+    assert [entry["ts"] for entry in json_resp["data"]] == [1699297518, 1699297517]
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_the_clean_result_list_shows_the_map_of_a_job(webserver_client: TestClient) -> None:
+    """The picture of a job is the map the robot uploaded."""
+    did = "did_1234"
+    bot_repo.add("sn_1234", did, "p95mgv", "rljY", "eco-ng")
+    clean_log_repo.add_or_update(_clean_log(did, 1699297517))
+    photo_repo.add(
+        {
+            "id": "1699297817000did_1234",
+            "did": did,
+            "ts": 1699297817,
+            "size": 10,
+            "type": "robot",
+            "mtype": "pic",
+            "kind": "map",
+            "image": photo_repo.encode_image(b"{}"),
+        },
+    )
+
+    async with webserver_client.get(f"/app/dln/api/log/clean_result/list?did={did}") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+
+    assert json_resp["data"][0]["imageUrl"].endswith("/api/photo/download?id=1699297817000did_1234")
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_the_patrol_logs_are_not_shown(webserver_client: TestClient) -> None:
+    """The patrol runs are a kind of log of their own."""
+    did = "did_1234"
+    bot_repo.add("sn_1234", did, "p95mgv", "rljY", "eco-ng")
+    clean_log_repo.add_or_update(_clean_log(did, 1699297517))
+
+    async with webserver_client.get(f"/app/dln/api/log/clean_result/list?did={did}&logType=patrol") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+
+    assert json_resp["data"] == []

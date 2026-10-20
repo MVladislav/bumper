@@ -14,6 +14,8 @@ TABLE_TOKENS = "tokens"
 
 TABLE_CLEAN_LOGS = "clean_logs"
 
+TABLE_PHOTOS = "photos"
+
 TABLE_META = "_meta"
 
 # Shared Query instance for TinyDB queries
@@ -23,7 +25,14 @@ query_instance = Query()
 def get_db() -> TinyDB:
     """Return initialized TinyDB instance with all tables created."""
     db = TinyDB(bumper_isc.db_file)
-    for name in (TABLE_USERS, TABLE_TOKENS, TABLE_CLEAN_LOGS, TABLE_CLIENTS, TABLE_BOTS):
+    for name in (
+        TABLE_USERS,
+        TABLE_TOKENS,
+        TABLE_CLEAN_LOGS,
+        TABLE_CLIENTS,
+        TABLE_BOTS,
+        TABLE_PHOTOS,
+    ):
         db.table(name, cache_size=0)
     return db
 
