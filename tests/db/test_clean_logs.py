@@ -110,3 +110,34 @@ def test_clean_logs_remove_by_id() -> None:
     logs = clean_log_repo.list_by_did(did)
     assert len(logs) == 1
     assert logs[0].clean_log_id == log2.clean_log_id
+
+
+@pytest.mark.usefixtures("clean_database")
+def test_prune_keeps_the_newest_clean_logs() -> None:
+    """The oldest clean logs of a device are dropped."""
+    did = "did_prune"
+    for ts in (1000, 2000, 3000):
+        clean_log = CleanLog(f"{did}@{ts}@res")
+        clean_log.did = did
+        clean_log.ts = ts
+        clean_log_repo.add_or_update(clean_log)
+
+    clean_log_repo.prune(did, 2)
+
+    logs = clean_log_repo.list_by_did(did)
+    assert sorted(log.ts for log in logs) == [2000, 3000]
+
+
+@pytest.mark.usefixtures("clean_database")
+def test_prune_leaves_other_devices_alone() -> None:
+    """Pruning one device does not touch the clean logs of another."""
+    for device in ("did_a", "did_b"):
+        clean_log = CleanLog(f"{device}@1000@res")
+        clean_log.did = device
+        clean_log.ts = 1000
+        clean_log_repo.add_or_update(clean_log)
+
+    clean_log_repo.prune("did_a", 0)
+
+    assert clean_log_repo.list_by_did("did_a") == []
+    assert len(clean_log_repo.list_by_did("did_b")) == 1

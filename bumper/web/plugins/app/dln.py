@@ -10,7 +10,7 @@ from aiohttp.web_request import Request
 from aiohttp.web_response import Response
 from aiohttp.web_routedef import AbstractRouteDef
 
-from bumper.db import bot_repo, clean_log_repo
+from bumper.db import bot_repo, clean_log_repo, photo_repo
 from bumper.utils import utils
 from bumper.web.plugins import WebserverPlugin
 from bumper.web.utils.response_helper import response_success_v3
@@ -34,7 +34,9 @@ async def _handle_clean_result_list(request: Request) -> Response:
     """Clean result list."""
     try:
         did: str | None = request.query.get("did")
-        log_type: str = request.query.get("logType", "")
+        log_type: str = request.query.get("logType", "clean")
+        size: int = utils.to_int(request.query.get("size"), 10) or 10
+        before: int | None = utils.to_int(request.query.get("before"))
         data = []
 
         if did is None:
@@ -45,12 +47,19 @@ async def _handle_clean_result_list(request: Request) -> Response:
                 _LOGGER.error(f"No bots with DID :: {did} :: connected to MQTT")
             else:
                 clean_logs = clean_log_repo.list_by_did(did)
+                # The app pages backwards through the jobs.
+                if before is not None:
+                    clean_logs = [log for log in clean_logs if (utils.to_int(log.ts, 0) or 0) < before]
+                # The picture of a job is the map the robot uploaded when the job was done.
+                maps = photo_repo.maps_for_logs(clean_log_repo.list_by_did(did))
                 for clean_log in clean_logs:
                     log = clean_log.as_dict()
                     log.update({"did": did})
+                    if photo_id := maps.get(clean_log.clean_log_id):
+                        log["imageUrl"] = f"https://{request.host}/api/photo/download?id={photo_id}"
                     data.append(log)
 
-        return response_success_v3(data=sorted(data, key=lambda x: x["ts"], reverse=True))
+        return response_success_v3(data=sorted(data, key=lambda x: x["ts"], reverse=True)[:size])
     except Exception:
         _LOGGER.exception(utils.default_exception_str_builder(info="during handling request"))
     raise HTTPInternalServerError
