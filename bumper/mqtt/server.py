@@ -2,11 +2,13 @@
 
 import asyncio
 import base64
+from contextlib import suppress
 import dataclasses
 from dataclasses import dataclass, field
 from datetime import datetime
 import logging
 from pathlib import Path
+import time
 from typing import Literal
 
 from amqtt.broker import Broker
@@ -27,6 +29,8 @@ _LOGGER_MESSAGES = logging.getLogger(f"{__name__}.messages")
 _LOGGER_PROXY = logging.getLogger(f"{__name__}.proxy")
 _LOGGER_BROKER = logging.getLogger(f"{__name__}.broker")
 
+SHUTDOWN_TIMEOUT = 8.0
+
 _pwd_hasher = PasswordHash.recommended()
 
 
@@ -46,8 +50,6 @@ class MQTTBinding:
 
 class MQTTServer:
     """MQTT server."""
-
-    _state_cond = asyncio.Condition()
 
     def __init__(
         self,
@@ -113,17 +115,22 @@ class MQTTServer:
     async def start(self) -> None:
         """Start MQTT server."""
         try:
-            if self.state not in ["stopping", "starting", "started"]:
+            if self.state == "stopping":
+                _LOGGER.warning("MQTT Server is stopping. Waiting for it to stop before restarting...")
+                await self.wait_for_state_change("stopping", reverse=True, max_wait=5.0)
+                if self.state == "stopping":
+                    # The server did not finish stopping, put it into the state
+                    # it starts from, or it stays down for good.
+                    _LOGGER.warning("MQTT Server did not stop in time, starting it anyway")
+                    self._broker.transitions.stopping_success()
+            if self.state in ["new", "stopped", "not_started"]:
                 for binding in self._bindings:
                     _LOGGER.info(f"Starting MQTT Server at {binding.host}:{binding.port}")
                 await self._broker.start()
-            elif self.state == "stopping":
-                _LOGGER.warning("MQTT Server is stopping. Waiting for it to stop before restarting...")
-                await self.wait_for_state_change("stopping", reverse=True)
-                if self.state == "stopped":
-                    await self._broker.start()
-            else:
+            elif self.state == "started":
                 _LOGGER.info("MQTT Server is already running. Stop it first for a clean restart!")
+            else:
+                _LOGGER.warning(f"MQTT Server can not start from state '{self.state}'")
         except Exception:
             _LOGGER.exception(utils.default_exception_str_builder(info="during startup"))
             raise
@@ -133,7 +140,16 @@ class MQTTServer:
         try:
             if self.state == "started":
                 _LOGGER.info("Shutting down MQTT server...")
-                await self._broker.shutdown()
+                task = asyncio.create_task(self._broker.shutdown())
+                try:
+                    await asyncio.wait_for(asyncio.shield(task), timeout=SHUTDOWN_TIMEOUT)
+                except TimeoutError:
+                    _LOGGER.warning("The MQTT server did not stop in time, stopping it without the clients")
+                    task.cancel()
+                    with suppress(asyncio.CancelledError):
+                        await task
+                    if self.state == "stopping":
+                        self._broker.transitions.stopping_success()
                 _LOGGER_BROKER.info("Broker closed")
             elif self.state == "starting":
                 _LOGGER.warning(f"MQTT server is in '{self.state}' state. Waiting for it to stabilize...")
@@ -155,23 +171,25 @@ class MQTTServer:
         max_wait: float = 3.0,
         reverse: bool = False,
     ) -> None:
-        """Wait until `state == desired` (reverse=False) or `state != desired` (reverse=True), raising TimeoutError."""
-        try:
+        """Wait until `state == desired` (reverse=False) or `state != desired` (reverse=True)."""
 
-            def _check() -> bool:
-                st = self.state
-                _LOGGER.debug(f"Waiting for state :: '{st}' {'!=' if reverse else '=='} '{desired}' …")
-                return (reverse and st != desired) or (not reverse and st == desired)
+        def _check() -> bool:
+            st = self.state
+            return (reverse and st != desired) or (not reverse and st == desired)
 
-            # Fast path
-            if _check():
+        # Fast path
+        if _check():
+            return
+
+        deadline = time.monotonic() + max_wait
+        while not _check():
+            if time.monotonic() >= deadline:
+                _LOGGER.warning(
+                    f"Timeout waiting for MQTT server to reach state '{desired}' :: Current state: '{self.state}'",
+                )
                 return
-
-            async with self._state_cond:
-                await asyncio.wait_for(self._state_cond.wait_for(_check), max_wait)
-            _LOGGER.debug(f"Reached state :: '{self.state}' {'!=' if reverse else '=='} '{desired}'")
-        except TimeoutError:
-            _LOGGER.warning(f"Timeout waiting for MQTT server to reach state '{desired}' :: Current state: '{self.state}'")
+            await asyncio.sleep(0.05)
+        _LOGGER.debug(f"Reached state :: '{self.state}' {'!=' if reverse else '=='} '{desired}'")
 
 
 class BumperMQTTServerPlugin(BaseAuthPlugin):  # type: ignore[misc]

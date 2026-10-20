@@ -5,6 +5,7 @@ import contextlib
 import json
 import logging
 import random
+import re
 import ssl
 import string
 from typing import TYPE_CHECKING, Any
@@ -16,7 +17,13 @@ from cachetools import TTLCache
 
 from bumper.mqtt.handle_atr import clean_log
 from bumper.utils import utils
-from bumper.web.utils.response_helper import response_error_v8, response_success_v2
+from bumper.web.utils.response_helper import (
+    response_error_v8,
+    response_ngiot_ack,
+    response_ngiot_offline,
+    response_ngiot_success,
+    response_success_v2,
+)
 
 if TYPE_CHECKING:
     from collections.abc import MutableMapping
@@ -25,6 +32,24 @@ _LOGGER = logging.getLogger(__name__)
 HELPER_BOT_CLIENT_ID = "helperbot@bumper/helperbot"
 HELPER_BOT_CLIENT_ID_MQTT = HELPER_BOT_CLIENT_ID.replace("@", "/")
 RECONNECT_INTERVAL = 5  # seconds
+
+# `ct` values of the NGIoT bridge. `q` is request/response, `m` is fire-and-forget.
+NGIOT_CT_REQUEST = "q"
+NGIOT_CT_MESSAGE = "m"
+
+NGIOT_APN_NO_RESPONSE = frozenset({"appping"})
+
+_REQUEST_ID_PATTERN = re.compile(r"[A-Za-z0-9_-]{1,64}")
+
+
+def _sanitise_request_id(value: Any) -> str | None:
+    """Return `value` if it is safe to use as a request id, else None."""
+    if not isinstance(value, str):
+        return None
+    if _REQUEST_ID_PATTERN.fullmatch(value) is None:
+        _LOGGER.warning("Ignoring malformed request id :: %r", value[:80])
+        return None
+    return value
 
 
 class MQTTCommandModel:
@@ -80,6 +105,7 @@ class MQTTCommandModel:
         self.to_type = cmdjson.get("et")
         self.to_res = cmdjson.get("er")
         self.td = cmdjson.get("ct")
+        self.request_id = _sanitise_request_id(cmdjson.get("si")) or self.request_id
 
         payload_j = cmdjson.get("payload")
         self.payload = json.dumps(payload_j) if self.payload_type == "j" else str(payload_j)
@@ -145,6 +171,11 @@ class MQTTHelperBot:
             await asyncio.sleep(0.1)
         return self._is_connected
 
+    @property
+    def running(self) -> bool:
+        """Return whether the helper bot is keeping its connection."""
+        return self._mqtt_task is not None and not self._mqtt_task.done()
+
     async def start(self) -> None:
         """Start the helper bot and manage the MQTT connection."""
         if self._mqtt_task is None or self._mqtt_task.done():
@@ -155,8 +186,8 @@ class MQTTHelperBot:
         _LOGGER.info("Disconnecting HelperBot...")
         if self._mqtt_task:
             self._mqtt_task.cancel()
-            with contextlib.suppress(asyncio.CancelledError):
-                await self._mqtt_task
+            with contextlib.suppress(asyncio.CancelledError, TimeoutError):
+                await asyncio.wait_for(self._mqtt_task, timeout=3)
             self._mqtt_task = None
         # Explicitly set the client to None to ensure cleanup
         self._client = None
@@ -235,16 +266,24 @@ class MQTTHelperBot:
                 cmd.request_id,
                 f"Wrong api call used - used: {cmd.version} :: expected: '{cmd.VERSION_NEW}'!",
             )
+
+        if cmd.td == NGIOT_CT_MESSAGE:
+            published = await self.publish_command(cmd)
+            if not published:
+                return response_ngiot_offline(cmd.request_id)
+            return response_ngiot_ack(cmd.request_id)
+
+        if cmd.cmd_name in NGIOT_APN_NO_RESPONSE:
+            published = await self.publish_command(cmd)
+            if not published:
+                return response_ngiot_offline(cmd.request_id)
+            return response_ngiot_ack(cmd.request_id)
+
         cmd_response = await self.send_command_plain(cmd)
         if not cmd_response:
-            return response_error_v8(cmd.request_id, "mqtt wait for response failed, see logs form more information")
+            return response_ngiot_offline(cmd.request_id)
 
-        return web.Response(
-            body=json.dumps(cmd_response, separators=(",", ":")).encode("utf-8"),
-            content_type="application/octet-stream",
-            charset="utf-8",
-            headers={"x-ngiot-fmt": "b", "x-ngiot-ret": "ok"},
-        )
+        return response_ngiot_success(cmd_response, cmd.request_id)
 
     async def _send_command_p2p(self, cmd: MQTTCommandModel) -> Response:
         """Send command over MQTT - called by 'appsvr/app.do' with 'RobotControl'."""
@@ -274,7 +313,31 @@ class MQTTHelperBot:
             return response_success_v2(
                 data={cmd.cmd_name_orig: {"ret": "ok", "did": cmd.did, ret_type["key"]: ret_type["value"]}},
             )
-        return response_success_v2(data={cmd.cmd_name_orig: {"ret": "ok", "did": cmd.did}})
+
+        response_data = cmd_response.get("body", {}).get("data", {})
+        command_result = dict(response_data) if isinstance(response_data, dict) else {}
+        command_result.update({"ret": "ok", "did": cmd.did})
+        return response_success_v2(data={cmd.cmd_name_orig: command_result})
+
+    async def publish_command(self, cmd: MQTTCommandModel) -> bool:
+        """Publish a command without waiting for the robot's response.
+
+        Returns False when the command could not be published at all, which for
+        `ct=m` is indistinguishable from an unreachable endpoint.
+        """
+        try:
+            if not await self.is_connected:
+                await self.start()
+            if not await self.is_connected:
+                _LOGGER.warning("Helper bot is not connected, cannot publish")
+                return False
+            topic = cmd.create_topic()
+            _LOGGER.debug(f"Sending message :: topic={topic} :: payload={cmd.payload}")
+            await self.publish(topic, cmd.payload)
+            return True
+        except Exception:
+            _LOGGER.exception("Could not send command")
+        return False
 
     async def send_command_plain(self, cmd: MQTTCommandModel) -> str | dict[str, Any] | None:
         """Send command over MQTT."""

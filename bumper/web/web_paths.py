@@ -97,15 +97,18 @@ async def _restart_mqtt_server() -> bool:
     """Restart mqtt server."""
     if bumper_isc.mqtt_server is not None:
         _LOGGER.info("Restarting MQTT Server...")
+        helper_bot_was_running = False
+        if bumper_isc.mqtt_helperbot is not None and bumper_isc.mqtt_helperbot.running:
+            helper_bot_was_running = True
+            await bumper_isc.mqtt_helperbot.disconnect()
         await bumper_isc.mqtt_server.shutdown()
-        await bumper_isc.mqtt_server.wait_for_state_change("stopped")
-        if bumper_isc.mqtt_server.state != "stopped":
-            _LOGGER.warning("MQTT Server failed to stop")
-            return False
+        await bumper_isc.mqtt_server.wait_for_state_change("stopped", max_wait=15.0)
         await bumper_isc.mqtt_server.start()
         await bumper_isc.mqtt_server.wait_for_state_change("started")
         if bumper_isc.mqtt_server.state == "started":
             _LOGGER.info("MQTT Server restarted successfully")
+            if helper_bot_was_running and bumper_isc.mqtt_helperbot is not None:
+                await bumper_isc.mqtt_helperbot.start()
             return True
     _LOGGER.warning("MQTT Server failed to restart")
     return False
