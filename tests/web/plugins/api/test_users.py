@@ -153,3 +153,65 @@ async def test_post_users_api(webserver_client: TestClient) -> None:
         assert resp.status == 200
         json_resp = await resp.json()
         assert json_resp["result"] == "ok"
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_get_users_info_returns_the_members(webserver_client: TestClient) -> None:
+    """The app asks for the members it knows the ids of."""
+    user_repo.add("uid_one")
+    user_repo.add("uid_two")
+
+    postbody = {"todo": "GetUsersInfo", "users": ["uid_one"], "auth": {"with": "password", "userid": "IOTSDK"}}
+    async with webserver_client.post("/api/users/user.do", json=postbody) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+
+    assert json_resp["result"] == "ok"
+    assert json_resp["todo"] == "result"
+    users = json_resp["users"]
+    assert len(users) == 1
+    assert users[0]["uid"] == "uid_one"
+    assert users[0]["nick"] == bumper_isc.USER_NICKNAME_DEFAULT
+    assert users[0]["isAdmin"] is True
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_get_users_info_without_a_filter_returns_every_member(webserver_client: TestClient) -> None:
+    """Without the id list every member is returned."""
+    user_repo.add("uid_one")
+    user_repo.add("uid_two")
+
+    postbody = {"todo": "GetUsersInfo", "auth": {"with": "password", "userid": "IOTSDK"}}
+    async with webserver_client.post("/api/users/user.do", json=postbody) as resp:
+        json_resp = await resp.json()
+
+    assert {user["uid"] for user in json_resp["users"]} == {"uid_one", "uid_two"}
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_get_users_info_carries_the_stored_nickname(webserver_client: TestClient) -> None:
+    """The nickname is the display name the app shows."""
+    user_repo.add("uid_one")
+    user_repo.set_nickname("uid_one", "Kitchen robot")
+
+    postbody = {"todo": "GetUsersInfo", "users": ["uid_one"], "auth": {"with": "password", "userid": "IOTSDK"}}
+    async with webserver_client.post("/api/users/user.do", json=postbody) as resp:
+        json_resp = await resp.json()
+
+    assert json_resp["users"][0]["nick"] == "Kitchen robot"
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_modify_user_nickname(webserver_client: TestClient) -> None:
+    """The app renames the user from the profile screen."""
+    user_repo.add("uid_one")
+
+    async with webserver_client.get(
+        "/v1/private/DE/EN/dev_1234/global_e/3.15.1/google_play/1/user/center/modifyUserNickname",
+        params={"uid": "uid_one", "nickname": "Kitchen robot"},
+    ) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+
+    assert json_resp["code"] == "0000"
+    assert user_repo.get_by_id("uid_one").nickname == "Kitchen robot"

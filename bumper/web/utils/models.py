@@ -100,6 +100,7 @@ class BumperUser:
         """Bumper user init."""
         self.userid: str = userid
         self.username: str = bumper_isc.USER_USERNAME_DEFAULT
+        self.nickname: str = bumper_isc.USER_NICKNAME_DEFAULT
         self.homeids: list[str] = []
         self.devices: list[str] = []
         self.bots: list[str] = []
@@ -109,6 +110,7 @@ class BumperUser:
         return {
             "userid": self.userid,
             "username": self.username,
+            "nickname": self.nickname,
             "homeids": self.homeids,
             "devices": self.devices,
             "bots": self.bots,
@@ -119,6 +121,7 @@ class BumperUser:
         """Create a BumperUser instance from a dictionary."""
         user = cls(userid=data.get("userid", ""))
         user.username = data.get("username", bumper_isc.USER_USERNAME_DEFAULT)
+        user.nickname = data.get("nickname", bumper_isc.USER_NICKNAME_DEFAULT)
         user.homeids = data.get("homeids", [])
         user.devices = data.get("devices", [])
         user.bots = data.get("bots", [])
