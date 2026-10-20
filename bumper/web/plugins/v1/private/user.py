@@ -43,6 +43,7 @@ class UserPlugin(WebserverPlugin):
             web.route("*", f"{BASE_URL}user/changeLang", _handle_change_lang),
             web.route("*", f"{BASE_URL}user/acceptAgreementBatch", _handle_accept_agreement_batch),
             web.route("*", f"{BASE_URL}user/getMemberInfo", _handle_get_member_info),
+            web.route("*", f"{BASE_URL}user/center/modifyUserNickname", _handle_modify_user_nickname),
         ]
 
 
@@ -322,9 +323,11 @@ async def _handle_get_member_info(request: Request) -> Response:
     utils.default_log_warn_not_impl("_handle_get_member_info")
     user_id = request.query.get("uid")
     user_name = bumper_isc.USER_USERNAME_DEFAULT
+    nickname = bumper_isc.USER_NICKNAME_DEFAULT
 
     if user_id and (user := user_repo.get_by_id(user_id)):
         user_name = user.username
+        nickname = user.nickname
     return response_success_v1(
         {
             "name": "smart eco",  # TODO: improve as non static
@@ -333,7 +336,7 @@ async def _handle_get_member_info(request: Request) -> Response:
             "integral": None,
             "exp": None,
             "headIco": None,
-            "nickName": bumper_isc.USER_NICKNAME_DEFAULT,  # TODO: improve as non static
+            "nickName": nickname,
             "mobile": None,
             "email": bumper_isc.USER_MAIL_DEFAULT,  # TODO: improve as non static
             "isMember": None,
@@ -345,3 +348,21 @@ async def _handle_get_member_info(request: Request) -> Response:
             "levelList": None,
         },
     )
+
+
+async def _handle_modify_user_nickname(request: Request) -> Response:
+    """Change the display name of the user."""
+    try:
+        user_id = request.query.get("uid", "")
+        nickname = request.query.get("nickname", "").strip()
+        if not user_id or not nickname:
+            _LOGGER.warning("No uid or nickname in the request")
+            return response_success_v1(None)
+        if user_repo.get_by_id(user_id) is None:
+            _LOGGER.warning(f"No user found for {user_id} (modifyUserNickname)")
+            return response_success_v1(None)
+        user_repo.set_nickname(user_id, nickname)
+        return response_success_v1(None)
+    except Exception:
+        _LOGGER.exception(utils.default_exception_str_builder(info="during handling request"))
+    raise HTTPInternalServerError

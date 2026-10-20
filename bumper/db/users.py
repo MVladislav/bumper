@@ -76,3 +76,8 @@ class UserRepo(BaseRepo):
         """Remove home_id from user."""
         q = query_instance.userid == user_id
         self.update_list_field(q, "homeids", did, False)
+
+    def set_nickname(self, user_id: str, nickname: str) -> None:
+        """Set the display name of a user."""
+        q = query_instance.userid == user_id
+        self._upsert({"nickname": nickname}, q)

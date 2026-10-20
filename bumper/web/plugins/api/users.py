@@ -142,6 +142,29 @@ async def _handle_logout(post_body: Mapping[str, Any], __: Request) -> Response 
     return web.json_response({"todo": "result", "result": "ok"})
 
 
+async def _handle_get_users_info(post_body: Mapping[str, Any], __: Request) -> Response | None:
+    """Return the members of the household."""
+    requested = post_body.get("users")
+    requested_ids = {str(user_id) for user_id in requested} if isinstance(requested, list) else set()
+
+    users = []
+    for user in user_repo.list_all():
+        if requested_ids and user.userid not in requested_ids:
+            continue
+        users.append(
+            {
+                "avatar": "",
+                "isAdmin": True,
+                "mail": bumper_isc.USER_MAIL_DEFAULT,
+                "mobile": "",
+                "nick": user.nickname,
+                "uid": user.userid,
+            },
+        )
+
+    return web.json_response({"users": users, "result": "ok", "todo": "result"})
+
+
 # ----------- Mapping -----------
 
 _TODO_HANDLERS: dict[str, HandlerFunction] = {
@@ -153,4 +176,5 @@ _TODO_HANDLERS: dict[str, HandlerFunction] = {
     "AddOneDevice": _handle_add_one_device,
     "DeleteOneDevice": _handle_delete_one_device,
     "logout": _handle_logout,
+    "GetUsersInfo": _handle_get_users_info,
 }
