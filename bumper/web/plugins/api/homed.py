@@ -21,6 +21,20 @@ from bumper.web.utils.response_helper import response_error_v2, response_success
 
 _LOGGER = logging.getLogger(__name__)
 
+HOME_ROLE_IDS_NAMED: tuple[tuple[str, str], ...] = (
+    ("62613c516d224ab8b32468fb", "Fraternal grandpa"),  # pragma: allowlist secret
+    ("62613c516d224ab8b32468fc", "Fraternal grandma"),  # pragma: allowlist secret
+    ("62613c516d224ab8b32468fd", "Dad"),  # pragma: allowlist secret
+    ("62613c516d224ab8b32468fe", "Mom"),  # pragma: allowlist secret
+    ("62613c516d224ab8b32468ff", "Older brother"),  # pragma: allowlist secret
+    ("62613c516d224ab8b3246900", "Younger brother"),  # pragma: allowlist secret
+    ("62613c516d224ab8b3246901", "Older sister"),  # pragma: allowlist secret
+    ("62613c516d224ab8b3246902", "Younger sister"),  # pragma: allowlist secret
+    ("62613c516d224ab8b3246903", "Husband"),  # pragma: allowlist secret
+    ("62613c516d224ab8b3246904", "Wife"),  # pragma: allowlist secret
+)
+HOME_ROLE_IDS: tuple[str, ...] = tuple(role_id for role_id, _ in HOME_ROLE_IDS_NAMED)
+
 
 class HomedPlugin(WebserverPlugin):
     """Homed plugin."""
@@ -34,7 +48,10 @@ class HomedPlugin(WebserverPlugin):
             web.route("*", "/homed/home/update", _handle_home_update),
             web.route("POST", "/homed/home/delete", _handle_home_delete),
             web.route("*", "/homed/member/list", _handle_member_list),
+            web.route("*", "/homed/home/role/list", _handle_home_role_list),
+            web.route("*", "/homed/home/member/role/update", _handle_home_member_role_update),
             web.route("POST", "/homed/device/move", _handle_device_move),
+            web.route("*", "/homed/v2/matter/paa", _handle_matter_paa),
         ]
 
 
@@ -108,8 +125,6 @@ async def _handle_home_delete(request: Request) -> Response:
 
 async def _handle_member_list(request: Request) -> Response:
     """Member list."""
-    # TODO: check what's needed to be implemented
-    utils.default_log_warn_not_impl("_handle_member_list")
     try:
         home_id = request.query.get("homeId", bumper_isc.HOME_ID)
         user = user_repo.get_by_home_id(home_id)
@@ -122,9 +137,9 @@ async def _handle_member_list(request: Request) -> Response:
                         "createTime": utils.get_current_time_as_millis(),
                         "id": user.userid,
                         "isAdmin": 2,
-                        "name": bumper_isc.USER_NICKNAME_DEFAULT,  # TODO: improve as non static
-                        "roleId": "xxx",  # TODO: improve as non static
-                        "roleName": "Fraternal grandpa",  # TODO: improve as non static
+                        "name": user.nickname,
+                        "roleId": HOME_ROLE_IDS_NAMED[0][0],
+                        "roleName": HOME_ROLE_IDS_NAMED[0][1],
                         "status": 1,
                         "uid": user.userid,
                     },
@@ -134,6 +149,25 @@ async def _handle_member_list(request: Request) -> Response:
     except Exception:
         _LOGGER.exception(utils.default_exception_str_builder(info="during handling request"))
     raise HTTPInternalServerError
+
+
+async def _handle_home_role_list(_: Request) -> Response:
+    """Home role list."""
+    return response_success_v3(
+        data=[{"id": role_id, "name": name, "isUse": False} for role_id, name in HOME_ROLE_IDS_NAMED],
+    )
+
+
+async def _handle_home_member_role_update(request: Request) -> Response:
+    """Update a member's home role."""
+    _LOGGER.debug(f"Role update requested :: {await request.text()}")
+    return response_success_v3(result_key=None)
+
+
+async def _handle_matter_paa(_: Request) -> Response:
+    """Matter / PAA integration probe."""
+    _LOGGER.debug("Matter/PAA probe answered with an empty result")
+    return response_success_v3(data={}, result_key=None, include_success=True)
 
 
 async def _handle_device_move(request: Request) -> Response:

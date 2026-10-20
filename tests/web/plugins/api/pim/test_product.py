@@ -21,6 +21,23 @@ async def test_get_confignet_all(webserver_client: TestClient) -> None:
 
 
 @pytest.mark.usefixtures("clean_database")
+async def test_get_entry_group(webserver_client: TestClient) -> None:
+    """productEntryGroup.json is a top-level array, not an object.
+
+    Loading it as an object raised TypeError inside the handler and surfaced as
+    a 500 to the app. Assert on the shape so a wrong loader is caught here.
+    """
+    async with webserver_client.get("/api/pim/product/entry/group") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["code"] == 0
+        data = json_resp["data"]
+        assert isinstance(data, list)
+        assert len(data) > 0
+        assert all("name" in entry and "child" in entry for entry in data)
+
+
+@pytest.mark.usefixtures("clean_database")
 async def test_get_config_groups(webserver_client: TestClient) -> None:
     async with webserver_client.post("/api/pim/product/getConfigGroups") as resp:
         assert resp.status == 200
@@ -68,11 +85,35 @@ async def test_software_config_batch(webserver_client: TestClient) -> None:
 
 @pytest.mark.usefixtures("clean_database")
 async def test_get_share_info(webserver_client: TestClient) -> None:
+    """The app reads `shareInfo` from the root of the document."""
     async with webserver_client.post(
         "/api/pim/product/getShareInfo",
         json={"scene": "testscene"},
     ) as resp:
         assert resp.status == 200
         data = await resp.json()
-        assert data["code"] == 0
-        assert isinstance(data["data"], list)
+
+    assert data["code"] == 0
+    assert set(data["shareInfo"]) == {"keyword", "url", "shareText", "shareDesc", "shareUrl"}
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_product_setting_does_not_404(webserver_client: TestClient) -> None:
+    """`GET /api/pim/product/setting?mids=…&modules=…` returned 404 twice a session."""
+    async with webserver_client.get(
+        "/api/pim/product/setting?mids=300lc5,p95mgv&modules=fullStackYiko&lang=EN&a=undefined"
+        "&p=android&c=undefined&country=DE&plat=android&userid=user_1234",
+    ) as resp:
+        assert resp.status == 200
+        body = await resp.json()
+
+    assert body["code"] == 0
+    # The shape is a stub - `data` stays present so a caller reading it does not
+    # hit a KeyError, unlike a 404 which gives nothing at all.
+    assert body["data"] == {}
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_product_setting_without_params(webserver_client: TestClient) -> None:
+    async with webserver_client.get("/api/pim/product/setting") as resp:
+        assert resp.status == 200

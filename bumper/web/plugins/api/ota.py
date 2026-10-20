@@ -25,11 +25,12 @@ class OtaPlugin(WebserverPlugin):
         ]
 
 
-async def _handle_products_firmware_latest(request: Request, todo: bool = False) -> Response:
-    # TODO: check if we can implement a version update test to original server and if it makes sense
-    if todo is False:
-        return web.Response(status=404, body="Not Found")
+async def _handle_products_firmware_latest(request: Request) -> Response:
+    """Return the firmware the robot runs.
 
+    Bumper does not serve firmware, so the answer says that the robot runs the
+    version it already has.
+    """
     ver = request.query.get("ver", "0.0.0")
     module = request.query.get("module", "fw0")
     data = {
