@@ -6,9 +6,8 @@ from datetime import datetime
 import json
 import logging
 from pathlib import Path
-import re
 import time
-from typing import Any
+from typing import Any, overload
 
 from aiohttp import AsyncResolver
 import validators
@@ -71,6 +70,27 @@ def convert_to_millis(seconds: float) -> int:
     return round(seconds * 1000)
 
 
+# A timestamp below this limit is a number of seconds, not of milliseconds.
+_SECONDS_LIMIT = 100_000_000_000
+
+
+def to_milliseconds(timestamp: int) -> int:
+    """Return a timestamp in milliseconds.
+
+    The robot sends the time of a picture in milliseconds and the time of a map
+    in seconds. A number of seconds is scaled up; a number of milliseconds is
+    left alone.
+
+    A number of seconds of today is between one billion (2001) and a hundred
+    billion (the year 5138), while a number of milliseconds of today is above a
+    hundred billion. The values that are too small to be a time of today are
+    left alone as well.
+    """
+    if 1_000_000_000 <= timestamp < _SECONDS_LIMIT:
+        return timestamp * 1000
+    return timestamp
+
+
 def get_current_time_as_millis() -> int:
     """Get current time in millis."""
     return convert_to_millis(datetime.now(tz=bumper_isc.LOCAL_TIMEZONE).timestamp())
@@ -100,14 +120,22 @@ def str_to_bool(value: str | int | bool | None) -> bool:
     return str(value).lower() in ["true", "1", "t", "y", "on", "yes"]
 
 
-def to_int(value: Any) -> int | None:
-    """Convert save any to int."""
+@overload
+def to_int(value: Any) -> int | None: ...
+
+
+@overload
+def to_int(value: Any, default: int) -> int: ...
+
+
+def to_int(value: Any, default: int | None = None) -> int | None:
+    """Convert a value to int, falling back to `default` when it cannot be."""
     if value is None:
-        return None
+        return default
     try:
         return int(value)
     except (TypeError, ValueError):
-        return None
+        return default
 
 
 # ******************************************************************************
@@ -156,18 +184,6 @@ def get_area_code_map() -> dict[str, str]:
     except Exception:
         _LOGGER.warning(f"Could not find or read: '{config_path.name}'")
     return {}
-
-
-def check_url_not_used(url: str) -> bool:
-    """Check if a url is not in the know api list, used in the middleware for debug."""
-    config_path = Path(__file__).parent / "utils_implemented_apis.json"
-    try:
-        patterns = json.loads(config_path.read_text())
-        if isinstance(patterns, list):
-            return any(re.search(pattern, url) for pattern in patterns)
-    except Exception:
-        _LOGGER.warning(f"Could not find or read: '{config_path.name}'")
-    return False
 
 
 def load_json_array_files(filenames: list[str | Path], base_path: Path) -> list[dict[str, Any]]:

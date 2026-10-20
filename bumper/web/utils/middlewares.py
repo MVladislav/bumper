@@ -89,7 +89,7 @@ async def log_all_requests(request: Request, handler: Handler) -> StreamResponse
         # StreamResponse (and FileResponse) typically don't expose body bytes here.
         body_bytes = getattr(response, "body", None)
         if not (isinstance(response, Response) and body_bytes is not None):
-            # Body is not available (streamed or file response) — don't try to read it
+            # Body is not available (streamed or file response) - don't try to read it
             to_log["response"]["body"] = "<streamed or file response; body not available for logging>"
         else:
             if not isinstance(body_bytes, bytes | bytearray):
@@ -151,15 +151,17 @@ async def log_all_requests(request: Request, handler: Handler) -> StreamResponse
 
 async def _log_debug_request(request: Request) -> None:
     try:
+        not_covered = request.match_info.route.resource is None
         # DEBUG logger by env set to see all requests taken
-        # or to print requests which are not know (lists needs to be manually updated)
+        # or to print requests which do not match a registered route
         if (bumper_isc.DEBUG_LOGGING_API_REQUEST is True) or (
-            bumper_isc.DEBUG_LOGGING_API_REQUEST_MISSING is True and utils.check_url_not_used(request.path) is False
+            bumper_isc.DEBUG_LOGGING_API_REQUEST_MISSING is True and not_covered
         ):
             _LOGGER.info(
                 json.dumps(
                     {
-                        "warning": "Requested API is not implemented!",
+                        "warning": "Requested API is not implemented!" if not_covered else "Request debug",
+                        "not_covered": not_covered,
                         "method": request.method,
                         "url": str(request.url),
                         # "host": next((value for key, value in set(request.headers.items()) if key.lower() == "host"), ""),

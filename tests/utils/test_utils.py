@@ -81,6 +81,32 @@ def test_get_tzm_and_ts_raises() -> None:
         _, _ = utils.get_tzm_and_ts()
 
 
+def test_to_milliseconds_scales_seconds() -> None:
+    """A number of seconds is scaled up."""
+    # The robot sends the time of a map in seconds.
+    assert utils.to_milliseconds(1792439780) == 1792439780000
+
+
+def test_to_milliseconds_keeps_milliseconds() -> None:
+    """A number of milliseconds is left alone."""
+    # The robot sends the time of a picture in milliseconds.
+    assert utils.to_milliseconds(1746022105000) == 1746022105000
+
+
+def test_to_milliseconds_keeps_small_values() -> None:
+    """A value that is too small to be a time of today is left alone."""
+    assert utils.to_milliseconds(1000) == 1000
+    assert utils.to_milliseconds(0) == 0
+
+
+def test_to_milliseconds_at_the_edges() -> None:
+    """The edges of the range of seconds are handled."""
+    assert utils.to_milliseconds(999_999_999) == 999_999_999
+    assert utils.to_milliseconds(1_000_000_000) == 1_000_000_000_000
+    assert utils.to_milliseconds(99_999_999_999) == 99_999_999_999_000
+    assert utils.to_milliseconds(100_000_000_000) == 100_000_000_000
+
+
 def test_str_to_bool_true() -> None:
     assert utils.str_to_bool("True") is True
     assert utils.str_to_bool("true") is True
@@ -212,21 +238,3 @@ def test_get_area_code_map_exception() -> None:
 
 
 # ******************************************************************************
-
-
-def test_check_url_not_used_multiple_patterns() -> None:
-    urls = [
-        "/api/appsvr/app.do",
-        "/api/appsvr/some_endpoint",
-        "/api/some_other_endpoint",
-        "",
-        "/api/appsvr/app[.]do",
-        "/",
-    ]
-
-    results = [utils.check_url_not_used(url) for url in urls]
-    assert results == [True, False, False, False, False, True]
-
-
-def test_check_url_not_used_none_url() -> None:
-    assert not utils.check_url_not_used(None)
