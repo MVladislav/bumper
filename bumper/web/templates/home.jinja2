@@ -9,8 +9,8 @@
   <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
   <link rel="stylesheet" href="/static/css/custom.css" />
   <link rel="stylesheet" href="/static/fonts/inter.css" />
-  <script src="/static/js/htmx.min.js"></script>
-  <script src="/static/js/main.js"></script>
+  <script src="/static/js/htmx.min.js" defer></script>
+  <script src="/static/js/main.js" defer></script>
 </head>
 
 <body>
@@ -41,33 +41,18 @@
 
       <section>
         <!-- Section Bots -->
-        <div class="card">
-          <div class="card-header bg-dark text-white">
-            <h2 class="card-title mb-0">Bots</h2>
-          </div>
-          <div class="card-body" hx-get="/bots" hx-trigger="load, every 5s" hx-swap="innerHTML">
-            {% include 'partials/bots.jinja2' %}
-          </div>
+        <div id="bots-container" class="card" hx-get="/bots" hx-trigger="load, every 5s" hx-swap="innerHTML">
+          {% include 'partials/bots.jinja2' %}
         </div>
 
         <!-- Section Clients -->
-        <div class="card">
-          <div class="card-header bg-dark text-white">
-            <h2 class="card-title mb-0">Clients</h2>
-          </div>
-          <div class="card-body" hx-get="/clients" hx-trigger="load, every 5s" hx-swap="innerHTML">
-            {% include 'partials/clients.jinja2' %}
-          </div>
+        <div id="clients-container" class="card" hx-get="/clients" hx-trigger="load, every 5s" hx-swap="innerHTML">
+          {% include 'partials/clients.jinja2' %}
         </div>
 
         <!-- Section Users -->
-        <div class="card">
-          <div class="card-header bg-dark text-white">
-            <h2 class="card-title mb-0">Users</h2>
-          </div>
-          <div class="card-body" hx-get="/users" hx-trigger="load, every 5s" hx-swap="innerHTML">
-            {% include 'partials/users.jinja2' %}
-          </div>
+        <div id="users-container" class="card" hx-get="/users" hx-trigger="load, every 5s" hx-swap="innerHTML">
+          {% include 'partials/users.jinja2' %}
         </div>
       </section>
     </main>
@@ -89,6 +74,13 @@
       </div>
     </footer>
   </div>
+
+  <dialog id="map-viewer" class="map-viewer">
+    <img id="map-viewer-image" src="" alt="" onclick="this.closest('dialog').close()" />
+    <button type="button" class="btn btn-sm btn-secondary map-viewer-close" onclick="this.closest('dialog').close()">
+      Close
+    </button>
+  </dialog>
 </body>
 
 </html>

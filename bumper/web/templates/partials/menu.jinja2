@@ -1,0 +1,30 @@
+{% macro action_menu(type, id, name, value=none, reload=none, map=none) %}
+<details class="menu" id="menu-{{ type }}-{{ id }}" hx-preserve>
+  <summary title="Actions for {{ name }}" aria-label="Actions for {{ name }}">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+      <circle cx="8" cy="3" r="1.6" />
+      <circle cx="8" cy="8" r="1.6" />
+      <circle cx="8" cy="13" r="1.6" />
+    </svg>
+  </summary>
+  <ul class="menu-panel">
+    {% if value is not none %}
+    <li>
+      <button type="button" data-type="{{ type }}" data-id="{{ id }}" data-name="{{ name }}" data-value="{{ value }}"
+              onclick="renameEntity(this)">Rename</button>
+    </li>
+    {% endif %}
+    {% if map %}
+    <li>
+      <button type="button" data-src="/api/photo/download?id={{ map }}" data-name="Map of {{ name }}"
+              onclick="showMap(this)">Show map</button>
+    </li>
+    {% endif %}
+    <li>
+      <button type="button" data-type="{{ type }}" data-id="{{ id }}" data-name="{{ name }}" onclick="removeEntity(this)"
+              {% if reload %}hx-get="{{ reload }}" hx-target="#clean-logs-container" hx-swap="innerHTML"
+              hx-trigger="entity-removed"{% endif %}>Remove</button>
+    </li>
+  </ul>
+</details>
+{% endmacro %}
