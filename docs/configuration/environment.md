@@ -17,9 +17,15 @@ Variables not listed here are hardcoded or not configurable via environment.
 
 ## ⚙️ Feature Flags
 
-| Variable                       | Default | Description                                                                                                                                           |
-| ------------------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `CA_CERT_API_ONLY_BUMPER_CERT` | `False` | If `true`, **only** the **self-signed CA** is served. If `false`, the **bundle** includes both the **self-signed CA** and the **original system CA**. |
+| Variable                        | Default                                  | Description                                                                                                                                           |
+| ------------------------------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CA_CERT_API_ONLY_BUMPER_CERT`  | `False`                                  | If `true`, **only** the **self-signed CA** is served. If `false`, the **bundle** includes both the **self-signed CA** and the **original system CA**. |
+| `USER_USERNAME_DEFAULT`         | `bumper`                                 | Username the local account is presented with.                                                                                                         |
+| `USER_NICKNAME_DEFAULT`         | `USER_USERNAME_DEFAULT`                  | Display name of the local account. Shown as the member name in the app.                                                                               |
+| `USER_MAIL_DEFAULT`             | `${USER_USERNAME_DEFAULT}@home.local`    | Mail address the local account is presented with.                                                                                                     |
+| `PHOTO_MAX_PER_DEVICE`          | `20`                                     | How many uploaded files are kept per robot, pictures and cleaned maps alike. The oldest are dropped on every new upload.                              |
+| `CLEAN_LOG_MAX_PER_DEVICE`      | `100`                                    | How many clean log entries are kept per robot. The oldest are dropped on every new one.                                                               |
+| `WEBVIEW_TRUSTED_HOST_SUFFIXES` | `ecovacs.com,ecovacs.cn,ecouser.net,...` | Hosts the app may open in a webview. The app ships the Ecovacs domains as a fallback, add the host this instance is reached under.                    |
 
 ---
 
@@ -30,6 +36,7 @@ Variables not listed here are hardcoded or not configurable via environment.
 | `BUMPER_DATA`    | `$PWD/data`                | Directory for persistent data (database, caches).     |
 | `DB_FILE`        | `${BUMPER_DATA}/bumper.db` | Path to SQLite database file. Overrides default.      |
 | `BUMPER_CERTS`   | `$PWD/certs`               | Directory for TLS certificate files.                  |
+| `BUMPER_VOICES`  | `${BUMPER_DATA}/voices`    | Directory for the voice files the robot downloads.    |
 | `BUMPER_CA_CERT` | `$PWD/certs/ca.crt`        | Filename of CA certificate inside `BUMPER_CERTS`.     |
 | `BUMPER_CERT`    | `$PWD/certs/bumper.crt`    | Filename of server certificate inside `BUMPER_CERTS`. |
 | `BUMPER_KEY`     | `$PWD/certs/bumper.key`    | Filename of server private key inside `BUMPER_CERTS`. |

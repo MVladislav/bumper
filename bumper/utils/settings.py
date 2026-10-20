@@ -47,6 +47,9 @@ class Config:
     certs_dir = Path(os.environ.get("BUMPER_CERTS", bumper_dir / "certs"))
     certs_dir.mkdir(parents=True, exist_ok=True)  # Ensure certs directory exists or create
 
+    voice_dir = Path(os.environ.get("BUMPER_VOICES", data_dir / "voices"))
+    voice_dir.mkdir(parents=True, exist_ok=True)  # Ensure voices directory exists or create
+
     # Certs
     env_ca_cert = os.environ.get("BUMPER_CA_CERT") or os.environ.get("BUMPER_CA")
     if env_ca_cert and not os.environ.get("BUMPER_CA_CERT"):
@@ -134,9 +137,25 @@ class Config:
     shutting_down: bool = False
 
     HOME_ID: str = "781a0733923f2240cf304757"
-    USER_USERNAME_DEFAULT: str = "bumper"
-    USER_NICKNAME_DEFAULT: str = "bumper"
-    USER_MAIL_DEFAULT: str = f"{USER_USERNAME_DEFAULT}@home.local"
+    USER_USERNAME_DEFAULT: str = os.environ.get("USER_USERNAME_DEFAULT", "bumper")
+    USER_NICKNAME_DEFAULT: str = os.environ.get("USER_NICKNAME_DEFAULT", USER_USERNAME_DEFAULT)
+    USER_MAIL_DEFAULT: str = os.environ.get("USER_MAIL_DEFAULT", f"{USER_USERNAME_DEFAULT}@home.local")
+
+    # How many uploads of a kind are kept per device. The oldest are dropped on
+    # every new upload, so the database cannot grow without bound.
+    PHOTO_MAX_PER_DEVICE: int = int(os.environ.get("PHOTO_MAX_PER_DEVICE", "20"))
+    CLEAN_LOG_MAX_PER_DEVICE: int = int(os.environ.get("CLEAN_LOG_MAX_PER_DEVICE", "100"))
+
+    # Hosts the app may open in a webview. The app ships the Ecovacs domains
+    # as a fallback; add the host this instance is reached under.
+    WEBVIEW_TRUSTED_HOST_SUFFIXES: tuple[str, ...] = tuple(
+        suffix.strip()
+        for suffix in os.environ.get(
+            "WEBVIEW_TRUSTED_HOST_SUFFIXES",
+            "ecovacs.com,ecovacs.cn,ecouser.net,my.site.com,force.com,salesforce-sites.com,salesforce-scrt.com",
+        ).split(",")
+        if suffix.strip()
+    )
 
     USER_REALMS: set[str] = {"ecouser", "bumper", "USER"}
 
