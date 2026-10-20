@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from typing import TYPE_CHECKING, Any
 
 from aiohttp import web
@@ -233,4 +234,92 @@ def response_error_v9(msg: str = "Expired user login", code: str = ERR_TOKEN_INV
             "data": None,
             "success": False,
         },
+    )
+
+
+# ******************************************************************************
+# NGIoT (`/api/iot/endpoint/control`) responses.
+#
+# These differ from the v7/v8 family above: the NGIoT bridge answers HTTP 200
+# and carries the outcome in the `x-ngiot-*` headers, with an empty body. The
+# app reads those headers, so answering with a JSON body instead makes an
+# offline robot indistinguishable from a broken server.
+#
+# `x-ngiot-fmt: b` is returned even for JSON payloads. That is what the real
+# server does on every JSON response - do not "fix" it.
+
+NGIOT_CONTENT_TYPE = "application/octet-stream"
+NGIOT_ERRNO_ENDPOINT_OFFLINE = "4200"
+NGIOT_ERROR_ENDPOINT_OFFLINE = "endpoint offline"
+NGIOT_DEBUG_ENDPOINT_OFFLINE = (
+    "jmq.clusterNode.FetchClientInfo rsp==null; no clientinfo in redis which means no ping was received from "
+    "endpoint for a long time"
+)
+
+
+def _ngiot_headers(request_id: str | None, ret: str) -> dict[str, str]:
+    """Build the `x-ngiot-*` header set for a response."""
+    headers = {
+        "x-ngiot-fmt": "b",
+        "x-ngiot-ret": ret,
+    }
+    if request_id:
+        # The app sends the same opaque value as the `si` query parameter and the
+        # `X-ECO-REQUEST-ID` header.
+        headers["X-ECO-REQUEST-ID"] = request_id
+    return headers
+
+
+def response_ngiot_success(payload: Any, request_id: str | None = None) -> Response:
+    """NGIoT success response, carrying the robot's answer verbatim.
+
+    `x-ngiot-fmt` stays `b` even though the body is JSON, matching observed
+    behaviour.
+    """
+    return web.Response(
+        body=json.dumps(payload, separators=(",", ":")).encode("utf-8"),
+        content_type=NGIOT_CONTENT_TYPE,
+        charset="utf-8",
+        headers=_ngiot_headers(request_id, "ok"),
+    )
+
+
+def response_ngiot_ack(request_id: str | None = None) -> Response:
+    """NGIoT acknowledgement for the fire-and-forget variant (`ct=m`).
+
+    Shape is inferred from the request/response variant: same success headers,
+    an envelope carrying `code: 0` and no data, because the caller does not wait
+    for the robot. `tzm` is deliberately omitted - `utils.get_tzm_and_ts()`
+    raises by design when the configured local timezone is UTC, and this path
+    must not fail for that reason. The shape is inferred, not confirmed.
+    """
+    envelope = {
+        "header": {
+            "pri": 1,
+            "ts": utils.get_current_time_as_millis(),
+            "ver": "0.0.1",
+        },
+        "body": {"code": 0, "msg": "ok"},
+    }
+    return response_ngiot_success(envelope, request_id)
+
+
+def response_ngiot_offline(request_id: str | None = None) -> Response:
+    """NGIoT response for an endpoint the robot is not reachable on.
+
+    HTTP 200 with an empty body and the `x-ngiot-errno: 4200` header set, which
+    is how the real server reports an offline robot. The app renders this as
+    "offline"; an `errno 500` JSON body does not.
+    """
+    headers = _ngiot_headers(request_id, "error")
+    headers["x-ngiot-errno"] = NGIOT_ERRNO_ENDPOINT_OFFLINE
+    headers["x-ngiot-error"] = json.dumps(
+        {"error": NGIOT_ERROR_ENDPOINT_OFFLINE, "debug": NGIOT_DEBUG_ENDPOINT_OFFLINE},
+        separators=(",", ":"),
+    )
+    return web.Response(
+        body=b"",
+        content_type=NGIOT_CONTENT_TYPE,
+        charset="utf-8",
+        headers=headers,
     )
