@@ -13,14 +13,14 @@ This guide covers setting up a local development environment, running the applic
 
 ## 🛠️ Setup Local Environment
 
-**Step 1 – Clone the repository**
+**Step 1 - Clone the repository**
 
 ```sh
 git clone https://github.com/MVladislav/bumper.git
 cd bumper
 ```
 
-**Step 2 – Create and activate virtual environment, install uv**
+**Step 2 - Create and activate virtual environment, install uv**
 
 ```sh
 python3 -m venv .venv
@@ -28,7 +28,7 @@ source .venv/bin/activate
 python3 -m pip install uv
 ```
 
-**Step 3 – Install project dependencies**
+**Step 3 - Install project dependencies**
 
 ```sh
 uv sync --active --all-groups --upgrade

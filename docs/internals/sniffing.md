@@ -19,7 +19,7 @@ This guide walks you through setting up an Android emulator on Ubuntu, installin
 Install Android Studio via Snap:
 
 ```sh
-$sudo snap install android-studio --classic
+sudo snap install android-studio --classic
 ```
 
 Launch Android Studio and follow the initial setup to install the SDK and platform-tools.
@@ -43,13 +43,13 @@ _(Optional)_ Disable Quickboot file-backed feature
 [Reddit Source - fixes BTRFS issues](https://www.reddit.com/r/btrfs/comments/l8qu3l/comment/gowtd55/?utm_source=share&utm_medium=web2x&context=3):
 
 ```sh
-$echo "QuickbootFileBacked = off" >> ~/.android/advancedFeatures.ini
+echo "QuickbootFileBacked = off" >> ~/.android/advancedFeatures.ini
 ```
 
 List available AVDs:
 
 ```sh
-$~/.android/Sdk/emulator/emulator -list-avds
+~/.android/Sdk/emulator/emulator -list-avds
 ```
 
 Start the emulator with root access and writable system:
@@ -57,7 +57,7 @@ Start the emulator with root access and writable system:
 > _replace `<AVD_NAME>`_
 
 ```sh
-$~/.android/Sdk/emulator/emulator \
+~/.android/Sdk/emulator/emulator \
     -avd <AVD_NAME> \
     -writable-system \
     -no-boot-anim \
@@ -69,8 +69,8 @@ $~/.android/Sdk/emulator/emulator \
 Restart ADB as root and remount:
 
 ```sh
-$~/.android/Sdk/platform-tools/adb root
-$~/.android/Sdk/platform-tools/adb remount
+~/.android/Sdk/platform-tools/adb root
+~/.android/Sdk/platform-tools/adb remount
 ```
 
 ---
@@ -81,9 +81,9 @@ Push your custom CA into the emulator’s system trust store:
 
 ```sh
 $HASH=$(openssl x509 -inform PEM -subject_hash_old -in certs/ca.crt | head -1)
-$~/.android/Sdk/platform-tools/adb push certs/ca.crt "/system/etc/security/cacerts/${HASH}.0"
-$~/.android/Sdk/platform-tools/adb reboot
-$~/.android/Sdk/platform-tools/adb wait-for-device
+~/.android/Sdk/platform-tools/adb push certs/ca.crt "/system/etc/security/cacerts/${HASH}.0"
+~/.android/Sdk/platform-tools/adb reboot
+~/.android/Sdk/platform-tools/adb wait-for-device
 ```
 
 ---
@@ -102,7 +102,7 @@ Download and install version `2.4.1` of the Ecovacs Home APK:
 - [Ecovacs Home on Aptoide](https://ecovacs-home.en.aptoide.com/app)
 
 ```sh
-$~/.android/Sdk/platform-tools/adb install <path/to/Ecovacs_Home_2.4.1.apk>
+~/.android/Sdk/platform-tools/adb install <path/to/Ecovacs_Home_2.4.1.apk>
 ```
 
 > _Tip:_ Drag-and-drop the APK onto the emulator window.
@@ -136,7 +136,7 @@ From your project root:
 > mitm will be started with pre-defined configs inside `docker-compose-mitm.yaml`
 
 ```sh
-$docker compose -f docker-compose-mitm.yaml --compatibility config | \
+docker compose -f docker-compose-mitm.yaml --compatibility config | \
   sed 's|cpus: \([0-9]\+\(\.[0-9]\+\)*\)|cpus: "\1"|' | \
   sed '1{/^name:/d}' | \
   sed 's/published: "\(.*\)"/published: \1/' | \
@@ -153,7 +153,7 @@ Access [http://localhost:8081](http://localhost:8081) to inspect traffic.
 From your project root (where `./certs/ca.pem` lives):
 
 ```sh
-$docker run --rm -it --network host \
+docker run --rm -it --network host \
   -v $PWD/mitm:/home/mitm:ro \
   -v $PWD/certs/ca.pem:/tmp/ca.pem:ro \
   mitmproxy/mitmproxy mitmweb \
@@ -175,7 +175,7 @@ Access [http://localhost:8081](http://localhost:8081) to inspect traffic.
 Use the Python addon at `./configs/mitm.py` to filter or transform flows:
 
 ```sh
-$docker run --rm -it --network host \
+docker run --rm -it --network host \
   -v $PWD/mitm:/home/mitm:ro \
   -v $PWD/certs/ca.pem:/tmp/ca.pem:ro \
   -v $PWD/configs/mitm.py:/tmp/mitm.py:ro \

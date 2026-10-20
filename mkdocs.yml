@@ -15,6 +15,8 @@ nav:
       - Mobile App Integration: usage/mobile_app.md
   - Configuration:
       - Environment Variables: configuration/environment.md
+  - Reference:
+      - Error Codes: reference/error-codes.md
   - Internals:
       - Architecture: internals/architecture.md
       - Sniffing & Reverse Engineering: internals/sniffing.md

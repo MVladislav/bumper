@@ -69,7 +69,7 @@ If overriding DNS for top-level domains (like `*.ecovacs.com`) isn’t supported
 you’ll need to manually configure each relevant subdomain used by the app or robot to point to your **Bumper** server.
 
 EcoVacs robots and the companion app connect to a variety of domains depending on the country or region selected during setup.
-The Bumper project doesn’t care which exact domain is used—as long as the request is forwarded, it will be intercepted correctly.
+The Bumper project doesn’t care which exact domain is used-as long as the request is forwarded, it will be intercepted correctly.
 
 > 🧠 The app dynamically retrieves its domain list from the endpoint:  
 > `https://{region}.ecouser.net/api/appsvr/service/list`  

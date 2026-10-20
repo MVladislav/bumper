@@ -1,7 +1,7 @@
 # Welcome to Bumper 🤖
 
 Bumper is a local replacement for Ecovacs cloud services,
-allowing your robots and apps to connect entirely within your home network —
+allowing your robots and apps to connect entirely within your home network -
 without needing access to the original cloud.
 
 It supports both XMPP and MQTT-based models transparently.
