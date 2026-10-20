@@ -53,9 +53,9 @@ def get_product_iot_map() -> list[dict[str, Any]]:
 
 
 @cache
-def get_product_entry_group() -> dict[str, Any]:
+def get_product_entry_group() -> list[dict[str, Any]]:
     """Get product entry group."""
-    return load_json_object_files("productEntryGroup.json", get_static_dir())
+    return load_json_array_files(["productEntryGroup.json"], get_static_dir())
 
 
 @cache
@@ -68,6 +68,18 @@ def get_err_detail() -> list[dict[str, Any]]:
 def get_common_area() -> dict[str, Any]:
     """Get common area json."""
     return load_json_object_files("commonArea.json", get_static_dir())
+
+
+@cache
+def get_timezones() -> list[dict[str, Any]]:
+    """Get the timezone list."""
+    return load_json_array_files(["timezones.json"], get_static_dir())
+
+
+@cache
+def get_voices() -> dict[str, Any]:
+    """Get the per-language voice data."""
+    return load_json_object_files("voices.json", get_static_dir())
 
 
 @cache

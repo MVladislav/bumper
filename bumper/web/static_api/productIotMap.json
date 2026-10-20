@@ -504,6 +504,24 @@
     }
   },
   {
+    "classid": "298z64",
+    "product": {
+      "UILogicId": "shakespearesh_ww_h_shakespearesh5",
+      "_id": "69cc85758bd8dfb054ef91bf",
+      "icon": "6a6708899ce93b865341319a",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6a6708899ce93b865341319a",
+      "materialNo": "110-L006-1600",
+      "model": "SHAKESPEARE_S_WH_PRO_INT",
+      "name": "DEEBOT T90S PRO OMNI",
+      "ota": true,
+      "smartType": "BLAP2",
+      "status": "valid",
+      "supportType": {
+        "share": false
+      }
+    }
+  },
+  {
     "classid": "2ap5uq",
     "product": {
       "UILogicId": "goat_ww_h_goatx",
@@ -770,6 +788,24 @@
       "status": "valid",
       "supportType": {
         "share": true
+      }
+    }
+  },
+  {
+    "classid": "464mpd",
+    "product": {
+      "UILogicId": "pascalm_ww_h_pascalh5",
+      "_id": "69d5f99c3202bc2dcebf9eca",
+      "icon": "6a54641dcebccd0bd604dc2e",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6a54641dcebccd0bd604dc2e",
+      "materialNo": "110-L004-1302",
+      "model": "PASCAL_INT_LOW_W",
+      "name": "DEEBOT T90 MAX OMNI",
+      "ota": true,
+      "smartType": "BLAP2",
+      "status": "valid",
+      "supportType": {
+        "share": false
       }
     }
   },
@@ -1191,6 +1227,24 @@
     }
   },
   {
+    "classid": "64qase",
+    "product": {
+      "UILogicId": "shakespearest_ww_h_shakespearesh5",
+      "_id": "69cc877f66f40d97664b4c85",
+      "icon": "6a6708897c96fa1caa6b8703",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6a6708897c96fa1caa6b8703",
+      "materialNo": "110-L006-0902",
+      "model": "SHAKESPEARE_S_WH_MAX_INT",
+      "name": "DEEBOT T90S ULTRA OMNI",
+      "ota": true,
+      "smartType": "BLAP2",
+      "status": "valid",
+      "supportType": {
+        "share": false
+      }
+    }
+  },
+  {
     "classid": "659yh8",
     "product": {
       "UILogicId": "T9_AF_G",
@@ -1317,6 +1371,24 @@
     }
   },
   {
+    "classid": "6rywry",
+    "product": {
+      "UILogicId": "beethovenh_cn_h_w3",
+      "_id": "697b26ebfe7ffc8f5f3d3875",
+      "icon": "69cdd0a5ec1ca37d90fbf4a0",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/69cdd0a5ec1ca37d90fbf4a0",
+      "materialNo": "111-D008-0401",
+      "model": "Beethoven_Premium_OS",
+      "name": "W2S PRO",
+      "ota": true,
+      "smartType": "BT",
+      "status": "valid",
+      "supportType": {
+        "share": false
+      }
+    }
+  },
+  {
     "classid": "6v4trk",
     "product": {
       "UILogicId": "plancksh_ww_h_plancksh5",
@@ -1331,6 +1403,42 @@
       "status": "valid",
       "supportType": {
         "share": true
+      }
+    }
+  },
+  {
+    "classid": "6vff25",
+    "product": {
+      "UILogicId": "plancksphcyc_ww_h_plancksph5",
+      "_id": "6a27c71a35c24eb37431cedb",
+      "icon": "6a5f2d639ce93b8653412b5d",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6a5f2d639ce93b8653412b5d",
+      "materialNo": "110-L002-0702",
+      "model": "PLANCKS_PLUS_CYCLONE_WW_CC",
+      "name": "DEEBOT X12S OmniCyclone Care Complete",
+      "ota": true,
+      "smartType": "BLAP2",
+      "status": "valid",
+      "supportType": {
+        "share": true
+      }
+    }
+  },
+  {
+    "classid": "776ch6",
+    "product": {
+      "UILogicId": "shakespearest_ww_h_shakespearesh5",
+      "_id": "69cc87438bd8dfb054ef91e7",
+      "icon": "6a6708899ce93b865341319c",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6a6708899ce93b865341319c",
+      "materialNo": "110-L006-0901",
+      "model": "SHAKESPEARE_S_BLK_MAX_INT",
+      "name": "DEEBOT T90S ULTRA OMNI",
+      "ota": true,
+      "smartType": "BLAP2",
+      "status": "valid",
+      "supportType": {
+        "share": false
       }
     }
   },
@@ -1554,6 +1662,24 @@
     }
   },
   {
+    "classid": "833gj5",
+    "product": {
+      "UILogicId": "shakespearesh_ww_h_shakespearesh5",
+      "_id": "69cc867a8bd8dfb054ef91d3",
+      "icon": "6a6708c8b4f29489ebe72bec",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6a6708c8b4f29489ebe72bec",
+      "materialNo": "110-L006-0708",
+      "model": "SHAKESPEARE_S_BLK_PRO_CARE_INT",
+      "name": "DEEBOT T90S PRO OMNI Care Kit",
+      "ota": true,
+      "smartType": "BLAP2",
+      "status": "valid",
+      "supportType": {
+        "share": false
+      }
+    }
+  },
+  {
     "classid": "83bpgj",
     "product": {
       "UILogicId": "w2_ww_h_w2",
@@ -1725,6 +1851,24 @@
       "materialNo": "110-2419-0201",
       "model": "HALLEY",
       "name": "X5 HYBRID",
+      "ota": true,
+      "smartType": "BLAP2",
+      "status": "valid",
+      "supportType": {
+        "share": true
+      }
+    }
+  },
+  {
+    "classid": "95mizi",
+    "product": {
+      "UILogicId": "sst_ww_h_ssth5",
+      "_id": "6a7c21d3d66378790d7b1095",
+      "icon": "693143b688186041498a5c4c",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/693143b688186041498a5c4c",
+      "materialNo": "110-G005-0301",
+      "model": "SSGEN2PRO_INT",
+      "name": "DEEBOT mini 2 pro",
       "ota": true,
       "smartType": "BLAP2",
       "status": "valid",
@@ -1989,6 +2133,24 @@
     }
   },
   {
+    "classid": "9xksfr",
+    "product": {
+      "UILogicId": "shakespeares_ww_h_shakespearesh5",
+      "_id": "69e9bf05a8119be74620b5fc",
+      "icon": "6a6708899ce93b865341319c",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6a6708899ce93b865341319c",
+      "materialNo": "110-L006-1001",
+      "model": "SHAKESPEARE_S_BLK_US",
+      "name": "DEEBOT T90S OMNI",
+      "ota": true,
+      "smartType": "BLAP2",
+      "status": "valid",
+      "supportType": {
+        "share": false
+      }
+    }
+  },
+  {
     "classid": "a731ux",
     "product": {
       "UILogicId": "REECOO_V900",
@@ -2165,6 +2327,24 @@
       "status": "valid",
       "supportType": {
         "share": true
+      }
+    }
+  },
+  {
+    "classid": "b7vftn",
+    "product": {
+      "UILogicId": "pascal_ww_h_pascalh5",
+      "_id": "6a681a2b9ce93b8653413220",
+      "icon": "6a54641dd0913df1527cbeb3",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6a54641dd0913df1527cbeb3",
+      "materialNo": "110-L004-0301",
+      "model": "PASCAL_INT_HIGH_B_AMR_NBD",
+      "name": "DEEBOT T90 MAX PLUS OMNI",
+      "ota": true,
+      "smartType": "BLAP2",
+      "status": "valid",
+      "supportType": {
+        "share": false
       }
     }
   },
@@ -2904,6 +3084,24 @@
     }
   },
   {
+    "classid": "eqbdg3",
+    "product": {
+      "UILogicId": "pascalecoy_ww_h_pascalh5",
+      "_id": "69d5fa18ec1ca37d90fbf4fe",
+      "icon": "6a9e707292fe7f28e155a747",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6a9e707292fe7f28e155a747",
+      "materialNo": "110-L004-1001",
+      "model": "PASCAL_Y_INT_HIGH_W",
+      "name": "YEEDI T90 ULTRA",
+      "ota": true,
+      "smartType": "BLAP2",
+      "status": "valid",
+      "supportType": {
+        "share": false
+      }
+    }
+  },
+  {
     "classid": "eqmf84",
     "product": {
       "UILogicId": "t30mix_ww_h_t30h5",
@@ -3140,6 +3338,24 @@
       "name": "DEEBOT OZMO 960",
       "ota": true,
       "smartType": "MQ_AP",
+      "status": "valid",
+      "supportType": {
+        "share": false
+      }
+    }
+  },
+  {
+    "classid": "gjfu6f",
+    "product": {
+      "UILogicId": "shakespeares_ww_h_shakespearesh5",
+      "_id": "69cc86d366f40d97664b4c71",
+      "icon": "6a6708899ce93b865341319a",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6a6708899ce93b865341319a",
+      "materialNo": "110-L006-2301",
+      "model": "SHAKESPEARE_S_WH_INT",
+      "name": "DEEBOT T90S OMNI",
+      "ota": true,
+      "smartType": "BLAP2",
       "status": "valid",
       "supportType": {
         "share": false
@@ -3453,6 +3669,24 @@
     }
   },
   {
+    "classid": "itebxw",
+    "product": {
+      "UILogicId": "beethovenpro_cn_h_w3",
+      "_id": "69e74400a8119be74620b563",
+      "icon": "69cdd0763202bc2dcebf9e6e",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/69cdd0763202bc2dcebf9e6e",
+      "materialNo": "111-E005-0208",
+      "model": "Beethoven_Station_OS_Care_Kit",
+      "name": "W2S PRO OMNI Care Kit",
+      "ota": true,
+      "smartType": "BT",
+      "status": "valid",
+      "supportType": {
+        "share": false
+      }
+    }
+  },
+  {
     "classid": "itk04l",
     "product": {
       "UILogicId": "goat_ww_h_goat",
@@ -3503,6 +3737,24 @@
       "status": "valid",
       "supportType": {
         "share": true
+      }
+    }
+  },
+  {
+    "classid": "jhb3cb",
+    "product": {
+      "UILogicId": "shakespearesh_ww_h_shakespearesh5",
+      "_id": "69cc863f38d6518bccac5f9a",
+      "icon": "6a670889b4f29489ebe72be0",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6a670889b4f29489ebe72be0",
+      "materialNo": "110-L006-0706",
+      "model": "SHAKESPEARE_S_BLK_PRO_INT",
+      "name": "DEEBOT T90S PRO OMNI",
+      "ota": true,
+      "smartType": "BLAP2",
+      "status": "valid",
+      "supportType": {
+        "share": false
       }
     }
   },
@@ -3672,6 +3924,24 @@
     }
   },
   {
+    "classid": "kcepcm",
+    "product": {
+      "UILogicId": "omnin_ww_h_fsh5",
+      "_id": "672adea7ec0f09ee1fd5d457",
+      "icon": "669a34480e860350f5a33778",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/669a34480e860350f5a33778",
+      "materialNo": "110-2353-2602",
+      "model": "FS_OMNI_BLACK_CARE",
+      "name": "DEEBOT N30 OMNI CARE",
+      "ota": true,
+      "smartType": "MQ_AP",
+      "status": "valid",
+      "supportType": {
+        "share": true
+      }
+    }
+  },
+  {
     "classid": "kd0una",
     "product": {
       "UILogicId": "k960_ww_h_k960",
@@ -3755,6 +4025,24 @@
       "name": "DEEBOT T30S COMBO",
       "ota": true,
       "smartType": "BLAP2",
+      "status": "valid",
+      "supportType": {
+        "share": true
+      }
+    }
+  },
+  {
+    "classid": "kxqdd7",
+    "product": {
+      "UILogicId": "faradaysseh_ww_h_faradaysh5",
+      "_id": "6a446b03068cf687ed51992e",
+      "icon": "6980434ffe7ffc8f5f3d39ff",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6980434ffe7ffc8f5f3d39ff",
+      "materialNo": "110-F007-0114",
+      "model": "FARADAYS_SE_WHITE_ULTRA",
+      "name": "DEEBOT T50S PRO OMNI ULTRA",
+      "ota": true,
+      "smartType": "MQ_APM",
       "status": "valid",
       "supportType": {
         "share": true
@@ -3942,6 +4230,24 @@
     }
   },
   {
+    "classid": "mh5ssi",
+    "product": {
+      "UILogicId": "pascalm_ww_h_pascalh5",
+      "_id": "69d5f7b23202bc2dcebf9eb8",
+      "icon": "6a54641dd0913df1527cbeb3",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6a54641dd0913df1527cbeb3",
+      "materialNo": "110-L004-1301",
+      "model": "PASCAL_INT_LOW_B",
+      "name": "DEEBOT T90 MAX OMNI",
+      "ota": true,
+      "smartType": "BLAP2",
+      "status": "valid",
+      "supportType": {
+        "share": false
+      }
+    }
+  },
+  {
     "classid": "mnx7f4",
     "product": {
       "UILogicId": "DK_781_PLUS",
@@ -3996,6 +4302,24 @@
     }
   },
   {
+    "classid": "mxutiu",
+    "product": {
+      "UILogicId": "shakespeareh_ww_h_shakespeareh5",
+      "_id": "6a7d88c3d66378790d7b1230",
+      "icon": "6970782dd629494f008640b1",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6970782dd629494f008640b1",
+      "materialNo": "110-L001-1002",
+      "model": "SHAKESPEARE_X9S_BLK_INT_COSTCO",
+      "name": "X9S PRO OMNI Care",
+      "ota": true,
+      "smartType": "BLAP2",
+      "status": "valid",
+      "supportType": {
+        "share": true
+      }
+    }
+  },
+  {
     "classid": "n0vyif",
     "product": {
       "UILogicId": "keplerh_ww_h_keplerh5",
@@ -4010,6 +4334,24 @@
       "status": "valid",
       "supportType": {
         "share": true
+      }
+    }
+  },
+  {
+    "classid": "n2bdxi",
+    "product": {
+      "UILogicId": "pascalmecoy_ww_h_pascalh5",
+      "_id": "6a3b84fffce459c2e23f2195",
+      "icon": "6a9e707292fe7f28e155a746",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6a9e707292fe7f28e155a746",
+      "materialNo": "110-L004-1402",
+      "model": "PASCAL_Y_INT_LOW_W",
+      "name": "YEEDI T90 PLUS",
+      "ota": true,
+      "smartType": "BLAP2",
+      "status": "valid",
+      "supportType": {
+        "share": false
       }
     }
   },
@@ -4158,6 +4500,24 @@
     }
   },
   {
+    "classid": "nuffa3",
+    "product": {
+      "UILogicId": "beethovenpro_cn_h_w3",
+      "_id": "697b270a195f334d3a74cee9",
+      "icon": "69cdd0763202bc2dcebf9e6e",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/69cdd0763202bc2dcebf9e6e",
+      "materialNo": "111-E005-0301",
+      "model": "Beethoven_Station_OS",
+      "name": "W2S PRO OMNI",
+      "ota": true,
+      "smartType": "BT",
+      "status": "valid",
+      "supportType": {
+        "share": false
+      }
+    }
+  },
+  {
     "classid": "nv8fz5",
     "product": {
       "UILogicId": "shakespeareh_ww_h_shakespeareh5",
@@ -4218,7 +4578,7 @@
       "_id": "680851d94c296b690085ceaa",
       "icon": "6891a4b44d18f6a8b853237a",
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6891a4b44d18f6a8b853237a",
-      "materialNo": "110-24A3-0601",
+      "materialNo": "110-24A3-0503",
       "model": "PLANCK_PRO_INT",
       "name": "DEEBOT X11 PRO OMNI",
       "ota": true,
@@ -4391,6 +4751,24 @@
         "assistant": false,
         "share": true,
         "tmjl": false
+      }
+    }
+  },
+  {
+    "classid": "p5dr5n",
+    "product": {
+      "UILogicId": "shakespearesh_ww_h_shakespearesh5",
+      "_id": "69eb07c7a8119be74620b6bb",
+      "icon": "6a6708ce9ce93b86534131ae",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6a6708ce9ce93b86534131ae",
+      "materialNo": "110-L006-1901",
+      "model": "SHAKESPEARE_S_BLK_PRO_US",
+      "name": "DEEBOT T90S PRO OMNI",
+      "ota": true,
+      "smartType": "BLAP2",
+      "status": "valid",
+      "supportType": {
+        "share": false
       }
     }
   },
@@ -4689,6 +5067,24 @@
     }
   },
   {
+    "classid": "qqp88t",
+    "product": {
+      "UILogicId": "pascal_ww_h_pascalh5",
+      "_id": "6a3b88883333bda5071ca2f8",
+      "icon": "6a54641dd0913df1527cbeb3",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6a54641dd0913df1527cbeb3",
+      "materialNo": "110-L004-0303",
+      "model": "PASCAL_INT_HIGH_B_EUH",
+      "name": "DEEBOT T90 MAX PRO OMNI Care Kit",
+      "ota": true,
+      "smartType": "BLAP2",
+      "status": "valid",
+      "supportType": {
+        "share": false
+      }
+    }
+  },
+  {
     "classid": "r0321c",
     "product": {
       "UILogicId": "eulerh_ww_h_eulerh5",
@@ -4757,6 +5153,24 @@
       "status": "valid",
       "supportType": {
         "share": true
+      }
+    }
+  },
+  {
+    "classid": "rcaxyy",
+    "product": {
+      "UILogicId": "pascalmecoy_ww_h_pascalh5",
+      "_id": "6a3b85d43333bda5071ca246",
+      "icon": "6a9e707192fe7f28e155a745",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6a9e707192fe7f28e155a745",
+      "materialNo": "110-L004-1401",
+      "model": "PASCAL_Y_INT_LOW_B",
+      "name": "YEEDI T90 PLUS",
+      "ota": true,
+      "smartType": "BLAP2",
+      "status": "valid",
+      "supportType": {
+        "share": false
       }
     }
   },
@@ -5039,12 +5453,30 @@
       "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6a5f2d639ce93b8653412b5d",
       "materialNo": "110-L002-0800",
       "model": "PLANCKS_PLUS_CYCLONE_WW",
-      "name": "X12S OmniCyclone",
+      "name": "DEEBOT X12S OmniCyclone",
       "ota": true,
       "smartType": "BLAP2",
       "status": "valid",
       "supportType": {
         "share": true
+      }
+    }
+  },
+  {
+    "classid": "sjd8ix",
+    "product": {
+      "UILogicId": "pascalm_ww_h_pascalh5",
+      "_id": "6a7c2bb364794dce8a2be2cc",
+      "icon": "6a54641dcebccd0bd604dc2e",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6a54641dcebccd0bd604dc2e",
+      "materialNo": "110-L004-1303",
+      "model": "PASCAL_INT_LOW_W_COSTCO",
+      "name": "DEEBOT T90 MAX OMNI Care",
+      "ota": true,
+      "smartType": "BLAP2",
+      "status": "valid",
+      "supportType": {
+        "share": false
       }
     }
   },
@@ -5081,6 +5513,24 @@
       "status": "valid",
       "supportType": {
         "share": true
+      }
+    }
+  },
+  {
+    "classid": "sxbjy2",
+    "product": {
+      "UILogicId": "shakespeareshk_ww_h_shakespearesh5",
+      "_id": "69cc941938d6518bccac5fc9",
+      "icon": "6a6708897c96fa1caa6b8703",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6a6708897c96fa1caa6b8703",
+      "materialNo": "110-L006-1902",
+      "model": "SHAKESPEARE_S_WH_PRO_US",
+      "name": "DEEBOT T90S PRO OMNI",
+      "ota": true,
+      "smartType": "BLAP2",
+      "status": "valid",
+      "supportType": {
+        "share": false
       }
     }
   },
@@ -5157,6 +5607,24 @@
     }
   },
   {
+    "classid": "tj7mri",
+    "product": {
+      "UILogicId": "plancksphcyc_ww_h_plancksph5",
+      "_id": "6a27c746f9e474b93bc3c286",
+      "icon": "6a5f2d639ce93b8653412b5d",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6a5f2d639ce93b8653412b5d",
+      "materialNo": "110-L002-0703",
+      "model": "PLANCKS_PLUS_CYCLONE_WW_CK",
+      "name": "DEEBOT X12S OmniCyclone Care Kit",
+      "ota": true,
+      "smartType": "BLAP2",
+      "status": "valid",
+      "supportType": {
+        "share": true
+      }
+    }
+  },
+  {
     "classid": "tlthqk",
     "product": {
       "UILogicId": "t30pro_ww_h_t30h5",
@@ -5179,8 +5647,8 @@
     "product": {
       "UILogicId": "shakespeareh_ww_h_shakespeareh5",
       "_id": "69d702f8b9a59463863a47d6",
-      "icon": "6970782dd629494f008640b1",
-      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6970782dd629494f008640b1",
+      "icon": "6a2a864135c24eb37431cf04",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6a2a864135c24eb37431cf04",
       "materialNo": "110-L010-0201",
       "model": "SHAKESPEARE_AM_BLK_X12",
       "name": "DEEBOT X11S PRO OMNI",
@@ -5243,6 +5711,24 @@
       "status": "valid",
       "supportType": {
         "share": true
+      }
+    }
+  },
+  {
+    "classid": "tt93k9",
+    "product": {
+      "UILogicId": "shakespeares_ww_h_shakespearesh5",
+      "_id": "69cc882d38d6518bccac5fae",
+      "icon": "6a670889b4f29489ebe72be0",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6a670889b4f29489ebe72be0",
+      "materialNo": "110-L006-2302",
+      "model": "SHAKESPEARE_S_BLK_INT",
+      "name": "DEEBOT T90S OMNI",
+      "ota": true,
+      "smartType": "BLAP2",
+      "status": "valid",
+      "supportType": {
+        "share": false
       }
     }
   },
@@ -5373,6 +5859,24 @@
     }
   },
   {
+    "classid": "u7ytef",
+    "product": {
+      "UILogicId": "pascal_ww_h_pascalh5",
+      "_id": "69d5f637ec1ca37d90fbf4ef",
+      "icon": "6a54641dcebccd0bd604dc2e",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6a54641dcebccd0bd604dc2e",
+      "materialNo": "110-L004-0901",
+      "model": "PASCAL_INT_HIGH_W",
+      "name": "DEEBOT T90 MAX PRO OMNI",
+      "ota": true,
+      "smartType": "BLAP2",
+      "status": "valid",
+      "supportType": {
+        "share": false
+      }
+    }
+  },
+  {
     "classid": "ucn2xe",
     "product": {
       "UILogicId": "T9_PRO_G",
@@ -5459,6 +5963,24 @@
       "status": "valid",
       "supportType": {
         "share": true
+      }
+    }
+  },
+  {
+    "classid": "ukrun9",
+    "product": {
+      "UILogicId": "shakespeares_ww_h_shakespearesh5",
+      "_id": "69e9bf22e7ca2cda3039c532",
+      "icon": "6a6708897c96fa1caa6b8703",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6a6708897c96fa1caa6b8703",
+      "materialNo": "110-L006-1002",
+      "model": "SHAKESPEARE_S_WH_US",
+      "name": "DEEBOT T90S OMNI",
+      "ota": true,
+      "smartType": "BLAP2",
+      "status": "valid",
+      "supportType": {
+        "share": false
       }
     }
   },
@@ -5801,6 +6323,24 @@
       "status": "valid",
       "supportType": {
         "share": true
+      }
+    }
+  },
+  {
+    "classid": "wtucka",
+    "product": {
+      "UILogicId": "pascal_ww_h_pascalh5",
+      "_id": "69d5f525b9a59463863a47a4",
+      "icon": "6a54641dd0913df1527cbeb3",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6a54641dd0913df1527cbeb3",
+      "materialNo": "110-L004-0308",
+      "model": "PASCAL_INT_HIGH_B",
+      "name": "DEEBOT T90 MAX PRO OMNI",
+      "ota": true,
+      "smartType": "BLAP2",
+      "status": "valid",
+      "supportType": {
+        "share": false
       }
     }
   },
@@ -6344,6 +6884,24 @@
       "status": "valid",
       "supportType": {
         "share": false
+      }
+    }
+  },
+  {
+    "classid": "zrxda4",
+    "product": {
+      "UILogicId": "plancksph_ww_h_plancksph5",
+      "_id": "69fae3a4e7ca2cda3039c701",
+      "icon": "6a5f2d63b4f29489ebe726ad",
+      "iconUrl": "https://portal-ww.ecouser.net/api/pim/file/get/6a5f2d63b4f29489ebe726ad",
+      "materialNo": "110-L002-0902",
+      "model": "PLANCKS_PLUS_PRO_US",
+      "name": "DEEBOT X12S PRO OMNI",
+      "ota": true,
+      "smartType": "BLAP2",
+      "status": "valid",
+      "supportType": {
+        "share": true
       }
     }
   },
