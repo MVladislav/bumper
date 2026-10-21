@@ -159,7 +159,8 @@ async def test_every_stored_voice_has_its_file() -> None:
     were downloaded.
     """
     voice_dir = bumper_isc.voice_dir
-    if not any(voice_dir.iterdir()):
+    files = [file for file in voice_dir.iterdir() if file.is_file() and file.name != ".gitkeep"]
+    if not files:
         pytest.skip("the voice files are not downloaded")
 
     missing = [
