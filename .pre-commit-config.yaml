@@ -56,7 +56,7 @@ repos:
           - prettier@3.6.2
         exclude_types:
           - python
-        exclude: ^uv\.lock|\.(css|js)$
+        exclude: ^uv\.lock|\.(css|js)$|bumper/web/static_api/timezones\.json
 
   # Secret detection
   - repo: https://github.com/Yelp/detect-secrets
