@@ -579,7 +579,8 @@ async def test_app_config_webview_trusted_host_suffixes(webserver_client: TestCl
         json_resp = await resp.json()
 
     assert json_resp["data"][0]["code"] == "webview_trusted_host_suffixes"
-    assert "ecouser.net" in json_resp["data"][0]["content"]["suffixes"]
+    suffixes = json_resp["data"][0]["content"]["suffixes"]
+    assert {"ecovacs.com", "ecouser.net"} <= set(suffixes)
 
 
 @pytest.mark.usefixtures("clean_database")
