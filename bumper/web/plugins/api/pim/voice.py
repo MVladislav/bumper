@@ -62,11 +62,23 @@ async def _handle_download(request: Request) -> Response:
     voice directory under the id of the language.
     """
     voice_id = request.match_info.get("id", "")
-    voice_file = Path(bumper_isc.voice_dir) / voice_id
-    if not voice_id or not voice_file.is_file():
+    voice_file = _voice_file(voice_id)
+    if voice_file is None:
         _LOGGER.warning(f"No voice file for id={voice_id} :: looked in '{bumper_isc.voice_dir}'")
         return web.Response(status=404, body=b"", content_type="text/plain", charset="utf-8")
     return web.FileResponse(voice_file)  # type: ignore[return-value]
+
+
+def _voice_file(voice_id: str) -> Path | None:
+    """Return the file of the voice with this id, if the voice directory has it."""
+    try:
+        candidates = Path(bumper_isc.voice_dir).iterdir()
+    except OSError:
+        return None
+    for candidate in candidates:
+        if candidate.name == voice_id and candidate.is_file():
+            return candidate
+    return None
 
 
 def _voice(voice_lang: str) -> dict[str, Any] | None:

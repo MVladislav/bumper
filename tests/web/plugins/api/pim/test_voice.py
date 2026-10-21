@@ -4,6 +4,7 @@ from aiohttp.test_utils import TestClient
 import pytest
 
 from bumper.utils.settings import config as bumper_isc
+from bumper.web.plugins.api.pim import voice
 from bumper.web.static_api import get_voices
 
 
@@ -113,6 +114,21 @@ async def test_voice_download_serves_the_file(webserver_client: TestClient) -> N
         assert await resp.read() == b"voice-bytes"
 
     (bumper_isc.voice_dir / voice_id).unlink()
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_voice_download_stays_in_the_voice_directory(webserver_client: TestClient) -> None:
+    """The id comes from the request, so it cannot point at another file."""
+    secret = bumper_isc.voice_dir.parent / "secret.txt"
+    secret.write_text("the secret of the user")
+
+    assert voice._voice_file("../secret.txt") is None
+    assert voice._voice_file("secret.txt") is None
+
+    async with webserver_client.get("/api/pim/voice/download/..%2Fsecret.txt") as resp:
+        assert resp.status == 404
+
+    secret.unlink()
 
 
 @pytest.mark.usefixtures("clean_database")
