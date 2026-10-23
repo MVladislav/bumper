@@ -28,9 +28,9 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
 
       # https://github.com/actions/setup-python
-      - uses: actions/setup-python@v7.0.0
+      - uses: actions/setup-python@v7.1.0
         with:
-          python-version: 3.15.0
+          python-version: 3.15.1
 
       - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
       # https://github.com/actions/cache
