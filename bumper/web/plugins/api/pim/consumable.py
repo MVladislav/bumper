@@ -1,32 +1,21 @@
 """Pim consumable plugin module."""
 
-from collections.abc import Iterable
-import logging
+from typing import Any
 
 from aiohttp import web
 from aiohttp.web_request import Request
-from aiohttp.web_response import Response
-from aiohttp.web_routedef import AbstractRouteDef
 
-from bumper.utils.settings import config as bumper_isc
-from bumper.web.plugins import WebserverPlugin
-from bumper.web.utils.response_helper import response_success_v3
+from bumper.web.envelope import LEGACY_MSG, bind
+from bumper.web.hosts import pim_host
 
-_LOGGER = logging.getLogger(__name__)
+from . import PREFIX
 
-
-class ConsumablePlugin(WebserverPlugin):
-    """Consumable plugin."""
-
-    @property
-    def routes(self) -> Iterable[AbstractRouteDef]:
-        """Plugin routes."""
-        return [
-            web.route("*", "/consumable/getPurchaseUrl", _handle_get_purchase_url),
-        ]
+routes = web.RouteTableDef()
 
 
-async def _handle_get_purchase_url(_: Request) -> Response:
+@routes.view(f"{PREFIX}/consumable/getPurchaseUrl")
+@bind(LEGACY_MSG)
+async def _handle_get_purchase_url(_: Request) -> Any:
     """Get purchase url."""
     desc_side_brush = (
         "Dual Side Brushes can collect dust and send it to the Main Brush, so as to better clean the corners."
@@ -72,133 +61,130 @@ async def _handle_get_purchase_url(_: Request) -> Response:
         " it is recommended to change the Air Freshening Capsule every 60 hours or less."
     )
 
-    return response_success_v3(
-        msg_key="msg",
-        data=[
-            {
-                "id": "62df48fe55e82d6b346214d9",  # pragma: allowlist secret
-                "name": "Side Brush",
-                "icon": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/61a5f036ed50344bd5b52819",
-                "url": "",
-                "paramType": "URL",
-                "type": "sideBrush",
-                "sort": 0,
-                "desc": {
-                    "images": [
-                        f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/61d65a53a95a16082ef62b75",
-                        f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/61d65a5370c881b5d965ebd6",
-                    ],
-                    "content": desc_side_brush,
-                },
-                "hasLifeSpan": 0,
+    return [
+        {
+            "id": "62df48fe55e82d6b346214d9",  # pragma: allowlist secret
+            "name": "Side Brush",
+            "icon": f"https://{pim_host()}/api/pim/file/get/61a5f036ed50344bd5b52819",
+            "url": "",
+            "paramType": "URL",
+            "type": "sideBrush",
+            "sort": 0,
+            "desc": {
+                "images": [
+                    f"https://{pim_host()}/api/pim/file/get/61d65a53a95a16082ef62b75",
+                    f"https://{pim_host()}/api/pim/file/get/61d65a5370c881b5d965ebd6",
+                ],
+                "content": desc_side_brush,
             },
-            {
-                "id": "62df495e176a4d3d8780acdc",  # pragma: allowlist secret
-                "name": "Main Brush",
-                "icon": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/61a5f0a45afd254c7a5c6959",
-                "url": "",
-                "paramType": "URL",
-                "type": "brush",
-                "sort": 1,
-                "desc": {
-                    "images": [
-                        f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/61d65a6470c881359c65ebd7",
-                        f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/61d65a649d1b811cd1574677",
-                    ],
-                    "content": desc_main_brush,
-                },
-                "hasLifeSpan": 0,
+            "hasLifeSpan": 0,
+        },
+        {
+            "id": "62df495e176a4d3d8780acdc",  # pragma: allowlist secret
+            "name": "Main Brush",
+            "icon": f"https://{pim_host()}/api/pim/file/get/61a5f0a45afd254c7a5c6959",
+            "url": "",
+            "paramType": "URL",
+            "type": "brush",
+            "sort": 1,
+            "desc": {
+                "images": [
+                    f"https://{pim_host()}/api/pim/file/get/61d65a6470c881359c65ebd7",
+                    f"https://{pim_host()}/api/pim/file/get/61d65a649d1b811cd1574677",
+                ],
+                "content": desc_main_brush,
             },
-            {
-                "id": "6284c3c0dd78021dc557ffbe",  # pragma: allowlist secret
-                "name": "Filter",
-                "icon": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/61a5f0e472e3052928c1160a",
-                "url": "",
-                "paramType": "URL",
-                "type": "heap",
-                "sort": 2,
-                "desc": {
-                    "images": [
-                        f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/61d65a77843b5ac787b74e36",
-                        f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/61d65a77fd39e41ee3132ded",
-                    ],
-                    "content": desc_filter,
-                },
-                "hasLifeSpan": 0,
+            "hasLifeSpan": 0,
+        },
+        {
+            "id": "6284c3c0dd78021dc557ffbe",  # pragma: allowlist secret
+            "name": "Filter",
+            "icon": f"https://{pim_host()}/api/pim/file/get/61a5f0e472e3052928c1160a",
+            "url": "",
+            "paramType": "URL",
+            "type": "heap",
+            "sort": 2,
+            "desc": {
+                "images": [
+                    f"https://{pim_host()}/api/pim/file/get/61d65a77843b5ac787b74e36",
+                    f"https://{pim_host()}/api/pim/file/get/61d65a77fd39e41ee3132ded",
+                ],
+                "content": desc_filter,
             },
-            {
-                "id": "62df49bb55e82d2a2c6214de",  # pragma: allowlist secret
-                "name": "Dust Bag",
-                "icon": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/61a5f1fded5034391bb5281a",
-                "url": "",
-                "paramType": "URL",
-                "type": "dustBag",
-                "sort": 3,
-                "desc": {
-                    "images": [
-                        f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/61d65a889ee4d3820c02cd71",
-                        f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/61d65a8870c88178a665ebd8",
-                    ],
-                    "content": desc_dust_bag,
-                },
-                "hasLifeSpan": 0,
+            "hasLifeSpan": 0,
+        },
+        {
+            "id": "62df49bb55e82d2a2c6214de",  # pragma: allowlist secret
+            "name": "Dust Bag",
+            "icon": f"https://{pim_host()}/api/pim/file/get/61a5f1fded5034391bb5281a",
+            "url": "",
+            "paramType": "URL",
+            "type": "dustBag",
+            "sort": 3,
+            "desc": {
+                "images": [
+                    f"https://{pim_host()}/api/pim/file/get/61d65a889ee4d3820c02cd71",
+                    f"https://{pim_host()}/api/pim/file/get/61d65a8870c88178a665ebd8",
+                ],
+                "content": desc_dust_bag,
             },
-            {
-                "id": "6284c3c6dd7802847257ffc3",  # pragma: allowlist secret
-                "name": "Disposable Cleaning Cloth",
-                "icon": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/61d6592cfe802336b9d12e7d",
-                "url": "",
-                "paramType": "URL",
-                "type": "oneTimeCloth",
-                "sort": 5,
-                "desc": {
-                    "images": [
-                        f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/61d659c89ee4d39fc802cd6d",
-                        f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/61d659c8843b5a8597b74e35",
-                    ],
-                    "content": desc_disposable_cleaning_cloth,
-                },
-                "hasLifeSpan": 0,
+            "hasLifeSpan": 0,
+        },
+        {
+            "id": "6284c3c6dd7802847257ffc3",  # pragma: allowlist secret
+            "name": "Disposable Cleaning Cloth",
+            "icon": f"https://{pim_host()}/api/pim/file/get/61d6592cfe802336b9d12e7d",
+            "url": "",
+            "paramType": "URL",
+            "type": "oneTimeCloth",
+            "sort": 5,
+            "desc": {
+                "images": [
+                    f"https://{pim_host()}/api/pim/file/get/61d659c89ee4d39fc802cd6d",
+                    f"https://{pim_host()}/api/pim/file/get/61d659c8843b5a8597b74e35",
+                ],
+                "content": desc_disposable_cleaning_cloth,
             },
-            {
-                "id": "6284c3c9dd78023a6057ffc5",  # pragma: allowlist secret
-                "name": "Other Components",
-                "icon": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/61a5f38172e305764bc1160c",
-                "url": "",
-                "paramType": "URL",
-                "type": "unitCare",
-                "sort": 6,
-                "desc": {
-                    "images": [
-                        f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/61d65aa4fd39e4647a132dee",
-                        f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/61d65aa470c88112d965ebd9",
-                        f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/61d65aa4fe80236a34d12e7f",
-                        f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/61d65aa4fd39e448e0132def",
-                        f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/61d65aa4843b5a5049b74e37",
-                        f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/61d65aa470c881c28865ebda",
-                        f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/61d65aa470c8814e1c65ebdb",
-                        f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/629471d79dbd618f3fbb501e",
-                    ],
-                    "content": desc_other_components,
-                },
-                "hasLifeSpan": 0,
+            "hasLifeSpan": 0,
+        },
+        {
+            "id": "6284c3c9dd78023a6057ffc5",  # pragma: allowlist secret
+            "name": "Other Components",
+            "icon": f"https://{pim_host()}/api/pim/file/get/61a5f38172e305764bc1160c",
+            "url": "",
+            "paramType": "URL",
+            "type": "unitCare",
+            "sort": 6,
+            "desc": {
+                "images": [
+                    f"https://{pim_host()}/api/pim/file/get/61d65aa4fd39e4647a132dee",
+                    f"https://{pim_host()}/api/pim/file/get/61d65aa470c88112d965ebd9",
+                    f"https://{pim_host()}/api/pim/file/get/61d65aa4fe80236a34d12e7f",
+                    f"https://{pim_host()}/api/pim/file/get/61d65aa4fd39e448e0132def",
+                    f"https://{pim_host()}/api/pim/file/get/61d65aa4843b5a5049b74e37",
+                    f"https://{pim_host()}/api/pim/file/get/61d65aa470c881c28865ebda",
+                    f"https://{pim_host()}/api/pim/file/get/61d65aa470c8814e1c65ebdb",
+                    f"https://{pim_host()}/api/pim/file/get/629471d79dbd618f3fbb501e",
+                ],
+                "content": desc_other_components,
             },
-            {
-                "id": "6284c3ccdd78024ea157ffc7",  # pragma: allowlist secret
-                "name": "Air Freshener Capsule",
-                "icon": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/61d659e6fd39e48ab8132dec",
-                "url": "",
-                "paramType": "URL",
-                "type": "dModule",
-                "sort": 7,
-                "desc": {
-                    "images": [
-                        f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/61d659fa9ee4d3154402cd6e",
-                        f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/file/get/61d659fa9ee4d345dd02cd6f",
-                    ],
-                    "content": desc_air_freshener_capsule,
-                },
-                "hasLifeSpan": 0,
+            "hasLifeSpan": 0,
+        },
+        {
+            "id": "6284c3ccdd78024ea157ffc7",  # pragma: allowlist secret
+            "name": "Air Freshener Capsule",
+            "icon": f"https://{pim_host()}/api/pim/file/get/61d659e6fd39e48ab8132dec",
+            "url": "",
+            "paramType": "URL",
+            "type": "dModule",
+            "sort": 7,
+            "desc": {
+                "images": [
+                    f"https://{pim_host()}/api/pim/file/get/61d659fa9ee4d3154402cd6e",
+                    f"https://{pim_host()}/api/pim/file/get/61d659fa9ee4d345dd02cd6f",
+                ],
+                "content": desc_air_freshener_capsule,
             },
-        ],
-    )
+            "hasLifeSpan": 0,
+        },
+    ]
