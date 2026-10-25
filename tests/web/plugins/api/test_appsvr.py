@@ -1,3 +1,4 @@
+import asyncio
 import json
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -5,12 +6,14 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from aiohttp.test_utils import TestClient
 import pytest
 
-from bumper.db import bot_repo
+from bumper.db import bot_repo, identity, user_repo
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
+from bumper.web import payloads
 from bumper.web.auth_service import _generate_uid
-from bumper.web.plugins.api import appsvr
+from bumper.web.hosts import codepush_host
 from bumper.web.static_api import (
+    get_codepush_update_check,
     get_codepush_update_check_mapping,
 )
 
@@ -24,7 +27,7 @@ def app_do_base_payload() -> dict[str, Any]:
         "appVer": "1.1.6",
         "auth": {
             "realm": "ecouser.net",
-            "resource": "ECOGLOBLEac5ae987",
+            "resource": "ECOGLOBLE00000000",
             "token": "token_1234",
             "userid": USER_ID,
             "with": "users",
@@ -40,6 +43,9 @@ def app_do_base_payload() -> dict[str, Any]:
 
 @pytest.mark.usefixtures("clean_database", "helper_bot")
 async def test_handle_app_do_global_device_list(webserver_client: TestClient, app_do_base_payload: dict[str, Any]) -> None:
+    user_repo.add(USER_ID)
+    user_repo.add("second_user")
+
     # Test GetGlobalDeviceList
     data_global_device_list = app_do_base_payload.copy()
     data_global_device_list["todo"] = "GetGlobalDeviceList"
@@ -49,8 +55,17 @@ async def test_handle_app_do_global_device_list(webserver_client: TestClient, ap
         assert json_resp["ret"] == "ok"
         assert len(json_resp["devices"]) == 0
 
-    # Test GetGlobalDeviceList - with bot added
+    # Test GetGlobalDeviceList - every local account sees the shared bot
     bot_repo.add("sn_1234", "did_1234", "ls1ok3", "res_1234", "eco-ng")
+    identity.assign_bot_to_all_users("did_1234")
+    async with webserver_client.post("/api/appsvr/app.do", json=data_global_device_list) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert len(json_resp["devices"]) == 1
+
+    data_global_device_list["auth"]["userid"] = "second_user"
+    data_global_device_list["userid"] = "second_user"
     async with webserver_client.post("/api/appsvr/app.do", json=data_global_device_list) as resp:
         assert resp.status == 200
         json_resp = await resp.json()
@@ -269,6 +284,14 @@ async def test_handle_app_config(webserver_client: TestClient) -> None:
         assert json_resp["ret"] == "ok"
         assert json_resp["data"] == []
 
+    # Test known code: goat_h5_url_list
+    async with webserver_client.get("/api/appsvr/app/config?code=goat_h5_url_list") as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert json_resp["data"][0]["code"] == "goat_h5_url_list"
+        assert "rtk_install_method" in json_resp["data"][0]["content"]
+
     # Test known code: globalapp_netcfg_h5_url_list
     async with webserver_client.get("/api/appsvr/app/config?code=globalapp_netcfg_h5_url_list") as resp:
         assert resp.status == 200
@@ -290,16 +313,27 @@ async def test_service_list_api(webserver_client: TestClient) -> None:
         assert resp.status == 200
         json_resp = await resp.json()
         assert json_resp["ret"] == "ok"
-        assert json_resp["data"]["account"].startswith("users-base.")
+        # Every service is served by the same server, so the answer names the
+        # service and the domain, without the region of the cloud.
+        assert json_resp["data"]["account"] == f"users-base.{bumper_isc.DOMAIN_MAIN}"
+        assert json_resp["data"]["magw"] == f"api-app.{bumper_isc.DOMAIN_MAIN}"
         assert json_resp["data"]["dc"] == "eu"
         assert json_resp["data"]["setApConfig"]["a"] == "de"
+        # The broker of the MQTT keeps its name: the router sends every host
+        # with an "mq" in it to the MQTT port.
+        assert json_resp["data"]["jmq"].startswith("jmq-")
+        assert json_resp["data"]["jmq"] == f"jmq-ngiot-eu.{bumper_isc.DOMAIN_MAIN}"
+        # The broker of the XMPP comes with the port it listens on.
+        assert json_resp["data"]["msgcloud"].endswith(f":{bumper_isc.XMPP_LISTEN_PORT_TLS}")
+        # The other domain has its own services.
+        assert json_resp["data"]["bigdata"] == f"bigdata-europe.{bumper_isc.DOMAIN_SEC}"
 
     # Test with no area param
     async with webserver_client.get("/api/appsvr/service/list") as resp:
         assert resp.status == 200
         json_resp = await resp.json()
         assert json_resp["ret"] == "ok"
-        assert json_resp["data"]["account"].startswith("users-base.")
+        assert json_resp["data"]["account"] == f"users-base.{bumper_isc.DOMAIN_MAIN}"
         assert json_resp["data"]["dc"] == utils.get_dc_code(bumper_isc.ECOVACS_DEFAULT_COUNTRY)
         assert json_resp["data"]["setApConfig"]["a"] == bumper_isc.ECOVACS_DEFAULT_COUNTRY
 
@@ -414,10 +448,10 @@ def test_include_product_iot_map_info() -> None:
         },
     }
     # Patch get_product_iot_map to return a matching classid
-    appsvr.get_product_iot_map = lambda: [product_iot]
+    payloads.get_product_iot_map = lambda: [product_iot]
 
     # Test - no smartType set
-    result = appsvr._include_product_iot_map_info(bot)
+    result = payloads.device_info(bot)
     assert result is not None
     assert result["pid"] == "pid1"
     assert result["product_category"] == "DEEBOT"
@@ -431,7 +465,7 @@ def test_include_product_iot_map_info() -> None:
 
     # Test - smartType set as 'MQ_AP'
     product_iot["product"]["smartType"] = "MQ_AP"
-    result = appsvr._include_product_iot_map_info(bot)
+    result = payloads.device_info(bot)
     assert result is not None
     assert result["pid"] == "pid1"
     assert result["product_category"] == "DEEBOT"
@@ -445,7 +479,7 @@ def test_include_product_iot_map_info() -> None:
 
     # Test - smartType set as 'BLAP'
     product_iot["product"]["smartType"] = "BLAP"
-    result = appsvr._include_product_iot_map_info(bot)
+    result = payloads.device_info(bot)
     assert result is not None
     assert result["pid"] == "pid1"
     assert result["product_category"] == "DEEBOT"
@@ -506,6 +540,53 @@ async def test_device_prop_list_api(webserver_client: TestClient) -> None:
             for prop in json_resp["data"]["props"]:
                 assert "value" in prop
                 assert "ts" in prop
+
+
+@pytest.mark.usefixtures("clean_database", "helper_bot")
+async def test_a_property_that_is_not_one_of_the_robot_does_not_ask_the_robot(webserver_client: TestClient) -> None:
+    """The API answers the property itself, so the robot is not asked for it."""
+    params = "?did=did_1234&res=res_1234&mid=mid_1234&props=OfflineReason"
+    with patch.object(bumper_isc, "mqtt_helperbot", new_callable=MagicMock) as mock_helperbot:
+        mock_helperbot.send_command_plain = AsyncMock(return_value={"body": {"data": {"battery": 100}}})
+        async with webserver_client.get(f"/api/appsvr/device/prop/list{params}") as resp:
+            assert resp.status == 200
+            json_resp = await resp.json()
+            assert json_resp["ret"] == "ok"
+            assert json_resp["data"]["props"] == []
+            mock_helperbot.send_command_plain.assert_not_called()
+
+
+@pytest.mark.usefixtures("clean_database", "helper_bot")
+async def test_every_property_of_the_robot_is_asked_for(webserver_client: TestClient) -> None:
+    """A property of the robot is asked for, whatever its name is."""
+    params = "?did=did_1234&res=res_1234&mid=mid_1234&props=onBattery,onCleanInfo"
+    with patch.object(bumper_isc, "mqtt_helperbot", new_callable=MagicMock) as mock_helperbot:
+        mock_helperbot.send_command_plain = AsyncMock(return_value={"body": {"data": {"value": 72}}})
+        async with webserver_client.get(f"/api/appsvr/device/prop/list{params}") as resp:
+            assert resp.status == 200
+            json_resp = await resp.json()
+            assert [prop["key"] for prop in json_resp["data"]["props"]] == ["onBattery", "onCleanInfo"]
+
+            # The robot is asked with the command of the property.
+            commands = [call.args[0].cmd_name for call in mock_helperbot.send_command_plain.call_args_list]
+            assert sorted(commands) == ["getBattery", "getCleanInfo"]
+
+
+@pytest.mark.usefixtures("clean_database", "helper_bot")
+async def test_the_device_prop_list_answers_inside_the_budget_of_the_app(webserver_client: TestClient) -> None:
+    """A robot that stays silent does not hold the request past the budget."""
+    params = "?did=did_1234&res=res_1234&mid=mid_1234&props=onBattery"
+
+    async def _silent(*_args: Any, **_kwargs: Any) -> None:
+        await asyncio.sleep(30)
+
+    with patch.object(bumper_isc, "mqtt_helperbot", new_callable=MagicMock) as mock_helperbot:
+        mock_helperbot.send_command_plain = AsyncMock(side_effect=_silent)
+        with patch.object(bumper_isc, "HELPER_BOT_TIMEOUT", 0.5):
+            async with webserver_client.get(f"/api/appsvr/device/prop/list{params}") as resp:
+                assert resp.status == 200
+                json_resp = await resp.json()
+                assert json_resp["data"]["props"] == []
 
 
 @pytest.mark.usefixtures("clean_database")
@@ -586,12 +667,51 @@ async def test_app_config_webview_trusted_host_suffixes(webserver_client: TestCl
 @pytest.mark.usefixtures("clean_database")
 async def test_device_nickname(webserver_client: TestClient) -> None:
     """The app renames the robot from the device settings."""
-    bot_repo.add("sn_1234", "did_1234", "p95mgv", "rljY", "eco-ng")
+    bot_repo.add("sn_1234", "did_1234", "p95mgv", "res1", "eco-ng")
 
     async with webserver_client.put(
         "/api/appsvr/device/did_1234/nickname",
-        json={"nickname": "DEEBOT T10 Test", "res": "rljY"},
+        json={"nickname": "DEEBOT T10 Test", "res": "res1"},
     ) as resp:
         assert resp.status == 200
 
     assert bot_repo.get("did_1234").nick == "DEEBOT T10 Test"
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_the_codepush_package_is_served_from_bumper(webserver_client: TestClient) -> None:
+    """The package of a deployment is served from the CodePush directory."""
+    deployment_key = "TESTDEPLOYMENTKEY"
+    package = bumper_isc.codepush_dir / deployment_key
+    package.write_bytes(b"the package")
+
+    try:
+        async with webserver_client.get(f"/api/appsvr/codepush/download/{deployment_key}") as resp:
+            assert resp.status == 200
+            assert await resp.read() == b"the package"
+    finally:
+        package.unlink(missing_ok=True)
+
+    # A deployment without a package is not served.
+    async with webserver_client.get(f"/api/appsvr/codepush/download/{deployment_key}") as resp:
+        assert resp.status == 404
+
+    # A key that is not a key of a deployment does not leave the directory.
+    async with webserver_client.get("/api/appsvr/codepush/download/..%2F..%2Fetc%2Fpasswd") as resp:
+        assert resp.status == 404
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_the_codepush_update_check_points_at_bumper(webserver_client: TestClient) -> None:
+    """The url of the package names the host that answers for Bumper."""
+    deployment_key = next(iter(get_codepush_update_check()))
+
+    with patch.object(bumper_isc, "CODEPUSH_LOCAL_PACKAGE", True):
+        async with webserver_client.get(
+            f"/api/appsvr/codepush/checkupdate?deployment_key={deployment_key}&app_version=1.0.0",
+        ) as resp:
+            assert resp.status == 200
+            json_resp = await resp.json()
+            assert json_resp["data"]["update_info"]["download_url"] == (
+                f"https://{codepush_host()}/api/appsvr/codepush/download/{deployment_key}"
+            )
