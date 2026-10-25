@@ -153,7 +153,7 @@ class XMPPAsyncClient:
 
             if bumper_isc.DEBUG_LOGGING_XMPP_RESPONSE is True:
                 _LOGGER_CLIENT.info(f"XMPP SENDING to  :: ({self.address[0]}:{self.address[1]})")
-                _LOGGER_CLIENT.info(f"XMPP SENDING cmd :: {command}")  # codeql[py/clear-text-logging-sensitive-data]
+                _LOGGER_CLIENT.info(f"XMPP SENDING cmd :: {command}")  # lgtm[py/clear-text-logging-sensitive-data]
 
             self.transport.write(command.encode())
         except Exception:
