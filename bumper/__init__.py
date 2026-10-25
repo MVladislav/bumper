@@ -7,7 +7,7 @@ import logging
 from pathlib import Path
 import sys
 
-from bumper.db import bot_repo, client_repo, token_repo
+from bumper.db import bot_repo, client_repo, identity, token_repo, user_repo
 from bumper.db.migration import migrate_db
 from bumper.mqtt import helper_bot, server as server_mqtt
 from bumper.utils import utils
@@ -48,8 +48,11 @@ async def start_configuration() -> None:
 
     migrate_db()
 
+    identity.reconcile_users()
+    identity.reconcile_bot_owners()
     bot_repo.reset_all_connections()
     client_repo.reset_all_connections()
+    client_repo.reconcile(user_repo.list_all())
 
     if bumper_isc.BUMPER_PROXY_MQTT is True:
         _LOGGER.info("Proxy MQTT Enabled")
@@ -63,7 +66,12 @@ async def start_configuration() -> None:
         ],
     )
     # bumper_isc.mqtt_helperbot = helper_bot.MQTTHelperBot(bumper_isc.bumper_listen, bumper_isc.MQTT_LISTEN_PORT_TLS, True)
-    bumper_isc.mqtt_helperbot = helper_bot.MQTTHelperBot(bumper_isc.bumper_listen, bumper_isc.MQTT_LISTEN_PORT, False)
+    bumper_isc.mqtt_helperbot = helper_bot.MQTTHelperBot(
+        bumper_isc.bumper_listen,
+        bumper_isc.MQTT_LISTEN_PORT,
+        False,
+        bumper_isc.HELPER_BOT_TIMEOUT,
+    )
     bumper_isc.web_server = server_web.WebServer(
         [
             server_web.WebserverBinding(bumper_isc.bumper_listen, int(bumper_isc.WEB_SERVER_TLS_LISTEN_PORT), True),

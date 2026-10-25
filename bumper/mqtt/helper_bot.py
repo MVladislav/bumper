@@ -15,14 +15,14 @@ from aiohttp.web_response import Response
 from aiomqtt import Client as MQTTClient, MqttError, Topic
 from cachetools import TTLCache
 
+from bumper.db import bot_repo
 from bumper.mqtt.handle_atr import clean_log
 from bumper.utils import utils
-from bumper.web.utils.response_helper import (
-    response_error_v8,
+from bumper.web.envelope import (
+    TODO_RET,
     response_ngiot_ack,
     response_ngiot_offline,
     response_ngiot_success,
-    response_success_v2,
 )
 
 if TYPE_CHECKING:
@@ -31,6 +31,29 @@ if TYPE_CHECKING:
 _LOGGER = logging.getLogger(__name__)
 HELPER_BOT_CLIENT_ID = "helperbot@bumper/helperbot"
 HELPER_BOT_CLIENT_ID_MQTT = HELPER_BOT_CLIENT_ID.replace("@", "/")
+
+
+def _bridge_success(data: Any) -> web.Response:
+    """Answer with the legacy bridge shape: `{"code": 0, "todo": "result", "ret": "ok", …}`."""
+    return web.json_response(TODO_RET.render(data))
+
+
+def _bridge_error(request_id: str, error: str) -> web.Response:
+    """Answer the way the legacy bridge does when the robot does not answer.
+
+    The errno of an unreachable robot is 4200; the web layer answers the same
+    way in `response_error_endpoint_offline`.
+    """
+    return web.json_response(
+        {
+            "id": request_id,
+            "errno": 500,
+            "ret": "fail",
+            "debug": error,
+        },
+    )
+
+
 RECONNECT_INTERVAL = 5  # seconds
 
 # `ct` values of the NGIoT bridge. `q` is request/response, `m` is fire-and-forget.
@@ -148,6 +171,21 @@ class MQTTCommandModel:
         )
 
 
+def _fw_ver_of(payload: str) -> str:
+    """Return the firmware version of the header of an answer of a robot."""
+    try:
+        data = json.loads(payload)
+    except (TypeError, ValueError):
+        return ""
+    if not isinstance(data, dict):
+        return ""
+    header = data.get("header")
+    if not isinstance(header, dict):
+        return ""
+    fw_ver = header.get("fwVer")
+    return fw_ver if isinstance(fw_ver, str) else ""
+
+
 class MQTTHelperBot:
     """Helper bot, which converts commands from the rest api to mqtt ones."""
 
@@ -160,6 +198,7 @@ class MQTTHelperBot:
         self._is_connected = False  # Track connection state
         self._client: MQTTClient | None = None  # MQTT client instance
         self._commands: MutableMapping[str, CommandDto] = TTLCache(maxsize=timeout * 60, ttl=timeout * 1.1)
+        self._fw_vers: dict[str, str] = {}
         self._mqtt_task: asyncio.Task[None] | None = None  # Task for managing MQTT connection
 
     @property
@@ -237,18 +276,18 @@ class MQTTHelperBot:
 
         msg = f"Unsupported version :: '{cmd.version}'"
         _LOGGER.error(msg)
-        return response_error_v8(cmd.request_id, msg)
+        return _bridge_error(cmd.request_id, msg)
 
     async def _send_command_old(self, cmd: MQTTCommandModel) -> Response:
         """Send command over MQTT - called by '/iot/devmanager.do'."""
         if cmd.version != cmd.VERSION_OLD:
-            return response_error_v8(
+            return _bridge_error(
                 cmd.request_id,
                 f"Wrong api call used - used: {cmd.version} :: expected: '{cmd.VERSION_OLD}'!",
             )
         cmd_response = await self.send_command_plain(cmd)
         if not cmd_response:
-            return response_error_v8(cmd.request_id, "mqtt wait for response failed, see logs form more information")
+            return _bridge_error(cmd.request_id, "mqtt wait for response failed, see logs form more information")
 
         return web.json_response(
             {
@@ -262,7 +301,7 @@ class MQTTHelperBot:
     async def _send_command_new(self, cmd: MQTTCommandModel) -> Response:
         """Send command over MQTT - called by 'iot/endpoint/control'."""
         if cmd.version != cmd.VERSION_NEW:
-            return response_error_v8(
+            return _bridge_error(
                 cmd.request_id,
                 f"Wrong api call used - used: {cmd.version} :: expected: '{cmd.VERSION_NEW}'!",
             )
@@ -288,15 +327,15 @@ class MQTTHelperBot:
     async def _send_command_p2p(self, cmd: MQTTCommandModel) -> Response:
         """Send command over MQTT - called by 'appsvr/app.do' with 'RobotControl'."""
         if cmd.version != cmd.VERSION_P2P:
-            return response_error_v8(
+            return _bridge_error(
                 cmd.request_id,
                 f"Wrong api call used - used: {cmd.version} :: expected: '{cmd.VERSION_P2P}'!",
             )
         cmd_response = await self.send_command_plain(cmd)
         if not cmd_response:
-            return response_error_v8(cmd.request_id, "mqtt wait for response failed, see logs form more information")
+            return _bridge_error(cmd.request_id, "mqtt wait for response failed, see logs form more information")
         if not isinstance(cmd_response, dict):
-            return response_error_v8(cmd.request_id, "Unknown result return from bot")
+            return _bridge_error(cmd.request_id, "Unknown result return from bot")
 
         ret_type: dict[str, Any] | None = None
         if cmd.cmd_name == "getBattery":
@@ -306,18 +345,18 @@ class MQTTHelperBot:
             mode = "SlotCharging" if is_charging == 1 else "SlotIdle"
             ret_type = {"key": "type", "value": mode}
         elif cmd.cmd_name in {"charge", "clean"}:
-            return response_success_v2(
-                data={cmd.cmd_name_orig: {"did": cmd.did, "ret": cmd_response.get("body", {}).get("msg", "error")}},
+            return _bridge_success(
+                {cmd.cmd_name_orig: {"did": cmd.did, "ret": cmd_response.get("body", {}).get("msg", "error")}},
             )
         if ret_type is not None:
-            return response_success_v2(
-                data={cmd.cmd_name_orig: {"ret": "ok", "did": cmd.did, ret_type["key"]: ret_type["value"]}},
+            return _bridge_success(
+                {cmd.cmd_name_orig: {"ret": "ok", "did": cmd.did, ret_type["key"]: ret_type["value"]}},
             )
 
         response_data = cmd_response.get("body", {}).get("data", {})
         command_result = dict(response_data) if isinstance(response_data, dict) else {}
         command_result.update({"ret": "ok", "did": cmd.did})
-        return response_success_v2(data={cmd.cmd_name_orig: command_result})
+        return _bridge_success({cmd.cmd_name_orig: command_result})
 
     async def publish_command(self, cmd: MQTTCommandModel) -> bool:
         """Publish a command without waiting for the robot's response.
@@ -340,13 +379,13 @@ class MQTTHelperBot:
         return False
 
     async def send_command_plain(self, cmd: MQTTCommandModel) -> str | dict[str, Any] | None:
-        """Send command over MQTT."""
+        """Send command over MQTT and wait for the answer of the robot."""
         try:
             if not await self.is_connected:
                 await self.start()
 
             topic = cmd.create_topic()
-            command_dto = CommandDto(cmd.payload_type)
+            command_dto = CommandDto(cmd.payload_type, cmd.did or "")
             self._commands[cmd.request_id] = command_dto
 
             _LOGGER.debug(f"Sending message :: topic={topic} :: payload={cmd.payload}")
@@ -366,6 +405,27 @@ class MQTTHelperBot:
             self._commands.pop(cmd.request_id, None)
         return None
 
+    def _remember_fw_ver(self, did: str, payload: str) -> None:
+        """Save the firmware version the robot reports in the header."""
+        if self._fw_vers.get(did) and "fwVer" not in payload:
+            return
+
+        fw_ver = _fw_ver_of(payload)
+        if not fw_ver or not did:
+            return
+
+        known = self._fw_vers.get(did)
+        if known is None:
+            bot = bot_repo.get(did)
+            known = bot.fw_ver if bot is not None else ""
+        if fw_ver == known:
+            self._fw_vers[did] = fw_ver
+            return
+
+        self._fw_vers[did] = fw_ver
+        bot_repo.set_fw_ver(did, fw_ver)
+        _LOGGER.info(f"Firmware version of bot {did} :: {fw_ver}")
+
     async def publish(self, topic: str, payload: str) -> None:
         """Publish message."""
         if not self._client:
@@ -381,6 +441,7 @@ class MQTTHelperBot:
             _LOGGER.debug("wait_for_resp timeout reached")
         except asyncio.CancelledError:
             _LOGGER.warning("wait_for_resp cancelled by asyncio", exc_info=True)
+            raise
         except Exception:
             _LOGGER.exception(utils.default_exception_str_builder(info="during wait for response"))
         return None
@@ -401,11 +462,17 @@ class MQTTHelperBot:
             _LOGGER.debug(f"Got message :: topic={topic.value} :: payload={decoded_payload}")
             topic_split = topic.value.split("/")  # Use `topic.value` to get the string representation
             if topic_split[1] == "p2p" and topic_split[10] in self._commands:
-                self._commands[topic_split[10]].add_response(decoded_payload)
-            elif topic_split[1] == "atr" and topic_split[2] in ("onStats", "reportStats"):
-                clean_log(did=topic_split[3], rid=topic_split[5], payload=decoded_payload)
+                command = self._commands[topic_split[10]]
+                self._remember_fw_ver(command.did, decoded_payload)
+                command.add_response(decoded_payload)
+            elif topic_split[1] == "atr" and topic_split[2] in ("onStats", "reportStats", "onLastTimeStats"):
+                clean_log(
+                    did=topic_split[3],
+                    rid=topic_split[5],
+                    payload=decoded_payload,
+                    event_type=topic_split[2],
+                )
             elif topic_split[1] == "atr":
-                # pass  # NOTE: check later to use for some server side information to display
                 _LOGGER.debug(
                     {
                         "info": "ATR :: Provided message is not implemented to be processed",
@@ -439,11 +506,17 @@ class MQTTHelperBot:
 class CommandDto:
     """Command DTO."""
 
-    def __init__(self, payload_type: str) -> None:
+    def __init__(self, payload_type: str, did: str = "") -> None:
         """Command DTO init."""
         self._payload_type = payload_type
+        self._did = did
         self._event = asyncio.Event()
         self._response: str | bytes | None = None
+
+    @property
+    def did(self) -> str:
+        """Return the did of the robot the command was sent to."""
+        return self._did
 
     async def wait_for_response(self) -> str | dict[str, Any] | None:
         """Wait for the response to be received."""
