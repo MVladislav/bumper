@@ -47,16 +47,18 @@ async def test_devmgr(webserver_client: TestClient, helper_bot: MQTTHelperBot) -
         "payloadType": "j",
         "td": "q",
         "toId": "did_1234",
-        "toRes": "Gy2C",
+        "toRes": "res3",
         "toType": "p95mgv",
     }
 
-    # Test return fail timeout
+    # The robot has no broker connection, so the endpoint is offline.
     async with webserver_client.post("/api/iot/devmanager.do", json=postbody) as resp:
         assert resp.status == 200
         test_resp = await resp.json()
         assert test_resp["ret"] == "fail"
-        assert test_resp["debug"] == "mqtt wait for response failed, see logs form more information"
+        assert test_resp["errno"] == 4200
+        assert test_resp["error"] == "endpoint offline"
+        assert "debug" in test_resp
 
     # Test return get status (NOTE: Fake, not useful, needs to be improved)
     command_getstatus_resp = {
@@ -65,10 +67,70 @@ async def test_devmgr(webserver_client: TestClient, helper_bot: MQTTHelperBot) -
         "ret": "ok",
     }
     helper_bot.send_command = mock.MagicMock(return_value=async_return(web.json_response(command_getstatus_resp)))
+    with mock.patch("bumper.web.plugins.api.iot._bot_mqtt_connected", return_value=True):
+        async with webserver_client.post("/api/iot/devmanager.do", json=postbody) as resp:
+            assert resp.status == 200
+            test_resp = await resp.json()
+            assert test_resp["ret"] == "ok"
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_devmgr_reports_an_offline_robot(webserver_client: TestClient) -> None:
+    """An unknown robot is reported as offline.
+
+    `/api/iot/devmanager.do` answers
+    `{"ret": "fail", "errno": 4200, "error": "endpoint offline", "debug": …}`.
+    An answer of errno 500 after the helper timeout is indistinguishable from a
+    broken server to the app, which gives up after 15 seconds.
+    """
+    bot_repo.add("sn_off", "did_off", "p95mgv", "res1", "eco-ng")
+    postbody = {
+        "cmdName": "getBattery",
+        "payload": {"header": {"pri": "1"}},
+        "payloadType": "j",
+        "td": "q",
+        "toId": "did_off",
+        "toRes": "res3",
+        "toType": "p95mgv",
+    }
+
     async with webserver_client.post("/api/iot/devmanager.do", json=postbody) as resp:
         assert resp.status == 200
-        test_resp = await resp.json()
-        assert test_resp["ret"] == "ok"
+        body = await resp.json()
+
+    assert body["ret"] == "fail"
+    assert body["errno"] == 4200
+    assert body["error"] == "endpoint offline"
+    assert "debug" in body
+
+
+@pytest.mark.usefixtures("clean_database", "helper_bot")
+async def test_devmgr_times_out_when_the_robot_does_not_answer(
+    webserver_client: TestClient,
+) -> None:
+    """A robot that is on the broker but does not answer is a timeout.
+
+    That is a different condition than an offline robot, and the official
+    server does not report it as errno 4200.
+    """
+    bot_repo.add("sn_slow", "did_slow", "p95mgv", "res1", "eco-ng")
+    postbody = {
+        "cmdName": "getBattery",
+        "payload": {"header": {"pri": "1"}},
+        "payloadType": "j",
+        "td": "q",
+        "toId": "did_slow",
+        "toRes": "res3",
+        "toType": "p95mgv",
+    }
+
+    with mock.patch("bumper.web.plugins.api.iot._bot_mqtt_connected", return_value=True):
+        async with webserver_client.post("/api/iot/devmanager.do", json=postbody) as resp:
+            assert resp.status == 200
+            body = await resp.json()
+
+    assert body["ret"] == "fail"
+    assert body["debug"] == "mqtt wait for response failed, see logs form more information"
 
 
 async def test_fails_when_helperbot_is_none(webserver_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -136,11 +198,10 @@ async def test_extended_check_fails_if_not_connected() -> None:
 
 
 async def test_pre_wifi_config_with_build_tag(webserver_client: TestClient, caplog: pytest.LogCaptureFixture) -> None:
-    """The app appends a build tag: `PreWifiConfig0306` was seen in the field.
+    """The app appends a build tag to `PreWifiConfig`.
 
-    Exact-match only meant a spurious "TD is not know" warning on every wifi
-    setup. The captures only show the bare `PreWifiConfig`, and both answer
-    with a flat `{"ret":"ok"}`.
+    Both the bare command and `PreWifiConfig0306` answer with a flat
+    `{"ret":"ok"}` and no warning.
     """
     with caplog.at_level(logging.WARNING):
         async with webserver_client.post("/api/iot/devmanager.do", json={"td": "PreWifiConfig0306"}) as resp:
@@ -170,7 +231,7 @@ async def test_td_unknown_logs_warning(webserver_client: TestClient, caplog: pyt
 @pytest.mark.usefixtures("clean_database")
 async def test_endpoint_control_v2_is_routed(webserver_client: TestClient) -> None:
     postbody = {"body": {"data": []}, "header": {"pri": 2}}
-    query = {"si": "si_v2", "ct": "q", "eid": "did_v2", "et": "p95mgv", "er": "rljY", "apn": "getPos", "fmt": "j"}
+    query = {"si": "si_v2", "ct": "q", "eid": "did_v2", "et": "p95mgv", "er": "res1", "apn": "getPos", "fmt": "j"}
     async with webserver_client.post("/api/iot/endpoint/control/v2", json=postbody, params=query) as resp:
         assert resp.status == 200
         # Unknown bot -> the v8 "not supported" answer, which proves the route
@@ -182,11 +243,11 @@ async def test_endpoint_control_v2_is_routed(webserver_client: TestClient) -> No
 
 @pytest.mark.usefixtures("clean_database")
 async def test_endpoint_control_v2_offline_shape_for_known_bot(webserver_client: TestClient) -> None:
-    bot_repo.add("sn_off", "did_off", "p95mgv", "rljY", "eco-ng")
+    bot_repo.add("sn_off", "did_off", "p95mgv", "res1", "eco-ng")
     bot_repo.set_mqtt("did_off", False)
 
     postbody = {"body": {"data": ["deebotPos"]}, "header": {"pri": 2}}
-    query = {"si": "si_off2", "ct": "q", "eid": "did_off", "et": "p95mgv", "er": "rljY", "apn": "getPos", "fmt": "j"}
+    query = {"si": "si_off2", "ct": "q", "eid": "did_off", "et": "p95mgv", "er": "res1", "apn": "getPos", "fmt": "j"}
 
     with mock.patch("bumper.web.plugins.api.iot._bot_mqtt_connected", return_value=False):
         async with webserver_client.post("/api/iot/endpoint/control/v2", json=postbody, params=query) as resp:
@@ -207,7 +268,7 @@ async def test_appping_does_not_wait_for_a_response(webserver_client: TestClient
     """
     assert "appping" in NGIOT_APN_NO_RESPONSE
 
-    bot_repo.add("sn_apping", "did_appping", "p95mgv", "rljY", "eco-ng")
+    bot_repo.add("sn_apping", "did_appping", "p95mgv", "res1", "eco-ng")
     bot_repo.set_mqtt("did_appping", True)
 
     started = time.monotonic()
@@ -215,7 +276,7 @@ async def test_appping_does_not_wait_for_a_response(webserver_client: TestClient
     # fast path has its own tests.
     with mock.patch("bumper.web.plugins.api.iot._bot_mqtt_connected", return_value=True):
         async with webserver_client.post(
-            "/api/iot/endpoint/control?si=si_apping&ct=q&eid=did_appping&et=p95mgv&er=rljY&apn=appping&fmt=j",
+            "/api/iot/endpoint/control?si=si_apping&ct=q&eid=did_appping&et=p95mgv&er=res1&apn=appping&fmt=j",
             json={"header": {"pri": 2}},
         ) as resp:
             assert resp.status == 200
@@ -235,11 +296,11 @@ async def test_normal_command_still_waits(webserver_client: TestClient) -> None:
     A registered but disconnected bot takes the offline path, which is the proof
     that the no-wait list did not swallow ordinary commands.
     """
-    bot_repo.add("sn_offline", "did_nobot", "p95mgv", "rljY", "eco-ng")
+    bot_repo.add("sn_offline", "did_nobot", "p95mgv", "res1", "eco-ng")
     bot_repo.set_mqtt("did_nobot", False)
 
     async with webserver_client.post(
-        "/api/iot/endpoint/control?si=si_pos&ct=q&eid=did_nobot&et=p95mgv&er=rljY&apn=getPos&fmt=j",
+        "/api/iot/endpoint/control?si=si_pos&ct=q&eid=did_nobot&et=p95mgv&er=res1&apn=getPos&fmt=j",
         json={"header": {"pri": 2}},
     ) as resp:
         assert resp.status == 200

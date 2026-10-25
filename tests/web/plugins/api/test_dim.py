@@ -37,13 +37,13 @@ async def test_dim_devmanager(webserver_client: TestClient) -> None:
     bot_repo.set_mqtt("did_1234", True)
     postbody = {"toId": "did_1234"}
 
-    # Test return fail timeout
+    # The robot has no broker connection, so the endpoint is offline.
     async with webserver_client.post("/api/dim/devmanager.do", json=postbody) as resp:
         assert resp.status == 200
         test_resp = await resp.json()
         assert test_resp["ret"] == "fail"
-        assert test_resp["errno"] == 500
-        assert test_resp["debug"] == "mqtt wait for response failed, see logs form more information"
+        assert test_resp["errno"] == 4200
+        assert test_resp["error"] == "endpoint offline"
 
     # Set bot not on mqtt
     bot_repo.set_mqtt("did_1234", False)
@@ -83,7 +83,9 @@ async def test_dim_devmanager_faked(webserver_client: TestClient, helper_bot: MQ
         "ret": "ok",
     }
     helper_bot.send_command = mock.MagicMock(return_value=async_return(web.json_response(command_getstatus_resp)))
-    async with webserver_client.post("/api/dim/devmanager.do", json=postbody) as resp:
-        assert resp.status == 200
-        test_resp = await resp.json()
-        assert test_resp["ret"] == "ok"
+    # The robot is on the broker, so the request reaches the helper bot.
+    with mock.patch("bumper.web.plugins.api.iot._bot_mqtt_connected", return_value=True):
+        async with webserver_client.post("/api/dim/devmanager.do", json=postbody) as resp:
+            assert resp.status == 200
+            test_resp = await resp.json()
+            assert test_resp["ret"] == "ok"
