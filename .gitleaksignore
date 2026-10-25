@@ -1,2 +1,3 @@
-tests/web/plugins/api/test_appsvr.py:generic-api-key:514
-tests/web/plugins/api/test_photo.py:generic-api-key:32
+# One-off exceptions, one per line, as `file:rule-id:line`. The fake
+# credentials of the tests are allowed by path in `.gitleaks.toml`, because a
+# line number moves as soon as the file is edited.
