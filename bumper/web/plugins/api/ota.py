@@ -1,30 +1,17 @@
 """Ota plugin module."""
 
 import base64
-from collections.abc import Iterable
-import logging
 
 from aiohttp import web
 from aiohttp.web_request import Request
 from aiohttp.web_response import Response
-from aiohttp.web_routedef import AbstractRouteDef
 
-from bumper.web.plugins import WebserverPlugin
+from . import PREFIX
 
-_LOGGER = logging.getLogger(__name__)
-
-
-class OtaPlugin(WebserverPlugin):
-    """Ota plugin."""
-
-    @property
-    def routes(self) -> Iterable[AbstractRouteDef]:
-        """Plugin routes."""
-        return [
-            web.route("*", "/ota/products/wukong/class/{class}/firmware/latest.json", _handle_products_firmware_latest),
-        ]
+routes = web.RouteTableDef()
 
 
+@routes.view(f"{PREFIX}/ota/products/wukong/class/{{class}}/firmware/latest.json")
 async def _handle_products_firmware_latest(request: Request) -> Response:
     """Return the firmware the robot runs.
 
