@@ -6,21 +6,32 @@ Manage Bumper via Docker-pull the official image, deploy with Compose or Swarm, 
 
 ## 🔧 Prerequisites
 
-Prepare TLS certificates and minimal environment variables before any deployment:
+Prepare TLS certificates and minimal environment variables before deployment:
 
 **TLS certificates**:
 
-Bumper automatically generates certificates on first startup. Alternatively, place your own certs in `certs/ca.crt`, `certs/bumper.crt`, `certs/bumper.key`.
+Bumper generates missing certificates during normal startup; no separate Python
+command is needed. You can also create them ahead of time with the helper:
+
+```sh
+bash scripts/certs/create-cert.sh
+```
+
+The checked-in Compose and Swarm files load certificates from host-backed Docker
+configs before starting the Bumper container. When using those files, the host
+certificate files must exist before deployment. See
+[Certificates](../getting_started/certificates.md) for details.
 
 **Environment variables**:
 
 Create a `.env` file with at least the following:
 
 ```env
-NETWORK_MODE=overlay        # by default "bridge"
+# 'overlay' for Docker Swarm, 'bridge' for plain Docker Compose
+NETWORK_MODE=overlay
 
-# Needs to be set when running with Docker; default is auto-detected from socket
-BUMPER_ANNOUNCE_IP=192.168.0.100  # your server's public/local IP
+# required by the Compose file
+BUMPER_ANNOUNCE_IP=192.168.0.100  # your server's local IP
 ```
 
 Full environment variable reference: [Environment Variables](../configuration/environment.md)
@@ -30,7 +41,7 @@ Full environment variable reference: [Environment Variables](../configuration/en
 ## ✨ Pull the Official Image
 
 ```sh
-docker pull ghcr.io/mvladislav/bumper:develop
+docker pull ghcr.io/mvladislav/bumper:latest
 ```
 
 See the package on GitHub Container Registry [here](https://github.com/MVladislav/bumper/pkgs/container/bumper).
@@ -57,9 +68,11 @@ docker swarm init
 > alias for [docker-swarm](https://github.com/MVladislav/.dotfiles/blob/0b069b6a8435a43037789d8b5c4e1c0c65c6a142/zsh/profile-append#L146)
 
 ```sh
-docker-swarm-compose deebot      # alias for Docker Swarm Compose
-# or
-docker compose up -d             # standard Docker Compose
+# alias for Docker Swarm Compose
+docker-swarm-compose deebot
+
+# or plain Docker Compose: builds the image from this checkout
+docker compose up -d
 ```
 
 **Step 4 - Access the UI**
@@ -72,7 +85,7 @@ Visit `https://ecovacs.net/` in your browser.
 
 The robot can change its voice language, but it downloads the new voice from
 Bumper first. The files are fetched from the Ecovacs cloud with
-[`scripts/update-eco-voices.sh`](../development/static-data-update.md) and are
+[`scripts/data/update-eco-voices.sh`](../development/static-data-update.md) and are
 not part of the image.
 
 They belong in the voice directory of the deployment, which is
