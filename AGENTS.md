@@ -13,7 +13,7 @@ It terminates three protocols and brokers between them:
 | Service     | Module        | Default ports    | Role                                          |
 | ----------- | ------------- | ---------------- | --------------------------------------------- |
 | Web server  | `bumper/web`  | 443, 8007        | Ecovacs REST API clone + Bumper's own web UI  |
-| XMPP server | `bumper/xmpp` | 5223 (TLS), 1223 | Relays XML stanzas between app and robot      |
+| XMPP server | `bumper/xmpp` | 5223 (TLS)       | Relays XML stanzas between app and robot      |
 | MQTT broker | `bumper/mqtt` | 8883 (TLS), 1883 | Telemetry/command topics, plus the helper bot |
 
 Because the app and robots must work unmodified, **fidelity to the observed Ecovacs
@@ -26,15 +26,15 @@ handler, prefer matching observed traffic over the cleanest-looking code.
 Run everything through `uv`; the lockfile is committed and CI uses `--locked`.
 
 ```sh
-uv sync --all-groups            # install dev deps
-uv run bumper                   # start the server
+uv sync --active --all-groups   # install dev deps
+uv run --active bumper         # start the server
 
-uv run --frozen ruff check bumper/
-uv run --frozen ruff format --check bumper/
-uv run --frozen mypy bumper/    # strict mode, see pyproject.toml
-uv run --frozen pylint bumper/
-uv run pytest tests
-prek run --all-files           # mirrors the full CI lint stage
+uv run --active --frozen ruff check bumper/
+uv run --active --frozen ruff format --check bumper/
+uv run --active --frozen mypy bumper/    # strict mode, see pyproject.toml
+uv run --active --frozen pylint bumper/
+uv run --active pytest tests
+prek run --all-files            # mirrors the full CI lint stage
 ```
 
 `prek` is the pre-commit runner; mypy and pylint run as prek hooks via
@@ -79,12 +79,59 @@ Run the three linters and pytest before opening a PR - CI gates on all of them.
 
 **Web layer**
 
-- Routes are **auto-discovered**. A module under `bumper/web/plugins/` is
-  imported and registered purely by its location; any class in it that subclasses
-  `WebserverPlugin` has its `routes` property added to the aiohttp app. Directory
-  names become URL path prefixes (`bumper/web/plugins/v2/private/` → `/v2/private/`).
-  Adding an endpoint usually means adding a method to an existing plugin class, not
-  editing a router.
+- **Every endpoint declares its own route.** A module under `bumper/web/plugins/`
+  holds a `web.RouteTableDef` named `routes`, and the path is written down
+  where the endpoint is (`@routes.view(f"{PREFIX}/appsvr/app.do")`). The
+  prefix of a package is written once, in the `__init__.py` of the package,
+  and the packages and the modules under them are found by walking
+  `bumper/web/plugins/` - a new module is served without a second edit.
+- **A handler returns the payload, not a response.** The shape is bound to the
+  route with `@bind(TEMPLATE)`; the binder puts the payload in the shape and
+  turns a failure into the same shape. A handler that returns a `Response`
+  itself (a file, a document) is passed through.
+- **A plugin file opens with its endpoints.** The routes come first, so the
+  file lists every api call it serves; the helpers come after them. A helper
+  that only one route uses sits directly under that route, a helper that
+  several routes use sits at the bottom of the file. A constant - a table, a
+  static document - is declared at the top of the file. The operations of an
+  endpoint that answers in one shape per operation are helpers of the
+  dispatcher, so their handlers live at the bottom; the table is declared at
+  the top and filled there, because it names the handlers.
+- The **response shape belongs to the operation** - the path plus the `todo`/`td`
+  discriminator inside the request - not to the route and not to the host. One
+  path emits several shapes, so the shape must never be picked by hand at a
+  call site. The templates live in `bumper/web/envelope/`; read the module
+  docstrings there before touching `bumper/web/envelope/templates.py`.
+- `scripts/api/api-table.py` prints the route table with the shape of every
+  endpoint, and `scripts/api/check-captured-apis.py` compares it with the captured
+  traffic. `scripts/api/1-convert-mitmproxy-flows-export.py` writes the local
+  transcripts into `data/flows/`, which is git-ignored.
+  `tests/web/routes.txt` and `tests/web/shapes.txt` pin the urls and the shapes;
+  `scripts/api/sync-route-snapshots.py` writes them, and a pre-commit hook runs
+  it when `bumper/web/` changes.
+- **The shape of an answer is checked against the traffic in CI.**
+  `tests/web/response_shapes.json` holds the shape of every answer the
+  official server gave, `tests/web/response_shapes_bumper.json` the shape this
+  server gave, and `tests/web/test_response_shapes.py` checks the server
+  against them: a shape may not grow a key the traffic does not show and may
+  not lose one it always carries. The transcripts behind the two files are not
+  committed; `scripts/api/2-extract-response-shapes.py` reads `data/flows/` and
+  writes the files from them. A shape that changes is a change to the fidelity
+  contract, so it needs the traffic as the reason.
+- An endpoint that answers in one shape per operation holds a **table of
+  operations** (`bumper/web/operations.py`): the table names the shape of
+  every `todo`/`td`, and the dispatcher picks the operation the request names
+  and puts the answer in its shape. A handler of such an endpoint returns
+  data and never names a shape.
+- The **payloads live in `bumper/web/payloads.py`**, with the fields named
+  once and the type they have (`DeviceInfo`, `MemberInfo`, `HomeInfo`,
+  `RoleInfo`, `UserInfo`). A builder puts them together, so a payload can be
+  tested without a server. Add a field there, not in a handler.
+- The **hosts in a payload name the service, not the region**. A self hosted
+  server has no shards, so `api-app.dc-eu.ww.ecouser.net` is answered as
+  `api-app.ecouser.net`; `bumper/web/hosts.py` builds them. The broker of
+  the MQTT keeps its name and the broker of the XMPP its port, because the
+  router tells them apart.
 - `bumper/web/web_paths.py` is separate and hand-registered - it is Bumper's own
   UI, not the Ecovacs API surface.
 - aiohttp matches paths **case-sensitively**, and the app is not consistent
@@ -94,7 +141,14 @@ Run the three linters and pytest before opening a PR - CI gates on all of them.
 - The middleware decides whether a request is served by asking the aiohttp
   router (`request.match_info.route.resource is None` means "not covered"),
   which cannot drift from the route table. Set
-  `DEBUG_LOGGING_API_REQUEST_MISSING=true` to see only those.
+  `DEBUG_LOGGING_API_REQUEST_MISSING=true` to see only those. A request that
+  matched no route is answered with an envelope, not with an html page, so
+  the app can tell "not implemented" from "broken".
+- **A handler that raises a failure has to be bound.** The binder shapes the
+  failure in the shape of the endpoint; a route that registers a handler
+  without a binder lets the failure escape, and the app gets a 500 with a
+  stack trace instead of an envelope. The middleware shapes such a failure
+  as a last resort, but the endpoint is the place where the shape belongs.
 
 **Persistence**
 
@@ -149,7 +203,7 @@ broken server. `x-ngiot-fmt: b` is returned even for JSON payloads - that is
 what the real server does, do not "fix" it. An offline robot is
 `x-ngiot-errno: 4200` / `x-ngiot-ret: error`. The request's `ct` selects the
 variant: `q` is request/response, `m` is fire-and-forget (ack, no robot
-answer). See `response_ngiot_*` in `bumper/web/utils/response_helper.py`.
+answer). See `response_ngiot_*` in `bumper/web/envelope/ngiot.py`.
 
 **Time skew matters.** The modern API answers a stale clock with `code == "0005"`
 plus the server time; the client stores the offset, replays the request once,
@@ -184,7 +238,7 @@ consequences:
 - The RN network module (`IgnoreSSLFactory`) is trust-all, so RN traffic is not a
   TLS concern.
 
-**Apart from MQTT, the app pins nothing.** So the `scripts/create-unpinned-app.sh`
+**Apart from MQTT, the app pins nothing.** So the `scripts/app/create-unpinned-app.sh`
 patch only has to set `android:debuggable="true"`. That flag activates the app's
 own `<debug-overrides><certificates src="user"/>`, which is what lets a
 user-installed CA (Bumper's) be trusted. The one other exception is a channel
@@ -196,13 +250,13 @@ before suspecting the SAN list.
 **MQTT is the one real pin.** The Paho fork builds its `SSLSocketFactory` from a
 certificate embedded in a `classes*.dex` and passes that KeyStore to
 `TrustManagerFactory.init()`, which replaces the platform store entirely - no
-user CA and no `<debug-overrides>` helps. `scripts/apk-patch/patch_mqtt_trust.py`
+user CA and no `<debug-overrides>` helps. `scripts/app/apk-patch/patch-mqtt-trust.py`
 keeps a prefix of the embedded string so the dex `string_ids` table stays sorted,
 which ART verifies, and makes `CertificateFactory` throw; the app's factory then
 returns `null` and Paho falls back to the platform store. The dex carrying the
 pin moves between app versions (`classes5.dex` in 3.15.1 as extracted locally,
 `classes8.dex` in the same version as downloaded), so scan every `classes*.dex`.
-`check_dex_strings.py` reproduces the sort check and `test_patch_mqtt_trust.py`
+`check-dex-strings.py` reproduces the sort check and `test-patch-mqtt-trust.py`
 is a manual regression run - use it after changing either patcher.
 
 **Consequence for TLS work:** widening `DOMAIN_SEC`/`certs.py` is a security
@@ -210,9 +264,12 @@ decision, not a compatibility one. Prefer adding the specific host over adding a
 wildcard.
 
 **The app's HTTP timeout is 15 s**, measured: successful calls return in
-0.04-0.12 s and failures at exactly 15.0 s. `bumper/mqtt/helper_bot.py` waits
-60 s for a robot, so an offline robot can never surface as an error to the app -
-it always looks like a timeout. Changing that wait needs fidelity evidence.
+0.04-0.12 s and failures at exactly 15.0 s. Every request that waits for a
+robot has to answer inside that budget, or the app cancels the stream and
+the screen stays empty. The helper bot waits `HELPER_BOT_TIMEOUT` (10 s) for
+a robot, and the request that asks the robot for a property waits inside
+`asyncio.timeout` on top of it. A property that the robot does not have is
+not asked for at all - the API answers it itself, with an empty list.
 
 **App-side problems are found in a device log, not in tests.** To check a change
 against the real app, capture one symptom at a time:
@@ -266,19 +323,24 @@ of an eight byte one (`bumper/utils/map_doc.py` decodes it).
 
 ```
 bumper/          the Python package (web, mqtt, xmpp, db, utils)
-  web/plugins/   auto-discovered Ecovacs API endpoint handlers
+  web/plugins/   the Ecovacs API endpoint handlers, one route table per module
   web/static_api/  pre-fetched JSON served offline; see docs/development/static-data-update.md
 docs/            mkdocs-material site, published via mkdocs-release.yml
 scripts/         maintainer helper scripts (ruff-exempt, not shipped in the image)
-  apk-patch/    the app patchers + their Docker image; see docs/internals/certificate-unpinning-app.md
+  api/         the tools that read or check the API
+  app/         the tools that work on the app
+  certs/       the certificates
+  data/        the scripts that refresh the data the API answers with
+  server/      the scripts that refresh the files of the server itself
+  app/apk-patch/  the app patchers + their Docker image; see docs/internals/certificate-unpinning-app.md
 configs/         nginx + mitmproxy configs used with the compose files
 tests/           mirrors bumper/
 .github/         CI, CodeQL, Docker + docs publishing, Renovate, Release Drafter,
                  and the issue/PR/discussion templates; see GitHub automation above
 ```
 
-`bumper/web/static_api/` is generated data, not hand-edited. Regenerate via the
-`scripts/update-eco-*.sh` flow documented in
+`bumper/web/static_api/` is generated data, not hand-edited. Regenerate with the
+scripts under `scripts/data/`, documented in
 `docs/development/static-data-update.md`; several of those files need real
 Ecovacs credentials, so they cannot be refreshed in an automated environment.
 
