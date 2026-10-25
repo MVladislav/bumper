@@ -1,7 +1,7 @@
 """Appsvr plugin module."""
 
-from collections.abc import Iterable, Mapping
-import copy
+import asyncio
+from collections.abc import Mapping
 import json
 import logging
 import secrets
@@ -9,194 +9,74 @@ from typing import Any
 from urllib.parse import parse_qs, urlparse
 
 from aiohttp import web
-from aiohttp.web_exceptions import HTTPInternalServerError
 from aiohttp.web_request import Request
 from aiohttp.web_response import Response
-from aiohttp.web_routedef import AbstractRouteDef
 
-from bumper.db import bot_repo
+from bumper.db import bot_repo, identity
 from bumper.mqtt.helper_bot import MQTTCommandModel
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
 from bumper.web import auth_service
-from bumper.web.plugins import WebserverPlugin
+from bumper.web.context import claimed_userid, read_body
+from bumper.web.envelope import LEGACY, LEGACY_BARE, TODO_RET, TODO_RET_UNKNOWN, ApiError, bind
+from bumper.web.hosts import api_host, pim_host
+from bumper.web.operations import Operation, dispatch
+from bumper.web.payloads import codepush_update_check, config_faq, device_list, service_list
 from bumper.web.static_api import (
     get_code_push_config,
-    get_codepush_update_check,
-    get_codepush_update_check_mapping,
     get_config_groups_response,
+    get_config_groups_robot,
+    get_product_category,
     get_product_iot_map,
 )
-from bumper.web.utils.models import VacBotDevice
-from bumper.web.utils.response_helper import response_error_v5, response_success_v2, response_success_v3, response_success_v4
+from bumper.web.utils.files import file_in_dir
+from bumper.web.utils.models import BumperUser
+
+from . import PREFIX
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class AppsvrPlugin(WebserverPlugin):
-    """Appsvr plugin."""
-
-    @property
-    def routes(self) -> Iterable[AbstractRouteDef]:
-        """Plugin routes."""
-        return [
-            web.route("POST", "/appsvr/app.do", _handle_app_do),
-            web.route("*", "/appsvr/app/config", _handle_app_config),
-            web.route("*", "/appsvr/improve", _handle_improve),
-            web.route("*", "/appsvr/improve/accept", _handle_improve_accept),
-            web.route("*", "/appsvr/improve/user/accept", _handle_improve_user_accept),
-            web.route("*", "/appsvr/notice/home", _handle_notice_home),
-            web.route("*", "/appsvr/notice/list", _handle_notice_list),
-            web.route("*", "/appsvr/oauth_callback", auth_service.oauth_callback),
-            web.route("*", "/appsvr/oauth/token", auth_service.oauth_callback),  # TODO: implement
-            web.route("*", "/appsvr/service/list", _handle_service_list),
-            web.route("*", "/appsvr/ota/firmware", _handle_ota_firmware),
-            web.route("*", "/appsvr/device/blacklist/check", _handle_device_blacklist_check),
-            web.route("*", "/appsvr/akvs/start_watch", _handle_akvs_start_watch),
-            # web.route("*", "/appsvr/akvs/end_watch", _handle_akvs_end_watch), # TODO: implement
-            web.route("*", "/appsvr/product/getConfigGroups", _handle_get_config_groups),
-            web.route("*", "/appsvr/codepush/checkupdate", _handle_codepush_update_check),
-            web.route("GET", "/appsvr/device/prop/list", _handle_device_prop_list),
-            web.route("*", "/appsvr/device/{did}/nickname", _handle_device_nickname),
-        ]
+routes = web.RouteTableDef()
 
 
-async def _handle_app_do(request: Request) -> Response:
-    """App do."""
-    try:
-        post_body: Mapping[str, Any]
-        if request.content_type == "application/x-www-form-urlencoded":
-            post_body = await request.post()
-        else:
-            post_body = json.loads(await request.text())
+@routes.view(f"{PREFIX}/appsvr/oauth_callback")
+@bind(LEGACY)
+async def _handle_oauth_callback(request: Request) -> Any:
+    """Answer the callback of the login with the tokens of the user.
 
-        todo = post_body.get("todo", "")
-
-        if todo == "GetGlobalDeviceList":
-            return response_success_v2(data=create_device_list(), data_key="devices")
-
-        if todo == "GetCodepush":
-            return response_success_v2(
-                data={
-                    "extend": {},
-                    "type": "microsoft",
-                    "url": "",
-                },
-            )
-
-        if todo == "RobotControl":
-            data_ctl: Any | None = post_body.get("data", {})
-            if not isinstance(data_ctl, dict):
-                return response_error_v5()
-            data_ctl = data_ctl.get("ctl", None)
-            if not isinstance(data_ctl, dict):
-                return response_error_v5()
-
-            cmd = next(iter(data_ctl.keys()))
-            cmd_json: dict[str, Any] = data_ctl.get(cmd, {})
-            cmd_request = MQTTCommandModel(cmd_json, version=MQTTCommandModel.VERSION_P2P)
-            if bumper_isc.mqtt_helperbot is not None:
-                return await bumper_isc.mqtt_helperbot.send_command(cmd_request)
-
-        if todo == "GetAppVideoUrl":
-            keys: Any = post_body.get("keys", [])
-            if not isinstance(keys, list):
-                return response_error_v5()
-            data = {}
-            for key in keys:
-                if key == "t9_promotional_video":
-                    data[key] = f"https://{bumper_isc.DOMAIN_ALI}/public/t9_promotional_video.mp4"
-            return response_success_v2(data=data)
-
-        if todo == "GetDeviceProtocolV2":
-            return response_success_v2(
-                data={
-                    "video": {
-                        "version": "13.01",
-                        "hasNewProtocol": False,
-                        "hasReadOld": True,
-                        "isAccept": True,
-                        "protocolUrl": (
-                            f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/protocol.html?version=13.01"
-                            "&lang=en&defaultLang=en&country=DE&type=video"
-                        ),
-                    },
-                    "improve": {
-                        "version": "11.15",
-                        "hasNewProtocol": False,
-                        "hasReadOld": True,
-                        "isAccept": False,
-                        "protocolUrl": (
-                            f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/protocol.html?version=11.15"
-                            "&lang=en&defaultLang=en&country=DE&type=improve"
-                        ),
-                    },
-                },
-            )
-
-        if todo == "DecodeQrCode":
-            qrcode = post_body.get("qrcode", "")
-            if not isinstance(qrcode, str):
-                return response_success_v2(data={})
-
-            qrcode_q = parse_qs(urlparse(qrcode).query)
-            sn = qrcode_q.get("sn", [None])[0]
-            mid = qrcode_q.get("mid", [None])[0]
-            if not isinstance(sn, str) and not isinstance(mid, str):
-                return response_success_v2(data={})
-
-            robot = None
-            product_category = None
-            for botprod in get_product_iot_map():
-                if botprod["classid"] != mid:
-                    continue
-                name = botprod.get("product", {}).get("name")
-                robot = _get_config_groups_robot(value=name, key="groupName")
-                product_category = _get_product_category(device_name=name, robot=robot)
-                if robot:
-                    robot["mid"] = mid
-                    robot["customSteps"] = robot.pop("cusSteps")
-                    robot["name"] = robot.pop("groupName")
-                    robot.pop("groupId")
-                    robot.pop("service")
-                    robot.pop("products")
-                    robot.pop("smartTypes")
-                    robot.pop("icon")
-                    robot.pop("sort")
-                break
-
-            base_url = f"https://api-app.{bumper_isc.DOM_SUB_1}ecouser.net/api/pim"
-            return response_success_v2(
-                data={
-                    "supportApp": "global",
-                    "belongApp": ["ecoglobal", "yeedi"],
-                    "supportRegion": "International",
-                    "qrType": "config",
-                    "productCategory": product_category,
-                    "code_sn": sn,
-                    "configGuide": robot,
-                    "configFAQ": {
-                        "wifiFAQUrl": f"{base_url}/faqproblem.html?lang=en&defaultLang=iotclient_lang_english",
-                        "notFoundAPUrl": f"{base_url}/findDbWifi.html?lang=en&defaultLang=iotclient_lang_english",
-                        "configFailedUrl": f"{base_url}/configfail.html?lang=en&defaultLang=iotclient_lang_english",
-                    },
-                },
-            )
-
-        _LOGGER.warning(f"todo is not know :: {todo!s}")
-        return response_error_v5()
-    except Exception:
-        _LOGGER.exception(utils.default_exception_str_builder(info="during handling request"))
-    raise HTTPInternalServerError
+    The app sends the auth code of the login and receives the access token,
+    the refresh token and the expiry of the access token.
+    """
+    return await auth_service.oauth_callback(request)
 
 
-async def _handle_app_config(request: Request) -> Response:
+@routes.view(f"{PREFIX}/appsvr/oauth/token")
+@bind(LEGACY)
+async def _handle_oauth_token(request: Request) -> Any:
+    """Answer a refresh of the tokens of the user.
+
+    The app sends the refresh token it got from the callback and receives
+    the same answer as the callback does.
+    """
+    return await auth_service.oauth_callback(request)
+
+
+#: The operations of `app.do`. The shape of the answer belongs to the
+#: operation, so the table names the shape every todo answers with.
+APP_DO_OPERATIONS: dict[str, Operation] = {}
+
+
+routes.post(f"{PREFIX}/appsvr/app.do")(dispatch(APP_DO_OPERATIONS, TODO_RET_UNKNOWN))
+
+
+@routes.view(f"{PREFIX}/appsvr/app/config")
+@bind(LEGACY)
+async def _handle_app_config(request: Request) -> Any:
     """App config."""
     code = request.query.get("code", "")
     data: list[dict[str, Any]] | None = None
-    # configurl = f"codepush-base.{bumper_isc.DOM_SUB_1}{bumper_isc.DOMAIN_MAIN}"
-    # backupurl = f"codepush-base.{bumper_isc.DOM_SUB_1}{bumper_isc.DOMAIN_MAIN}"
-    contenturl = f"adv-app.{bumper_isc.DOM_SUB_1}{bumper_isc.DOMAIN_MAIN}"
+    contenturl = api_host("adv-app", bumper_isc.DOMAIN_MAIN)
 
     if code == "app_lang_enum":
         data = [
@@ -359,8 +239,28 @@ async def _handle_app_config(request: Request) -> Response:
     elif code == "home_teamwork_entry":
         data = []
 
+    elif code == "goat_h5_url_list":
+        pim_url = f"https://{contenturl}/pim"
+        goat_url = f"https://{pim_host()}/app_adv/goat"
+        data = [
+            {
+                "resId": "688b1876307bf300077456e8",  # pragma: allowlist secret
+                "code": "goat_h5_url_list",
+                "name": "Goat network setup H5",
+                "description": "URLs of the HTML5 pages used by the Goat setup",
+                "type": "json",
+                "content": {
+                    "set_pin_code_guide": f"{pim_url}/set_pin_code_guide.html?t=set_pin_code_guide",
+                    "bt_advanced_features": f"{pim_url}/advanced_features.html?t=advanced_features",
+                    "winter_guide": f"{goat_url}/winter_guide.html?_t=winter_guide",
+                    "common_set_pin_guide": f"{goat_url}/pin_code_settings.html?_t=pin_code_settings",
+                    "rtk_install_method": f"{goat_url}/rtk.html?_t=rtk",
+                },
+            },
+        ]
+
     elif code == "globalapp_netcfg_h5_url_list":
-        base_url = f"https://api-app.{bumper_isc.DOM_SUB_1}ecouser.net/app_adv/pim"
+        base_url = f"https://{pim_host()}/app_adv/pim"
         data = [
             {
                 "resId": "642fc135604348000681bfd2",  # pragma: allowlist secret
@@ -383,48 +283,26 @@ async def _handle_app_config(request: Request) -> Response:
     if data is None:
         _LOGGER.error(f"code is not know :: {code}")
         data = []
-    return response_success_v3(data=data)
+    return data
 
 
-async def _handle_service_list(request: Request) -> Response:
-    """Service list."""
-    try:
-        area_code = request.query.get("area", bumper_isc.ECOVACS_DEFAULT_COUNTRY).lower()
-        dc_code = utils.get_dc_code(area_code)
-        sub_domain_1 = f"{bumper_isc.DOM_SUB_1}{bumper_isc.DOMAIN_MAIN}"
-        sub_domain_2 = f"{bumper_isc.DOM_SUB_2}{bumper_isc.DOMAIN_MAIN}"
-        sub_domain_3 = f"{bumper_isc.DOM_SUB_3}{bumper_isc.DOMAIN_MAIN}"
+@routes.view(f"{PREFIX}/appsvr/service/list")
+@bind(LEGACY)
+async def _handle_service_list(request: Request) -> Any:
+    """Service list.
 
-        data = {
-            "account": f"users-base.{sub_domain_1}",
-            "adv": f"adv-app.{sub_domain_1}",
-            "dc": dc_code,
-            "jmq": f"jmq-ngiot-eu.{sub_domain_2}",
-            "lb": f"lbo.{bumper_isc.DOMAIN_MAIN}",
-            "magw": f"api-app.{sub_domain_1}",
-            "msgcloud": f"msg-eu.{bumper_isc.DOMAIN_MAIN}:5223",
-            "ngiot": f"api-ngiot.{sub_domain_1}",
-            "ngiotLb": f"jmq-ngiot-de.{sub_domain_3}",
-            "nlp": f"iot-api-nlp.{sub_domain_1}",
-            "rop": f"api-rop.{sub_domain_1}",
-            "bigdata": f"bigdata-europe.{bumper_isc.DOMAIN_MAIN}",
-            "base": f"api-base.{sub_domain_1}",
-            "eis": f"eis-nlp.{sub_domain_1}",
-            "codepush": f"codepush-base.{sub_domain_1}",
-            "setApConfig": {
-                "a": area_code,
-                "r": bumper_isc.DOMAIN_MAIN,
-                "v": "ww",
-            },
-        }
-
-        return response_success_v2(data=data)
-    except Exception:
-        _LOGGER.exception(utils.default_exception_str_builder(info="during handling request"))
-    raise HTTPInternalServerError
+    Every service of the API is served by the same server, so the answer
+    names the service and the domain, without the region of the cloud. The
+    broker of the MQTT keeps its name and the broker of the XMPP its port,
+    because the router tells them apart.
+    """
+    area_code = request.query.get("area", bumper_isc.ECOVACS_DEFAULT_COUNTRY).lower()
+    return service_list(area_code)
 
 
-async def _handle_improve(request: Request) -> Response:
+@routes.view(f"{PREFIX}/appsvr/improve")
+@bind(LEGACY_BARE)
+async def _handle_improve(request: Request) -> Any:
     """Improve."""
     query_did = request.query.get("did", "")
     query_mid = request.query.get("mid", "")
@@ -440,148 +318,160 @@ async def _handle_improve(request: Request) -> Response:
     if isinstance(query_token_tmp, dict):
         query_token = query_token_tmp.get("token", "")
 
-    domain = f"adv-app.{bumper_isc.DOM_SUB_1}{bumper_isc.DOMAIN_MAIN}"
+    domain = api_host("adv-app", bumper_isc.DOMAIN_MAIN, bumper_isc.DOM_SUB_1)
     content = (
         f"https://{domain}/pim/productImprovePlan_ww.html?initSync=false&did={query_did}"
         f"&mid={query_mid}&uid={query_uid}&lang={query_lang}&a={query_a}&c={query_c}&v={query_v}&"
         f"p={query_p}&id=628dcf819dbd613d9ebb4fe4&ver=11.16&showRemark={query_show_remark}&remark=&token={query_token}"
     )
-    return response_success_v4(
-        {
-            "show": False,
-            "content": content,
-            "remark": "",
-            "updateLog": "",
-        },
-    )
+    return {
+        "show": False,
+        "content": content,
+        "remark": "",
+        "updateLog": "",
+    }
 
 
+@routes.view(f"{PREFIX}/appsvr/improve/accept")
 async def _handle_improve_accept(_: Request) -> Response:
     """Improve accept."""
     return web.json_response({"code": 0})
 
 
+@routes.view(f"{PREFIX}/appsvr/improve/user/accept")
 async def _handle_improve_user_accept(_: Request) -> Response:
     """Improve accept."""
     return web.json_response({"code": 0, "data": {"accept": False}})
 
 
-async def _handle_notice_home(_: Request) -> Response:
+@routes.view(f"{PREFIX}/appsvr/notice/home")
+@bind(TODO_RET)
+async def _handle_notice_home(_: Request) -> Any:
     """Notice home."""
-    return response_success_v2(data={})
+    return {}
 
 
-async def _handle_notice_list(_: Request) -> Response:
+@routes.view(f"{PREFIX}/appsvr/notice/list")
+@bind(TODO_RET)
+async def _handle_notice_list(_: Request) -> Any:
     """Notice list."""
-    return response_success_v2(data={})
+    return []
 
 
+@routes.view(f"{PREFIX}/appsvr/ota/firmware")
 async def _handle_ota_firmware(_: Request) -> Response:
     """OTA firmware."""
     return web.json_response({"code": -1, "message": "No upgrades at this time"})
 
 
-async def _handle_device_blacklist_check(_: Request) -> Response:
+@routes.view(f"{PREFIX}/appsvr/device/blacklist/check")
+@bind(LEGACY)
+async def _handle_device_blacklist_check(_: Request) -> Any:
     """Device blacklist check."""
-    return response_success_v3(data=[])
+    return []
 
 
-def create_device_list() -> list[dict[str, Any]]:
-    """Create bot device list."""
-    return [
-        device
-        for bot in bot_repo.list_all()
-        if bot.class_id and bot.class_id != "" and (device := _include_product_iot_map_info(bot)) is not None
-    ]
+@routes.view(f"{PREFIX}/appsvr/product/getConfigGroups")
+@bind(LEGACY_BARE.with_side_car("configFAQ", config_faq()))
+async def _handle_get_config_groups(_: Request) -> Any:
+    """Get config groups."""
+    return get_config_groups_response()
 
 
-def _include_product_iot_map_info(bot: VacBotDevice) -> dict[str, Any] | None:
-    for botprod in get_product_iot_map():
-        if botprod["classid"] != bot.class_id:
+@routes.get(f"{PREFIX}/appsvr/codepush/download/{{deployment_key}}")
+async def _handle_codepush_download(request: Request) -> Response:
+    """Download the CodePush package of a deployment.
+
+    The packages are not part of the distribution, so the answer is 404 until
+    one is put in the CodePush directory under the key of its deployment.
+    """
+    deployment_key = request.match_info.get("deployment_key", "")
+    package = file_in_dir(bumper_isc.codepush_dir, deployment_key)
+    if package is None:
+        _LOGGER.warning(f"No CodePush package for key='{deployment_key}' :: looked in '{bumper_isc.codepush_dir}'")
+        return web.Response(status=404, body=b"", content_type="text/plain", charset="utf-8")
+
+    return web.FileResponse(package)  # type: ignore[return-value]
+
+
+@routes.view(f"{PREFIX}/appsvr/codepush/checkupdate")
+@bind(LEGACY)
+async def _handle_codepush_update_check(request: Request) -> Any:
+    """CodePush Update check."""
+    return codepush_update_check(
+        deployment_key=request.query.get("deployment_key", ""),
+        label=request.query.get("label", ""),
+        package_hash=request.query.get("package_hash", ""),
+        package_name=request.query.get("package_name"),
+        app_version=request.query.get("app_version", "1.0.0"),
+        deployment_name=request.query.get("deployment_name", "Production"),
+    )
+
+
+@routes.get(f"{PREFIX}/appsvr/device/prop/list")
+@bind(LEGACY)
+async def _handle_device_prop_list(request: Request) -> Any:
+    """Device prop list."""
+    did = request.query.get("did")
+    res = request.query.get("res")
+    mid = request.query.get("mid")
+    props: list[str] = request.query.get("props", "").split(",")  # OfflineReason,onBattery,onChargeState,...
+    ts = utils.get_current_time_as_millis()
+
+    props_result = []
+    try:
+        async with asyncio.timeout(bumper_isc.HELPER_BOT_TIMEOUT):
+            values = await asyncio.gather(*(_ask_robot(prop, did, mid, res) for prop in props))
+    except TimeoutError:
+        _LOGGER.warning(f"Device prop list ran out of time :: did='{did}' :: props='{props}'")
+        values = []
+
+    for prop, value in zip(props, values, strict=False):
+        if value is None:
             continue
+        props_result.append(
+            {
+                "key": prop,
+                "value": json.dumps({"body": {"data": value}}, separators=(",", ":")),
+                "ts": utils.get_millis_to_iso_z(ts),
+            },
+        )
 
-        result: dict[str, Any] = copy.deepcopy(bot.as_dict())
-        result.pop("mqtt_connection")
-        result.pop("xmpp_connection")
-
-        robot = _get_config_groups_robot(result.get("class"))
-
-        if (botprod_invent := botprod.get("product")) is not None:
-            result["pid"] = botprod_invent["_id"]
-            result["materialNo"] = botprod_invent["materialNo"]
-            result["deviceName"] = botprod_invent["name"]
-            result["model"] = botprod_invent["model"]
-            result["UILogicId"] = botprod_invent["UILogicId"]
-            result["ota"] = botprod_invent["ota"]
-            result["icon"] = botprod_invent["iconUrl"]
-
-            if not robot:
-                # some class-id's are not located inside 'configGroupsResponse', fallback to 'groupName'
-                robot = _get_config_groups_robot(value=result.get("deviceName"), key="groupName")
-            result["product_category"] = _get_product_category(botprod_invent["name"], robot)
-
-            result["scode"] = {"battery": True}
-            smart_type: str | None = botprod_invent.get("smartType")
-            if smart_type and smart_type.startswith("MQ"):  # MQ_AP|MQ_APM
-                result["scode"].update(
-                    {
-                        "tmallstand": True,
-                        "video": True,
-                        "clean": True,
-                        "charge": True,
-                        "chargestate": True,
-                    },
-                )
-            elif smart_type and smart_type.startswith("BLAP"):  # BLAP|BLAP2|BLAPG
-                result["scode"].update(
-                    {
-                        "appArchVer": "2.0",
-                        "bt_mode": True,
-                        "ff_mode": True,
-                        "fwPlat": "DZ",
-                    },
-                )
-                result["btName"] = ""  # TODO: find logic where to get source from
-                result["btMac"] = ""  # TODO: find logic where to get source from
-            else:  # BT|HK_AP|QRP|SPA
-                result["scode"].update(
-                    {
-                        "tmallstand": False,
-                        "video": False,
-                        "clean": True,
-                        "charge": True,
-                        "chargestate": True,
-                    },
-                )
-
-        result["status"] = 1 if bot.mqtt_connection or bot.xmpp_connection else 0
-
-        result["otaUpgrade"] = {}
-        result["updateInfo"] = {"changeLog": "", "needUpdate": False}
-        result["shareable"] = bool(bot.mqtt_connection)
-        result["sharedDevice"] = False
-
-        # TODO: improve as non static
-        result["homeId"] = bumper_isc.HOME_ID
-        result["homeSort"] = 1
-
-        result["bindTs"] = utils.get_current_time_as_millis()
-        result["offmap"] = True  # TODO: is this still needed/used?
-
-        result["service"] = {
-            "jmq": f"jmq-ngiot-eu.{bumper_isc.DOM_SUB_2}{bumper_isc.DOMAIN_MAIN}",
-            "mqs": f"api-ngiot.{bumper_isc.DOM_SUB_1}{bumper_isc.DOMAIN_MAIN}",
-        }
-
-        return result
-    return None
+    return {
+        "did": did,
+        "ts": ts,
+        "props": props_result,
+    }
 
 
+async def _ask_robot(prop: str, did: str | None, mid: str | None, res: str | None) -> Any | None:
+    """Ask the robot for a property and return its value.
+
+    A property that does not belong to the robot is not asked for: the API
+    answers it itself, with nothing.
+    """
+    if not prop.startswith("on") or bumper_isc.mqtt_helperbot is None:
+        return None
+
+    cmd = f"get{prop[len('on') :]}"
+    cmd_json: dict[str, Any] = {
+        "cmd": cmd,
+        "did": did,
+        "mid": mid,
+        "res": res,
+        "data": {"td": cmd},
+    }
+    cmd_request = MQTTCommandModel(cmd_json, version=MQTTCommandModel.VERSION_P2P)
+
+    cmd_response = await bumper_isc.mqtt_helperbot.send_command_plain(cmd_request)
+    if not isinstance(cmd_response, dict):
+        return None
+    return cmd_response.get("body", {}).get("data") or None
+
+
+@routes.view(f"{PREFIX}/appsvr/akvs/start_watch")
 async def _handle_akvs_start_watch(request: Request) -> Response:
     """AKVS start watch."""
-    # TODO: check what's needed to be implemented
-    # 8.219.176.88 sgp-sdk.openaccount.aliyun.com
-    # a2JaaxoKXLq.iot-as-mqtt.cn-shanghai.aliyuncs.com
     utils.default_log_warn_not_impl("_handle_akvs_start_watch")
     query_did = request.query.get("did", "")
     query_auth: str | dict[str, Any] = request.query.get("auth", {})
@@ -607,155 +497,159 @@ async def _handle_akvs_start_watch(request: Request) -> Response:
     )
 
 
-async def _handle_get_config_groups(_: Request) -> Response:
-    """Get config groups."""
-    try:
-        return response_success_v3(
-            code=0,
-            msg_key="msg",
-            msg="success",
-            result_key="configFAQ",
-            result={
-                "wifiFAQUrl": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/faqproblem.html?lang=en&defaultLang=en",
-                "notFoundAPUrl": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/findDbWifi.html?lang=en&defaultLang=en",
-                "configFailedUrl": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/configfail.html?lang=en&defaultLang=en",
-            },
-            data_key="data",
-            data=get_config_groups_response(),
-        )
-    except Exception:
-        _LOGGER.exception(utils.default_exception_str_builder(info="during handling request"))
-    raise HTTPInternalServerError
-
-
-async def _handle_codepush_update_check(request: Request) -> Response:
-    """CodePush Update check."""
-    return response_success_v3(data=get_codepush_update_check_data(request))
-
-
-async def _handle_device_prop_list(request: Request) -> Response:
-    """Device prop list."""
-    did = request.query.get("did")
-    res = request.query.get("res")
-    mid = request.query.get("mid")
-    props: list[str] = request.query.get("props", "").split(",")  # OfflineReason,onBattery,onChargeState,...
-    ts = utils.get_current_time_as_millis()
-
-    props_result = []
-    for prop_o in props:
-        if bumper_isc.mqtt_helperbot is None:
-            break
-
-        prop = "get" + prop_o[2:] if prop_o.startswith("on") else prop_o
-        cmd_json: dict[str, Any] = {
-            "cmd": prop,
-            "did": did,
-            "mid": mid,
-            "res": res,
-            "data": {"td": prop},
-        }
-        cmd_request = MQTTCommandModel(cmd_json, version=MQTTCommandModel.VERSION_P2P)
-
-        cmd_response = await bumper_isc.mqtt_helperbot.send_command_plain(cmd_request)
-        if not isinstance(cmd_response, dict):
-            continue
-        if body_value := cmd_response.get("body", {}).get("data"):
-            props_result.append(
-                {
-                    "key": prop_o,
-                    "value": json.dumps({"body": {"data": body_value}}, separators=(",", ":")),
-                    "ts": utils.get_millis_to_iso_z(ts),
-                },
-            )
-
-    return response_success_v3(
-        data={
-            "did": did,
-            "ts": ts,
-            "props": props_result,
-        },
-    )
-
-
-def get_codepush_update_check_data(request: Request) -> dict[str, Any]:
-    """Get CodePush Update check Data."""
-    deployment_key = request.query.get("deployment_key", "")
-    label = request.query.get("label", "")
-    package_hash = request.query.get("package_hash", "")
-    package_name = request.query.get("package_name", None)
-    app_version = request.query.get("app_version", "1.0.0")
-    deployment_name = request.query.get("deployment_name", "Production")
-
-    if deployment_key == "" and package_name:
-        deployment_key = get_codepush_update_check_mapping().get(package_name, "")
-
-    response: dict[str, Any] = get_codepush_update_check().get(
-        deployment_key,
-        {
-            "update_info": {
-                "download_url": "",
-                "description": "",
-                "is_available": False,
-                "is_disabled": True,
-                "target_binary_range": app_version,
-                "label": label,
-                "package_hash": package_hash,
-                "package_size": 0,
-                "should_run_binary_version": False,
-                "update_app_version": False,
-                "is_mandatory": False,
-                "deployment_key": deployment_key,
-                "deployment_name": deployment_name,
-                "publish_time": 0,
-            },
-        },
-    )
-    return response
-
-
-def _get_config_groups_robot(value: str | None, key: str = "mid") -> dict[str, Any] | None:
-    if not value:
+@routes.view(f"{PREFIX}/appsvr/device/{{did}}/nickname")
+@bind(LEGACY.with_result(None).with_success(True))
+async def _handle_device_nickname(request: Request) -> Any:
+    """Rename a device."""
+    did = request.match_info.get("did", "")
+    body = await read_body(request)
+    nickname = str(body.get("nickname", "")).strip()
+    if not did or not nickname:
+        _LOGGER.warning("No did or nickname in the request")
         return None
-
-    for group in get_config_groups_response():
-        robots: list[dict[str, Any]] = group.get("robots", [])
-        for robot in robots:
-            if robot.get(key) == value:
-                return robot
+    if bot_repo.get(did) is None:
+        _LOGGER.warning(f"No bot found for {did} (nickname)")
+        return None
+    bot_repo.set_nick(did, nickname)
     return None
 
 
-def _get_product_category(device_name: str, robot: dict[str, Any] | None) -> str:
-    if robot:
-        category: str = robot.get("category", "UNKNOWN")
-        return category
-    if device_name.startswith("DEEBOT"):
-        return "DEEBOT"
-    if device_name.startswith("GOAT"):
-        return "GOATBOT"
-    # if device_name.startswith("AIRBOT"):
-    #     return "AIRBOT"
-    # if device_name.startswith("ATMOBOT"):
-    #     return "AIRBOT"
-    # if device_name.startswith("WINBOT"):
-    #     return "WINBOT"
-    return "UNKNOWN"
+async def _get_global_device_list(request: Request, post_body: Mapping[str, Any]) -> Any:
+    """Return the devices of the account."""
+    return device_list(_request_user(request, post_body))
 
 
-async def _handle_device_nickname(request: Request) -> Response:
-    """Rename a device."""
-    try:
-        did = request.match_info.get("did", "")
-        body = await request.json()
-        nickname = str(body.get("nickname", "")).strip()
-        if not did or not nickname:
-            _LOGGER.warning("No did or nickname in the request")
-            return response_success_v3(data=None, result_key=None, include_success=True)
-        if bot_repo.get(did) is None:
-            _LOGGER.warning(f"No bot found for {did} (nickname)")
-            return response_success_v3(data=None, result_key=None, include_success=True)
-        bot_repo.set_nick(did, nickname)
-        return response_success_v3(data=None, result_key=None, include_success=True)
-    except Exception:
-        _LOGGER.exception(utils.default_exception_str_builder(info="during handling request"))
-    raise HTTPInternalServerError
+def _request_user(request: Request, post_body: Mapping[str, Any]) -> BumperUser | None:
+    """Return the account a legacy request names."""
+    auth = post_body.get("auth")
+    user_id = post_body.get("userId") or post_body.get("userid")
+    if not user_id and isinstance(auth, Mapping):
+        user_id = auth.get("userid")
+    if not user_id:
+        user_id = claimed_userid(request)
+    if isinstance(user_id, str) and user_id:
+        return identity.resolve_user(user_id, prefer_device=True)
+    return None
+
+
+async def _get_codepush(_: Request, __: Mapping[str, Any]) -> Any:
+    """Return the CodePush configuration."""
+    return {
+        "extend": {},
+        "type": "microsoft",
+        "url": "",
+    }
+
+
+async def _robot_control(_: Request, post_body: Mapping[str, Any]) -> Any:
+    """Send a command to the robot and return its answer."""
+    data_ctl: Any | None = post_body.get("data", {})
+    if not isinstance(data_ctl, dict):
+        msg = "Error request, the data of the command is missing"
+        raise ApiError(msg=msg, code=2004)
+    data_ctl = data_ctl.get("ctl", None)
+    if not isinstance(data_ctl, dict):
+        msg = "Error request, the command is missing"
+        raise ApiError(msg=msg, code=2004)
+
+    cmd = next(iter(data_ctl.keys()))
+    cmd_json: dict[str, Any] = data_ctl.get(cmd, {})
+    cmd_request = MQTTCommandModel(cmd_json, version=MQTTCommandModel.VERSION_P2P)
+    if bumper_isc.mqtt_helperbot is None:
+        msg = "Error request, the helper bot is not connected"
+        raise ApiError(msg=msg, code=2004)
+    return await bumper_isc.mqtt_helperbot.send_command(cmd_request)
+
+
+async def _get_app_video_url(_: Request, post_body: Mapping[str, Any]) -> Any:
+    """Return the urls of the videos of the app."""
+    keys: Any = post_body.get("keys", [])
+    if not isinstance(keys, list):
+        msg = "Error request, the keys of the videos are missing"
+        raise ApiError(msg=msg, code=2004)
+    data = {}
+    for key in keys:
+        if key == "t9_promotional_video":
+            data[key] = f"https://{bumper_isc.DOMAIN_ALIYUN}/public/t9_promotional_video.mp4"
+    return data
+
+
+async def _get_device_protocol(_: Request, __: Mapping[str, Any]) -> Any:
+    """Return the versions of the protocol of the app."""
+    return {
+        "video": {
+            "version": "13.01",
+            "hasNewProtocol": False,
+            "hasReadOld": True,
+            "isAccept": True,
+            "protocolUrl": (
+                f"https://{pim_host()}/api/pim/protocol.html?version=13.01&lang=en&defaultLang=en&country=DE&type=video"
+            ),
+        },
+        "improve": {
+            "version": "11.15",
+            "hasNewProtocol": False,
+            "hasReadOld": True,
+            "isAccept": False,
+            "protocolUrl": (
+                f"https://{pim_host()}/api/pim/protocol.html?version=11.15&lang=en&defaultLang=en&country=DE&type=improve"
+            ),
+        },
+    }
+
+
+async def _decode_qr_code(_: Request, post_body: Mapping[str, Any]) -> Any:
+    """Return the product of the robot the qr code belongs to."""
+    qrcode = post_body.get("qrcode", "")
+    if not isinstance(qrcode, str):
+        return {}
+
+    qrcode_q = parse_qs(urlparse(qrcode).query)
+    sn = qrcode_q.get("sn", [None])[0]
+    mid = qrcode_q.get("mid", [None])[0]
+    if not isinstance(sn, str) and not isinstance(mid, str):
+        return {}
+
+    robot = None
+    product_category = None
+    for botprod in get_product_iot_map():
+        if botprod["classid"] != mid:
+            continue
+        name = botprod.get("product", {}).get("name")
+        robot = get_config_groups_robot(value=name, key="groupName")
+        product_category = get_product_category(device_name=name, robot=robot)
+        if robot:
+            robot["mid"] = mid
+            robot["customSteps"] = robot.pop("cusSteps")
+            robot["name"] = robot.pop("groupName")
+            robot.pop("groupId")
+            robot.pop("service")
+            robot.pop("products")
+            robot.pop("smartTypes")
+            robot.pop("icon")
+            robot.pop("sort")
+        break
+
+    return {
+        "supportApp": "global",
+        "belongApp": ["ecoglobal", "yeedi"],
+        "supportRegion": "International",
+        "qrType": "config",
+        "productCategory": product_category,
+        "code_sn": sn,
+        "configGuide": robot,
+        "configFAQ": config_faq(),
+    }
+
+
+# ----------- Mapping -----------
+APP_DO_OPERATIONS.update(
+    {
+        "GetGlobalDeviceList": Operation(TODO_RET.with_data_key("devices"), _get_global_device_list),
+        "GetCodepush": Operation(TODO_RET, _get_codepush),
+        "RobotControl": Operation(TODO_RET, _robot_control),
+        "GetAppVideoUrl": Operation(TODO_RET, _get_app_video_url),
+        "GetDeviceProtocolV2": Operation(TODO_RET, _get_device_protocol),
+        "DecodeQrCode": Operation(TODO_RET, _decode_qr_code),
+    },
+)
