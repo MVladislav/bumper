@@ -1,29 +1,18 @@
 """Notice plugin module."""
 
-from collections.abc import Iterable
-import logging
+from typing import Any
 
 from aiohttp import web
 from aiohttp.web_request import Request
-from aiohttp.web_response import Response
-from aiohttp.web_routedef import AbstractRouteDef
 
-from bumper.web.plugins import WebserverPlugin
-from bumper.web.utils.response_helper import response_success_v4
+from bumper.web.envelope import LEGACY_BARE, bind
 
-_LOGGER = logging.getLogger(__name__)
+from . import PREFIX
 
-
-class NoticePlugin(WebserverPlugin):
-    """Notice plugin."""
-
-    @property
-    def routes(self) -> Iterable[AbstractRouteDef]:
-        """Plugin routes."""
-        return [
-            web.route("*", "/notice/app", _handle_notice_app),
-        ]
+routes = web.RouteTableDef()
 
 
-async def _handle_notice_app(_: Request) -> Response:
-    return response_success_v4(data={})
+@routes.view(f"{PREFIX}/notice/app")
+@bind(LEGACY_BARE)
+async def _handle_notice_app(_: Request) -> Any:
+    return {}
