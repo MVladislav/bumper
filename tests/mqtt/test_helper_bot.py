@@ -2,11 +2,12 @@ import asyncio
 import json
 import time
 
-from aiomqtt import Client
+from aiomqtt import Client, Topic
 import pytest
 from testfixtures import LogCapture
 
-from bumper.mqtt.helper_bot import MQTTCommandModel, MQTTHelperBot
+from bumper.db import bot_repo, clean_log_repo
+from bumper.mqtt.helper_bot import CommandDto, MQTTCommandModel, MQTTHelperBot, _fw_ver_of
 from tests import HOST, MQTT_PORT
 
 
@@ -137,7 +138,7 @@ async def test_helperbot_message(mqtt_client: Client) -> None:
 
             # Test broadcast message
             msg_payload = "<ctl ts='1547822804960' td='DustCaseST' st='0'/>"
-            msg_topic_name = "iot/atr/DustCaseST/bot_serial/ls1ok3/wC3g/x"
+            msg_topic_name = "iot/atr/DustCaseST/bot_serial/ls1ok3/res2/x"
             await mqtt_client.publish(msg_topic_name, msg_payload.encode())
 
             await asyncio.sleep(0.1)
@@ -147,7 +148,7 @@ async def test_helperbot_message(mqtt_client: Client) -> None:
                     "bumper.mqtt.server.messages",
                     "DEBUG",
                     (
-                        "Received Broadcast :: Topic: iot/atr/DustCaseST/bot_serial/ls1ok3/wC3g/x"
+                        "Received Broadcast :: Topic: iot/atr/DustCaseST/bot_serial/ls1ok3/res2/x"
                         " :: Message: <ctl ts='1547822804960' td='DustCaseST' st='0'/>"
                     ),
                 ),
@@ -163,7 +164,7 @@ async def test_helperbot_message(mqtt_client: Client) -> None:
 
             # Send command to bot
             msg_payload = "{}"
-            msg_topic_name = "iot/p2p/GetWKVer/helperbot/bumper/helperbot/bot_serial/ls1ok3/wC3g/q/iCmuqp/j"
+            msg_topic_name = "iot/p2p/GetWKVer/helperbot/bumper/helperbot/bot_serial/ls1ok3/res2/q/iCmuqp/j"
             await mqtt_client.publish(msg_topic_name, msg_payload.encode())
 
             await asyncio.sleep(0.1)
@@ -173,7 +174,7 @@ async def test_helperbot_message(mqtt_client: Client) -> None:
                     "bumper.mqtt.server.messages",
                     "DEBUG",
                     (
-                        "Send Command :: Topic: iot/p2p/GetWKVer/helperbot/bumper/helperbot/bot_serial/ls1ok3/wC3g/q/iCmuqp/j"
+                        "Send Command :: Topic: iot/p2p/GetWKVer/helperbot/bumper/helperbot/bot_serial/ls1ok3/res2/q/iCmuqp/j"
                         " :: Message: {}"
                     ),
                 ),
@@ -189,7 +190,7 @@ async def test_helperbot_message(mqtt_client: Client) -> None:
 
             # Received response to command
             msg_payload = '{"ret":"ok","ver":"0.13.5"}'
-            msg_topic_name = "iot/p2p/GetWKVer/bot_serial/ls1ok3/wC3g/helperbot/bumper/helperbot/p/iCmuqp/j"
+            msg_topic_name = "iot/p2p/GetWKVer/bot_serial/ls1ok3/res2/helperbot/bumper/helperbot/p/iCmuqp/j"
             await mqtt_client.publish(msg_topic_name, msg_payload.encode())
 
             await asyncio.sleep(0.1)
@@ -200,7 +201,7 @@ async def test_helperbot_message(mqtt_client: Client) -> None:
                     "DEBUG",
                     (
                         "Received Response"
-                        " :: Topic: iot/p2p/GetWKVer/bot_serial/ls1ok3/wC3g/helperbot/bumper/helperbot/p/iCmuqp/j"
+                        " :: Topic: iot/p2p/GetWKVer/bot_serial/ls1ok3/res2/helperbot/bumper/helperbot/p/iCmuqp/j"
                         ' :: Message: {"ret":"ok","ver":"0.13.5"}'
                     ),
                 ),
@@ -216,7 +217,7 @@ async def test_helperbot_message(mqtt_client: Client) -> None:
 
             # Received unknown message
             msg_payload = "test"
-            msg_topic_name = "iot/p2p/GetWKVer/bot_serial/ls1ok3/wC3g/TESTBAD/bumper/helperbot/p/iCmuqp/j"
+            msg_topic_name = "iot/p2p/GetWKVer/bot_serial/ls1ok3/res2/TESTBAD/bumper/helperbot/p/iCmuqp/j"
             await mqtt_client.publish(msg_topic_name, msg_payload.encode())
 
             await asyncio.sleep(0.2)
@@ -226,7 +227,7 @@ async def test_helperbot_message(mqtt_client: Client) -> None:
                     "bumper.mqtt.server.messages",
                     "DEBUG",
                     (
-                        "Received Message :: Topic: iot/p2p/GetWKVer/bot_serial/ls1ok3/wC3g/TESTBAD/bumper/helperbot/p/iCmuqp/j"
+                        "Received Message :: Topic: iot/p2p/GetWKVer/bot_serial/ls1ok3/res2/TESTBAD/bumper/helperbot/p/iCmuqp/j"
                         " :: Message: test"
                     ),
                 ),
@@ -242,7 +243,7 @@ async def test_helperbot_message(mqtt_client: Client) -> None:
 
             # Received error message
             msg_payload = "<ctl ts='1560904925396' td='errors' old='' new='110'/>"
-            msg_topic_name = "iot/atr/errors/bot_serial/ls1ok3/wC3g/x"
+            msg_topic_name = "iot/atr/errors/bot_serial/ls1ok3/res2/x"
             await mqtt_client.publish(msg_topic_name, msg_payload.encode())
 
             await asyncio.sleep(0.1)
@@ -252,7 +253,7 @@ async def test_helperbot_message(mqtt_client: Client) -> None:
                     "bumper.mqtt.server.messages",
                     "DEBUG",
                     (
-                        "Received Broadcast :: Topic: iot/atr/errors/bot_serial/ls1ok3/wC3g/x"
+                        "Received Broadcast :: Topic: iot/atr/errors/bot_serial/ls1ok3/res2/x"
                         " :: Message: <ctl ts='1560904925396' td='errors' old='' new='110'/>"
                     ),
                 ),
@@ -264,7 +265,7 @@ async def test_helperbot_message(mqtt_client: Client) -> None:
 
 async def test_helperbot_expire_message(mqtt_client: Client, helper_bot: MQTTHelperBot) -> None:
     expire_msg_payload = '{"ret":"ok","ver":"0.13.5"}'
-    expire_msg_topic_name = "iot/p2p/GetWKVer/bot_serial/ls1ok3/wC3g/helperbot/bumper/helperbot/p/testgood/j"
+    expire_msg_topic_name = "iot/p2p/GetWKVer/bot_serial/ls1ok3/res2/helperbot/bumper/helperbot/p/testgood/j"
     currenttime = time.time()
     request_id = "ABC"
     data = {
@@ -279,7 +280,7 @@ async def test_helperbot_expire_message(mqtt_client: Client, helper_bot: MQTTHel
 
     await asyncio.sleep(0.1)
     msg_payload = "<ctl ts='1547822804960' td='DustCaseST' st='0'/>"
-    msg_topic_name = "iot/atr/DustCaseST/bot_serial/ls1ok3/wC3g/x"
+    msg_topic_name = "iot/atr/DustCaseST/bot_serial/ls1ok3/res2/x"
     await mqtt_client.publish(msg_topic_name, msg_payload.encode())  # Send another message to force get_msg
 
     await asyncio.sleep(0.1 * 2)
@@ -291,14 +292,14 @@ async def test_helperbot_send_command(mqtt_client: Client, helper_bot: MQTTHelpe
     cmdjson = {
         "toType": "ls1ok3",
         "payloadType": "j",
-        "toRes": "wC3g",
+        "toRes": "res2",
         "payload": {},
         "td": "q",
         "toId": "bot_serial",
         "cmdName": "GetWKVer",
         "auth": {
-            "token": "us_52cb21fef8e547f38f4ec9a699a5d77e",
-            "resource": "IOSF53D07BA",
+            "token": "us_00000000000000000000000000000000",
+            "resource": "IOSF00000001",
             "userid": "testuser",
             "with": "users",
             "realm": "ecouser.net",
@@ -317,7 +318,7 @@ async def test_helperbot_send_command(mqtt_client: Client, helper_bot: MQTTHelpe
 
     # Send response beforehand
     msg_payload = '{"ret":"ok","ver":"0.13.5"}'
-    msg_topic_name = "iot/p2p/GetWKVer/bot_serial/ls1ok3/wC3g/helperbot/bumper/helperbot/p/testgood/j"
+    msg_topic_name = "iot/p2p/GetWKVer/bot_serial/ls1ok3/res2/helperbot/bumper/helperbot/p/testgood/j"
     loop = asyncio.get_running_loop()
     loop.call_soon_threadsafe(asyncio.create_task, mqtt_client.publish(msg_topic_name, msg_payload.encode()))
 
@@ -335,14 +336,14 @@ async def test_helperbot_send_command(mqtt_client: Client, helper_bot: MQTTHelpe
     cmdjson = {
         "toType": "ls1ok3",
         "payloadType": "x",
-        "toRes": "wC3g",
+        "toRes": "res2",
         "payload": '<ctl type="Brush"/>',
         "td": "q",
         "toId": "bot_serial",
         "cmdName": "GetLifeSpan",
         "auth": {
-            "token": "us_52cb21fef8e547f38f4ec9a699a5d77e",
-            "resource": "IOSF53D07BA",
+            "token": "us_00000000000000000000000000000000",
+            "resource": "IOSF00000001",
             "userid": "testuser",
             "with": "users",
             "realm": "ecouser.net",
@@ -351,7 +352,7 @@ async def test_helperbot_send_command(mqtt_client: Client, helper_bot: MQTTHelpe
 
     # Send response beforehand
     msg_payload = "<ctl ret='ok' type='Brush' left='4142' total='18000'/>"
-    msg_topic_name = "iot/p2p/GetLifeSpan/bot_serial/ls1ok3/wC3g/helperbot/bumper/helperbot/p/testx/q"
+    msg_topic_name = "iot/p2p/GetLifeSpan/bot_serial/ls1ok3/res2/helperbot/bumper/helperbot/p/testx/q"
     await mqtt_client.publish(msg_topic_name, msg_payload.encode())
 
     cmd = MQTTCommandModel(cmdjson)
@@ -368,14 +369,14 @@ async def test_helperbot_send_command(mqtt_client: Client, helper_bot: MQTTHelpe
     cmdjson = {
         "toType": "ls1ok3",
         "payloadType": "j",
-        "toRes": "wC3g",
+        "toRes": "res2",
         "payload": {"header": {"pri": 1, "ts": "1569380075887", "tzm": -240, "ver": "0.0.50"}},
         "td": "q",
         "toId": "bot_serial",
         "cmdName": "getStats",
         "auth": {
-            "token": "us_52cb21fef8e547f38f4ec9a699a5d77e",
-            "resource": "IOSF53D07BA",
+            "token": "us_00000000000000000000000000000000",
+            "resource": "IOSF00000001",
             "userid": "testuser",
             "with": "users",
             "realm": "ecouser.net",
@@ -388,7 +389,7 @@ async def test_helperbot_send_command(mqtt_client: Client, helper_bot: MQTTHelpe
         ',"header":{"fwVer":"1.6.4","hwVer":"0.1.1","pri":1,"ts":"1569380074036","tzm":480,"ver":"0.0.1"}}'
     )
 
-    msg_topic_name = "iot/p2p/getStats/bot_serial/ls1ok3/wC3g/helperbot/bumper/helperbot/p/testj/j"
+    msg_topic_name = "iot/p2p/getStats/bot_serial/ls1ok3/res2/helperbot/bumper/helperbot/p/testj/j"
     await mqtt_client.publish(msg_topic_name, msg_payload.encode())
 
     cmd = MQTTCommandModel(cmdjson)
@@ -628,7 +629,7 @@ def test_version_2_adopts_si_as_request_id() -> None:
         "apn": "getPos",
         "eid": "did_1",
         "et": "p95mgv",
-        "er": "rljY",
+        "er": "res1",
         "ct": "q",
         "si": "LaxGMMNuGoCFgnnJ",
         "payload": {"body": {"data": ["chargePos", "deebotPos"]}},
@@ -643,7 +644,7 @@ def test_version_2_generates_request_id_without_si() -> None:
         "apn": "getPos",
         "eid": "did_1",
         "et": "p95mgv",
-        "er": "rljY",
+        "er": "res1",
         "ct": "q",
         "payload": {"body": {"data": []}},
     }
@@ -661,7 +662,7 @@ def test_request_id_cannot_inject_a_topic_level() -> None:
         "apn": "getPos",
         "eid": "did_1",
         "et": "p95mgv",
-        "er": "rljY",
+        "er": "res1",
         "ct": "q",
         "si": "evil/../../other/topic",
         "payload": {"body": {"data": []}},
@@ -677,7 +678,7 @@ def test_non_string_si_is_ignored() -> None:
         "apn": "getPos",
         "eid": "did_1",
         "et": "p95mgv",
-        "er": "rljY",
+        "er": "res1",
         "ct": "q",
         "si": 1234,
         "payload": {"body": {"data": []}},
@@ -692,7 +693,7 @@ def test_oversized_si_is_ignored() -> None:
         "apn": "getPos",
         "eid": "did_1",
         "et": "p95mgv",
-        "er": "rljY",
+        "er": "res1",
         "ct": "q",
         "si": "a" * 200,
         "payload": {"body": {"data": []}},
@@ -717,7 +718,7 @@ async def test_send_command_new_offline_returns_ngiot_offline(helper_bot: object
             "apn": "getPos",
             "eid": "did_offline",
             "et": "p95mgv",
-            "er": "rljY",
+            "er": "res1",
             "ct": "q",
             "si": "si_offline",
             "payload": {"body": {"data": []}},
@@ -744,7 +745,7 @@ async def test_send_command_new_fire_and_forget_does_not_wait(helper_bot: object
             "apn": "setChargePos",
             "eid": "did_ff",
             "et": "p95mgv",
-            "er": "rljY",
+            "er": "res1",
             "ct": "m",
             "si": "si_ff",
             "payload": {"body": {"data": {}}},
@@ -769,3 +770,128 @@ async def test_send_command_new_rejects_wrong_version(helper_bot: object) -> Non
     )
     response = await helper_bot.send_command(cmd)
     assert _decode(response)["ret"] == "fail"
+
+
+def test_the_firmware_version_is_read_from_the_header_of_the_answer() -> None:
+    """The header of an answer of a robot carries the version it runs."""
+    payload = json.dumps({"header": {"fwVer": "1.0.0", "hwVer": "2.0.0", "ts": "123"}, "body": {}})
+    assert _fw_ver_of(payload) == "1.0.0"
+
+    # An answer without a header, or with a header without the version.
+    assert _fw_ver_of(json.dumps({"body": {"data": {}}})) == ""
+    assert _fw_ver_of(json.dumps({"header": {"ts": "123"}, "body": {}})) == ""
+    assert _fw_ver_of("not json") == ""
+    assert _fw_ver_of(json.dumps(["a", "list"])) == ""
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_the_firmware_version_of_the_robot_is_saved(helper_bot: MQTTHelperBot) -> None:
+    """The version the robot reports is kept in the entry of the bot."""
+    bot_repo.add("bot", "did_1234", "p95mgv", "res_123", "eco-ng")
+    assert bot_repo.get("did_1234").fw_ver == ""
+
+    payload = json.dumps({"header": {"fwVer": "1.2.3"}, "body": {}})
+    helper_bot._remember_fw_ver("did_1234", payload)
+
+    bot = bot_repo.get("did_1234")
+    assert bot is not None
+    assert bot.fw_ver == "1.2.3"
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_the_firmware_version_is_written_once_per_version(helper_bot: MQTTHelperBot) -> None:
+    """The database is only written when the version of the robot changes."""
+    bot_repo.add("bot", "did_1234", "p95mgv", "res_123", "eco-ng")
+    payload = json.dumps({"header": {"fwVer": "1.2.3"}, "body": {}})
+
+    helper_bot._remember_fw_ver("did_1234", payload)
+    helper_bot._remember_fw_ver("did_1234", payload)
+
+    bot = bot_repo.get("did_1234")
+    assert bot is not None
+    assert bot.fw_ver == "1.2.3"
+
+    # A new version is written, a message without a version is not read.
+    helper_bot._remember_fw_ver("did_1234", json.dumps({"header": {"fwVer": "1.2.4"}, "body": {}}))
+    bot = bot_repo.get("did_1234")
+    assert bot is not None
+    assert bot.fw_ver == "1.2.4"
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_the_firmware_version_is_not_written_again_after_a_restart(helper_bot: MQTTHelperBot) -> None:
+    """The database is not written when it knows the version already."""
+    bot_repo.add("bot", "did_1234", "p95mgv", "res_123", "eco-ng")
+    bot_repo.set_fw_ver("did_1234", "1.2.3")
+
+    # A helper bot that starts with an empty cache.
+    helper_bot._fw_vers.clear()
+    payload = json.dumps({"header": {"fwVer": "1.2.3"}, "body": {}})
+    helper_bot._remember_fw_ver("did_1234", payload)
+
+    bot = bot_repo.get("did_1234")
+    assert bot is not None
+    assert bot.fw_ver == "1.2.3"
+    # The version is known now, so the next message is not even parsed.
+    assert helper_bot._fw_vers["did_1234"] == "1.2.3"
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_the_firmware_version_is_saved_under_the_did_of_the_command(
+    helper_bot: MQTTHelperBot,
+) -> None:
+    """The robot the command was sent to is the one the version belongs to."""
+    bot_repo.add("bot", "did_1234", "p95mgv", "res_123", "eco-ng")
+
+    cmd = MQTTCommandModel(
+        {"cmd": "getBattery", "did": "did_1234", "mid": "p95mgv", "res": "res_123", "data": {}},
+        version=MQTTCommandModel.VERSION_P2P,
+    )
+    command = CommandDto(cmd.payload_type, cmd.did or "")
+    helper_bot._commands[cmd.request_id] = command
+
+    payload = json.dumps({"header": {"fwVer": "1.2.3"}, "body": {}})
+    await helper_bot._on_message(
+        Topic(f"iot/p2p/getBattery/helperbot/bumper/helperbot/did_1234/ls1ok3/res_123/p/{cmd.request_id}/j"),
+        payload.encode(),
+    )
+
+    bot = bot_repo.get("did_1234")
+    assert bot is not None
+    assert bot.fw_ver == "1.2.3"
+    # No other bot was created for the name of the client.
+    assert len(bot_repo.list_all()) == 1
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_last_time_stats_stores_a_completed_clean_log(helper_bot: MQTTHelperBot) -> None:
+    """The final stats event creates a log with its robot timestamp as the end."""
+    did = "did_goat"
+    rid = "resource_goat"
+    payload = {
+        "header": {"ts": "1792845283566600962"},
+        "body": {
+            "code": 0,
+            "msg": "ok",
+            "data": {
+                "area": 580100,
+                "cid": "123",
+                "start": "1792840184",
+                "stop": 1,
+                "time": 2714,
+                "type": "auto",
+            },
+        },
+    }
+
+    await helper_bot._on_message(
+        Topic(f"iot/atr/onLastTimeStats/{did}/300lc5/{rid}/j"),
+        json.dumps(payload).encode(),
+    )
+
+    log = clean_log_repo.list_by_id(f"{did}@1792840184@{rid}")
+    assert log is not None
+    assert log.end == 1792845283
+    assert log.last == 2714
+    assert log.area == 580100
+    assert log.stop_reason is None

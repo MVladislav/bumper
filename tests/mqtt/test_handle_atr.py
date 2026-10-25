@@ -58,3 +58,46 @@ def test_clean_log(payload: dict[str, Any], expected: int) -> None:
     assert saved_logs[0].stop_reason == to_int(payload.get("body", {}).get("data", {}).get("stopReason"))
     assert saved_logs[0].ts == to_int(start_p)
     assert saved_logs[0].type == payload.get("body", {}).get("data", {}).get("type")
+
+
+@pytest.mark.usefixtures("clean_database")
+def test_partial_clean_log_update_keeps_earlier_statistics() -> None:
+    """A later partial robot update advances time without erasing known stats."""
+    did = "partial_device"
+    rid = "resource"
+    first = {
+        "body": {
+            "data": {
+                "cid": "123",
+                "start": 1768213516382,
+                "time": 20,
+                "stopReason": 3,
+                "area": 28,
+                "aiavoid": 2,
+                "aitypes": ["object"],
+                "type": "auto",
+            },
+        },
+    }
+    partial = {
+        "body": {
+            "data": {
+                "cid": "123",
+                "start": 1768213516382,
+                "time": 30,
+                "stopReason": None,
+                "type": "auto",
+            },
+        },
+    }
+
+    clean_log(did, rid, json.dumps(first))
+    clean_log(did, rid, json.dumps(partial))
+
+    logs = clean_log_repo.list_by_did(did)
+    assert len(logs) == 1
+    assert logs[0].stop_reason == 3
+    assert logs[0].area == 28
+    assert logs[0].aiavoid == 2
+    assert logs[0].aitypes == ["object"]
+    assert logs[0].last == 30
