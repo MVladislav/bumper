@@ -4,12 +4,14 @@ import logging
 from typing import TYPE_CHECKING, Any
 
 from aiohttp import web
+from aiohttp.test_utils import make_mocked_request
 from aiohttp.web_app import Application
 from aiohttp.web_response import Response, StreamResponse
 import pytest
 
 from bumper.utils.settings import config as bumper_isc
-from bumper.web.utils.middlewares import CustomEncoder, log_all_requests
+from bumper.web.envelope import ApiError
+from bumper.web.utils.middlewares import CustomEncoder, log_all_requests, shape_failures
 
 if TYPE_CHECKING:
     from aiohttp.test_utils import TestClient
@@ -229,3 +231,78 @@ async def test_middleware_handles_none_response(
     resp = await client.post("/null", data="test")
     assert resp.status == 204  # HTTPNoContent
     assert "Response was null!" in caplog.text
+
+
+async def test_a_failure_that_is_not_shaped_answers_with_an_envelope() -> None:
+    """A handler that raises without a shape does not reach the app as a 500."""
+
+    async def handler(_: web.Request) -> StreamResponse:
+        msg = "Auth code not known"
+        raise ApiError(msg=msg)
+
+    request = make_mocked_request("GET", "/api/appsvr/oauth/token")
+    response = await shape_failures(request, handler)
+
+    assert response.status == 200
+    body = json.loads(response.body)
+    assert body["code"] == 1
+    assert body["ret"] == "fail"
+    assert body["error"] == "Auth code not known"
+
+
+async def test_a_request_that_matched_no_route_answers_with_an_envelope() -> None:
+    """A request that no route covers answers in the shape of its family."""
+
+    async def handler(_: web.Request) -> StreamResponse:
+        raise web.HTTPNotFound
+
+    request = make_mocked_request("GET", "/v1/private/US/EN/x/global_e/1/x/1/nothing")
+    response = await shape_failures(request, handler)
+
+    assert response.status == 404
+    body = json.loads(response.body)
+    assert body["code"] == "0001"
+    assert body["msg"] == "Not found"
+    assert body["success"] is False
+
+
+async def test_middleware_logs_a_body_that_is_not_text(
+    aiohttp_client: pytest.FixtureRequest,
+    app: Application,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """A body that is not utf-8 is logged, not refused."""
+    client: TestClient = await aiohttp_client(app)
+    resp = await client.post(
+        "/test",
+        data=b"\x00\x01\x02\x03\xa1binary",
+        headers={"Content-Type": "application/octet-stream"},
+    )
+    assert resp.status == 200
+    assert "request" in caplog.text
+    assert "Unexpected exception" not in caplog.text
+
+
+async def test_the_debug_logging_of_a_body_that_is_not_text(
+    aiohttp_client: pytest.FixtureRequest,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """The debug log of a request that no route covers survives a binary body."""
+    bumper_isc.DEBUG_LOGGING_API_REQUEST_MISSING = True
+
+    app = Application(middlewares=[log_all_requests])
+
+    async def handler(_: web.Request) -> Response:
+        return web.json_response({"ok": True})
+
+    app.router.add_post("/known", handler)
+
+    client: TestClient = await aiohttp_client(app)
+    resp = await client.post(
+        "/unknown",
+        data=b"\x00\x01\x02\x03\xa1binary",
+        headers={"Content-Type": "application/octet-stream"},
+    )
+    assert resp.status in (404, 500)
+    assert "Requested API is not implemented" in caplog.text
+    assert "Unexpected exception" not in caplog.text
