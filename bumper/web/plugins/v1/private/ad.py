@@ -1,29 +1,19 @@
 """Ad plugin module."""
 
-from collections.abc import Iterable
+from typing import Any
 
 from aiohttp import web
 from aiohttp.web_request import Request
-from aiohttp.web_response import Response
-from aiohttp.web_routedef import AbstractRouteDef
 
-from bumper.web.plugins import WebserverPlugin
-from bumper.web.utils.response_helper import response_success_v1
+from bumper.web.envelope import GL_V1, bind
 
 from . import BASE_URL
 
-
-class AdPlugin(WebserverPlugin):
-    """Ad plugin."""
-
-    @property
-    def routes(self) -> Iterable[AbstractRouteDef]:
-        """Plugin routes."""
-        return [
-            web.route("*", f"{BASE_URL}ad/getAdByPositionType", _handle),
-            web.route("*", f"{BASE_URL}ad/getBootScreen", _handle),
-        ]
+routes = web.RouteTableDef()
 
 
-async def _handle(_: Request) -> Response:
-    return response_success_v1(None)
+@routes.view(f"{BASE_URL}ad/getAdByPositionType")
+@routes.view(f"{BASE_URL}ad/getBootScreen")
+@bind(GL_V1)
+async def _handle(_: Request) -> Any:
+    return None

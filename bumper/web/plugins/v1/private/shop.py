@@ -1,36 +1,24 @@
 """Shop plugin module."""
 
-from collections.abc import Iterable
+from typing import Any
 
 from aiohttp import web
 from aiohttp.web_request import Request
-from aiohttp.web_response import Response
-from aiohttp.web_routedef import AbstractRouteDef
 
-from bumper.web.plugins import WebserverPlugin
-from bumper.web.utils.response_helper import response_success_v1
+from bumper.web.envelope import GL_V1, bind
 
 from . import BASE_URL
 
-
-class ShopPlugin(WebserverPlugin):
-    """Shop plugin."""
-
-    @property
-    def routes(self) -> Iterable[AbstractRouteDef]:
-        """Plugin routes."""
-        return [
-            web.route("*", f"{BASE_URL}shop/getCnWapShopConfig", _handle_get_cn_wap_shop_config),
-        ]
+routes = web.RouteTableDef()
 
 
-async def _handle_get_cn_wap_shop_config(_: Request) -> Response:
+@routes.view(f"{BASE_URL}shop/getCnWapShopConfig")
+@bind(GL_V1)
+async def _handle_get_cn_wap_shop_config(_: Request) -> Any:
     """Get cn wap shop config."""
-    return response_success_v1(
-        {
-            "myShopShowFlag": "N",
-            "myShopUrl": "",
-            "shopIndexShowFlag": "N",
-            "shopIndexUrl": "",
-        },
-    )
+    return {
+        "myShopShowFlag": "N",
+        "myShopUrl": "",
+        "shopIndexShowFlag": "N",
+        "shopIndexUrl": "",
+    }

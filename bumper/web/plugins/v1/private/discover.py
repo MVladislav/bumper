@@ -1,40 +1,29 @@
 """Discover plugin module."""
 
-from collections.abc import Iterable
+from typing import Any
 
 from aiohttp import web
 from aiohttp.web_request import Request
-from aiohttp.web_response import Response
-from aiohttp.web_routedef import AbstractRouteDef
 
 from bumper.utils import utils
-from bumper.web.plugins import WebserverPlugin
-from bumper.web.utils.response_helper import response_success_v1
+from bumper.web.envelope import GL_V1, bind
+from bumper.web.payloads import discover_labels
 
 from . import BASE_URL
 
-
-class DiscoverPlugin(WebserverPlugin):
-    """Discover plugin."""
-
-    @property
-    def routes(self) -> Iterable[AbstractRouteDef]:
-        """Plugin routes."""
-        return [
-            web.route("GET", f"{BASE_URL}discover/info/getLabelList", _handle_get_label_list),
-            web.route("GET", f"{BASE_URL}discover/info/getAllInfoPage", _handle_get_all_info_page),
-        ]
+routes = web.RouteTableDef()
 
 
-async def _handle_get_label_list(_: Request) -> Response:
+@routes.get(f"{BASE_URL}discover/info/getLabelList")
+@bind(GL_V1)
+async def _handle_get_label_list(_: Request) -> Any:
     """Get label list."""
-    # TODO: check what's needed to be implemented
-    utils.default_log_warn_not_impl("_handle_get_label_list")
-    return response_success_v1(None)
+    return {"labelList": discover_labels()}
 
 
-async def _handle_get_all_info_page(_: Request) -> Response:
+@routes.get(f"{BASE_URL}discover/info/getAllInfoPage")
+@bind(GL_V1)
+async def _handle_get_all_info_page(_: Request) -> Any:
     """Get all info page."""
-    # TODO: check what's needed to be implemented
     utils.default_log_warn_not_impl("_handle_get_all_info_page")
-    return response_success_v1(None)
+    return None

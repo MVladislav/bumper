@@ -1,35 +1,26 @@
 """Message plugin module."""
 
-from collections.abc import Iterable
+from typing import Any
 
 from aiohttp import web
 from aiohttp.web_request import Request
-from aiohttp.web_response import Response
-from aiohttp.web_routedef import AbstractRouteDef
 
-from bumper.web.plugins import WebserverPlugin
-from bumper.web.utils.response_helper import response_success_v1
+from bumper.web.envelope import GL_V1, bind
 
 from . import BASE_URL
 
-
-class MessagePlugin(WebserverPlugin):
-    """Message plugin."""
-
-    @property
-    def routes(self) -> Iterable[AbstractRouteDef]:
-        """Plugin routes."""
-        return [
-            web.route("*", f"{BASE_URL}message/hasUnreadMsg", _handle_has_unread_message),
-            web.route("*", f"{BASE_URL}message/getMsgList", _handle_get_msg_list),
-        ]
+routes = web.RouteTableDef()
 
 
-async def _handle_has_unread_message(_: Request) -> Response:
+@routes.view(f"{BASE_URL}message/hasUnreadMsg")
+@bind(GL_V1)
+async def _handle_has_unread_message(_: Request) -> Any:
     """Has unread message."""
-    return response_success_v1("N")
+    return "N"
 
 
-async def _handle_get_msg_list(_: Request) -> Response:
+@routes.view(f"{BASE_URL}message/getMsgList")
+@bind(GL_V1)
+async def _handle_get_msg_list(_: Request) -> Any:
     """Get msg list."""
-    return response_success_v1({"hasNextPage": 0, "items": []})
+    return {"hasNextPage": 0, "items": []}
