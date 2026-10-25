@@ -16,6 +16,22 @@ body:
       description: Why is this feature needed? What problem does it solve?
     validations:
       required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      description: Which part of Bumper would this touch?
+      options:
+        - Web Server / REST API
+        - XMPP
+        - MQTT
+        - Database / Persistence
+        - TLS / Certificates
+        - Web UI
+        - Documentation
+        - Other
+    validations:
+      required: true
   - type: textarea
     id: alternatives
     attributes:
