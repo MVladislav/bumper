@@ -272,7 +272,7 @@ async def test_transport_name_is_not_adopted_from_an_unverified_jwt() -> None:
             "t": "a",
             "exp": int(datetime.now(tz=bumper_isc.LOCAL_TIMEZONE).timestamp()) + 60,
         },
-        "not-the-server-key",
+        "not-the-server-key-but-long-enough",
         algorithm="HS256",
     )
 
@@ -294,7 +294,7 @@ async def test_transport_secret_rejects_a_jwt_bumper_did_not_sign() -> None:
             "t": "a",
             "exp": int(datetime.now(tz=bumper_isc.LOCAL_TIMEZONE).timestamp()) + 60,
         },
-        "not-the-server-key",
+        "not-the-server-key-but-long-enough",
         algorithm="HS256",
     )
 
