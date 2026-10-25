@@ -1,7 +1,5 @@
 """Homed plugin module."""
 
-from collections.abc import Iterable
-import json
 import logging
 from typing import Any
 import uuid
@@ -9,173 +7,142 @@ import uuid
 from aiohttp import web
 from aiohttp.web_exceptions import HTTPInternalServerError
 from aiohttp.web_request import Request
-from aiohttp.web_response import Response
-from aiohttp.web_routedef import AbstractRouteDef
 
 from bumper.db import token_repo, user_repo
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
-from bumper.web.auth_service import get_jwt_details
-from bumper.web.plugins import WebserverPlugin
-from bumper.web.utils.response_helper import response_error_v2, response_success_v3
+from bumper.web.context import read_body, verified_claims
+from bumper.web.envelope import LEGACY, LEGACY_NO_RET, ApiError, bind
+from bumper.web.payloads import (
+    HOME_ROLE_IDS_NAMED,
+    HomeInfo,
+    home_infos,
+    member_info,
+    role_infos,
+)
+
+from . import PREFIX
 
 _LOGGER = logging.getLogger(__name__)
 
-HOME_ROLE_IDS_NAMED: tuple[tuple[str, str], ...] = (
-    ("62613c516d224ab8b32468fb", "Fraternal grandpa"),  # pragma: allowlist secret
-    ("62613c516d224ab8b32468fc", "Fraternal grandma"),  # pragma: allowlist secret
-    ("62613c516d224ab8b32468fd", "Dad"),  # pragma: allowlist secret
-    ("62613c516d224ab8b32468fe", "Mom"),  # pragma: allowlist secret
-    ("62613c516d224ab8b32468ff", "Older brother"),  # pragma: allowlist secret
-    ("62613c516d224ab8b3246900", "Younger brother"),  # pragma: allowlist secret
-    ("62613c516d224ab8b3246901", "Older sister"),  # pragma: allowlist secret
-    ("62613c516d224ab8b3246902", "Younger sister"),  # pragma: allowlist secret
-    ("62613c516d224ab8b3246903", "Husband"),  # pragma: allowlist secret
-    ("62613c516d224ab8b3246904", "Wife"),  # pragma: allowlist secret
-)
-HOME_ROLE_IDS: tuple[str, ...] = tuple(role_id for role_id, _ in HOME_ROLE_IDS_NAMED)
+
+routes = web.RouteTableDef()
 
 
-class HomedPlugin(WebserverPlugin):
-    """Homed plugin."""
-
-    @property
-    def routes(self) -> Iterable[AbstractRouteDef]:
-        """Plugin routes."""
-        return [
-            web.route("*", "/homed/home/list", _handle_home_list),
-            web.route("POST", "/homed/home/create", _handle_home_create),
-            web.route("*", "/homed/home/update", _handle_home_update),
-            web.route("POST", "/homed/home/delete", _handle_home_delete),
-            web.route("*", "/homed/member/list", _handle_member_list),
-            web.route("*", "/homed/home/role/list", _handle_home_role_list),
-            web.route("*", "/homed/home/member/role/update", _handle_home_member_role_update),
-            web.route("POST", "/homed/device/move", _handle_device_move),
-            web.route("*", "/homed/v2/matter/paa", _handle_matter_paa),
-        ]
-
-
-async def _handle_home_list(request: Request) -> Response:
+@routes.view(f"{PREFIX}/homed/home/list")
+@bind(LEGACY_NO_RET)
+async def _handle_home_list(request: Request) -> Any:
     """Home list."""
-    try:
-        user_id = request.query.get("userid")
-        data = []
-        if user_id is not None:
-            user = user_repo.get_by_id(user_id)
-            if user is not None:
-                for index, home_id in enumerate(user.homeids):
-                    data.append(
-                        {
-                            "createTime": utils.get_current_time_as_millis(),
-                            "createUser": user.userid,
-                            "createUserName": user.username,
-                            "firstCreate": False,
-                            "homeId": home_id,
-                            "name": f"My Home ({index})",
-                            "type": "own",
-                        },
-                    )
-        return response_success_v3(data=data)
-    except Exception:
-        _LOGGER.exception(utils.default_exception_str_builder(info="during handling request"))
-    raise HTTPInternalServerError
+    user_id = request.query.get("userid")
+    data: list[HomeInfo] = []
+    if user_id is not None:
+        user = user_repo.get_by_id(user_id)
+        if user is not None:
+            data = home_infos(user)
+    return data
 
 
-async def _handle_home_create(request: Request) -> Response:
+@routes.post(f"{PREFIX}/homed/home/create")
+@bind(LEGACY_NO_RET)
+async def _handle_home_create(request: Request) -> Any:
     """Home create."""
-    # TODO: check what's needed to be implemented
     utils.default_log_warn_not_impl("_handle_home_create")
-    json_body: dict[str, Any] = json.loads(await request.text())
-    authorization = request.headers.get("authorization")
-    jwt_info = get_jwt_details(authorization)
+    json_body = await read_body(request)
+    jwt_info = verified_claims(request)
     if jwt_info is None:
-        return response_error_v2()
+        raise ApiError(msg="Auth error", code=1)
 
     name = json_body.get("name")
     token = token_repo.get_by_auth_code(jwt_info.get("auth_code", ""))
     if token and token.userid is not None:
         user_repo.add_home_id(token.userid, uuid.uuid4().hex)
         _LOGGER.debug(f"Create :: {name}")
-    return response_success_v3(result_key=None)
+    return None
 
 
-async def _handle_home_update(request: Request) -> Response:
+@routes.view(f"{PREFIX}/homed/home/update")
+@bind(LEGACY_NO_RET.with_optional_data())
+async def _handle_home_update(request: Request) -> Any:
     """Home update."""
-    # TODO: check what's needed to be implemented
     utils.default_log_warn_not_impl("_handle_home_update")
-    json_body = json.loads(await request.text())
+    json_body = await read_body(request)
     home_id = json_body.get("homeId")
     name = json_body.get("name")
     _LOGGER.debug(f"Update :: homeId: {home_id} - name: {name}")
-    return response_success_v3(result_key=None)
+    return None
 
 
-async def _handle_home_delete(request: Request) -> Response:
+@routes.post(f"{PREFIX}/homed/home/delete")
+@bind(LEGACY_NO_RET)
+async def _handle_home_delete(request: Request) -> Any:
     """Home delete."""
-    # TODO: check what's needed to be implemented
     utils.default_log_warn_not_impl("_handle_home_delete")
-    json_body = json.loads(await request.text())
-    home_id = json_body.get("homeId")
+    json_body = await read_body(request)
+    home_id = str(json_body.get("homeId", ""))
     user = user_repo.get_by_home_id(home_id)
     if user is not None:
         user_repo.remove_home_id(user.userid, home_id)
     _LOGGER.debug(f"Delete :: {home_id}")
-    return response_success_v3(result_key=None)
+    return None
 
 
-async def _handle_member_list(request: Request) -> Response:
+@routes.view(f"{PREFIX}/homed/member/list")
+@bind(LEGACY_NO_RET)
+async def _handle_member_list(request: Request) -> Any:
     """Member list."""
-    try:
-        home_id = request.query.get("homeId", bumper_isc.HOME_ID)
-        user = user_repo.get_by_home_id(home_id)
-        if user is None:
-            _LOGGER.warning(f"No user found for {home_id}")
-        else:
-            return response_success_v3(
-                data=[
-                    {
-                        "createTime": utils.get_current_time_as_millis(),
-                        "id": user.userid,
-                        "isAdmin": 2,
-                        "name": user.nickname,
-                        "roleId": HOME_ROLE_IDS_NAMED[0][0],
-                        "roleName": HOME_ROLE_IDS_NAMED[0][1],
-                        "status": 1,
-                        "uid": user.userid,
-                    },
-                ],
-            )
+    home_id = request.query.get("homeId", bumper_isc.DEFAULT_HOME_ID)
+    user = user_repo.get_by_home_id(home_id)
+    if user is None:
+        _LOGGER.warning(f"No user found for {home_id}")
+    else:
+        role_id, role_name = HOME_ROLE_IDS_NAMED[0]
+        return [member_info(user, role_id, role_name)]
 
-    except Exception:
-        _LOGGER.exception(utils.default_exception_str_builder(info="during handling request"))
     raise HTTPInternalServerError
 
 
-async def _handle_home_role_list(_: Request) -> Response:
+@routes.view(f"{PREFIX}/homed/home/role/list")
+@bind(LEGACY_NO_RET)
+async def _handle_home_role_list(_: Request) -> Any:
     """Home role list."""
-    return response_success_v3(
-        data=[{"id": role_id, "name": name, "isUse": False} for role_id, name in HOME_ROLE_IDS_NAMED],
+    return role_infos()
+
+
+@routes.view(f"{PREFIX}/homed/home/member/role/update")
+@bind(LEGACY_NO_RET.with_optional_data())
+async def _handle_home_member_role_update(request: Request) -> Any:
+    """Update a member's home role."""
+    _LOGGER.debug(f"Role update requested :: {await request.text()}")
+    return None
+
+
+@routes.view(f"{PREFIX}/homed/v2/matter/paa")
+@bind(LEGACY.with_result(None).with_success(True))
+async def _handle_matter_paa(_: Request) -> Any:
+    """Matter / PAA integration probe."""
+    _LOGGER.debug("Matter/PAA probe answered with an empty result")
+    return {}
+
+
+@routes.view(f"{PREFIX}/homed/v2/matter/fabric")
+async def _handle_matter_fabric(_: Request) -> web.Response:
+    """Return the response for a home without Matter-capable devices."""
+    return web.json_response(
+        {
+            "code": 4007,
+            "message": "There are no devices that support LAN mode under this username.",
+        },
     )
 
 
-async def _handle_home_member_role_update(request: Request) -> Response:
-    """Update a member's home role."""
-    _LOGGER.debug(f"Role update requested :: {await request.text()}")
-    return response_success_v3(result_key=None)
-
-
-async def _handle_matter_paa(_: Request) -> Response:
-    """Matter / PAA integration probe."""
-    _LOGGER.debug("Matter/PAA probe answered with an empty result")
-    return response_success_v3(data={}, result_key=None, include_success=True)
-
-
-async def _handle_device_move(request: Request) -> Response:
+@routes.post(f"{PREFIX}/homed/device/move")
+@bind(LEGACY_NO_RET.with_optional_data())
+async def _handle_device_move(request: Request) -> Any:
     """Device move."""
-    post_body = json.loads(await request.text())
+    post_body = await read_body(request)
     did = post_body.get("did")
     mid = post_body.get("mid")
     to = post_body.get("to")  # NOTE: possible home id
     _LOGGER.debug(f"Move :: did: {did} - mid: {mid} - to: {to}")
 
-    return response_success_v3(result_key=None)
+    return None
