@@ -21,9 +21,22 @@ class CleanLogRepo(BaseRepo):
         super().__init__(TABLE_CLEAN_LOGS)
 
     def add_or_update(self, log: CleanLog) -> None:
-        """Add or update a clean log entry (ensures uniqueness based on LOG_ID, and TYPE)."""
+        """Add or merge a clean log, preserving known values absent from an update."""
         q = (query_instance.clean_log_id == log.clean_log_id) & (query_instance.type == log.type)
-        self._upsert(log.to_db(), q)
+        data = log.to_db()
+        existing = self._get(q)
+        if existing is None:
+            self._upsert(data, q)
+        else:
+            provided = log.provided_fields
+            fields = provided | {"did"} if provided is not None else set(data)
+            updates = {
+                field: data[field]
+                for field in fields
+                if field in data and (data[field] is not None or existing.get(field) is None)
+            }
+            if updates:
+                self._upsert(updates, q)
         if log.did:
             self.prune(log.did, bumper_isc.CLEAN_LOG_MAX_PER_DEVICE)
 

@@ -13,6 +13,7 @@ from typing import Any, cast
 
 from tinydb.table import Document
 
+from bumper.utils import map_doc
 from bumper.utils.utils import to_int, to_milliseconds
 from bumper.web.utils.models import CleanLog
 
@@ -23,6 +24,10 @@ _LOGGER = logging.getLogger(__name__)
 
 KIND_PICTURE = "pic"
 KIND_MAP = "map"
+
+# A map is uploaded when the job is done, but the robot may take a moment to
+# send it. A map that arrives much later belongs to another job or to no job.
+MAP_MATCH_TOLERANCE_MS = 600_000
 
 
 class PhotoRepo(BaseRepo):
@@ -42,7 +47,7 @@ class PhotoRepo(BaseRepo):
     def list_by_did(
         self,
         did: str | None = None,
-        limit: int = 50,
+        limit: int | None = 50,
         before: int | None = None,
         kind: str | None = None,
     ) -> list[dict[str, Any]]:
@@ -57,7 +62,7 @@ class PhotoRepo(BaseRepo):
         # milliseconds, so the times are scaled up before they are compared.
         photos = [{**photo, "ts": to_milliseconds(to_int(photo.get("ts"), 0) or 0)} for photo in photos]
         photos.sort(key=lambda photo: to_int(photo.get("ts"), 0) or 0, reverse=True)
-        return photos[:limit]
+        return photos if limit is None else photos[:limit]
 
     def get_by_photo_id(self, photo_id: str) -> dict[str, Any] | None:
         """Return the first record with a matching `id`."""
@@ -74,7 +79,7 @@ class PhotoRepo(BaseRepo):
         job is the one that was uploaded closest to the end of the job.
         """
         uploads: dict[str, list[tuple[int, str]]] = {}
-        for photo in self.list_by_did(limit=100, kind=KIND_MAP):
+        for photo in self.list_by_did(limit=None, kind=KIND_MAP):
             did = str(photo.get("did", ""))
             uploads.setdefault(did, []).append((to_int(photo.get("ts"), 0) or 0, str(photo.get("id", ""))))
 
@@ -83,20 +88,33 @@ class PhotoRepo(BaseRepo):
             entries.sort()
             jobs = sorted((log for log in logs if log.did == did), key=lambda log: to_int(log.ts, 0) or 0)
             for index, log in enumerate(jobs):
-                # The log holds the time in seconds and the map in milliseconds.
+                # The log and the map hold their timestamps in different units.
                 started = (to_int(log.ts, 0) or 0) * 1000
-                ended = started + (to_int(log.last, 0) or 0) * 1000
+                reported_end = to_int(log.end, 0) or 0
+                ended = to_milliseconds(reported_end) if reported_end else None
                 # The next job starts when this one is over, a map that was
                 # uploaded after that belongs to the next job.
                 limit: int | None = None
                 if index + 1 < len(jobs):
                     limit = (to_int(jobs[index + 1].ts, 0) or 0) * 1000
-                candidates = [entry for entry in entries if entry[0] >= started and (limit is None or entry[0] < limit)]
+                candidates = [
+                    entry
+                    for entry in entries
+                    if entry[0] >= started
+                    and (limit is None or entry[0] < limit)
+                    and (ended is None or entry[0] <= ended + MAP_MATCH_TOLERANCE_MS)
+                ]
                 if not candidates:
                     continue
-                closest = min(candidates, key=_distance_from(ended))
-                maps[log.clean_log_id] = closest[1]
-                entries.remove(closest)
+                if ended is None:
+                    # Older logs have no wall-clock end. Their map is the last
+                    # one uploaded before the next job begins, even if the
+                    # active clean time excludes pauses.
+                    selected = max(candidates, key=lambda entry: entry[0])
+                else:
+                    selected = min(candidates, key=_distance_from(ended))
+                maps[log.clean_log_id] = selected[1]
+                entries.remove(selected)
         return maps
 
     def remove_all(self) -> None:
@@ -131,7 +149,7 @@ class PhotoRepo(BaseRepo):
             parsed = json.loads(PhotoRepo.decode_image(data))
         except (ValueError, UnicodeDecodeError):
             return {}
-        return parsed if isinstance(parsed, dict) else {}
+        return map_doc.normalise_map_document(parsed) if isinstance(parsed, dict) else {}
 
 
 def _distance_from(moment: int) -> Callable[[tuple[int, str]], int]:

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="400" viewBox="0 0 640 400" role="img" aria-label="No map available">
+  <rect width="640" height="400" fill="#f3f5f7"/>
+  <rect x="0.5" y="0.5" width="639" height="399" fill="none" stroke="#e2e6ea"/>
+
+  <g fill="none" stroke="#aab3bd" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M238 148l54-22 56 22 54-22v126l-54 22-56-22-54 22z"/>
+    <path d="M292 126v126M348 148v126"/>
+  </g>
+  <path d="M270 220c20-30 42-44 66-40s34 24 34 24" fill="none" stroke="#c3cad2" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 14"/>
+  <circle cx="370" cy="204" r="7" fill="#aab3bd"/>
+
+  <text x="320" y="308" text-anchor="middle" font-family="sans-serif" font-size="24" font-weight="600" fill="#5f6b76">No map available</text>
+  <text x="320" y="336" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#8a949e">The robot has not uploaded a map for this job</text>
+</svg>
