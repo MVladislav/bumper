@@ -12,7 +12,7 @@ from xml.etree.ElementTree import Element
 
 import defusedxml.ElementTree as ET  # noqa: N817
 
-from bumper.db import bot_repo, client_repo, token_repo
+from bumper.db import bot_repo, client_repo, identity
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
 
@@ -117,6 +117,7 @@ class XMPPAsyncClient:
         self.address = transport.get_extra_info("peername")
         self.transport = transport
         self.clientresource: str | None = ""
+        self.account_user_id: str | None = None
         self.devclass = ""
         self.bumper_jid = ""
         self.uid = ""
@@ -166,9 +167,9 @@ class XMPPAsyncClient:
                 if bot:
                     bot_repo.set_xmpp(bot.did, False)
             else:
-                client = client_repo.get(self.uid)
+                client = client_repo.get(self.uid, resource=self.clientresource or None)
                 if client:
-                    client_repo.set_xmpp(client.userid, False)
+                    client_repo.set_xmpp(client.userid, False, resource=self.clientresource or None)
             self.transport.close()
         except Exception:
             _LOGGER_CLIENT.error(utils.default_exception_str_builder(), exc_info=True)
@@ -476,23 +477,25 @@ class XMPPAsyncClient:
                 _LOGGER_CLIENT.debug("xml text is None!")
                 return
 
-            saslauth = base64.b64decode(xml_text).decode("utf-8").split("/")
-            username = saslauth[0]
-            username = saslauth[0].split("\x00")[1]
-            authcode = ""
-            self.uid = username
-            if len(saslauth) > 1:
-                resource = saslauth[1]
-                self.clientresource = resource
-            elif len(saslauth[0].split("\x00")) > 2:
-                resource = saslauth[0].split("\x00")[2]
-                self.clientresource = resource
+            decoded = base64.b64decode(xml_text).decode("utf-8")
+            sasl_parts = decoded.split("\x00")
+            if len(sasl_parts) < 2:
+                self.send('<response xmlns="urn:ietf:params:xml:ns:xmpp-sasl"/>')  # Fail
+                return
 
-            if len(saslauth) > 2:
-                authcode = saslauth[2]
+            username = sasl_parts[1]
+            self.uid = username
+            password = sasl_parts[2] if len(sasl_parts) > 2 else ""
+            secret = password
+            if password:
+                password_parts = password.split("/")
+                if len(password_parts) >= 3:
+                    self.clientresource = password_parts[1]
+                    secret = "/".join(password_parts[2:])
 
             if self.devclass:  # if there is a devclass it is a bot
                 bot_repo.add(self.uid, self.uid, self.devclass, "atom", "eco-legacy")
+                identity.assign_bot_to_all_users(self.uid)
                 self.type = self.BOT
                 _LOGGER_CLIENT.info(f"XMPP Authentication Success :: Bot :: ClientID: {self.uid}")
                 # Send response
@@ -501,13 +504,16 @@ class XMPPAsyncClient:
                 self.set_state("INIT")
 
             else:
-                auth = False
-                if token_repo.verify_auth_code(self.uid, authcode) or bumper_isc.USE_AUTH is False:
-                    auth = True
+                account = identity.resolve_transport_user(username, secret)
+                auth = not bumper_isc.USE_AUTH or (
+                    account is not None and identity.verify_transport_secret(account.userid, secret)
+                )
 
-                if auth and self.clientresource is not None:
+                if auth:
+                    account_user_id = account.userid if account is not None else username
                     self.type = self.CONTROLLER
-                    client_repo.add(self.uid, self.uid, "USER", self.clientresource)
+                    self.account_user_id = account_user_id
+                    client_repo.add(username, account_user_id, "USER", self.clientresource or "")
                     _LOGGER_CLIENT.info(f"XMPP Authentication Success :: Client :: ClientID: {self.uid}")
                     # Client authenticated, move to next state
                     self.set_state("INIT")
@@ -526,11 +532,6 @@ class XMPPAsyncClient:
                 bot = bot_repo.get(self.uid)
                 if bot:
                     bot_repo.set_xmpp(bot.did, True)
-            else:
-                client = client_repo.get(self.uid)
-                if client is not None:
-                    client_repo.set_xmpp(client.userid, True)
-
             type_added = "client"
             clientresourcexml = list(next(iter(xml)))
             if self.devclass:  # its a bot
@@ -544,6 +545,13 @@ class XMPPAsyncClient:
             else:
                 self.name = f"XMPP_Client_{self.uid}_{self.address}"
                 self.bumper_jid = f"{self.uid}@{XMPPServer.server_id}"
+
+            if not self.devclass:
+                if self.account_user_id and self.clientresource:
+                    client_repo.add(self.uid, self.account_user_id, "USER", self.clientresource)
+                client = client_repo.get(self.uid, resource=self.clientresource or None)
+                if client is not None:
+                    client_repo.set_xmpp(client.userid, True, resource=self.clientresource or None)
 
             _LOGGER_CLIENT.debug(f"new {type_added} ({self.address[0]}:{self.address[1]} | {self.bumper_jid})")
             res = (

@@ -1,9 +1,13 @@
 import asyncio
+import base64
 from unittest import mock
 
 import pytest
 from testfixtures import LogCapture
 
+from bumper.db import client_repo, token_repo, user_repo
+from bumper.utils.settings import config as bumper_isc
+from bumper.web.auth_service import generate_jwt_helper
 from bumper.xmpp.xmpp import XMPPAsyncClient, XMPPServer
 
 
@@ -204,8 +208,8 @@ async def test_client_init() -> None:
     xmppclient = XMPPAsyncClient(test_transport)
     xmppclient.state = xmppclient.INIT  # Set client state to INIT
     xmppclient.uid = "fuid_tmpuser"
-    xmppclient.clientresource = "IOSF53D07BA"
-    xmppclient.bumper_jid = "fuid_tmpuser@ecouser.net/IOSF53D07BA"
+    xmppclient.clientresource = "IOSF00000001"
+    xmppclient.bumper_jid = "fuid_tmpuser@ecouser.net/IOSF00000001"
     xmppclient.type = xmppclient.CONTROLLER
     mock_send = xmppclient.send = mock.Mock(side_effect=return_send_data)
 
@@ -234,13 +238,13 @@ async def test_client_init() -> None:
     # Send bind from "client"
     test_data = (
         b'<iq type="set" id="5E9872D5-547E-49AF-AE51-9EFAA282F952">'
-        b'<bind xmlns="urn:ietf:params:xml:ns:xmpp-bind"><resource>IOSF53D07BA</resource></bind></iq>'
+        b'<bind xmlns="urn:ietf:params:xml:ns:xmpp-bind"><resource>IOSF00000001</resource></bind></iq>'
     )
     xmppclient.parse_data(test_data)
 
     assert mock_send.mock_calls[0][1][0] == (
         '<iq type="result" id="5E9872D5-547E-49AF-AE51-9EFAA282F952">'
-        '<bind xmlns="urn:ietf:params:xml:ns:xmpp-bind"><jid>fuid_tmpuser@ecouser.net/IOSF53D07BA</jid></bind></iq>'
+        '<bind xmlns="urn:ietf:params:xml:ns:xmpp-bind"><jid>fuid_tmpuser@ecouser.net/IOSF00000001</jid></bind></iq>'
     )  # client successfully binded
     assert xmppclient.state == xmppclient.BIND  # client moved to BIND state
 
@@ -264,7 +268,7 @@ async def test_client_init() -> None:
     xmppclient.parse_data(test_data)
 
     assert (
-        mock_send.mock_calls[0][1][0] == '<presence to="fuid_tmpuser@ecouser.net/IOSF53D07BA"> dummy </presence>'
+        mock_send.mock_calls[0][1][0] == '<presence to="fuid_tmpuser@ecouser.net/IOSF00000001"> dummy </presence>'
     )  # client presence - dummy response
 
 
@@ -397,7 +401,7 @@ async def test_ping_server() -> None:
 
     # Ping from bot
     test_data = (
-        b'<iq xmlns:ns0="urn:xmpp:ping" from="E000BVTNX18700260382@159.ecorobot.net/atom"'
+        b'<iq xmlns:ns0="urn:xmpp:ping" from="E0000000000000009999@159.ecorobot.net/atom"'
         b' id="2542" to="159.ecorobot.net" type="get"><ping /></iq>'
     )
     xmppclient.parse_data(test_data)
@@ -420,19 +424,19 @@ async def test_ping_client_to_client() -> None:
     xmppclient2 = XMPPAsyncClient(test_transport)
     xmppclient2.state = xmppclient.READY  # Set client state to READY
     xmppclient2.uid = "fuid_tmpuser"
-    xmppclient2.clientresource = "IOSF53D07BA"
-    xmppclient2.bumper_jid = "fuid_tmpuser@ecouser.net/IOSF53D07BA"
+    xmppclient2.clientresource = "IOSF00000001"
+    xmppclient2.bumper_jid = "fuid_tmpuser@ecouser.net/IOSF00000001"
     mock_send2 = xmppclient2.send = mock.Mock(side_effect=return_send_data)
 
     XMPPServer.clients.append(xmppclient)
     XMPPServer.clients.append(xmppclient2)
 
     # Ping from user to bot
-    test_data = b'<iq id="104934615" to="fuid_tmpuser@ecouser.net/IOSF53D07BA" type="get"><ping xmlns="urn:xmpp:ping" /></iq>'
+    test_data = b'<iq id="104934615" to="fuid_tmpuser@ecouser.net/IOSF00000001" type="get"><ping xmlns="urn:xmpp:ping" /></iq>'
     xmppclient.parse_data(test_data)
 
     assert mock_send2.mock_calls[0][1][0] == (
-        '<iq id="104934615" to="fuid_tmpuser@ecouser.net/IOSF53D07BA" type="get"'
+        '<iq id="104934615" to="fuid_tmpuser@ecouser.net/IOSF00000001" type="get"'
         ' from="E0000000000000001234@159.ecorobot.net/atom"><ping xmlns="urn:xmpp:ping" /></iq>'
     )  # ping response
 
@@ -442,7 +446,7 @@ async def test_ping_client_to_client() -> None:
 
     assert mock_send.mock_calls[0][1][0] == (
         '<iq type="result" to="E0000000000000001234@159.ecorobot.net/atom"'
-        ' id="104934615" from="fuid_tmpuser@ecouser.net/IOSF53D07BA" />'
+        ' id="104934615" from="fuid_tmpuser@ecouser.net/IOSF00000001" />'
     )  # ping response
 
 
@@ -454,8 +458,8 @@ async def test_client_send_iq() -> None:
     xmppclient = XMPPAsyncClient(test_transport)
     xmppclient.state = xmppclient.READY  # Set client state to READY
     xmppclient.uid = "fuid_tmpuser"
-    xmppclient.clientresource = "IOSF53D07BA"
-    xmppclient.bumper_jid = "fuid_tmpuser@ecouser.net/IOSF53D07BA"
+    xmppclient.clientresource = "IOSF00000001"
+    xmppclient.bumper_jid = "fuid_tmpuser@ecouser.net/IOSF00000001"
     xmppclient.type = xmppclient.CONTROLLER
     mock_send = xmppclient.send = mock.Mock(side_effect=return_send_data)
     XMPPServer.clients.append(xmppclient)
@@ -490,7 +494,7 @@ async def test_client_send_iq() -> None:
     xmppclient.parse_data(test_data)
 
     assert mock_send2.mock_calls[0][1][0] == (
-        '<iq id="7" to="E0000000000000001234@159.ecorobot.net/atom" type="set" from="fuid_tmpuser@ecouser.net/IOSF53D07BA">'
+        '<iq id="7" to="E0000000000000001234@159.ecorobot.net/atom" type="set" from="fuid_tmpuser@ecouser.net/IOSF00000001">'
         '<query xmlns="com:ctl"><ctl id="72107787" td="GetCleanState" /></query></iq>'
     )  # command was sent to bot
 
@@ -499,13 +503,13 @@ async def test_client_send_iq() -> None:
 
     # Bot response to query
     test_data = (
-        b'<iq xmlns:ns0="com:ctl" id="2679" to="fuid_tmpuser@ecouser.net/IOSF53D07BA" type="set">'
+        b'<iq xmlns:ns0="com:ctl" id="2679" to="fuid_tmpuser@ecouser.net/IOSF00000001" type="set">'
         b'<query><ctl td="ChargeState"><charge h="0" r="a" type="Going" /></ctl></query></iq>'
     )
     xmppclient2.parse_data(test_data)
 
     assert mock_send.mock_calls[0][1][0] == (
-        '<iq id="2679" to="fuid_tmpuser@ecouser.net/IOSF53D07BA" type="set" from="E0000000000000001234@159.ecorobot.net/atom">'
+        '<iq id="2679" to="fuid_tmpuser@ecouser.net/IOSF00000001" type="set" from="E0000000000000001234@159.ecorobot.net/atom">'
         '<query xmlns="com:ctl"><ctl td="ChargeState"><charge h="0" r="a" type="Going" /></ctl></query></iq>'
     )  # result sent to client
 
@@ -525,13 +529,13 @@ async def test_client_send_iq() -> None:
 
     # Bot iq set
     test_data = (
-        b"<iq to='fuid_tmpuser@ecouser.net/IOSF53D07BA' type='set' id='2700'><query xmlns='com:ctl'>"
+        b"<iq to='fuid_tmpuser@ecouser.net/IOSF00000001' type='set' id='2700'><query xmlns='com:ctl'>"
         b"<ctl td='BatteryInfo'><battery power='100'/></ctl></query></iq>"
     )
     xmppclient2.parse_data(test_data)
 
     assert mock_send.mock_calls[0][1][0] == (
-        '<iq to="fuid_tmpuser@ecouser.net/IOSF53D07BA" type="set" id="2700" from="E0000000000000001234@159.ecorobot.net/atom">'
+        '<iq to="fuid_tmpuser@ecouser.net/IOSF00000001" type="set" id="2700" from="E0000000000000001234@159.ecorobot.net/atom">'
         '<query xmlns="com:ctl"><ctl td="BatteryInfo"><battery power="100" /></ctl></query></iq>'
     )  # result sent to ecouser.net
 
@@ -540,13 +544,13 @@ async def test_client_send_iq() -> None:
 
     # Bot error report
     test_data = (
-        b"<iq to='fuid_tmpuser@ecouser.net/IOSF53D07BA' type='set' id='631'>"
+        b"<iq to='fuid_tmpuser@ecouser.net/IOSF00000001' type='set' id='631'>"
         b"<query xmlns='com:ctl'><ctl td='error' errs='102'/></query></iq>"
     )
     xmppclient2.parse_data(test_data)
 
     assert mock_send.mock_calls[0][1][0] == (
-        '<iq to="fuid_tmpuser@ecouser.net/IOSF53D07BA" type="set" id="631" from="E0000000000000001234@159.ecorobot.net/atom">'
+        '<iq to="fuid_tmpuser@ecouser.net/IOSF00000001" type="set" id="631" from="E0000000000000001234@159.ecorobot.net/atom">'
         '<query xmlns="com:ctl"><ctl td="error" errs="102" /></query></iq>'
     )  # result sent to ecouser.net
 
@@ -567,3 +571,75 @@ async def test_client_send_iq() -> None:
 
     # Reset mock calls
     mock_send.reset_mock()
+
+
+def _new_client_auth_socket() -> XMPPAsyncClient:
+    """Return a client that is ready to send a SASL element."""
+    test_transport = mock.Mock()
+    test_transport.get_extra_info = mock.Mock(return_value=mock_transport_extra_info())
+    test_transport.write = mock.Mock(return_value=return_send_data)
+    client = XMPPAsyncClient(test_transport)
+    client.state = client.CONNECT
+    client.send = mock.Mock(side_effect=return_send_data)
+    return client
+
+
+def _auth_element(username: str, password: str) -> bytes:
+    """Return a PLAIN SASL element for a client name and password."""
+    encoded = base64.b64encode(b"\x00" + username.encode() + b"\x00" + password.encode())
+    return b'<auth xmlns="urn:ietf:params:xml:ns:xmpp-sasl" mechanism="PLAIN">' + encoded + b"</auth>"
+
+
+@pytest.mark.usefixtures("clean_database", "xmpp_cleanup_clients")
+async def test_client_auth_code_resolves_account(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A valid auth code authenticates the account the older name belongs to."""
+    monkeypatch.setattr(bumper_isc, "USE_AUTH", True)
+    user_repo.add("canonical")
+    user_repo.add_alias("canonical", "legacy")
+    token_repo.add("canonical", "portal-token")
+    token_repo.add_auth_code("canonical", "auth-code")
+
+    client = _new_client_auth_socket()
+    client.parse_data(_auth_element("legacy", "0/RESOURCE/auth-code"))
+
+    assert client.send.mock_calls[0][1][0] == '<success xmlns="urn:ietf:params:xml:ns:xmpp-sasl"/>'
+    assert client.state == client.INIT
+    assert client.clientresource == "RESOURCE"
+    stored = client_repo.get("legacy")
+    assert stored is not None
+    assert stored.userid == "canonical"
+    assert len(client_repo.list_all()) == 1
+
+
+@pytest.mark.usefixtures("clean_database", "xmpp_cleanup_clients")
+async def test_client_jwt_resolves_account(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A signed access token authenticates the account and adopts the older name."""
+    monkeypatch.setattr(bumper_isc, "USE_AUTH", True)
+    user_repo.add("canonical")
+    token, _ = await generate_jwt_helper(data={"u": "canonical"}, t="a")
+
+    client = _new_client_auth_socket()
+    client.parse_data(_auth_element("legacy", f"0/RESOURCE/{token}"))
+
+    assert client.send.mock_calls[0][1][0] == '<success xmlns="urn:ietf:params:xml:ns:xmpp-sasl"/>'
+    assert client.state == client.INIT
+    stored = client_repo.get("legacy")
+    assert stored is not None
+    assert stored.userid == "canonical"
+    assert user_repo.get_by_id("legacy").userid == "canonical"
+
+
+@pytest.mark.usefixtures("clean_database", "xmpp_cleanup_clients")
+async def test_client_rejects_a_wrong_secret(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A secret that was not issued for the account does not authenticate."""
+    monkeypatch.setattr(bumper_isc, "USE_AUTH", True)
+    user_repo.add("canonical")
+    token_repo.add("canonical", "portal-token")
+    token_repo.add_auth_code("canonical", "auth-code")
+
+    client = _new_client_auth_socket()
+    client.parse_data(_auth_element("canonical", "0/RESOURCE/wrong-secret"))
+
+    assert client.send.mock_calls[0][1][0] == '<response xmlns="urn:ietf:params:xml:ns:xmpp-sasl"/>'
+    assert client.state == client.CONNECT
+    assert client_repo.get("canonical") is None
