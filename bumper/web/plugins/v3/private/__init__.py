@@ -1,3 +1,5 @@
 """Private plugins module."""
 
-BASE_URL = "/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/"
+PREFIX = "/v3/private"
+
+BASE_URL = PREFIX + "/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/"
