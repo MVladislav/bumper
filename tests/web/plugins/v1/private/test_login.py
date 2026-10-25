@@ -4,7 +4,7 @@ import pytest
 from bumper.db import bot_repo, token_repo, user_repo
 from bumper.utils.settings import config as bumper_isc
 from bumper.web.auth_service import _generate_uid
-from bumper.web.utils.response_helper import RETURN_API_SUCCESS
+from bumper.web.envelope import RETURN_API_SUCCESS
 
 USER_ID = _generate_uid(bumper_isc.USER_USERNAME_DEFAULT)
 
@@ -54,26 +54,6 @@ async def test_login_with_existing_user(webserver_client: TestClient) -> None:
         assert "accessToken" in json_resp["data"]
         assert "uid" in json_resp["data"]
         assert "username" in json_resp["data"]
-
-    # # Add a bot to db that doesn't have a did
-    # newbot = {
-    #     "class": "dev_1234",
-    #     "company": "com_123",
-    #     # "did": self.did,
-    #     "name": "sn_1234",
-    #     "resource": "res_1234",
-    # }
-    # db2.bot_full_upsert(VacBotDevice.from_dict(newbot))
-    # bot_repo._upsert(newbot, QueryInstance.did == did)
-
-    # async with webserver_client.get("/v1/private/us/en/dev_1234/ios/1/0/0/user/login") as resp:
-    #   assert resp.status == 200
-
-    #   json_resp = await resp.json()
-    #   assert json_resp["code"] == RETURN_API_SUCCESS
-    #   assert "accessToken" in json_resp["data"]
-    #   assert "uid" in json_resp["data"]
-    #   assert "username" in json_resp["data"]
 
 
 @pytest.mark.usefixtures("clean_database")

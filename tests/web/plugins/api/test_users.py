@@ -1,7 +1,7 @@
 from aiohttp.test_utils import TestClient
 import pytest
 
-from bumper.db import bot_repo, token_repo, user_repo
+from bumper.db import bot_repo, client_repo, token_repo, user_repo
 from bumper.utils.settings import config as bumper_isc
 from bumper.web.auth_service import _generate_uid
 
@@ -119,6 +119,8 @@ async def test_post_users_api(webserver_client: TestClient) -> None:
         json_resp = await resp.json()
         assert json_resp["result"] == "ok"
 
+    user_repo.add("second_user")
+
     # Test AddOneDevice - Same as set nick for some bots
     postbody = {
         "auth": {
@@ -153,6 +155,9 @@ async def test_post_users_api(webserver_client: TestClient) -> None:
         assert resp.status == 200
         json_resp = await resp.json()
         assert json_resp["result"] == "ok"
+    second_user = user_repo.get_by_id("second_user")
+    assert second_user is not None
+    assert "did_1234" in second_user.bots
 
 
 @pytest.mark.usefixtures("clean_database")
@@ -215,3 +220,65 @@ async def test_modify_user_nickname(webserver_client: TestClient) -> None:
 
     assert json_resp["code"] == "0000"
     assert user_repo.get_by_id("uid_one").nickname == "Kitchen robot"
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_logout_revokes_only_the_named_client(webserver_client: TestClient) -> None:
+    """One client can log out without logging out the other clients."""
+    user = user_repo.create("logout_user")
+    token_repo.add(user.userid, "token_one", client_id="client_one", resource="RES_ONE")
+    token_repo.add(user.userid, "token_two", client_id="client_two", resource="RES_TWO")
+    client_repo.add("client_one", user.userid, "ecouser.net", "RES_ONE", client_id="client_one")
+    client_repo.add("client_two", user.userid, "ecouser.net", "RES_TWO", client_id="client_two")
+
+    postbody = {
+        "todo": "logout",
+        "auth": {"userid": user.account_id, "token": "token_one"},
+    }
+    async with webserver_client.post("/api/users/user.do", json=postbody) as resp:
+        assert resp.status == 200
+        data = await resp.json()
+
+    assert data["result"] == "ok"
+    assert token_repo.get_by_token("token_one") is None
+    assert token_repo.get_by_token("token_two") is not None
+    assert client_repo.get(user.userid, client_id="client_one") is None
+    assert client_repo.get(user.userid, client_id="client_two") is not None
+    assert user_repo.get_by_id(user.userid) is not None
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_logout_with_an_unknown_token_keeps_every_client(webserver_client: TestClient) -> None:
+    """A stale token cannot log out the whole account."""
+    user = user_repo.create("stale_logout_user")
+    token_repo.add(user.userid, "token_one", client_id="client_one", resource="RES_ONE")
+    client_repo.add("client_one", user.userid, "ecouser.net", "RES_ONE", client_id="client_one")
+
+    postbody = {
+        "todo": "logout",
+        "auth": {"userid": user.account_id, "token": "unknown"},
+    }
+    async with webserver_client.post("/api/users/user.do", json=postbody) as resp:
+        assert resp.status == 200
+
+    assert token_repo.get_by_token("token_one") is not None
+    assert client_repo.get(user.userid, client_id="client_one") is not None
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_logout_of_a_legacy_token_does_not_remove_all_clients(webserver_client: TestClient) -> None:
+    """A token without client metadata cannot identify unrelated client rows."""
+    user = user_repo.create("legacy_logout_user")
+    token_repo.add(user.userid, "legacy_token")
+    client_repo.add("client_one", user.userid, "ecouser.net", "RES_ONE", client_id="client_one")
+    client_repo.add("client_two", user.userid, "ecouser.net", "RES_TWO", client_id="client_two")
+
+    postbody = {
+        "todo": "logout",
+        "auth": {"userid": user.account_id, "token": "legacy_token"},
+    }
+    async with webserver_client.post("/api/users/user.do", json=postbody) as resp:
+        assert resp.status == 200
+
+    assert token_repo.get_by_token("legacy_token") is None
+    assert len(client_repo.list_for_user(user.userid)) == 2
