@@ -1,59 +1,49 @@
 """Voice plugin module."""
 
-from collections.abc import Iterable
 import json
 import logging
-from pathlib import Path
 from typing import Any
 
 from aiohttp import web
 from aiohttp.web_request import Request
 from aiohttp.web_response import Response
-from aiohttp.web_routedef import AbstractRouteDef
 
-from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
-from bumper.web.plugins import WebserverPlugin
+from bumper.web.envelope import LEGACY_MSG, bind
+from bumper.web.hosts import api_host
 from bumper.web.static_api import get_voices
-from bumper.web.utils.response_helper import response_success_v3
+from bumper.web.utils.files import file_in_dir
+
+from . import PREFIX
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class VoicePlugin(WebserverPlugin):
-    """Voice plugin."""
-
-    @property
-    def routes(self) -> Iterable[AbstractRouteDef]:
-        """Plugin routes."""
-        return [
-            web.route("*", "/voice/get", _handle_get),
-            web.route("*", "/voice/getLanuages", _handle_get_lanuages),
-            web.route("*", "/v2/voice/getLanuages", _handle_get_lanuages),
-            web.route("*", "/voice/download/{id}", _handle_download),
-        ]
+routes = web.RouteTableDef()
 
 
-async def _handle_get(request: Request) -> Response:
+@routes.view(f"{PREFIX}/voice/get")
+@bind(LEGACY_MSG.with_data_key("voices"))
+async def _handle_get(request: Request) -> Any:
     """Get the voice of a language."""
-    try:
-        body = await _request_body(request)
-        voice_lang = str(body.get("voiceLang", "EN")).lower()
-        voice = _voice(voice_lang)
-        if voice is None:
-            _LOGGER.warning(f"No voice data for language :: {voice_lang}")
-            return response_success_v3(data_key="voices", data=[])
-        return response_success_v3(data_key="voices", data=[voice])
-    except Exception:
-        _LOGGER.exception(utils.default_exception_str_builder(info="during handling request"))
-    raise web.HTTPInternalServerError
+    body = await _request_body(request)
+    voice_lang = str(body.get("voiceLang", "EN")).lower()
+    voice = _voice(voice_lang)
+    if voice is None:
+        _LOGGER.warning(f"No voice data for language :: {voice_lang}")
+        return []
+    return [voice]
 
 
-async def _handle_get_lanuages(_: Request) -> Response:
+@routes.view(f"{PREFIX}/voice/getLanuages")
+@routes.view(f"{PREFIX}/v2/voice/getLanuages")
+@bind(LEGACY_MSG.with_data_key("voices"))
+async def _handle_get_lanuages(_: Request) -> Any:
     """Get languages."""
-    return response_success_v3(data_key="voices", data=_get_voice_list())
+    return _get_voice_list()
 
 
+@routes.view(f"{PREFIX}/voice/download/{{id}}")
 async def _handle_download(request: Request) -> Response:
     """Download a voice file.
 
@@ -62,23 +52,11 @@ async def _handle_download(request: Request) -> Response:
     voice directory under the id of the language.
     """
     voice_id = request.match_info.get("id", "")
-    voice_file = _voice_file(voice_id)
+    voice_file = file_in_dir(bumper_isc.voice_dir, voice_id)
     if voice_file is None:
         _LOGGER.warning(f"No voice file for id={voice_id} :: looked in '{bumper_isc.voice_dir}'")
         return web.Response(status=404, body=b"", content_type="text/plain", charset="utf-8")
     return web.FileResponse(voice_file)  # type: ignore[return-value]
-
-
-def _voice_file(voice_id: str) -> Path | None:
-    """Return the file of the voice with this id, if the voice directory has it."""
-    try:
-        candidates = Path(bumper_isc.voice_dir).iterdir()
-    except OSError:
-        return None
-    for candidate in candidates:
-        if candidate.name == voice_id and candidate.is_file():
-            return candidate
-    return None
 
 
 def _voice(voice_lang: str) -> dict[str, Any] | None:
@@ -110,7 +88,7 @@ def _absolute(path: str) -> str:
         return ""
     if path.startswith("http"):
         return path
-    return f"https://api-app.{bumper_isc.DOM_SUB_1}{bumper_isc.DOMAIN_MAIN}{path}"
+    return f"https://{api_host('api-app', bumper_isc.DOMAIN_MAIN, bumper_isc.DOM_SUB_1)}{path}"
 
 
 def _language_name(voice_lang: str) -> str:

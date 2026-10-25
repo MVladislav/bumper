@@ -1,20 +1,16 @@
 """Pim product plugin module."""
 
-from collections.abc import Iterable
-import json
 import logging
 from typing import Any
 
 from aiohttp import web
-from aiohttp.web_exceptions import HTTPInternalServerError
 from aiohttp.web_fileresponse import FileResponse
 from aiohttp.web_request import Request
 from aiohttp.web_response import Response
-from aiohttp.web_routedef import AbstractRouteDef
 
-from bumper.utils import utils
-from bumper.utils.settings import config as bumper_isc
-from bumper.web.plugins import WebserverPlugin
+from bumper.web.context import read_body
+from bumper.web.envelope import LEGACY, LEGACY_BARE, LEGACY_MSG, LEGACY_NO_RET, bind
+from bumper.web.hosts import pim_host
 from bumper.web.static_api import (
     get_bot_image_path,
     get_config_groups_response,
@@ -23,127 +19,117 @@ from bumper.web.static_api import (
     get_product_entry_group,
     get_product_iot_map,
 )
-from bumper.web.utils.response_helper import response_success_v3, response_success_v4
+
+from . import PREFIX
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class ProductPlugin(WebserverPlugin):
-    """Product plugin."""
-
-    @property
-    def routes(self) -> Iterable[AbstractRouteDef]:
-        """Plugin routes."""
-        return [
-            web.route("*", "/product/getProductIotMap", _handle_get_product_iot_map),
-            web.route("*", "/product/getConfignetAll", _handle_get_config_net_all),
-            web.route("*", "/product/getConfigGroups", _handle_get_config_groups),
-            web.route("POST", "/product/software/config/batch", _handle_config_batch),
-            web.route("POST", "/product/getShareInfo", _handle_get_share_info),
-            web.route("GET", "/product/image", _get_bot_image),
-            web.route("GET", "/product/entry/group", _get_entry_group),
-            web.route("*", "/product/setting", _handle_product_setting),
-        ]
+routes = web.RouteTableDef()
 
 
-async def _handle_get_product_iot_map(_: Request) -> Response:
+@routes.view(f"{PREFIX}/product/getProductIotMap")
+@bind(LEGACY_BARE)
+async def _handle_get_product_iot_map(_: Request) -> Any:
     """Get product iot map."""
-    return response_success_v4(get_product_iot_map())
+    return get_product_iot_map()
 
 
-async def _handle_get_config_net_all(_: Request) -> Response:
+@routes.view(f"{PREFIX}/product/getConfignetAll")
+@bind(
+    LEGACY_MSG.with_code(0)
+    .with_data_key("data")
+    .with_side_car(
+        "configFAQ",
+        {
+            "wifiFAQUrl": f"https://{pim_host()}/api/pim/faqproblem.html?lang=en&defaultLang=en",
+            "notFoundAPUrl": f"https://{pim_host()}/api/pim/findDbWifi.html?lang=en&defaultLang=en",
+            "configFailedUrl": f"https://{pim_host()}/api/pim/configfail.html?lang=en&defaultLang=en",
+        },
+    ),
+)
+async def _handle_get_config_net_all(_: Request) -> Any:
     """Get config net all."""
-    return response_success_v3(
-        code=0,
-        msg_key="msg",
-        msg="success",
-        result_key="configFAQ",
-        result={
-            "wifiFAQUrl": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/faqproblem.html?lang=en&defaultLang=en",
-            "notFoundAPUrl": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/findDbWifi.html?lang=en&defaultLang=en",
-            "configFailedUrl": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/configfail.html?lang=en&defaultLang=en",
+    return get_config_net_all_response()
+
+
+@routes.view(f"{PREFIX}/product/getConfigGroups")
+@bind(
+    LEGACY_MSG.with_code(0)
+    .with_data_key("data")
+    .with_side_car(
+        "configFAQ",
+        {
+            "wifiFAQUrl": f"https://{pim_host()}/api/pim/faqproblem.html?lang=en&defaultLang=en",
+            "notFoundAPUrl": f"https://{pim_host()}/api/pim/findDbWifi.html?lang=en&defaultLang=en",
+            "configFailedUrl": f"https://{pim_host()}/api/pim/configfail.html?lang=en&defaultLang=en",
         },
-        data_key="data",
-        data=get_config_net_all_response(),
-    )
-
-
-async def _handle_get_config_groups(_: Request) -> Response:
+    ),
+)
+async def _handle_get_config_groups(_: Request) -> Any:
     """Get config groups."""
-    return response_success_v3(
-        code=0,
-        msg_key="msg",
-        msg="success",
-        result_key="configFAQ",
-        result={
-            "wifiFAQUrl": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/faqproblem.html?lang=en&defaultLang=en",
-            "notFoundAPUrl": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/findDbWifi.html?lang=en&defaultLang=en",
-            "configFailedUrl": f"https://{bumper_isc.DOM_SUB_PORT}/api/pim/configfail.html?lang=en&defaultLang=en",
-        },
-        data_key="data",
-        data=get_config_groups_response(),
-    )
+    return get_config_groups_response()
 
 
-async def _handle_config_batch(request: Request) -> Response:
+@routes.post(f"{PREFIX}/product/software/config/batch")
+@bind(LEGACY.with_code(200))
+async def _handle_config_batch(request: Request) -> Any:
     """Handle product config batch."""
-    try:
-        product_config_batch: list[dict[str, Any]] = get_product_config_batch()
+    product_config_batch: list[dict[str, Any]] = get_product_config_batch()
 
-        # Build a pid -> config dict for fast lookup
-        pid_to_config = {item.get("pid", ""): item for item in product_config_batch}
+    # Build a pid -> config dict for fast lookup
+    pid_to_config = {item.get("pid", ""): item for item in product_config_batch}
 
-        json_body = json.loads(await request.text())
-        data = []
-        for pid in json_body.get("pids", []):
-            if config := pid_to_config.get(pid):
-                data.append(config)
-            else:
-                # not found in product_config_batch
-                data.append({"cfg": {}, "pid": pid})
+    json_body = await read_body(request)
+    data = []
+    for pid in json_body.get("pids", []):
+        if config := pid_to_config.get(pid):
+            data.append(config)
+        else:
+            # not found in product_config_batch
+            data.append({"cfg": {}, "pid": pid})
 
-        return response_success_v3(data=data, code=200)
-    except Exception:
-        _LOGGER.exception(utils.default_exception_str_builder(info="during handling request"))
-    raise HTTPInternalServerError
+    return data
 
 
+@routes.post(f"{PREFIX}/product/getShareInfo")
 async def _handle_get_share_info(request: Request) -> Response:
     """Get share info."""
-    try:
-        json_body = json.loads(await request.text())
-        scene = json_body.get("scene")
-        _LOGGER.debug(f"Share info :: {scene}")
-        return web.json_response(
-            {
-                "code": 0,
-                "shareInfo": {
-                    "keyword": "",
-                    "url": "",
-                    "shareText": "",
-                    "shareDesc": "",
-                    "shareUrl": "",
-                },
+    json_body = await read_body(request)
+    scene = json_body.get("scene")
+    _LOGGER.debug(f"Share info :: {scene}")
+    return web.json_response(
+        {
+            "code": 0,
+            "shareInfo": {
+                "keyword": "",
+                "url": "",
+                "shareText": "",
+                "shareDesc": "",
+                "shareUrl": "",
             },
-        )
-    except Exception:
-        _LOGGER.exception(utils.default_exception_str_builder(info="during handling request"))
-    raise HTTPInternalServerError
+        },
+    )
 
 
+@routes.get(f"{PREFIX}/product/image")
 async def _get_bot_image(_: Request) -> FileResponse:
     """Get generic image of bot."""
     return FileResponse(get_bot_image_path())
 
 
-async def _get_entry_group(_: Request) -> Response:
+@routes.get(f"{PREFIX}/product/entry/group")
+@bind(LEGACY_NO_RET)
+async def _get_entry_group(_: Request) -> Any:
     """Get entry group."""
-    return response_success_v3(data=get_product_entry_group())
+    return get_product_entry_group()
 
 
-async def _handle_product_setting(request: Request) -> Response:
+@routes.view(f"{PREFIX}/product/setting")
+@bind(LEGACY_NO_RET)
+async def _handle_product_setting(request: Request) -> Any:
     """Get product settings."""
     _LOGGER.debug(
         f"Product setting requested :: mids={request.query.get('mids', '')} :: modules={request.query.get('modules', '')}",
     )
-    return response_success_v3(data={}, result_key=None, include_success=True)
+    return {}

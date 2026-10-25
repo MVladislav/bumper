@@ -4,8 +4,8 @@ from aiohttp.test_utils import TestClient
 import pytest
 
 from bumper.utils.settings import config as bumper_isc
-from bumper.web.plugins.api.pim import voice
 from bumper.web.static_api import get_voices
+from bumper.web.utils.files import file_in_dir
 
 
 @pytest.mark.usefixtures("clean_database")
@@ -64,7 +64,7 @@ async def test_voice_urls_use_the_host_the_app_uses(webserver_client: TestClient
         body = await resp.json()
 
     voice = body["voices"][0]
-    host = f"api-app.{bumper_isc.DOM_SUB_1}{bumper_isc.DOMAIN_MAIN}"
+    host = f"api-app.{bumper_isc.DOMAIN_MAIN}"
     assert voice["voiceUrl"] == f"https://{host}/api/pim/voice/download/68ad813a3c7ade7f3a576521"
     assert voice["iconUrl"].startswith(f"https://{host}/")
     assert voice["sampleVoiceUrl"].startswith(f"https://{host}/")
@@ -122,8 +122,8 @@ async def test_voice_download_stays_in_the_voice_directory(webserver_client: Tes
     secret = bumper_isc.voice_dir.parent / "secret.txt"
     secret.write_text("the secret of the user")
 
-    assert voice._voice_file("../secret.txt") is None
-    assert voice._voice_file("secret.txt") is None
+    assert file_in_dir(bumper_isc.voice_dir, "../secret.txt") is None
+    assert file_in_dir(bumper_isc.voice_dir, "secret.txt") is None
 
     async with webserver_client.get("/api/pim/voice/download/..%2Fsecret.txt") as resp:
         assert resp.status == 404
