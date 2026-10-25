@@ -17,6 +17,7 @@ nav:
       - Environment Variables: configuration/environment.md
   - Reference:
       - Error Codes: reference/error-codes.md
+      - Model Compatibility: reference/models.md
   - Internals:
       - Architecture: internals/architecture.md
       - Sniffing & Reverse Engineering: internals/sniffing.md
