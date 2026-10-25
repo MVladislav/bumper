@@ -40,6 +40,7 @@
 
 !certs/
 !data/
+data/flows/
 !data/voices/
 data/voices/*
 !data/voices/.gitkeep
@@ -53,12 +54,31 @@ data/voices/*
 scripts/*
 !scripts/*.sh
 !scripts/*.py
+!scripts/README.md
+!scripts/api/
+scripts/api/*
+!scripts/api/*.py
+!scripts/api/*.sh
+!scripts/app/
+scripts/app/*
+!scripts/app/*.sh
+!scripts/certs/
+scripts/certs/*
+!scripts/certs/*.py
+!scripts/certs/*.sh
+!scripts/data/
+scripts/data/*
+!scripts/data/*.sh
+!scripts/server/
+scripts/server/*
+!scripts/server/*.sh
 !scripts/shared/
 !scripts/shared/*.sh
-!scripts/apk-patch/
-!scripts/apk-patch/*.py
-!scripts/apk-patch/*.sh
-!scripts/apk-patch/Dockerfile
+!scripts/app/apk-patch/
+scripts/app/apk-patch/*
+!scripts/app/apk-patch/*.py
+!scripts/app/apk-patch/*.sh
+!scripts/app/apk-patch/Dockerfile
 
 !tests/
 !tests/db/
