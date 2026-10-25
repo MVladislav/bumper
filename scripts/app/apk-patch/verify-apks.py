@@ -4,8 +4,6 @@
 Run by build-apks.sh against the directory the signed splits were written to.
 """
 
-from __future__ import annotations
-
 import pathlib
 import sys
 import zipfile

@@ -35,23 +35,28 @@ sorted by UTF-16 code point and rejects the file otherwise::
 
 Same-length replacement is therefore not enough - it moves the string within the
 sort order. Holding a prefix keeps its position. The result is re-checked with
-``check_dex_strings.py`` and the patch is refused if the table is out of order.
+``check-dex-strings.py`` and the patch is refused if the table is out of order.
 
 Usage:
-    patch_mqtt_trust.py SRC.apk DST.apk [--force]
+    patch-mqtt-trust.py SRC.apk DST.apk [--force]
 """
 
 import argparse
 import base64
 import hashlib
+from importlib import import_module
 import struct
 import sys
 import zipfile
 import zlib
 from pathlib import Path
 
-from apk_io import repack as repack_apk
-from check_dex_strings import dex_strings, mutf8_units, verify_dex_integrity
+apk_io = import_module("apk-io")
+check_dex_strings = import_module("check-dex-strings")
+repack_apk = apk_io.repack
+dex_strings = check_dex_strings.dex_strings
+mutf8_units = check_dex_strings.mutf8_units
+verify_dex_integrity = check_dex_strings.verify_dex_integrity
 
 FILLER = " bumper-patch: mqtt trust now comes from the Android platform store "
 
@@ -98,7 +103,7 @@ def build_replacement(pin: str, previous: str | None, following: str | None) -> 
     msg = (
         "no replacement of the same length keeps string_ids sorted, so patching "
         "this literal in place would leave an unloadable dex. Re-check with "
-        "check_dex_strings.py."
+        "check-dex-strings.py."
     )
     raise PatchError(msg)
 

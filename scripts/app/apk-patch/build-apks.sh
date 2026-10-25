@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # In-container APK pipeline: download, unpack, patch, align, sign, verify.
-# Runs as the image's entrypoint; scripts/create-unpinned-app.sh starts it and
+# Runs as the image's entrypoint; scripts/app/create-unpinned-app.sh starts it and
 # passes the settings below as environment variables.
 #
 # Mounts expected:
@@ -81,7 +81,7 @@ BASE_APK="$(ls -S "${WORK}"/*.apk | head -n1)"
 echo "💡 Base split: $(basename "${BASE_APK}")"
 
 echo "💡 Setting android:debuggable=true (this is what makes Bumper's CA trusted)..."
-python3 "${PATCH_DIR}/patch_debuggable.py" "${BASE_APK}" "${WORK}/base.debuggable" --force
+python3 "${PATCH_DIR}/patch-debuggable.py" "${BASE_APK}" "${WORK}/base.debuggable" --force
 mv -f "${WORK}/base.debuggable" "${BASE_APK}"
 
 if [[ "${SKIP_MQTT_CA}" == "1" ]]; then
@@ -89,7 +89,7 @@ if [[ "${SKIP_MQTT_CA}" == "1" ]]; then
   echo "   The web API will work; every robot command will time out."
 else
   echo "💡 Making MQTT use the platform trust store (it pins its own certificate)..."
-  python3 "${PATCH_DIR}/patch_mqtt_trust.py" "${BASE_APK}" "${WORK}/base.mqtt" --force
+  python3 "${PATCH_DIR}/patch-mqtt-trust.py" "${BASE_APK}" "${WORK}/base.mqtt" --force
   mv -f "${WORK}/base.mqtt" "${BASE_APK}"
 fi
 
@@ -116,7 +116,7 @@ done
 
 # ─── VERIFY ──────────────────────────────────────────────────────────────────
 echo "💡 Verifying..."
-python3 "${PATCH_DIR}/verify_apks.py" "${OUT_DIR}"
+python3 "${PATCH_DIR}/verify-apks.py" "${OUT_DIR}"
 
 # ─── RESULT ──────────────────────────────────────────────────────────────────
 HOST_OUT_DIR="${OUT_HOST}/${APK_BASENAME}"
