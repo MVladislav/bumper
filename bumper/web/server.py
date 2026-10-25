@@ -18,7 +18,9 @@ from yarl import URL
 
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
-from bumper.web import plugins, single_paths, web_paths
+from bumper.web import agreement, plugins, single_paths, web_paths
+from bumper.web.envelope import AUTH, bind
+from bumper.web.plugins.api import idi
 from bumper.web.utils import middlewares
 
 _LOGGER = logging.getLogger(__name__)
@@ -41,7 +43,7 @@ class WebServer:
         """Web Server init."""
         self._runners: list[web.AppRunner] = []
         self._bindings = [bindings] if isinstance(bindings, WebserverBinding) else bindings
-        self._app = web.Application(middlewares=[middlewares.log_all_requests])
+        self._app = web.Application(middlewares=[middlewares.log_all_requests, middlewares.shape_failures])
 
         templates_path = self._resolve_path("templates")
         static_path = self._resolve_path("static_web")
@@ -73,10 +75,10 @@ class WebServer:
             routes.extend(
                 [
                     web.get("/ca-certificates.tar.gz", single_paths.handle_ca_certificates),
-                    web.post("/newauth.do", single_paths.handle_new_auth),
+                    web.post("/newauth.do", bind(AUTH.with_data_key("authCode"))(single_paths.handle_new_auth)),
                     web.post("/lookup.do", single_paths.handle_lookup),
                     web.get("/config/Android.conf", single_paths.handle_config_android_conf),
-                    web.route("*", "/data_collect/upload/generalData", single_paths.handle_data_collect),
+                    web.route("*", "/data_collect/upload/generalData", idi.handle_data_collect),
                     web.post("/sa", single_paths.handle_sa),
                     web.post("/v0.1/public/codepush/report_status/deploy", single_paths.handle_codepush_report_status_deploy),
                     web.post("/v0.1/public/codepush/report_status/download", single_paths.handle_codepush_report_status_deploy),
@@ -86,7 +88,7 @@ class WebServer:
                     web.post("/Global_APP_BuryPoint/api", single_paths.handle_global_app_bury_point_api),
                     web.post("/Global_APP_BuryPoint/api/appevent", single_paths.handle_global_app_bury_point_api_appevent),
                     web.post("/biz-app-config/api/v2/chat_bot_id/config", single_paths.handle_chat_bot_id_config),
-                    web.get("/content/agreement", single_paths.handle_content_agreement),
+                    web.get("/content/agreement", agreement.handle_content_agreement),
                 ],
             )
             plugins.add_plugins(self._app)
