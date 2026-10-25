@@ -1,27 +1,19 @@
 """Dim plugin module."""
 
-from collections.abc import Iterable
+from typing import Any
 
 from aiohttp import web
 from aiohttp.web_request import Request
-from aiohttp.web_response import Response
-from aiohttp.web_routedef import AbstractRouteDef
 
-from bumper.web.plugins import WebserverPlugin
-from bumper.web.utils.response_helper import response_success_v1
+from bumper.web.envelope import GL_V1, bind
 
+from . import PREFIX
 
-class DimPlugin(WebserverPlugin):
-    """Dim plugin."""
-
-    @property
-    def routes(self) -> Iterable[AbstractRouteDef]:
-        """Plugin routes."""
-        return [
-            web.route("POST", "/content/agreement", _handle_content_agreement),
-        ]
+routes = web.RouteTableDef()
 
 
-async def _handle_content_agreement(_: Request) -> Response:
+@routes.post(f"{PREFIX}/content/agreement")
+@bind(GL_V1)
+async def _handle_content_agreement(_: Request) -> Any:
     """Content agreement."""
-    return response_success_v1(None)
+    return None

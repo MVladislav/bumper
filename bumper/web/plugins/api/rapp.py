@@ -1,62 +1,47 @@
 """Rapp plugin module."""
 
-from collections.abc import Iterable
+from typing import Any
 
 from aiohttp import web
 from aiohttp.web_request import Request
-from aiohttp.web_response import Response
-from aiohttp.web_routedef import AbstractRouteDef
 
 from bumper.utils import utils
-from bumper.web.plugins import WebserverPlugin
-from bumper.web.utils.response_helper import response_success_v3
+from bumper.web.envelope import LEGACY, bind
+
+from . import PREFIX
+
+routes = web.RouteTableDef()
 
 
-class RappPlugin(WebserverPlugin):
-    """Rapp plugin."""
-
-    @property
-    def routes(self) -> Iterable[AbstractRouteDef]:
-        """Plugin routes."""
-        return [
-            web.route("*", "/rapp/sds/user/data/map/get", _handle_map_get),
-            web.route("*", "/rapp/sds/user/data/del", _handle_user_data_del),
-            web.route("*", "/rapp/sds/user/data/list", _handle_user_data_list),
-        ]
-
-
-async def _handle_map_get(_: Request) -> Response:
+@routes.view(f"{PREFIX}/rapp/sds/user/data/map/get")
+@bind(LEGACY.with_result(None))
+async def _handle_map_get(_: Request) -> Any:
     """Map get."""
-    # TODO: check what's needed to be implemented
     utils.default_log_warn_not_impl("_handle_user_data_del")
-    return response_success_v3(
-        result_key=None,
-        data={
-            "data": {"name": "My Home"},
-            "tag": None,
-        },
-    )
+    return {
+        "data": {"name": "My Home"},
+        "tag": None,
+    }
 
 
-async def _handle_user_data_del(_: Request) -> Response:
+@routes.view(f"{PREFIX}/rapp/sds/user/data/del")
+@bind(LEGACY.with_result(None))
+async def _handle_user_data_del(_: Request) -> Any:
     """User data del."""
-    # TODO: check what's needed to be implemented
     utils.default_log_warn_not_impl("_handle_user_data_del")
-    return response_success_v3(result_key=None, data=None)
+    return None
 
 
-async def _handle_user_data_list(_: Request) -> Response:
+@routes.view(f"{PREFIX}/rapp/sds/user/data/list")
+@bind(LEGACY.with_result(None))
+async def _handle_user_data_list(_: Request) -> Any:
     """User data list."""
-    # TODO: check what's needed to be implemented
     utils.default_log_warn_not_impl("_handle_user_data_list")
-    return response_success_v3(
-        result_key=None,
-        data=[
-            {
-                "key": "iwashere",  # TODO: not know what key it is
-                "data": None,
-                "createTime": utils.get_current_time_as_millis(),
-                "updateTime": utils.get_current_time_as_millis(),
-            },
-        ],
-    )
+    return [
+        {
+            "key": "iwashere",
+            "data": None,
+            "createTime": utils.get_current_time_as_millis(),
+            "updateTime": utils.get_current_time_as_millis(),
+        },
+    ]
