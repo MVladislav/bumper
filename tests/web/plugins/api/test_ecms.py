@@ -66,6 +66,20 @@ async def test_ad_res_v2(webserver_client: TestClient) -> None:
         assert (await resp.json())["code"] == 0
 
 
+async def test_ad_res_uppercase_v2(webserver_client: TestClient) -> None:
+    """The app posts the consumable request to the uppercase path."""
+    payload = {
+        "uid": "uid_1",
+        "tags": ["300lc5"],
+        "timeZone": 120,
+        "location": ["ad_consumable_list_text", "blade", "heap"],
+        "channel": "google_play",
+    }
+    async with webserver_client.post("/api/ecms/app/ad/res/V2", json=payload) as resp:
+        assert resp.status == 200
+        assert (await resp.json())["code"] == 0
+
+
 async def test_ad_res_v3(webserver_client: TestClient) -> None:
     async with webserver_client.get("/api/ecms/app/ad/res/v3") as resp:
         assert resp.status == 200
