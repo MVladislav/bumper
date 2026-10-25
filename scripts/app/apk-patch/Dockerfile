@@ -1,4 +1,4 @@
-# Toolchain for scripts/create-unpinned-app.sh.
+# Toolchain for scripts/app/create-unpinned-app.sh.
 #
 # Everything the app patching needs runs in here, so the host only needs docker:
 # a JDK (keytool, apksigner), the Android build-tools (zipalign), python3 for the

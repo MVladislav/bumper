@@ -9,7 +9,7 @@
 #
 # Two patches, both required:
 #
-# 1. android:debuggable="true" in the manifest (patch_debuggable.py).
+# 1. android:debuggable="true" in the manifest (patch-debuggable.py).
 #
 #    The app ships this in its network_security_config.xml:
 #
@@ -21,7 +21,7 @@
 #    app. That one flag is what lets Bumper's user-installed CA be accepted on
 #    the web API, CodePush and H5 paths.
 #
-# 2. The hardcoded MQTT certificate is made unusable (patch_mqtt_trust.py).
+# 2. The hardcoded MQTT certificate is made unusable (patch-mqtt-trust.py).
 #
 #    MQTT does not use the platform trust store. The Paho fork loads a Base64
 #    certificate embedded in a classes*.dex into an empty KeyStore and passes it
@@ -38,16 +38,19 @@
 # Requirements: docker
 set -Eeuo pipefail
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PATCH_DIR="${REPO_ROOT}/scripts/apk-patch"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/../shared/paths.sh"
+PATCH_DIR="${REPO_ROOT}/scripts/app/apk-patch"
 TOOL_IMAGE='bumper-apk-tool'
 
 # ─── CONFIG ──────────────────────────────────────────────────────────────────
 CURL_USER_AGENT='Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:129.0) Gecko/20100101 Firefox/129.0'
 
 # One APK URL. XAPK (multi-split) and plain APK both work.
-# APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?version=latest' # >= 3.16.0
-APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?versionCode=139&nc=arm64-v8a'  # 3.15.1
+# APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?version=latest' # >= 3.16.1
+APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?versionCode=141&nc=arm64-v8a'  # 3.16.0
+# APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?versionCode=139&nc=arm64-v8a'  # 3.15.1
 # APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?versionCode=129&nc=armeabi-v7a' # 3.11.0
 # APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?versionCode=128&nc=armeabi-v7a' # 3.10.0
 # APK_URL='https://d.apkpure.net/b/XAPK/com.eco.global.app?versionCode=127&nc=arm64-v8a'  # 3.9.1

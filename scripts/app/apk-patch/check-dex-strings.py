@@ -7,7 +7,7 @@ string replacement still has to land in the right sort position.
 
 Prints each violation, or nothing when the table is sorted.
 
-Usage: check_dex_strings.py <apk|dex> [classes.dex ...]
+Usage: check-dex-strings.py <apk|dex> [classes.dex ...]
 """
 
 import hashlib

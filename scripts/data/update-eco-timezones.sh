@@ -15,9 +15,9 @@
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 # shellcheck disable=SC1091
-source "$SCRIPT_DIR/shared/paths.sh"
+source "$SCRIPT_DIR/../shared/paths.sh"
 # shellcheck disable=SC1091
-source "$SCRIPT_DIR/shared/eco-auth.sh"
+source "$SCRIPT_DIR/../shared/eco-auth.sh"
 
 # Dependency checks
 command -v curl >/dev/null 2>&1 || { echo "[ERROR] curl required" >&2; exit 1; }
