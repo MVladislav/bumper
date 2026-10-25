@@ -20,6 +20,7 @@ nav:
       - Model Compatibility: reference/models.md
   - Internals:
       - Architecture: internals/architecture.md
+      - Authentication: internals/authentication.md
       - Sniffing & Reverse Engineering: internals/sniffing.md
       - Certificate Pinning Bypass (APP): internals/certificate-unpinning-app.md
       - Certificate Pinning Bypass (BOT): internals/certificate-unpinning-bot.md
@@ -57,4 +58,14 @@ markdown_extensions:
   - admonition
   - attr_list
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+extra_css:
+  - stylesheets/mermaid.css
+
+extra_javascript:
+  - https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.min.js
