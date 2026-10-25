@@ -116,3 +116,28 @@ def get_faq_problem() -> str:
 def get_event_detail() -> str:
     """Get event detail."""
     return load_text_files("EventDetail.html", get_static_dir())
+
+
+def get_config_groups_robot(value: str | None, key: str = "mid") -> dict[str, Any] | None:
+    """Get the robot of the config groups that carries `value` under `key`."""
+    if not value:
+        return None
+
+    for group in get_config_groups_response():
+        robots: list[dict[str, Any]] = group.get("robots", [])
+        for robot in robots:
+            if robot.get(key) == value:
+                return robot
+    return None
+
+
+def get_product_category(device_name: str, robot: dict[str, Any] | None) -> str:
+    """Get the category of a product."""
+    if robot:
+        category: str = robot.get("category", "UNKNOWN")
+        return category
+    if device_name.startswith("DEEBOT"):
+        return "DEEBOT"
+    if device_name.startswith("GOAT"):
+        return "GOATBOT"
+    return "UNKNOWN"
