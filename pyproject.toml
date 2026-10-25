@@ -75,7 +75,7 @@ dev = [
   "types-setuptools>=80.9.0.20250822", # https://pypi.org/project/types-setuptools
 ]
 docs = [
-  "mkdocs-material>=9.6.14", # https://pypi.org/project/mkdocs-material/
+  "mkdocs-material>=9.6.14,<10", # https://pypi.org/project/mkdocs-material/
   "mkdocs-glightbox>=0.4.0", # https://pypi.org/project/mkdocs-glightbox/
 ]
 
