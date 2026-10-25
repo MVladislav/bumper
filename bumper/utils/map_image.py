@@ -1,18 +1,16 @@
-"""Render the map of a finished job as a picture.
+"""Render the map of a finished job as an SVG picture.
 
 The robot uploads the map of a finished job as a grid of cells, one byte per
 cell. Every byte is an index into the palette of the map: the floor, the
 walls, the carpet, the space that was not scanned and the rooms of the house.
 
 The grid the robot uploads is turned a quarter turn clockwise to get the
-picture, the same way the official app and the Home Assistant client draw it.
+picture, the same way the app and the Home Assistant client draw it.
 """
 
 from dataclasses import dataclass
 import itertools
-import struct
 from typing import Any
-import zlib
 
 from bumper.utils import map_doc
 
@@ -33,6 +31,7 @@ PALETTE: tuple[tuple[int, int, int], ...] = (
     (0x66, 0x66, 0x66),  # the outline of the house
     (0xF0, 0x00, 0x00),  # a virtual wall
     (0xFF, 0xA5, 0x00),  # a wall without mopping
+    (0xFF, 0x00, 0x00),  # the path the robot drove
 )
 
 # The number of colours that are not a room.
@@ -53,6 +52,8 @@ VIRTUAL_WALL = 13
 # The palette index of a wall without mopping.
 MOPPING_WALL = 14
 
+# The palette index of the path the robot drove.
+PATH = 15
 # The kinds of the lines in the profile of the map.
 PROFILE_LINES = {"1": OUTLINE, "2": VIRTUAL_WALL, "3": MOPPING_WALL}
 
@@ -65,26 +66,38 @@ class MapImage:
     height: int
     pixels: bytes
 
-    def to_png(self) -> bytes:
-        """Return the picture as a PNG image."""
-        raw = b"".join(b"\x00" + self.pixels[row * self.width : (row + 1) * self.width] for row in range(self.height))
+    def to_svg(self) -> bytes:
+        """Return the picture as an SVG image."""
+        runs: dict[int, list[str]] = {}
+        for row in range(self.height):
+            line = self.pixels[row * self.width : (row + 1) * self.width]
+            start = 0
+            while start < self.width:
+                value = line[start]
+                end = start + 1
+                while end < self.width and line[end] == value:
+                    end += 1
+                if value != TRANSPARENT:
+                    runs.setdefault(value, []).append(f"M{start} {row}h{end - start}v1h-{end - start}z")
+                start = end
 
-        return (
-            b"\x89PNG\r\n\x1a\n"
-            + _chunk(b"IHDR", struct.pack(">IIBBBBB", self.width, self.height, 8, 3, 0, 0, 0))
-            + _chunk(b"PLTE", b"".join(bytes(colour) for colour in PALETTE))
-            + _chunk(b"tRNS", bytes([0] + [255] * (len(PALETTE) - 1)))
-            + _chunk(b"IDAT", zlib.compress(raw, 9))
-            + _chunk(b"IEND", b"")
+        paths = "".join(
+            f'<path fill="#{PALETTE[value][0]:02x}{PALETTE[value][1]:02x}{PALETTE[value][2]:02x}" d="{"".join(parts)}"/>'
+            for value, parts in sorted(runs.items())
         )
+        document = (
+            f'<svg xmlns="http://www.w3.org/2000/svg" width="{self.width}" height="{self.height}" '
+            f'viewBox="0 0 {self.width} {self.height}" shape-rendering="crispEdges">{paths}</svg>'
+        )
+        return document.encode("utf-8")
 
 
-def render_map(map_data: dict[str, Any]) -> bytes:
-    """Return the map of a finished job as a PNG image."""
+def render_map_svg(map_data: dict[str, Any]) -> bytes:
+    """Return the map of a finished job as an SVG image."""
     image = build_map(map_data)
     if image is None:
         return b""
-    return image.to_png()
+    return image.to_svg()
 
 
 def build_map(map_data: dict[str, Any]) -> MapImage | None:
@@ -123,7 +136,48 @@ def build_map(map_data: dict[str, Any]) -> MapImage | None:
         if 0 <= column < right - left and 0 <= row < bottom - top:
             cropped[row * (right - left) + column] = colour
 
+    # The path the robot drove is drawn over the cells.
+    for path_column, path_row in _path(map_data, width, height):
+        col = path_column - left
+        row = path_row - top
+        if 0 <= col < right - left and 0 <= row < bottom - top:
+            cropped[row * (right - left) + col] = PATH
+
     return MapImage(width=right - left, height=bottom - top, pixels=bytes(cropped))
+
+
+def _path(map_data: dict[str, Any], width: int, height: int) -> list[tuple[int, int]]:
+    """Return the cells the path the robot drove runs through.
+
+    Each point is five bytes: little-endian signed row and column coordinates,
+    followed by flags. The coordinate origin is 2000 in 10 mm units; map cells
+    use the pixel size in millimeters. A set high flag bit starts a disconnected
+    segment.
+    """
+    trace = map_doc.decode_trace(map_data)
+    if not trace:
+        return []
+
+    scale = max(1, round(map_doc.map_pixel(map_data) / 10))
+    points: list[tuple[int, int, bool]] = []
+    for index in range(0, len(trace) - 4, 5):
+        row = int.from_bytes(trace[index : index + 2], "little", signed=True)
+        column = int.from_bytes(trace[index + 2 : index + 4], "little", signed=True)
+        connected = not trace[index + 4] & 0x80
+        grid_x = height // 2 + round(row / scale)
+        grid_y = width // 2 - round(column / scale)
+        if 0 <= grid_x < height and 0 <= grid_y < width:
+            # The grid bitmap is turned clockwise: source row becomes x,
+            # while source column becomes the reversed y coordinate.
+            points.append((grid_x, grid_y, connected))
+
+    cells: list[tuple[int, int]] = []
+    for previous, current in itertools.pairwise(points):
+        x1, y1, _ = previous
+        x2, y2, connected = current
+        if connected:
+            cells.extend(_line((x1, y1), (x2, y2)))
+    return cells
 
 
 def _outline(map_data: dict[str, Any], width: int) -> list[tuple[int, int, int]]:
@@ -196,8 +250,6 @@ def _bounds(indexes: bytes, width: int, height: int) -> tuple[int, int, int, int
     bottom = 0
     for row in range(height):
         line = indexes[row * width : (row + 1) * width]
-        if TRANSPARENT not in line:
-            continue
         filled = line.strip(bytes([TRANSPARENT]))
         if not filled:
             continue
@@ -209,8 +261,3 @@ def _bounds(indexes: bytes, width: int, height: int) -> tuple[int, int, int, int
     if bottom <= top:
         return None
     return left, top, right, bottom
-
-
-def _chunk(tag: bytes, data: bytes) -> bytes:
-    """Return a chunk of a PNG image."""
-    return struct.pack(">I", len(data)) + tag + data + struct.pack(">I", zlib.crc32(tag + data) & 0xFFFFFFFF)

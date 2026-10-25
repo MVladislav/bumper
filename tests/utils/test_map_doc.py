@@ -215,3 +215,39 @@ def test_the_app_puts_the_pieces_back_together() -> None:
 
     rebuilt = bytes(cell for row in buffer for cell in row)
     assert rebuilt == map_doc.decode_grid(document)
+
+
+def test_a_cell_size_of_five_means_fifty() -> None:
+    """The older robots write five for a cell that is fifty millimetres wide."""
+    document = {**MAP_DOCUMENT, "majorMap": {**MAP_DOCUMENT["majorMap"], "pixel": 5}}
+
+    assert map_doc.map_pixel(document) == 50
+    assert map_doc.map_pixel(MAP_DOCUMENT) == 50
+
+
+def test_the_trace_next_to_a_map_is_used_when_the_map_holds_none() -> None:
+    """The map of the newer upload may carry an empty trace of its own."""
+    trace = (1).to_bytes(2, "little", signed=True) + (2).to_bytes(2, "little", signed=True) + b"\x01"
+    document = {**MAP_DOCUMENT, "mapTrace": {**MAP_DOCUMENT["mapTrace"], "traceValue": ""}}
+    payload = {
+        "mapInfo": {"value": _encode_7z(json.dumps(document).encode())},
+        "mapTrace": {**MAP_DOCUMENT["mapTrace"], "traceValue": map_doc.encode_7z(trace)},
+    }
+
+    normalised = map_doc.normalise_map_document(payload)
+
+    assert map_doc.decode_trace(normalised) == trace
+
+
+def test_a_trace_in_the_map_is_kept() -> None:
+    """The trace of the map itself wins when it holds points."""
+    trace = (3).to_bytes(2, "little", signed=True) + (4).to_bytes(2, "little", signed=True) + b"\x01"
+    document = {**MAP_DOCUMENT, "mapTrace": {**MAP_DOCUMENT["mapTrace"], "traceValue": map_doc.encode_7z(trace)}}
+    payload = {
+        "mapInfo": {"value": _encode_7z(json.dumps(document).encode())},
+        "mapTrace": {**MAP_DOCUMENT["mapTrace"], "traceValue": map_doc.encode_7z(b"other")},
+    }
+
+    normalised = map_doc.normalise_map_document(payload)
+
+    assert map_doc.decode_trace(normalised) == trace

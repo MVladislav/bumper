@@ -1,39 +1,32 @@
 """Lg plugin module."""
 
-from collections.abc import Iterable
-import json
 import logging
 from typing import Any
 
 from aiohttp import web
 from aiohttp.web_request import Request
 from aiohttp.web_response import Response
-from aiohttp.web_routedef import AbstractRouteDef
 
 from bumper.db import bot_repo, clean_log_repo, photo_repo
 from bumper.db.photos import KIND_MAP
 from bumper.utils import map_doc, utils
-from bumper.web.plugins import WebserverPlugin
-from bumper.web.utils.response_helper import response_error_v7
+from bumper.web.context import read_body
+from bumper.web.envelope import ERROR_TODO_RET_RET
+from bumper.web.hosts import photo_url
+
+from . import PREFIX
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class LgPlugin(WebserverPlugin):
-    """Lg plugin."""
-
-    @property
-    def routes(self) -> Iterable[AbstractRouteDef]:
-        """Plugin routes."""
-        return [
-            web.route("POST", "/lg/log.do", _handle_lg_log),
-        ]
+routes = web.RouteTableDef()
 
 
+@routes.post(f"{PREFIX}/lg/log.do")
 async def _handle_lg_log(request: Request) -> Response:
     """Clean result list."""
     try:
-        json_body: dict[str, Any] = json.loads(await request.text())
+        json_body = await read_body(request)
         did: str | None = json_body.get("did")
         td: str = json_body.get("td", "")
         logs: list[dict[str, Any]] = []
@@ -44,23 +37,26 @@ async def _handle_lg_log(request: Request) -> Response:
             # The app asks for the map of a finished clean, keyed by the did and
             # a timestamp in milliseconds truncated to whole seconds. The map
             # itself is what the robot uploaded to the data-collect endpoint.
-            map_data = _stored_map(did, _map_timestamp(json_body.get("ets")))
+            bot = bot_repo.get_by_did_or_name(did)
+            device_id = bot.did if bot is not None and bot.did else did
+            map_data = _stored_map(device_id, _map_timestamp(json_body.get("ets")))
             if map_data is None:
                 _LOGGER.info(f"No map stored for did={did}")
             # The app reads the pieces of the map and the driven path from the
             # top level of the answer, so they are not wrapped in a field.
             return web.json_response({"ret": "ok", **map_doc.cleaned_map(map_data)})
         elif td == "GetCleanLogs":
-            bot = bot_repo.get(did)
+            bot = bot_repo.get_by_did_or_name(did)
             if bot is None or bot.company != "eco-ng":
                 _LOGGER.error(f"No bots with DID :: {did} :: connected to MQTT")
             else:
-                clean_logs = clean_log_repo.list_by_did(did)
-                maps = photo_repo.maps_for_logs(clean_log_repo.list_by_did(did))
+                device_id = bot.did or did
+                clean_logs = clean_log_repo.list_by_did(device_id)
+                maps = photo_repo.maps_for_logs(clean_log_repo.list_by_did(device_id))
                 for clean_log in clean_logs:
                     entry = clean_log.as_dict()
                     if photo_id := maps.get(clean_log.clean_log_id):
-                        entry["imageUrl"] = f"https://{request.host}/api/photo/download?id={photo_id}"
+                        entry["imageUrl"] = photo_url(request.host, photo_id)
                     logs.append(entry)
 
         return web.json_response(
@@ -71,7 +67,7 @@ async def _handle_lg_log(request: Request) -> Response:
         )
     except Exception:
         _LOGGER.exception(utils.default_exception_str_builder(info="during handling request"))
-    return response_error_v7()
+    return web.json_response(ERROR_TODO_RET_RET.render(1, "unknown"))
 
 
 def _map_timestamp(ets: Any) -> int | None:

@@ -3,6 +3,7 @@
 import pytest
 
 from bumper.db import photo_repo
+from bumper.web.utils.models import CleanLog
 
 
 def _photo(did: str, ts: int, photo_id: str = "") -> dict[str, object]:
@@ -169,3 +170,98 @@ def test_photos_of_both_kinds_are_ordered_by_their_time() -> None:
     records = photo_repo.list_by_did("did_a")
 
     assert [record["ts"] for record in records] == [1792439780000, 1746022105000]
+
+
+@pytest.mark.usefixtures("clean_database")
+def test_map_for_clean_log_uses_reported_end_after_a_paused_job() -> None:
+    """The uploaded map is matched to stats.end, not start plus active time."""
+    log = CleanLog("did_a@1792840184@resource")
+    log.did = "did_a"
+    log.ts = 1792840184
+    log.last = 2320
+    log.end = 1792845283
+    photo_repo.add(
+        {"id": "map_at_estimated_end", "did": "did_a", "ts": 1792842504, "kind": "map", "image": ""},
+    )
+    photo_repo.add(
+        {"id": "map_at_reported_end", "did": "did_a", "ts": 1792845283, "kind": "map", "image": ""},
+    )
+
+    maps = photo_repo.maps_for_logs([log])
+
+    assert maps[log.clean_log_id] == "map_at_reported_end"
+
+
+@pytest.mark.usefixtures("clean_database")
+def test_legacy_clean_log_uses_the_last_map_before_the_next_job() -> None:
+    """An old log without `end` still maps to the upload before the next job."""
+    first = CleanLog("did_a@1792840184@resource")
+    first.did = "did_a"
+    first.ts = 1792840184
+    first.last = 2320
+    second = CleanLog("did_a@1792846000@resource")
+    second.did = "did_a"
+    second.ts = 1792846000
+    for photo_id, ts in (
+        ("map_at_estimated_end", 1792842504),
+        ("map_at_reported_end", 1792845283),
+        ("map_after_next_job", 1792847000),
+    ):
+        photo_repo.add({"id": photo_id, "did": "did_a", "ts": ts, "kind": "map", "image": ""})
+
+    maps = photo_repo.maps_for_logs([first, second])
+
+    assert maps[first.clean_log_id] == "map_at_reported_end"
+    assert maps[second.clean_log_id] == "map_after_next_job"
+
+
+@pytest.mark.usefixtures("clean_database")
+def test_a_map_uploaded_long_after_the_job_is_not_used() -> None:
+    """A map that arrives long after a job belongs to no job of that clean."""
+    log = CleanLog("did_a@1792840184@resource")
+    log.did = "did_a"
+    log.ts = 1792840184
+    log.last = 2320
+    log.end = 1792845283
+    photo_repo.add(
+        {"id": "map_of_another_job", "did": "did_a", "ts": 1792845283 + 3600, "kind": "map", "image": ""},
+    )
+
+    maps = photo_repo.maps_for_logs([log])
+
+    assert maps == {}
+
+
+@pytest.mark.usefixtures("clean_database")
+def test_a_map_uploaded_shortly_after_the_job_is_used() -> None:
+    """The robot may upload the map of a job a moment after the job ended."""
+    log = CleanLog("did_a@1792840184@resource")
+    log.did = "did_a"
+    log.ts = 1792840184
+    log.last = 2320
+    log.end = 1792845283
+    photo_repo.add(
+        {"id": "map_after_end", "did": "did_a", "ts": 1792845283 + 120, "kind": "map", "image": ""},
+    )
+
+    maps = photo_repo.maps_for_logs([log])
+
+    assert maps[log.clean_log_id] == "map_after_end"
+
+
+@pytest.mark.usefixtures("clean_database")
+def test_the_maps_of_one_robot_are_not_hidden_by_another() -> None:
+    """Many newer maps of one robot do not drop the map of another robot."""
+    log = CleanLog("did_a@1792840184@resource")
+    log.did = "did_a"
+    log.ts = 1792840184
+    log.end = 1792845283
+    photo_repo.add({"id": "map_of_did_a", "did": "did_a", "ts": 1792845283, "kind": "map", "image": ""})
+    for index in range(101):
+        photo_repo.add(
+            {"id": f"map_of_did_b_{index}", "did": "did_b", "ts": 1792845283 + index, "kind": "map", "image": ""},
+        )
+
+    maps = photo_repo.maps_for_logs([log])
+
+    assert maps[log.clean_log_id] == "map_of_did_a"

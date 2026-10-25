@@ -6,10 +6,10 @@ from bumper.web.utils.models import CleanLog
 
 @pytest.mark.usefixtures("clean_database")
 def test_clean_logs_db() -> None:
-    did = "saocsa8c9basv"
+    did = "did_cleanlog"
     cid = "1699297517"
     start = 1699297517
-    rid = "sdu9"
+    rid = "res9"
     clean_log = CleanLog(f"{did}@{start}@{rid}")
     clean_log.did = did
     clean_log.cid = cid
@@ -27,7 +27,7 @@ def test_clean_logs_db() -> None:
     assert len(clean_log_repo.list_by_did(did)) == 1
     assert clean_log_repo.list_by_id(clean_log.clean_log_id) is not None
 
-    rid = "sdu8"
+    rid = "res8"
     clean_log.clean_log_id = f"{did}@{start}@{rid}"
     clean_log_repo.add_or_update(clean_log)
     assert len(clean_log_repo.list_by_did(did)) == 2
@@ -37,12 +37,12 @@ def test_clean_logs_db() -> None:
     clean_log_repo.add_or_update(clean_log)
     assert len(clean_log_repo.list_by_did(did)) == 3
 
-    rid = "sdu7"
+    rid = "res7"
     clean_log.clean_log_id = f"{did}@{start}@{rid}"
     clean_log_repo.add_or_update(clean_log)
     assert len(clean_log_repo.list_by_did(did)) == 4
 
-    did = "cßa9sbas"
+    did = "did_other"
     clean_log.clean_log_id = f"{did}@{clean_log.ts}@{rid}"
     clean_log.did = did
     clean_log_repo.add_or_update(clean_log)
@@ -74,6 +74,73 @@ def test_clean_logs_db() -> None:
     clean_log.area = 28
     clean_log_repo.add_or_update(clean_log)
     assert len(clean_log_repo.list_by_did(did)) == 2
+
+
+@pytest.mark.usefixtures("clean_database")
+def test_clean_log_update_keeps_a_known_stop_reason_when_later_update_is_null() -> None:
+    """A partial update must not erase a stop reason already learned."""
+    clean_log_id = "did_partial@1699297517@res"
+    initial = CleanLog(clean_log_id)
+    initial.did = "did_partial"
+    initial.type = "auto"
+    initial.ts = 1699297517
+    initial.stop_reason = 3
+    initial.last = 1699297520
+    clean_log_repo.add_or_update(initial)
+
+    update = CleanLog(clean_log_id)
+    update.did = "did_partial"
+    update.type = "auto"
+    update.ts = 1699297517
+    update.stop_reason = None
+    update.last = 1699297530
+    clean_log_repo.add_or_update(update)
+
+    stored = clean_log_repo.list_by_id(clean_log_id)
+    assert stored is not None
+    assert stored.stop_reason == 3
+    assert stored.last == 1699297530
+
+
+@pytest.mark.usefixtures("clean_database")
+def test_clean_log_partial_payload_keeps_fields_it_does_not_report() -> None:
+    """A stats update changes reported fields without resetting omitted values."""
+    did = "did_partial_payload"
+    rid = "res"
+    first = CleanLog.from_dict(
+        did,
+        rid,
+        {
+            "start": 1699297517,
+            "type": "auto",
+            "time": 1699297520,
+            "stopReason": 3,
+            "area": 28,
+            "aiavoid": 2,
+            "aitypes": ["object"],
+        },
+    )
+    clean_log_repo.add_or_update(first)
+
+    later = CleanLog.from_dict(
+        did,
+        rid,
+        {
+            "start": 1699297517,
+            "type": "auto",
+            "time": 1699297530,
+            "stopReason": None,
+        },
+    )
+    clean_log_repo.add_or_update(later)
+
+    stored = clean_log_repo.list_by_id(first.clean_log_id)
+    assert stored is not None
+    assert stored.stop_reason == 3
+    assert stored.area == 28
+    assert stored.aiavoid == 2
+    assert stored.aitypes == ["object"]
+    assert stored.last == 1699297530
 
 
 @pytest.mark.usefixtures("clean_database")
