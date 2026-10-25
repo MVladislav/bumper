@@ -1,6 +1,6 @@
 ---
-name-template: "$RESOLVED_VERSION"
-tag-template: "$RESOLVED_VERSION"
+name-template: "v$RESOLVED_VERSION"
+tag-template: "v$RESOLVED_VERSION"
 change-template: "- #$NUMBER $TITLE @$AUTHOR"
 sort-direction: ascending
 filter-by-commitish: true

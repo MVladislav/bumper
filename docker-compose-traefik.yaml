@@ -158,8 +158,8 @@ services:
       TZ: ${TZ:-Europe/Berlin}
       BUMPER_ANNOUNCE_IP: ${BUMPER_ANNOUNCE_IP?Server Announce IP not set}
       BUMPER_LISTEN: ${BUMPER_LISTEN:-0.0.0.0}
-      BUMPER_DEBUG_LEVEL: ${BUMPER_DEBUG_LEVEL:-INFO}
-      BUMPER_DEBUG_VERBOSE: ${BUMPER_DEBUG_VERBOSE:-1}
+      DEBUG_BUMPER_LEVEL: ${DEBUG_BUMPER_LEVEL:-INFO}
+      DEBUG_BUMPER_VERBOSE: ${DEBUG_BUMPER_VERBOSE:-1}
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
