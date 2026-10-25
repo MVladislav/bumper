@@ -14,45 +14,49 @@ from urllib.parse import unquote
 
 from aiohttp import web
 from aiohttp.web_exceptions import HTTPInternalServerError, HTTPNotFound
-from aiohttp.web_fileresponse import FileResponse
 from aiohttp.web_request import Request
 from aiohttp.web_response import Response
 
-from bumper.db import bot_repo, photo_repo
-from bumper.db.photos import KIND_MAP, KIND_PICTURE
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
-from bumper.utils.utils import to_milliseconds
 from bumper.web.auth_service import get_new_auth
-from bumper.web.plugins.api.appsvr import get_codepush_update_check_data
-from bumper.web.utils.response_helper import ERR_UNKNOWN_TODO, response_error_v2, response_success_v3
+from bumper.web.context import read_body
+from bumper.web.envelope import (
+    ERR_UNKNOWN_TODO,
+    LEGACY_BARE,
+    LEGACY_NO_RET,
+    ApiError,
+)
+from bumper.web.payloads import codepush_update_check
 
 _LOGGER = logging.getLogger(__name__)
 
 
-async def handle_ca_certificates(_: Request) -> FileResponse | Response:
+async def handle_ca_certificates(_: Request) -> Response:
     """Handle CA Certificates (/ca-certificates.tar.gz)."""
     try:
-        archive_path: Path = bumper_isc.ca_archive_file
-        if not await utils.check_file_exists(archive_path):
-            _create_ca_tar_file(archive_path)
-
-        return FileResponse(
-            path=archive_path,
-            headers={
-                "Content-Disposition": f'attachment; filename="{bumper_isc.ca_archive_filename}"',
-                "Content-Type": "application/gzip",
-            },
+        return Response(
+            body=_build_ca_archive(),
+            content_type="application/gzip",
+            headers={"Content-Disposition": f'attachment; filename="{bumper_isc.ca_archive_filename}"'},
         )
     except web.HTTPException as e:
         return Response(status=e.status, text=e.text, content_type="text/plain")
+    except ApiError:
+        raise
     except Exception:
         _LOGGER.exception(utils.default_exception_str_builder())
     raise HTTPInternalServerError
 
 
-def _create_ca_tar_file(archive_path: Path) -> None:
-    _LOGGER.debug(f"Creating CA certificates archive: {archive_path}")
+@cache
+def _build_ca_archive() -> bytes:
+    """Build the CA archive once per process.
+
+    The bundle changes only when the certificates are regenerated, which needs
+    a restart, so rebuilding it on every request would only cost time.
+    """
+    _LOGGER.debug("Building CA certificates archive")
 
     ca_cert_path: Path = bumper_isc.ca_cert
     ca_cert_path_original: Path = Path(__file__).parent / "static_web" / "certs" / "ca-certificates-original.crt"
@@ -66,26 +70,23 @@ def _create_ca_tar_file(archive_path: Path) -> None:
             cert_bumper += b"\n"
         cert_result = cert_bumper + certs_ecovacs
 
-    # Compute md5 of the final bundle
     md5_hash = hashlib.md5(cert_result).hexdigest()  # noqa: S324
 
-    try:
-        with tarfile.open(archive_path, mode="w:gz") as tar:
-            crt_name = "ca-certificates/ca-certificates.crt"
-            crt_info = tarfile.TarInfo(name=crt_name)
-            crt_info.size = len(cert_result)
-            tar.addfile(crt_info, io.BytesIO(cert_result))
+    archive = io.BytesIO()
+    with tarfile.open(fileobj=archive, mode="w:gz") as tar:
+        crt_name = "ca-certificates/ca-certificates.crt"
+        crt_info = tarfile.TarInfo(name=crt_name)
+        crt_info.size = len(cert_result)
+        tar.addfile(crt_info, io.BytesIO(cert_result))
 
-            md5_text = f"{md5_hash}\n".encode()
-            md5_info = tarfile.TarInfo(name="ca-certificates/MD5SUMS")
-            md5_info.size = len(md5_text)
-            tar.addfile(md5_info, io.BytesIO(md5_text))
-    except Exception as e:
-        _LOGGER.exception("Failed to build tar.gz archive for CA certificates")
-        raise HTTPInternalServerError from e
+        md5_text = f"{md5_hash}\n".encode()
+        md5_info = tarfile.TarInfo(name="ca-certificates/MD5SUMS")
+        md5_info.size = len(md5_text)
+        tar.addfile(md5_info, io.BytesIO(md5_text))
+
+    return archive.getvalue()
 
 
-@cache
 def _get_ca_cert(cert_path: Path) -> bytes:
     if not cert_path.exists():
         msg = f"CA cert file not found: {cert_path}"
@@ -95,21 +96,24 @@ def _get_ca_cert(cert_path: Path) -> bytes:
     try:
         return cert_path.read_bytes()
     except OSError as e:
-        _LOGGER.exception("OS error while reading CA cert: {cert_path}")
+        _LOGGER.exception(f"OS error while reading CA cert: {cert_path}")
         raise HTTPInternalServerError from e
 
 
-async def handle_new_auth(request: Request) -> Response:
+async def handle_new_auth(request: Request) -> Any:
     """Handle new auth (/newauth.do)."""
     try:
-        post_body = json.loads(await request.text())
+        post_body = await read_body(request)
 
         todo = post_body.get("todo", "")
         if todo == "OLoginByITToken":
             return await get_new_auth(request)
 
         _LOGGER.warning(f"todo is not know :: {todo!s}")
-        return response_error_v2(msg="Error request, unknown todo", code=ERR_UNKNOWN_TODO)
+        msg = "Error request, unknown todo"
+        raise ApiError(msg=msg, code=ERR_UNKNOWN_TODO)
+    except ApiError:
+        raise
     except Exception:
         _LOGGER.exception(utils.default_exception_str_builder())
     raise HTTPInternalServerError
@@ -118,10 +122,7 @@ async def handle_new_auth(request: Request) -> Response:
 async def handle_lookup(request: Request) -> Response:
     """Handle lookup (/lookup.do)."""
     try:
-        if request.content_type == "application/x-www-form-urlencoded":
-            post_body = await request.post()
-        else:
-            post_body = json.loads(await request.text())
+        post_body = await read_body(request)
 
         todo = post_body.get("todo", "")
         if todo == "FindBest":
@@ -143,6 +144,8 @@ async def handle_lookup(request: Request) -> Response:
         _LOGGER.warning(f"todo is not know :: {todo!s}")
 
         return web.json_response({})
+    except ApiError:
+        raise
     except Exception:
         _LOGGER.exception(utils.default_exception_str_builder())
     raise HTTPInternalServerError
@@ -157,84 +160,11 @@ async def handle_config_android_conf(_: Request) -> Response:
                 "configs": {"disableSDK": False, "disableDebugMode": False},
             },
         )
+    except ApiError:
+        raise
     except Exception:
         _LOGGER.exception(utils.default_exception_str_builder())
     raise HTTPInternalServerError
-
-
-async def handle_data_collect(request: Request) -> Response:
-    """Handle data collect (/data_collect/upload/generalData).
-
-    The device POSTs the raw payload with the metadata in the query string
-
-    Two kinds of payload arrive on this endpoint. A picture is a raw JPEG; a
-    cleaned map is a JSON document. The two are stored apart, because the app
-    reads them back through different endpoints: pictures through
-    `/api/photo/*`, maps through `lg/log.do` with `td: "GetCleanedMap"`.
-    """
-    try:
-        did = request.query.get("auth.did", "")
-        bot = bot_repo.get(did) if did else None
-        if bot is None:
-            _LOGGER.warning(f"Upload for unknown bot :: did={did}")
-
-        meta = _parse_upload_meta(request.query.get("meta", ""))
-        bind_evt = str(meta.get("bindEvt", "cruise"))
-        if bind_evt not in {"cruise", "findPet"}:
-            _LOGGER.warning(f"Upload with unknown bindEvt :: {bind_evt}")
-
-        if bot is not None:
-            mismatches = [
-                field
-                for field, expected, actual in (
-                    ("name", bot.name, request.query.get("auth.name", "")),
-                    ("mid", bot.class_id, request.query.get("auth.mid", "")),
-                    ("res", bot.resource, request.query.get("auth.res", "")),
-                )
-                if expected and actual and expected != actual
-            ]
-            if mismatches:
-                _LOGGER.warning(f"Upload identity mismatch :: did={did} :: fields={mismatches}")
-
-        payload = await request.read()
-        # The robot sends the time of a picture in milliseconds and the time of
-        # a map in seconds, so the time is scaled up to milliseconds.
-        ts = to_milliseconds(utils.to_int(meta.get("ts"), utils.to_int(request.query.get("auth.ts"), 0) * 1000))
-
-        _LOGGER.info(
-            f"Upload :: did={did} :: bindEvt={bind_evt} :: bindID={meta.get('bindID', '')} "
-            f":: bytes={len(payload)} :: sign={request.query.get('auth.sign', '')}",
-        )
-
-        if payload:
-            photo_id = f"{ts}{did}" if ts else did
-            kind = KIND_MAP if _is_map_payload(payload) else KIND_PICTURE
-            photo_repo.add(
-                {
-                    "id": photo_id,
-                    "did": did,
-                    "ts": ts,
-                    "size": len(payload),
-                    "bindEvt": bind_evt,
-                    "bindID": str(meta.get("bindID", "")),
-                    "type": "robot",
-                    "mtype": "pic",
-                    "kind": kind,
-                    "image": photo_repo.encode_image(payload),
-                },
-            )
-            photo_repo.prune(did, bumper_isc.PHOTO_MAX_PER_DEVICE)
-            _LOGGER.info(f"Upload stored :: id={photo_id} :: kind={kind}")
-
-        return web.Response(body=b"", content_type="text/plain", charset="utf-8")
-    except Exception:
-        _LOGGER.exception(utils.default_exception_str_builder())
-    raise HTTPInternalServerError
-
-
-def _is_map_payload(payload: bytes) -> bool:
-    """Return whether an upload carries a map document rather than a picture."""
-    return payload.lstrip()[:1] == b"{"
 
 
 def _parse_upload_meta(raw: str) -> dict[str, Any]:
@@ -243,6 +173,8 @@ def _parse_upload_meta(raw: str) -> dict[str, Any]:
         return {}
     try:
         parsed = json.loads(unquote(raw))
+    except ApiError:
+        raise
     except Exception:
         _LOGGER.warning("Camera upload meta is not valid URL-encoded JSON")
         return {}
@@ -253,10 +185,7 @@ async def handle_sa(request: Request) -> Response:
     """Handle SA command (/sa)."""
     try:
         if bumper_isc.DEBUG_LOGGING_SA_RESULT is True:
-            if request.content_type == "application/x-www-form-urlencoded":
-                post_body = await request.post()
-            else:
-                post_body = json.loads(await request.text())
+            post_body = await read_body(request)
 
             post_body_gzip = str(post_body.get("gzip", 0))
             data_list = post_body.get("data_list")
@@ -265,6 +194,8 @@ async def handle_sa(request: Request) -> Response:
                 decompressed_data = gzip.decompress(decoded_data).decode("utf-8")
                 _LOGGER.info(decompressed_data)
         return web.json_response(None)
+    except ApiError:
+        raise
     except Exception:
         _LOGGER.exception(utils.default_exception_str_builder())
     raise HTTPInternalServerError
@@ -272,12 +203,20 @@ async def handle_sa(request: Request) -> Response:
 
 async def handle_codepush_report_status_deploy(_: Request) -> Response:
     """Codepush Report Status Deploy (/v0.1/public/codepush/report_status/deploy)."""
-    return response_success_v3(result_key=None, msg_key="msg")
+    body: dict[str, Any] = LEGACY_BARE.with_msg(("msg", "success")).render()
+    return web.json_response(body)
 
 
 async def handle_codepush_update_check(request: Request) -> Response:
     """CodePush Update check (/v0.1/public/codepush/update_check)."""
-    response = get_codepush_update_check_data(request)
+    response = codepush_update_check(
+        deployment_key=request.query.get("deployment_key", ""),
+        label=request.query.get("label", ""),
+        package_hash=request.query.get("package_hash", ""),
+        package_name=request.query.get("package_name"),
+        app_version=request.query.get("app_version", "1.0.0"),
+        deployment_name=request.query.get("deployment_name", "Production"),
+    )
     return web.json_response(response)
 
 
@@ -290,13 +229,6 @@ async def handle_global_app_bury_point_api(_: Request) -> Response:
             },
             "body": {},
         },
-        # {
-        #     "header": {
-        #         "result_msg": "Authentifizierung der Schnittstelle fehlgeschlagen",  # 接口鉴权失败
-        #         "result_code": "100001",
-        #     },
-        #     "body": {},
-        # },
     )
 
 
@@ -314,48 +246,12 @@ async def handle_global_app_bury_point_api_appevent(_: Request) -> Response:
 
 async def handle_chat_bot_id_config(_: Request) -> Response:
     """Handle chat bot ID config (/biz-app-config/api/v2/chat_bot_id/config)."""
-    return response_success_v3(
-        msg_key="msg",
-        data={
-            "chat_bot_id": "yiko_full_stack_en",
-            "introduction": "Welcome to use the smart assistant",
-            "lang": "en",
-        },
+    return web.json_response(
+        LEGACY_NO_RET.with_msg(("msg", "success")).render(
+            {
+                "chat_bot_id": "yiko_full_stack_en",
+                "introduction": "Welcome to use the smart assistant",
+                "lang": "en",
+            },
+        ),
     )
-
-
-async def handle_content_agreement(_: web.Request) -> web.Response:
-    """Content Agreement (/content/agreement)."""
-    html_content = """
-    <div style="font-family: Arial, sans-serif; margin: 2rem auto; padding: 1em;
-    border: 2px dashed #ccc; border-radius: 10px; background-color: #f9f9f9; font-size: 2rem; max-width: 52rem;">
-      <h2 style="text-align: center;">Welcome to Bumper 🚗💨</h2>
-      <p><strong>Mini User-ish Agreement</strong></p>
-      <ul>
-        <li>
-            <strong>You break it, you fix it.</strong>
-            We built it, you run it. If it breaks, blame your last caffeine-fueled update.
-        </li>
-        <li>
-            <strong>Your data is yours.</strong>
-            We can't see it. We don't want it. Bumper runs at home. It's antisocial like that.
-        </li>
-        <li>
-            <strong>No cloud, no cry.</strong>
-            If things go wrong, check your Wi-Fi, cat, or moon phase. Probably not our fault.
-        </li>
-        <li>
-            <strong>Support not included.</strong>
-            Ask your future self or consult the ancient scrolls (aka README.md).
-        </li>
-        <li>
-            <strong>No evil bots.</strong>
-            Don't use Bumper for villainy. Floors, yes. World domination, no.
-        </li>
-      </ul>
-      <p style="text-align: center; font-style: italic;">
-        By using Bumper, you accept responsibility and the eternal right to brag about your local setup. 🍕
-      </p>
-    </div>
-    """
-    return web.Response(text=html_content, content_type="text/html")
