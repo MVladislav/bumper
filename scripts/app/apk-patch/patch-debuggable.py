@@ -11,23 +11,24 @@ Android applies ``<debug-overrides>`` to every domain, but only to a debuggable
 app. Setting the flag is what makes the platform trust a **user-installed CA**,
 which is how Bumper's self-signed certificate is accepted.
 
-MQTT is the one channel that ignores this; ``patch_mqtt_trust.py`` handles it.
+MQTT is the one channel that ignores this; ``patch-mqtt-trust.py`` handles it.
 
 The edit follows the AXML layout used by aapt/apktool: append a string to the
 pool, extend the resource map so the attribute id resolves, and splice a 20-byte
 attribute record into the ``<application>`` start element.
 
 Usage:
-    patch_debuggable.py <in.apk> <out.apk> [--force]
+    patch-debuggable.py <in.apk> <out.apk> [--force]
 """
 
 import argparse
+from importlib import import_module
 import struct
 import sys
 import zipfile
 from pathlib import Path
 
-from apk_io import repack as repack_apk
+repack_apk = import_module("apk-io").repack
 
 CHUNK_STRING_POOL = 0x001
 CHUNK_XML = 0x003

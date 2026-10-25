@@ -18,9 +18,9 @@ trap 'echo "ERROR: Unexpected error on line $LINENO (command: $BASH_COMMAND)." >
 # ==============================================================================
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 # shellcheck disable=SC1091
-source "$SCRIPT_DIR/shared/paths.sh"
+source "$SCRIPT_DIR/../shared/paths.sh"
 # shellcheck disable=SC1091
-source "$SCRIPT_DIR/shared/eco-auth.sh"
+source "$SCRIPT_DIR/../shared/eco-auth.sh"
 trap 'eco_cleanup' EXIT
 
 # Dependency checks

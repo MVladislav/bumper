@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Regression tests for the dex string-table invariants the MQTT patch depends on.
 
-Both tests here exist because the first version of `patch_mqtt_trust.py`
+Both tests here exist because the first version of `patch-mqtt-trust.py`
 produced an APK that would not start:
 
     Zip open failed: Failure to verify dex file '.../classes8.dex':
@@ -12,22 +12,23 @@ ART also requires `string_ids` to stay sorted by UTF-16 code point. And a
 byte-wise sort check is not enough either, because MUTF-8 encodes U+0000 as
 `C0 80`, so raw byte order disagrees with code point order.
 
-Run: test_patch_mqtt_trust.py
+Run: test-patch-mqtt-trust.py
 """
 
 import base64
+from importlib import import_module
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from check_dex_strings import mutf8_units  # noqa: E402
-from patch_mqtt_trust import (  # noqa: E402
-    BASE64_ALPHABET,
-    PatchError,
-    build_replacement,
-    is_pinned_certificate,
-)
+check_dex_strings = import_module("check-dex-strings")
+patch_mqtt_trust = import_module("patch-mqtt-trust")
+mutf8_units = check_dex_strings.mutf8_units
+BASE64_ALPHABET = patch_mqtt_trust.BASE64_ALPHABET
+PatchError = patch_mqtt_trust.PatchError
+build_replacement = patch_mqtt_trust.build_replacement
+is_pinned_certificate = patch_mqtt_trust.is_pinned_certificate
 
 # A stand-in for the real neighbourhood in classes8.dex: the string above the
 # pinned certificate is a 136-character *prefix* of it, and the one below is

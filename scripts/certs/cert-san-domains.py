@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from collections import defaultdict
 
 # Your cleaned domain list goes here
