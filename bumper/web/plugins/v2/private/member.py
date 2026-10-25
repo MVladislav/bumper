@@ -1,31 +1,22 @@
 """Member plugin module."""
 
-from collections.abc import Iterable
+from typing import Any
 
 from aiohttp import web
 from aiohttp.web_request import Request
-from aiohttp.web_response import Response
-from aiohttp.web_routedef import AbstractRouteDef
 
-from bumper.web.plugins import WebserverPlugin
+from bumper.web.envelope import GL_V1, bind
 from bumper.web.plugins.v1.private.member import handle_get_exp_by_scene
-from bumper.web.utils.response_helper import response_success_v1
 
 from . import BASE_URL
 
+routes = web.RouteTableDef()
 
-class MemberPlugin(WebserverPlugin):
-    """Member plugin."""
-
-    @property
-    def routes(self) -> Iterable[AbstractRouteDef]:
-        """Plugin routes."""
-        return [
-            web.route("*", f"{BASE_URL}member/getExpByScene", handle_get_exp_by_scene),
-            web.route("*", f"{BASE_URL}member/getBindBenefit", _handle_get_bind_benefit),
-        ]
+routes.view(f"{BASE_URL}member/getExpByScene")(handle_get_exp_by_scene)
 
 
-async def _handle_get_bind_benefit(_: Request) -> Response:
+@routes.view(f"{BASE_URL}member/getBindBenefit")
+@bind(GL_V1)
+async def _handle_get_bind_benefit(_: Request) -> Any:
     """Get bind benefit."""
-    return response_success_v1({"completeList": []})
+    return {"completeList": []}
