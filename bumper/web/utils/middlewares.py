@@ -13,6 +13,7 @@ from aiohttp.web_response import Response, StreamResponse
 
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
+from bumper.web.envelope import ERR_COMMON, GL_V1, LEGACY, ApiError, Template
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -35,10 +36,39 @@ _EXCLUDE_FROM_LOGGING = [
     "/bots",
     "/bot/remove/{did}",
     "/clients",
-    "/client/remove/{resource}",
+    "/client/remove/{userid}",
     "/users",
     "/user/remove/{userid}",
 ]
+
+
+@web.middleware
+async def shape_failures(request: Request, handler: Handler) -> StreamResponse:
+    """Answer a request that failed in the shape of its family.
+
+    Two failures are not shaped by the endpoint itself: a request that
+    matched no route, and a failure that a handler raised without a shape.
+    An html page or a stack trace makes the app unable to tell "Bumper does
+    not implement this" from "Bumper is broken", so the answer is an
+    envelope. The family follows the path: the private API of the `gl-*`
+    generation answers with the `code`/`msg` shape, everything else with the
+    `code`/`message` one.
+    """
+    try:
+        return await handler(request)
+    except web.HTTPNotFound:
+        body: dict[str, Any] = _template_of(request).error.render(code=ERR_COMMON, msg="Not found")
+        return web.json_response(body, status=404)
+    except ApiError as err:
+        # The handler raised a failure and did not shape it itself, so the
+        # shape of the family of the path is used.
+        body = _template_of(request).error.render(err.code, err.msg, err.debug)
+        return web.json_response(body)
+
+
+def _template_of(request: Request) -> Template:
+    """Return the shape of the family the path belongs to."""
+    return GL_V1 if request.path.startswith(("/v1/", "/v2/", "/v3/")) else LEGACY
 
 
 @web.middleware
@@ -69,9 +99,9 @@ async def log_all_requests(request: Request, handler: Handler) -> StreamResponse
                     to_log["request"]["body"] = await request.json()
                 except Exception:
                     _LOGGER.debug("Failed to decode body as json")
-                    to_log["request"]["body"] = set(await request.post())
+                    to_log["request"]["body"] = await _body_of(request)
             else:
-                to_log["request"]["body"] = set(await request.post())
+                to_log["request"]["body"] = await _body_of(request)
 
         response: StreamResponse | None = await handler(request)
 
@@ -149,6 +179,17 @@ async def log_all_requests(request: Request, handler: Handler) -> StreamResponse
     return response
 
 
+async def _body_of(request: Request) -> str:
+    """Return the body of a request as text.
+
+    A body is not always text: a map, a firmware, an image - the bytes are
+    decoded with the errors replaced, so that the logging never fails on a
+    body it cannot read.
+    """
+    body = await request.read()
+    return body.decode("utf-8", errors="replace")
+
+
 async def _log_debug_request(request: Request) -> None:
     try:
         not_covered = request.match_info.route.resource is None
@@ -157,6 +198,7 @@ async def _log_debug_request(request: Request) -> None:
         if (bumper_isc.DEBUG_LOGGING_API_REQUEST is True) or (
             bumper_isc.DEBUG_LOGGING_API_REQUEST_MISSING is True and not_covered
         ):
+            body = await _body_of(request)
             _LOGGER.info(
                 json.dumps(
                     {
@@ -167,7 +209,7 @@ async def _log_debug_request(request: Request) -> None:
                         # "host": next((value for key, value in set(request.headers.items()) if key.lower() == "host"), ""),
                         # "path": request.path,
                         # "query_string": request.query_string,
-                        "body": await request.text(),
+                        "body": body,
                     },
                     cls=CustomEncoder,
                 ),
