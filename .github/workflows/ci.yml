@@ -25,6 +25,17 @@ jobs:
       - name: ⤵️ Checkout repository
         uses: actions/checkout@v7.0.1
 
+      # https://github.com/astral-sh/setup-uv
+      - name: 🏗 Install uv and Python
+        uses: astral-sh/setup-uv@v10.3.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+          python-version: "3.13"
+
+      - name: 🏗 Install the project
+        run: uv sync --locked --dev
+
       # https://github.com/j178/prek-action
       - name: Run prek
         uses: j178/prek-action@v3.0.1

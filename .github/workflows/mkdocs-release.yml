@@ -17,6 +17,9 @@ jobs:
     permissions:
       contents: write
 
+    env:
+      NO_MKDOCS_2_WARNING: "true"
+
     steps:
       # https://github.com/actions/checkout
       - name: Checkout repository
@@ -40,5 +43,5 @@ jobs:
           path: .cache
           restore-keys: |
             mkdocs-material-
-      - run: pip install mkdocs-material mkdocs-glightbox
+      - run: pip install "mkdocs-material>=9.6.14,<10" "mkdocs-glightbox>=0.4.0"
       - run: mkdocs gh-deploy --force
