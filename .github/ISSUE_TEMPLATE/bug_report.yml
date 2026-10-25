@@ -35,15 +35,25 @@ body:
     attributes:
       value: |
         ## Environment Details
-        Note: This project runs by default inside Docker. Please provide details about your Docker setup.
+        Note: This project runs by default inside Docker. Please provide details about your setup.
 
   - type: input
     id: docker_version
+    attributes:
+      label: Docker Version (if using Docker)
+      placeholder: e.g., 20.10.7
+
+  - type: dropdown
+    id: deployment
     validations:
       required: true
     attributes:
-      label: Docker Version
-      placeholder: e.g., 20.10.7
+      label: How do you run Bumper?
+      options:
+        - Docker Compose
+        - Docker Swarm
+        - uv run --active bumper
+        - Other
 
   - type: input
     id: host_os
@@ -51,39 +61,48 @@ body:
       required: true
     attributes:
       label: Host Operating System
-      placeholder: e.g., Ubuntu 20.04
+      placeholder: e.g., Ubuntu 26.04
 
   - type: input
     id: device
     validations:
       required: true
     attributes:
-      label: On which deebot vacuum you have the issue?
-      placeholder: Deebot Ozmo 950
+      label: Which bot has the issue?
+      placeholder: Deebot Ozmo 950 / GOAT O1000
+
+  - type: input
+    id: classid
+    validations:
+      required: true
+    attributes:
+      label: Device class ID
+      description: The classid reported by the bot.
+      placeholder: e.g., 300lc5
+
   - type: input
     id: version
     validations:
       required: true
     attributes:
-      label: Which version of bumper are you using?
+      label: Which version of Bumper are you using?
       placeholder: X.X.X
+
   - type: checkboxes
     id: related_to
     attributes:
       label: Is the bug related to any of the following?
       options:
         - label: MQTT
-        - label: XAMPP
-        - label: Web Server
+        - label: XMPP
+        - label: Web Server / REST API
+        - label: TLS / Certificates
+        - label: Web UI
+        - label: Database / Persistence
   - type: markdown
     attributes:
       value: |
-        # Configuration
-
-  - type: markdown
-    attributes:
-      value: |
-        # Details
+        ## Details
   - type: textarea
     attributes:
       label: Anything in the logs that might be useful for us?
