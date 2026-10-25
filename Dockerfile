@@ -26,9 +26,20 @@ RUN uv sync --no-dev --no-editable --no-cache
 
 FROM python:${PY_VERSION}
 
+# The release workflow passes these; a plain local build keeps the defaults.
+ARG VERSION=
+ARG BUILDTIME
+ARG REVISION
+
 LABEL org.opencontainers.image.source=https://github.com/MVladislav/bumper
 LABEL org.opencontainers.image.description="bumper"
 LABEL org.opencontainers.image.licenses=GPLv3
+LABEL org.opencontainers.image.version=$VERSION
+LABEL org.opencontainers.image.created=$BUILDTIME
+LABEL org.opencontainers.image.revision=$REVISION
+
+# The app reports this version in the UI and uses it for the database version.
+ENV VERSION_BUMPER=$VERSION
 
 RUN addgroup -S -g 1000 bumper && adduser -S -u 1000 -G bumper bumper
 COPY --from=builder --chown=bumper:bumper /bumper/.venv /bumper/.venv
