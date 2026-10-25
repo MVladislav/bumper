@@ -14,7 +14,7 @@ from aiohttp.web_response import Response
 from aiohttp.web_routedef import RouteDef, StaticDef
 import aiohttp_jinja2
 
-from bumper.db import bot_repo, clean_log_repo, client_repo, photo_repo, user_repo
+from bumper.db import bot_repo, clean_log_repo, client_repo, identity, photo_repo, user_repo
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
 
@@ -22,6 +22,23 @@ if TYPE_CHECKING:
     from bumper.web.utils.models import BumperUser, CleanLog, VacBotClient, VacBotDevice
 
 _LOGGER = logging.getLogger(__name__)
+
+#: The stop reason a finished job is stored with. A job without a status and a
+#: running job use the negative values of the app's status enum.
+_CLEAN_LOG_STOP_REASONS: dict[int, str] = {
+    -2: "Unknown",
+    -1: "Cleaning",
+    1: "Finished",
+    2: "Manually stopped",
+    3: "Finished with warnings",
+}
+
+
+def _clean_log_stop_reason(value: int | None) -> str:
+    """Return the text of a clean log stop reason."""
+    if value is None:
+        return "Unknown"
+    return _CLEAN_LOG_STOP_REASONS.get(value, f"Unknown ({value})")
 
 
 def bumper_routes() -> Iterable[RouteDef | StaticDef]:
@@ -45,9 +62,6 @@ def bumper_routes() -> Iterable[RouteDef | StaticDef]:
     ]
 
 
-# ******************************************************************************
-
-
 async def _handle_favicon(_: Request) -> web.FileResponse:
     """Serve the favicon.ico file."""
     try:
@@ -59,9 +73,6 @@ async def _handle_favicon(_: Request) -> web.FileResponse:
     except Exception as e:
         _LOGGER.exception("Failed to serve favicon.ico")
         raise HTTPInternalServerError from e
-
-
-# ******************************************************************************
 
 
 async def _handle_restart_service(request: Request) -> Response:
@@ -114,9 +125,6 @@ async def _restart_mqtt_server() -> bool:
             return True
     _LOGGER.warning("MQTT Server failed to restart")
     return False
-
-
-# ******************************************************************************
 
 
 async def handle_base(request: Request) -> Response:
@@ -194,6 +202,7 @@ async def _get_context(request: Request, template_name: str | None = None) -> di
                     "class_id": bot.class_id,
                     "resource": bot.resource,
                     "company": bot.company,
+                    "fw_ver": bot.fw_ver,
                     "mqtt_connection": bot.mqtt_connection,
                     "xmpp_connection": bot.xmpp_connection,
                 }
@@ -206,6 +215,7 @@ async def _get_context(request: Request, template_name: str | None = None) -> di
                 {
                     "name": client.name,
                     "userid": client.userid,
+                    "client_id": client.client_id,
                     "realm": client.realm,
                     "resource": client.resource,
                     "mqtt_connection": client.mqtt_connection,
@@ -219,11 +229,15 @@ async def _get_context(request: Request, template_name: str | None = None) -> di
             "users": [
                 {
                     "username": user.username,
+                    "login_name": user.login_name,
                     "nickname": user.nickname,
+                    "account_id": user.account_id,
+                    "iot_id": user.iot_id,
                     "userid": user.userid,
                     "devices": user.devices,
+                    "bots": user.bots,
                 }
-                for user in user_repo.list_all()
+                for user in (identity.ensure_public_ids(user) for user in user_repo.list_all())
             ],
         }
     if template_name and template_name == "clean_logs":
@@ -247,8 +261,9 @@ async def _get_context(request: Request, template_name: str | None = None) -> di
                     "area": clean_log.area or 0,
                     # "image_url": clean_log.image_url,
                     "stop_reason": clean_log.stop_reason,
+                    "stop_reason_text": _clean_log_stop_reason(clean_log.stop_reason),
                     "last": clean_log.last or 0,
-                    "ts": datetime.fromtimestamp(clean_log.ts, tz=bumper_isc.LOCAL_TIMEZONE).strftime("%Y-%m-%d %H:%M")  # :%S
+                    "ts": datetime.fromtimestamp(clean_log.ts, tz=bumper_isc.LOCAL_TIMEZONE).strftime("%Y-%m-%d %H:%M")
                     if clean_log.ts
                     else None,
                     "type": clean_log.type,
