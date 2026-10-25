@@ -1,74 +1,57 @@
 """Agreement plugin module."""
 
-from collections.abc import Iterable
+from typing import Any
 
 from aiohttp import web
 from aiohttp.web_request import Request
-from aiohttp.web_response import Response
-from aiohttp.web_routedef import AbstractRouteDef
 
+from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
-from bumper.web.plugins import WebserverPlugin
-from bumper.web.utils.response_helper import response_success_v1
+from bumper.web.envelope import GL_V1, bind
+from bumper.web.payloads import agreement_entry
 
 from . import BASE_URL
 
-
-class AgreementPlugin(WebserverPlugin):
-    """Agreement plugin."""
-
-    @property
-    def routes(self) -> Iterable[AbstractRouteDef]:
-        """Plugin routes."""
-        return [
-            web.route("*", f"{BASE_URL}agreement/getUserAcceptInfo", _handle_get_user_accept_info),
-        ]
+routes = web.RouteTableDef()
 
 
-async def _handle_get_user_accept_info(_: Request) -> Response:
+@routes.view(f"{BASE_URL}agreement/getUserAcceptInfo")
+@bind(GL_V1)
+async def _handle_get_user_accept_info(_: Request) -> Any:
     """Get user accept info."""
+    now = int(utils.get_current_time_as_millis())
     domain = f"https://{bumper_isc.DOMAIN_SEC3}/content/agreement"
-    return response_success_v1(
-        {
-            "acceptList": [
-                {
-                    "acceptTime": 1681542125538,
-                    "force": None,
-                    "id": "20230403095818_78798528690d2307bd692c0b624909f9",
-                    "type": "USER",
-                    "updateDesc": None,
-                    "url": f"{domain}?id=20230403095818_78798528690d2307bd692c0b624909f9&language=EN",
-                    "version": "1.03",
-                },
-                {
-                    "acceptTime": 1681542128770,
-                    "force": None,
-                    "id": "20230322085808_ff1bcf0d24ece3a37e3dac81b7e91733",
-                    "type": "PRIVACY",
-                    "updateDesc": None,
-                    "url": f"{domain}?id=20230322085808_ff1bcf0d24ece3a37e3dac81b7e91733&language=EN",
-                    "version": "1.07",
-                },
-            ],
-            "newestList": [
-                {
-                    "acceptTime": None,
-                    "force": "N",
-                    "id": "20230403095818_78798528690d2307bd692c0b624909f9",
-                    "type": "USER",
-                    "updateDesc": None,
-                    "url": f"{domain}?id=20230403095818_78798528690d2307bd692c0b624909f9&language=EN",
-                    "version": "1.03",
-                },
-                {
-                    "acceptTime": None,
-                    "force": "N",
-                    "id": "20230322085808_ff1bcf0d24ece3a37e3dac81b7e91733",
-                    "type": "PRIVACY",
-                    "updateDesc": None,
-                    "url": f"{domain}?id=20230322085808_ff1bcf0d24ece3a37e3dac81b7e91733&language=EN",
-                    "version": "1.07",
-                },
-            ],
-        },
-    )
+    return {
+        "acceptList": [
+            agreement_entry(
+                "20230403095818_78798528690d2307bd692c0b624909f9",
+                "USER",
+                "1.03",
+                accept_time=now,
+                domain=domain,
+            ),
+            agreement_entry(
+                "20230322085808_ff1bcf0d24ece3a37e3dac81b7e91733",
+                "PRIVACY",
+                "1.07",
+                accept_time=now,
+                domain=domain,
+            ),
+        ],
+        "newestList": [
+            agreement_entry(
+                "20230403095818_78798528690d2307bd692c0b624909f9",
+                "USER",
+                "1.03",
+                force="N",
+                domain=domain,
+            ),
+            agreement_entry(
+                "20230322085808_ff1bcf0d24ece3a37e3dac81b7e91733",
+                "PRIVACY",
+                "1.07",
+                force="N",
+                domain=domain,
+            ),
+        ],
+    }
