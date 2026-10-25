@@ -4,12 +4,15 @@ import json
 from pathlib import Path
 import struct
 
+import pytest
+
 from bumper.utils import map_doc, map_image
 
 # A map the robot uploaded, with the compressed parts still compressed.
 STORED_MAP = Path(__file__).parent / "stored_map.json"
 
 
+@pytest.mark.timeout(30)
 def test_render_map_svg() -> None:
     """The same picture is available as a vector image for the web view."""
     document = json.loads(STORED_MAP.read_text())
