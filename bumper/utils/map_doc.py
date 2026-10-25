@@ -120,6 +120,41 @@ def trace_pieces(map_data: dict[str, Any]) -> dict[str, str]:
     return {str(_int(trace, "tid")): encode_7z(data)}
 
 
+def normalise_map_document(payload: dict[str, Any]) -> dict[str, Any]:
+    """Return the map document of an upload.
+
+    The app sends the map of a job in two shapes. The older one is the map
+    document itself. The newer one wraps it: the map is the section
+    `mapInfo`, compressed the way the robot compresses a map, and it holds
+    the document of the map.
+    """
+    section = payload.get("mapInfo")
+    if not isinstance(section, dict):
+        return payload
+
+    value = section.get("value")
+    if not isinstance(value, str) or not value:
+        return payload
+
+    try:
+        document = json.loads(decode_7z(base64.b64decode(value)))
+    except (ValueError, lzma.LZMAError, UnicodeDecodeError):
+        return payload
+
+    if not isinstance(document, dict):
+        return payload
+
+    # The trace of the job is next to the map in the newer shape. The map
+    # document may carry an empty trace of its own, so the trace next to it is
+    # used when it holds the points.
+    trace = payload.get("mapTrace")
+    if isinstance(trace, dict):
+        stored = document.get("mapTrace")
+        if not isinstance(stored, dict) or not stored.get("traceValue"):
+            document = {**document, "mapTrace": trace}
+    return document
+
+
 def cleaned_map(map_data: dict[str, Any] | None) -> dict[str, Any]:
     """Return the map of a finished job the way the app reads it."""
     if not map_data:
@@ -132,7 +167,8 @@ def map_pixel(map_data: dict[str, Any]) -> int:
     major = map_data.get("majorMap", {})
     if not isinstance(major, dict):
         return 50
-    return _int(major, "pixel", 50)
+    pixel = _int(major, "pixel", 50)
+    return 50 if pixel in (0, 5) else pixel
 
 
 def _int(data: dict[str, Any], key: str, default: int = 0) -> int:

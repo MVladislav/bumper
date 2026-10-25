@@ -9,7 +9,7 @@ from urllib.parse import quote
 from aiohttp.test_utils import TestClient
 import pytest
 
-from bumper.db import bot_repo, photo_repo
+from bumper.db import bot_repo, clean_log_repo, photo_repo
 
 JPEG = b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00" + b"\x00" * 16 + b"\xff\xd9"
 DID = "did_cam"
@@ -31,7 +31,7 @@ def _query(meta: str, **overrides: str) -> str:
         "auth.name": SN,
         "auth.did": DID,
         "auth.mid": "p95mgv",
-        "auth.res": "rljY",
+        "auth.res": "res1",
         "auth.ts": "1746022105",
         "auth.sign": "0123456789abcdef0123456789abcdef",
         "rn": "cruiseJPEG",
@@ -62,15 +62,15 @@ async def _upload(webserver_client: TestClient, meta: str, **overrides: str) -> 
 @pytest.fixture
 def camera_bot() -> None:
     """Register the bot the camera uploads belong to."""
-    bot_repo.add(SN, DID, "p95mgv", "rljY", "eco-ng")
+    bot_repo.add(SN, DID, "p95mgv", "res1", "eco-ng")
 
 
 @pytest.mark.usefixtures("clean_database", "camera_bot")
 async def test_upload_accepts_post(webserver_client: TestClient) -> None:
-    """The device POSTs. This used to be a GET-only route answering 405.
+    """The upload endpoint accepts a POST.
 
-    curl passes no `--fail`, so a 405 still exits 0 and the robot deletes the
-    JPEG believing it succeeded.
+    A 405 would still exit 0 for the robot's curl, which then deletes the JPEG
+    believing it was stored.
     """
     await _upload(webserver_client, _meta())
 
@@ -224,7 +224,7 @@ async def test_the_time_of_a_map_is_scaled_up(webserver_client: TestClient) -> N
 
 @pytest.mark.usefixtures("clean_database", "camera_bot")
 async def test_a_map_is_served_as_a_picture(webserver_client: TestClient) -> None:
-    """The app shows the map as a picture, the same way the cloud shows it."""
+    """The app shows the map as an SVG picture, the same way the cloud shows it."""
     # The map is 8 x 8 pieces of 8 x 8 cells, with a wall in the middle.
     grid = bytearray(64 * 64)
     grid[32 * 64 + 32] = 4
@@ -244,18 +244,47 @@ async def test_a_map_is_served_as_a_picture(webserver_client: TestClient) -> Non
     photo_id = photo_repo.list_by_did(DID)[0]["id"]
     async with webserver_client.get(f"/api/photo/download?id={photo_id}") as resp:
         assert resp.status == 200
-        assert resp.content_type == "image/png"
+        assert resp.content_type == "image/svg+xml"
         picture = await resp.read()
 
-    assert picture.startswith(b"\x89PNG\r\n\x1a\n")
+    assert picture.startswith(b"<svg ")
+
+
+@pytest.mark.usefixtures("clean_database", "camera_bot")
+async def test_a_map_ignores_the_removed_png_format(webserver_client: TestClient) -> None:
+    """A request that still asks for PNG gets the SVG map."""
+    grid = bytearray(64 * 64)
+    grid[32 * 64 + 32] = 4
+    payload = json.dumps(
+        {
+            "majorMap": {"cellHeight": 8, "cellWidth": 8, "pieceHeight": 8, "pieceWidth": 8, "pixel": 50},
+            "minorMap": {"value": _encode_7z(bytes(grid))},
+        },
+    ).encode()
+    async with webserver_client.post(
+        f"/data_collect/upload/generalData?{_query(_meta())}",
+        headers={"Content-Type": "application/octet-stream"},
+        data=payload,
+    ) as resp:
+        assert resp.status == 200
+
+    photo_id = photo_repo.list_by_did(DID)[0]["id"]
+    async with webserver_client.get(f"/api/photo/download?id={photo_id}&format=png") as resp:
+        assert resp.status == 200
+        assert resp.content_type == "image/svg+xml"
+        picture = await resp.read()
+
+    assert picture.startswith(b"<svg ")
 
 
 @pytest.mark.usefixtures("clean_database")
-async def test_photo_download_unknown_id_404(webserver_client: TestClient) -> None:
+async def test_photo_download_unknown_id_returns_placeholder(webserver_client: TestClient) -> None:
     async with webserver_client.get("/api/photo/download?id=nope") as resp:
-        assert resp.status == 404
+        assert resp.status == 200
+        assert resp.content_type == "image/svg+xml"
     async with webserver_client.get("/api/photo/download") as resp:
-        assert resp.status == 404
+        assert resp.status == 200
+        assert resp.content_type == "image/svg+xml"
 
 
 @pytest.mark.usefixtures("clean_database", "camera_bot")
@@ -265,3 +294,167 @@ async def test_photo_delete_all(webserver_client: TestClient) -> None:
     async with webserver_client.delete("/api/photo/all") as resp:
         assert resp.status == 200
     assert photo_repo.list_all() == []
+
+
+#: The map document, the way the app sends it in the "mapInfo" section.
+MAP_DOCUMENT = {
+    "mid": "1",
+    "majorMap": {
+        "cellHeight": 8,
+        "cellWidth": 8,
+        "mapCount": 1,
+        "mapEncode": "7z",
+        "pieceHeight": 8,
+        "pieceWidth": 8,
+        "pixel": 50,
+        "value": "1295764014",
+    },
+    "minorMap": {"value": _encode_7z(bytes(64))},
+    "mapTrace": {"pointCount": 0, "tid": 1792662252, "totalCount": 0, "traceStart": 0, "traceValue": ""},
+}
+
+#: The clean log of a job, the way the newer app uploads it.
+CLEAN_LOG = {
+    "arSet": {"infoSize": 14, "value": _encode_7z(b"synthetic path")},
+    "mapInfo": {"infoSize": 9716, "value": _encode_7z(json.dumps(MAP_DOCUMENT).encode())},
+    "mapTrace": MAP_DOCUMENT["mapTrace"],
+    "mid": "1",
+    "pos": {"chargePos": [{"a": 0, "invalid": 1, "x": 0, "y": 0}], "deebotPos": {"a": 0, "invalid": 0, "x": 100, "y": 200}},
+    "stats": {
+        "area": 580100,
+        "end": 1792662252,
+        "start": 1792580181,
+        "stopReason": 1,
+        "time": 2531,
+        "totalArea": 580100,
+        "type": "auto",
+    },
+    "vwSet": {"infoSize": 2, "value": _encode_7z(bytes(2))},
+}
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_photo_download_renders_a_map_stored_in_the_upload_wrapper(webserver_client: TestClient) -> None:
+    """An older stored photo can still contain the map upload wrapper."""
+    map_document = {
+        "majorMap": {"cellHeight": 8, "cellWidth": 8, "pieceHeight": 8, "pieceWidth": 8, "pixel": 50},
+        "minorMap": {"value": _encode_7z(bytes([1]) + bytes(4095))},
+    }
+    wrapper = {
+        "mapInfo": {"value": _encode_7z(json.dumps(map_document).encode())},
+        "mapTrace": {"pointCount": 0, "tid": 1, "totalCount": 0, "traceStart": 0, "traceValue": ""},
+    }
+    photo_repo.add(
+        {
+            "id": "legacy-wrapper-map",
+            "did": DID,
+            "ts": 1792845283000,
+            "kind": "map",
+            "image": photo_repo.encode_image(json.dumps(wrapper).encode()),
+        },
+    )
+
+    async with webserver_client.get("/api/photo/download?id=legacy-wrapper-map&format=svg") as resp:
+        image = await resp.read()
+
+    assert resp.status == 200
+    assert resp.content_type == "image/svg+xml"
+    assert image.startswith(b"<svg ")
+
+
+def _clean_log_meta() -> str:
+    """Return the meta of a clean log, the way the app sends it."""
+    return quote(
+        json.dumps(
+            {
+                "fw_ver": "1.11.23",
+                "product": "x5_mr2337",
+                "sn": SN,
+                "ts": "1792662252",
+            },
+        ),
+    )
+
+
+def _clean_log_query() -> str:
+    """Return the query of a clean log upload."""
+    params = {
+        "auth.with": "device",
+        "auth.name": SN,
+        "auth.did": DID,
+        "auth.mid": "p95mgv",
+        "auth.res": "res1",
+        "auth.ts": "1792662252",
+        "auth.sign": "0123456789abcdef0123456789abcdef",
+        "rn": "CleanResult",
+        "meta": _clean_log_meta(),
+        "fmt": "j",
+        "dType": "string",
+    }
+    return "&".join(f"{key}={value}" for key, value in params.items())
+
+
+@pytest.mark.usefixtures("clean_database", "camera_bot")
+async def test_the_clean_log_of_a_job_is_accepted_on_the_new_path(webserver_client: TestClient) -> None:
+    """The newer app posts the clean log of a job to the "idi" endpoint."""
+    async with webserver_client.post(
+        f"/api/idi/data_collect/upload/generalData?{_clean_log_query()}",
+        headers={"Content-Type": "application/json"},
+        data=json.dumps(CLEAN_LOG),
+    ) as resp:
+        assert resp.status == 200
+
+
+@pytest.mark.usefixtures("clean_database", "camera_bot")
+async def test_the_clean_log_of_a_job_is_stored(webserver_client: TestClient) -> None:
+    """The clean log is stored, so the app can read the job back."""
+    async with webserver_client.post(
+        f"/api/idi/data_collect/upload/generalData?{_clean_log_query()}",
+        headers={"Content-Type": "application/json"},
+        data=json.dumps(CLEAN_LOG),
+    ) as resp:
+        assert resp.status == 200
+
+    photos = photo_repo.list_by_did(limit=10, kind="map")
+    assert photos, "the map of the job was not stored"
+
+    # The document of the map is what the app reads, so the wrapper of the
+    # clean log is gone.
+    document = photo_repo.decode_map(photos[0]["image"])
+    assert document["majorMap"]["pieceWidth"] == 8
+    assert document["minorMap"]["value"] == MAP_DOCUMENT["minorMap"]["value"]
+
+
+@pytest.mark.usefixtures("clean_database", "camera_bot")
+async def test_the_statistics_of_the_upload_become_a_clean_log(webserver_client: TestClient) -> None:
+    """The upload carries the statistics of the job, so the log list can show it."""
+    async with webserver_client.post(
+        f"/api/idi/data_collect/upload/generalData?{_clean_log_query()}",
+        headers={"Content-Type": "application/json"},
+        data=json.dumps(CLEAN_LOG),
+    ) as resp:
+        assert resp.status == 200
+
+    logs = clean_log_repo.list_by_did(DID)
+    assert len(logs) == 1
+    assert logs[0].ts == CLEAN_LOG["stats"]["start"]
+    assert logs[0].end == CLEAN_LOG["stats"]["end"]
+    assert logs[0].last == CLEAN_LOG["stats"]["time"]
+    # The area is uploaded in square millimetres and shown in square metres.
+    assert logs[0].area == CLEAN_LOG["stats"]["area"] // 10000
+    assert logs[0].type == CLEAN_LOG["stats"]["type"]
+    assert logs[0].stop_reason == CLEAN_LOG["stats"]["stopReason"]
+
+
+@pytest.mark.usefixtures("clean_database", "camera_bot")
+async def test_the_same_job_is_not_stored_twice(webserver_client: TestClient) -> None:
+    """An upload of the same job replaces the record instead of adding one."""
+    for _ in range(2):
+        async with webserver_client.post(
+            f"/api/idi/data_collect/upload/generalData?{_clean_log_query()}",
+            headers={"Content-Type": "application/json"},
+            data=json.dumps(CLEAN_LOG),
+        ) as resp:
+            assert resp.status == 200
+
+    assert len(clean_log_repo.list_by_did(DID)) == 1
