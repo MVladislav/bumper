@@ -56,7 +56,7 @@ jobs:
           echo "version=$version" >> "$GITHUB_OUTPUT"
           # Allow a manual version override for test builds.
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.test_build }}" = "true" ] && [ -n "${{ inputs.version }}" ]; then
-            echo "effective=$inputs.version" >> "$GITHUB_OUTPUT"
+            echo "effective=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
           else
             echo "effective=$version" >> "$GITHUB_OUTPUT"
           fi
