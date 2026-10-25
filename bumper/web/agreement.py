@@ -5,6 +5,9 @@ page comes from the server of the agreement, so the shape of the answer is
 the one the web view expects: a whole document, not a piece of one.
 """
 
+import html
+import re
+
 from aiohttp import web
 from aiohttp.web_request import Request
 
@@ -56,13 +59,15 @@ _STYLE = """
 
 def document_page(title: str, body: str, language: str = "en") -> str:
     """Return a document page in the style of the pages the app shows."""
+    safe_title = html.escape(title, quote=True)
+    safe_language = html.escape(language, quote=True).lower()
     return f"""<!DOCTYPE html>
-<html lang="{language.lower()}">
+<html lang="{safe_language}">
 
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
-<title>{title}</title>
+<title>{safe_title}</title>
 <style>{_STYLE}</style>
 </head>
 
@@ -82,6 +87,7 @@ def agreement_page(language: str) -> str:
 async def handle_content_agreement(request: Request) -> web.Response:
     """Content Agreement (/content/agreement)."""
     language = request.query.get("language", "EN")
+    language = re.sub(r"[^A-Za-z-]", "", language) or "EN"
 
     return web.Response(
         text=agreement_page(language),
