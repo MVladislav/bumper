@@ -71,6 +71,7 @@ def test_files(tmp_path_factory: pytest.TempPathFactory) -> dict[str, Path]:
 
     db_file = tmp_dir / "tmp.db"
     bumper_isc.db_file = str(db_file)
+    bumper_isc.account_key_file = tmp_dir / "account.key"
 
     return {
         "passwd": passwd_file,
