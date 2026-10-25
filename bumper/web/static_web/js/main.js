@@ -120,9 +120,28 @@ function showMap(el) {
   if (!viewer || !image) {
     return;
   }
-  image.src = el.dataset.src;
-  image.alt = el.dataset.name || "";
-  viewer.showModal();
+  const source = el.dataset.src;
+  const name = el.dataset.name || "Map";
+  image.src = source;
+  image.alt = name;
+
+  const title = document.getElementById("map-viewer-title");
+  if (title) {
+    title.textContent = name;
+  }
+  const open = document.getElementById("map-viewer-open");
+  if (open) {
+    open.href = source;
+  }
+  const download = document.getElementById("map-viewer-download");
+  if (download) {
+    download.href = source;
+    download.download = `${name.replace(/[^a-z0-9._-]+/gi, "-")}.svg`;
+  }
+
+  if (!viewer.open) {
+    viewer.showModal();
+  }
 }
 
 // The panel of a menu is placed next to the icon that opened it.

@@ -13,27 +13,29 @@
       <thead class="table-dark">
         <tr>
           <th>Username</th>
-          <th>Nickname</th>
+          <th>Login name</th>
           <th>UID</th>
+          <th>IoT ID</th>
           <th>Devices</th>
           <th class="text-end">Action</th>
         </tr>
       </thead>
       <tbody>
         {% for user in users %}
-        <tr>
-          <td title="{{ user.username }}">{{ user.username }}</td>
-          <td title="{{ user.nickname }}">{{ user.nickname }}</td>
-          <td title="{{ user.userid }}">{{ user.userid }}</td>
-          <td title="{{ user.devices }}">{{ user.devices }}</td>
-          <td class="actions">
-            {{ action_menu('user', user.userid, 'user ' ~ user.username, user.nickname or '') }}
-          </td>
-        </tr>
+          <tr>
+            <td title="{{ user.username }}">{{ user.username }}</td>
+            <td title="{{ user.login_name }}">{{ user.login_name }}</td>
+            <td title="{{ user.account_id }}">{{ user.account_id }}</td>
+            <td title="{{ user.iot_id }}">{{ user.iot_id }}</td>
+            <td title="Robots: {{ user.bots }} | App devices: {{ user.devices }}">{{ user.bots }}</td>
+            <td
+              class="actions"
+            >{{ action_menu('user', user.userid, 'user ' ~ user.username, user.nickname or '') }}</td>
+          </tr>
         {% else %}
-        <tr>
-          <td colspan="5" class="text-center">No users found.</td>
-        </tr>
+          <tr>
+            <td colspan="6" class="text-center">No users found.</td>
+          </tr>
         {% endfor %}
       </tbody>
     </table>
