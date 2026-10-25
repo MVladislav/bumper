@@ -8,7 +8,7 @@ from amqtt.session import IncomingApplicationMessage, Session
 import pytest
 from testfixtures import LogCapture
 
-from bumper.db import client_repo, user_repo
+from bumper.db import client_repo, token_repo, user_repo
 from bumper.mqtt import server as server_module
 from bumper.mqtt.server import BumperMQTTServerPlugin, MQTTBinding, MQTTServer, _log__helperbot_message, mqtt_proxy
 from bumper.utils import utils
@@ -80,7 +80,7 @@ async def test_mqttserver(proxy: bool) -> None:
         hostname=HOST,
         port=MQTT_PORT,
         tls_context=ssl_ctx,
-        identifier="bot_serial@ls1ok3/wC3g",
+        identifier="bot_serial@class_x/res2",
     ) as client:
         # Verify connection by subscribing and publishing a message
         mock_callback = mock.Mock()
@@ -168,7 +168,7 @@ async def test_mqttserver(proxy: bool) -> None:
                 hostname=HOST,
                 port=MQTT_PORT,
                 tls_context=ssl_ctx,
-                identifier="user_123@ls1ok3/wC3g",
+                identifier="user_123@class_x/res2",
                 username="user_123",
                 password="abc123!",  # noqa: S106
             ) as client:
@@ -187,7 +187,7 @@ async def test_mqttserver(proxy: bool) -> None:
                 (
                     _LOGGER_NAME,
                     "INFO",
-                    "Bumper Authentication Success :: Bot :: Username: user_123 :: ClientID: user_123@ls1ok3/wC3g",
+                    "Bumper Authentication Success :: Bot :: Username: user_123 :: ClientID: user_123@class_x/res2",
                 ),
                 order_matters=False,
             )
@@ -196,11 +196,39 @@ async def test_mqttserver(proxy: bool) -> None:
                 (
                     f"{_LOGGER_NAME}.proxy",
                     "INFO",
-                    "MQTT Proxy Mode :: Using server 127.0.0.1 for client user_123@ls1ok3/wC3g",
+                    "MQTT Proxy Mode :: Using server 127.0.0.1 for client user_123@class_x/res2",
                 ),
                 order_matters=False,
             )
     bumper_isc.BUMPER_PROXY_MQTT = False
+
+
+@pytest.mark.usefixtures("clean_database", "mqtt_server_anonymous")
+async def test_mqtt_client_resolves_transport_name_to_account() -> None:
+    """The auth code names the account, so the old client name is merged."""
+    user_repo.add("canonical")
+    token_repo.add("canonical", "token")
+    token_repo.add_auth_code("canonical", "auth-code")
+    client_repo.add("app", "legacy", "realm", "resource")
+
+    ssl_ctx = ssl.create_default_context()
+    ssl_ctx.check_hostname = False
+    ssl_ctx.verify_mode = ssl.CERT_NONE
+
+    async with Client(
+        hostname=HOST,
+        port=MQTT_PORT,
+        tls_context=ssl_ctx,
+        identifier="legacy@USER/resource",
+        username="app",
+        password="auth-code",  # noqa: S106
+    ):
+        pass
+
+    client = client_repo.get("legacy")
+    assert client is not None
+    assert client.userid == "canonical"
+    assert len(client_repo.list_all()) == 1
 
 
 @pytest.mark.usefixtures("clean_database", "mqtt_server_anonymous")
@@ -223,7 +251,7 @@ async def test_mqttserver_subscribe(proxy: bool) -> None:
             hostname=HOST,
             port=MQTT_PORT,
             tls_context=ssl_ctx,
-            identifier="user_123@ls1ok3/wC3g",
+            identifier="user_123@class_x/res2",
             username="user_123",
             password="abc123!",  # noqa: S106
         ) as client:
@@ -235,7 +263,7 @@ async def test_mqttserver_subscribe(proxy: bool) -> None:
             (
                 _LOGGER_NAME,
                 "DEBUG",
-                "MQTT Broker :: New MQTT Topic Subscription :: Client: user_123@ls1ok3/wC3g :: Topic: iot/atr/+/+/+/+/+",
+                "MQTT Broker :: New MQTT Topic Subscription :: Client: user_123@class_x/res2 :: Topic: iot/atr/+/+/+/+/+",
             ),
             order_matters=False,
         )
@@ -441,13 +469,13 @@ async def test_on_broker_message_received_proxy_timeout(tmp_path: Path, monkeypa
 
     proxy = mock.AsyncMock()
     proxy.publish = mock.AsyncMock(side_effect=_never_returns)
-    plugin._proxy_clients["user_123@ls1ok3/wC3g"] = proxy
+    plugin._proxy_clients["user_123@class_x/res2"] = proxy
 
-    msg = IncomingApplicationMessage(None, "iot/atr/test/user_123/ls1ok3/wC3g/j", 0, b"payload", False)
+    msg = IncomingApplicationMessage(None, "iot/atr/test/user_123/class_x/res2/j", 0, b"payload", False)
 
     # Must return promptly (bounded by the timeout), not hang for the full sleep(60).
     await asyncio.wait_for(
-        plugin.on_broker_message_received(msg, "user_123@ls1ok3/wC3g"),
+        plugin.on_broker_message_received(msg, "user_123@class_x/res2"),
         timeout=2.0,
     )
     proxy.publish.assert_awaited_once()
