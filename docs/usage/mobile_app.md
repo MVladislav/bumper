@@ -74,7 +74,7 @@ The app can switch the voice language of the robot. The robot downloads the new
 voice from Bumper before it installs it, so the file has to be there:
 
 1. Fetch the voice files with
-   [`scripts/update-eco-voices.sh`](../development/static-data-update.md). They
+   [`scripts/data/update-eco-voices.sh`](../development/static-data-update.md). They
    land in the voice directory (`${BUMPER_DATA}/voices` by default) and are not
    part of the repository.
 2. Start Bumper with `BUMPER_VOICES` pointing at that directory. In a

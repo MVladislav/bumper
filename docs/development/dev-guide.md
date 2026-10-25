@@ -6,7 +6,7 @@ This guide covers setting up a local development environment, running the applic
 
 ## 🔧 Prerequisites
 
-- Python 3.13.x installed
+- Python 3.13 or newer installed
 - Git
 
 ---
@@ -39,8 +39,8 @@ uv sync --active --all-groups --upgrade
 ## 🚀 Running the Application
 
 ```sh
-./scripts/create-cert.sh
-WEB_SERVER_HTTPS_PORT=8443 uv run bumper
+./scripts/certs/create-cert.sh
+WEB_SERVER_HTTPS_PORT=8443 uv run --active bumper
 ```
 
 The web UI will be available at `https://127.0.1.1:8443` by default.
@@ -96,6 +96,9 @@ The HTML report is located at `tests/report/index.html`.
 ## 📖 Understanding the Code
 
 Refer to the [How It Works](../internals/architecture.md) guide for an overview of the core architecture and data flows.
+
+For route registration, response envelopes, and choosing a template for a new
+endpoint, see [Web API Endpoints](web-api-endpoints.md).
 
 ---
 

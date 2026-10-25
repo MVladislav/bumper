@@ -14,13 +14,13 @@ Bumper instance, so the app talks only to your LAN.
 Five ways to do this are documented below. Each needs different tools, so check
 its own **Needs:** line. Only the first is maintained.
 
-| Method                                                      | Needs                | MQTT works | Maintained |
-| ----------------------------------------------------------- | -------------------- | ---------- | ---------- |
-| [Automated script](#-automated-script-latest)               | docker               | yes        | yes        |
-| [Automated script (legacy)](#-automated-script-legacy)      | docker               | -          | no         |
-| [Manual apk-mitm](#-manual-apk-mitm-method)                 | node, npm, java, adb | -          | no         |
-| [Manual apktool](#-manual-apktool-method)                   | java, adb            | -          | no         |
-| [Manual android-unpinner](#-manual-android-unpinner-method) | python, java, adb    | -          | no         |
+| Method                                                     | Needs                | MQTT works | Maintained |
+| ---------------------------------------------------------- | -------------------- | ---------- | ---------- |
+| [Automated script](#automated-script-latest)               | docker               | yes        | yes        |
+| [Automated script (legacy)](#automated-script-legacy)      | docker               | -          | no         |
+| [Manual apk-mitm](#manual-apk-mitm-method)                 | node, npm, java, adb | -          | no         |
+| [Manual apktool](#manual-apktool-method)                   | java, adb            | -          | no         |
+| [Manual android-unpinner](#manual-android-unpinner-method) | python, java, adb    | -          | no         |
 
 The three manual methods are reference material: they work in principle but are
 untested against current app versions. None of them applies the MQTT patch, so
@@ -36,7 +36,7 @@ with those the web API works and robot control depends on app version.
 signing all run inside a container, so your host stays clean. You also need
 `adb` and `certs/ca.crt` (see
 [Create Certificates](../getting_started/certificates.md)) for the device steps
-below, plus an **arm64 device** - see [Device requirement](#-device-requirement).
+below, plus an **arm64 device** - see [Device requirement](#device-requirement).
 
 #### What it does
 
@@ -52,11 +52,11 @@ below, plus an **arm64 device** - see [Device requirement](#-device-requirement)
 Steps 2 and 3 are both required. Without step 3 no robot command arrives, because
 every command is relayed over MQTT.
 
-[`scripts/create-unpinned-app.sh`](https://github.com/MVladislav/bumper/blob/main/scripts/create-unpinned-app.sh)
+[`scripts/app/create-unpinned-app.sh`](https://github.com/MVladislav/bumper/blob/main/scripts/app/create-unpinned-app.sh)
 writes the installable APKs to `data/<app-name>/`.
 
 ```sh
-scripts/create-unpinned-app.sh
+scripts/app/create-unpinned-app.sh
 ```
 
 All of it runs in a container (`bumper-apk-tool`: JDK, Android build-tools,
@@ -147,8 +147,8 @@ match the split, so use an arm64 device. The script prints the ABIs it produced
 at the end of the build.
 
 ```sh
-docker run --rm --entrypoint python3 -v "$PWD/scripts/apk-patch:/p:ro" \
-  bumper-apk-tool /p/test_patch_mqtt_trust.py
+docker run --rm --entrypoint python3 -v "$PWD/scripts/app/apk-patch:/p:ro" \
+  bumper-apk-tool /p/test-patch-mqtt-trust.py
 ```
 
 ---
@@ -164,7 +164,7 @@ docker run --rm --entrypoint python3 -v "$PWD/scripts/apk-patch:/p:ro" \
 
 **Needs:** `docker` only, like the script above.
 
-[`scripts/create-unpinned-app-legacy.sh`](https://github.com/MVladislav/bumper/blob/main/scripts/create-unpinned-app-legacy.sh)
+[`scripts/app/create-unpinned-app-legacy.sh`](https://github.com/MVladislav/bumper/blob/main/scripts/app/create-unpinned-app-legacy.sh)
 runs `apk-mitm` in a container, which rewrites the APK so it trusts the CA you
 pass to it. Two differences from the latest script:
 
@@ -177,7 +177,7 @@ Kept because it patches differently, and is worth having when the latest
 script's manifest edit stops working on a future app version.
 
 ```sh
-scripts/create-unpinned-app-legacy.sh
+scripts/app/create-unpinned-app-legacy.sh
 ```
 
 ### 🛠️ Manual apk-mitm Method
