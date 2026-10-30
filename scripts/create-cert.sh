@@ -8,12 +8,26 @@ SUBJECT_ALT_NAME='subjectAltName=IP:127.0.0.1,DNS:localhost,DNS:*.a1zYhiMF5J3.io
 
 CA_CREATED=0
 SERVER_CREATED=0
+RSA=0
+
+# Flags: --rsa selects RSA keys, --ec selects EC/ECDSA (the default).
+for arg in "$@"; do
+  case "$arg" in
+    --rsa) RSA=1 ;;
+    --ec)  RSA=0 ;;
+    *) echo "Unknown option: $arg (use --rsa or --ec)" >&2; exit 1 ;;
+  esac
+done
 
 # Generate the CA only when its cert/key pair is incomplete. A leaf-only renewal
 # must continue using the CA already installed on bots and apps.
 if [ ! -f "${BASE_PATH}/ca.crt" ] || [ ! -f "${BASE_PATH}/ca.key" ]; then
   echo "Creating CA certificate..."
-  openssl ecparam -name prime256v1 -genkey -out "${BASE_PATH}/ca.key"
+  if [ "$RSA" -eq 1 ]; then
+    openssl genrsa -out "${BASE_PATH}/ca.key" 2048
+  else
+    openssl ecparam -name prime256v1 -genkey -out "${BASE_PATH}/ca.key"
+  fi
   openssl req -new -x509 -sha256 -days 6669 -key "${BASE_PATH}/ca.key" -out "${BASE_PATH}/ca.crt" \
     -subj "/O=ecovacs/CN=ECOVACS CA" \
     -extensions v3_ca \
@@ -34,7 +48,11 @@ fi
 if [ "${CA_CREATED}" -eq 1 ] || [ ! -f "${BASE_PATH}/bumper.crt" ] || [ ! -f "${BASE_PATH}/bumper.key" ]; then
   echo "Creating Server certificate..."
   if [ ! -f "${BASE_PATH}/bumper.key" ]; then
-    openssl ecparam -name prime256v1 -genkey -out "${BASE_PATH}/bumper.key"
+    if [ "$RSA" -eq 1 ]; then
+      openssl genrsa -out "${BASE_PATH}/bumper.key" 2048
+    else
+      openssl ecparam -name prime256v1 -genkey -out "${BASE_PATH}/bumper.key"
+    fi
   fi
   openssl req -new -sha256 -key "${BASE_PATH}/bumper.key" -out "${BASE_PATH}/bumper.csr" \
     -subj "/O=ecovacs/CN=*.ecouser.net" \
