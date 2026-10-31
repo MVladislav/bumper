@@ -35,7 +35,7 @@ jobs:
 
       # https://github.com/astral-sh/setup-uv
       - name: 🏗 Install uv and Python
-        uses: astral-sh/setup-uv@v10.3.0
+        uses: astral-sh/setup-uv@v10.3.3
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
@@ -46,7 +46,7 @@ jobs:
 
       # https://github.com/j178/prek-action
       - name: Run prek
-        uses: j178/prek-action@v3.0.1
+        uses: j178/prek-action@v3.1.0
         env:
           PREK_SKIP: no-commit-to-branch,mypy,pylint
 
@@ -62,7 +62,7 @@ jobs:
 
       # https://github.com/astral-sh/setup-uv
       - name: 🏗 Install uv and Python
-        uses: astral-sh/setup-uv@v10.3.0
+        uses: astral-sh/setup-uv@v10.3.3
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
@@ -100,7 +100,7 @@ jobs:
 
       # https://github.com/astral-sh/setup-uv
       - name: 🏗 Install uv and Python ${{ matrix.python-version }}
-        uses: astral-sh/setup-uv@v10.3.0
+        uses: astral-sh/setup-uv@v10.3.3
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
