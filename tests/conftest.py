@@ -138,12 +138,26 @@ async def mqtt_server_anonymous(test_files: dict[str, Path]) -> AsyncIterator[MQ
 
 async def _start_mqtt_server(password_file: str, allow_anonymous: bool = False) -> MQTTServer:
     """Start MQTT server helper."""
-    server = MQTTServer(
-        MQTTBinding(HOST, MQTT_PORT, use_ssl=True),
-        password_file=password_file,
-        allow_anonymous=allow_anonymous,
-    )
-    await server.start()
+    # On a loaded CI runner the OS can still hold port 8883 in a closing
+    # state after the previous broker shut down, even though amqtt sets
+    # SO_REUSEADDR. Retry a few times before giving up.
+    last_error: Exception | None = None
+    for _attempt in range(5):
+        server = MQTTServer(
+            MQTTBinding(HOST, MQTT_PORT, use_ssl=True),
+            password_file=password_file,
+            allow_anonymous=allow_anonymous,
+        )
+        try:
+            await server.start()
+            last_error = None
+            break
+        except Exception as exc:
+            last_error = exc
+            await asyncio.sleep(0.5)
+    if last_error is not None:
+        raise last_error
+
     started_event = asyncio.Event()
 
     def on_state_change() -> None:
