@@ -5,11 +5,13 @@ import logging
 from aiohttp.test_utils import TestClient
 import pytest
 
+from tests.web.helpers import get_json
+
 
 async def test_ad_res(webserver_client: TestClient) -> None:
-    async with webserver_client.get("/api/ecms/app/ad/res") as resp:
-        assert resp.status == 200
-        assert (await resp.json())["code"] == 0
+    status, body = await get_json(webserver_client, "/api/ecms/app/ad/res")
+    assert status == 200
+    assert body["code"] == 0
 
 
 async def test_resources_known_location_with_empty_data_does_not_warn(
@@ -101,3 +103,74 @@ async def test_ad_res_unknown_version(webserver_client: TestClient) -> None:
 async def test_user_theme(webserver_client: TestClient) -> None:
     async with webserver_client.get("/api/ecms/app/user/theme") as resp:
         assert resp.status == 200
+
+
+async def test_bot_image_is_served(webserver_client: TestClient) -> None:
+    """The generic bot image is a real jpeg, whatever id the path carries."""
+    async with webserver_client.get("/api/ecms/file/get/62206001e50121388401de95") as resp:
+        assert resp.status == 200
+        assert resp.content_type == "image/jpeg"
+        content = await resp.read()
+
+    assert content.startswith(b"\xff\xd8")  # jpeg magic bytes
+
+
+async def test_hint_answers_false_for_every_code(webserver_client: TestClient) -> None:
+    """Every hint code the app asks about comes back disabled."""
+    async with webserver_client.get("/api/ecms/app/element/hint?codes=300lc5,4mouui") as resp:
+        assert resp.status == 200
+        body = await resp.json()
+
+    assert body["code"] == 0
+    assert body["success"] is True
+    assert body["data"] == {"300lc5": False, "4mouui": False}
+
+
+async def test_push_event_acknowledges(webserver_client: TestClient) -> None:
+    """A push event with both parameters is acknowledged with `ok`."""
+    async with webserver_client.get(
+        "/api/ecms/app/push/event?dataCategory=300lc5&resourceId=res_1",
+    ) as resp:
+        assert resp.status == 200
+        body = await resp.json()
+
+    assert body["code"] == 0
+    assert body["success"] is True
+    assert body["data"] == "ok"
+
+
+@pytest.mark.parametrize("query", ["", "?dataCategory=300lc5", "?resourceId=res_1"])
+async def test_push_event_without_both_parameters_fails(webserver_client: TestClient, query: str) -> None:
+    """A push event missing either parameter fails with the parameter error."""
+    async with webserver_client.get(f"/api/ecms/app/push/event{query}") as resp:
+        assert resp.status == 200
+        body = await resp.json()
+
+    assert body == {
+        "ret": "fail",
+        "todo": "result",
+        "code": 500,
+        "error": "request params missing: dataCategory or resourceId",
+    }
+
+
+async def test_user_theme_enabled_reports_enabled(webserver_client: TestClient) -> None:
+    """The theme is enabled until a caller says otherwise."""
+    async with webserver_client.get("/api/ecms/app/user/theme/enabled") as resp:
+        assert resp.status == 200
+        body = await resp.json()
+
+    assert body["code"] == 0
+    assert body["success"] is True
+    assert body["data"] == {"enabled": True}
+
+
+async def test_user_theme_enabled_put_acknowledges(webserver_client: TestClient) -> None:
+    """A PUT of the theme switch is acknowledged without a payload."""
+    async with webserver_client.put("/api/ecms/app/user/theme/enabled", json={"enabled": False}) as resp:
+        assert resp.status == 200
+        body = await resp.json()
+
+    assert body["code"] == 0
+    assert body["success"] is True
+    assert "data" not in body

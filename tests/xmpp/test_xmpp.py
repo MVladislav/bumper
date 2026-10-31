@@ -1,14 +1,16 @@
 import asyncio
 import base64
+import contextlib
 from unittest import mock
 
+import defusedxml.ElementTree as ET  # noqa: N817
 import pytest
 from testfixtures import LogCapture
 
-from bumper.db import client_repo, token_repo, user_repo
+from bumper.db import bot_repo, client_repo, token_repo, user_repo
 from bumper.utils.settings import config as bumper_isc
 from bumper.web.auth_service import generate_jwt_helper
-from bumper.xmpp.xmpp import XMPPAsyncClient, XMPPServer
+from bumper.xmpp.xmpp import XMPPAsyncClient, XMPPServer, XMPPServerProtocol
 
 
 def return_send_data(data: bytes) -> bytes:
@@ -643,3 +645,651 @@ async def test_client_rejects_a_wrong_secret(monkeypatch: pytest.MonkeyPatch) ->
     assert client.send.mock_calls[0][1][0] == '<response xmlns="urn:ietf:params:xml:ns:xmpp-sasl"/>'
     assert client.state == client.CONNECT
     assert client_repo.get("canonical") is None
+
+
+def _write_transport_mock() -> mock.Mock:
+    transport = mock.Mock()
+    transport.__class__ = asyncio.transports.WriteTransport
+    transport.get_extra_info = mock.Mock(return_value=mock_transport_extra_info())
+    transport.write = mock.Mock(return_value=return_send_data)
+    return transport
+
+
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
+async def test_xmpp_server_start_async_server_exception(monkeypatch: pytest.MonkeyPatch) -> None:
+    server = XMPPServer("127.0.0.1", 5223)
+    loop = mock.Mock()
+    msg = "boom"
+    loop.create_server = mock.Mock(side_effect=RuntimeError(msg))
+    monkeypatch.setattr(asyncio, "get_running_loop", lambda: loop)
+    with pytest.raises(RuntimeError):
+        await server.start_async_server()
+
+
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
+async def test_xmpp_server_disconnect_with_coro() -> None:
+    server = XMPPServer("127.0.0.1", 5223)
+    server.server = mock.Mock()
+    server.server.is_serving.return_value = True
+    server.server.close = mock.Mock()
+    server.server.wait_closed = mock.AsyncMock()
+    server.server_coro = mock.Mock()
+    await server.disconnect()
+    assert server.exit_flag is True
+    server.server_coro.cancel.assert_called_once()
+
+
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
+async def test_protocol_tls_upgrade_connection_made() -> None:
+    protocol = XMPPServerProtocol()
+    client = mock.Mock()
+    client.address = ("127.0.0.1", 5223)
+    protocol._client = client
+    transport = mock.Mock()
+    protocol.connection_made(transport)
+    assert client.transport is transport
+
+
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
+async def test_protocol_connection_lost() -> None:
+    protocol = XMPPServerProtocol()
+    client = mock.Mock()
+    client.address = ("127.0.0.1", 5223)
+    client.bumper_jid = "jid"
+    protocol._client = client
+    XMPPServer.clients.append(client)
+    protocol.connection_lost(None)
+    assert client.set_state.called
+
+
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
+async def test_client_cleanup_cancel() -> None:
+    transport = _write_transport_mock()
+    client = XMPPAsyncClient(transport)
+    client.bumper_jid = "jid"
+
+    async def dummy() -> None:
+        await asyncio.sleep(10)
+
+    task = asyncio.create_task(dummy())
+    client.schedule_ping_task = task
+    client.cleanup()
+    assert task.cancelled() or task.cancelling() > 0
+
+
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
+async def test_send_not_write_transport() -> None:
+    transport = mock.Mock()
+    transport.get_extra_info = mock.Mock(return_value=mock_transport_extra_info())
+    client = XMPPAsyncClient(transport)
+    # transport is not a WriteTransport, send should return early
+    client.send.__wrapped__ if hasattr(client.send, "__wrapped__") else None
+    client.send = XMPPAsyncClient.send.__get__(client, XMPPAsyncClient)
+    client.send("<ping/>")
+    transport.write.assert_not_called()
+
+
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
+async def test_send_debug_logging(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(bumper_isc, "DEBUG_LOGGING_XMPP_RESPONSE", True)
+    transport = _write_transport_mock()
+    client = XMPPAsyncClient(transport)
+    client.send("<ping/>")
+    transport.write.assert_called()
+
+
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
+async def test_send_exception() -> None:
+    transport = _write_transport_mock()
+    transport.write.side_effect = RuntimeError("boom")
+    client = XMPPAsyncClient(transport)
+    client.send("<ping/>")
+    # no raise
+
+
+@pytest.mark.usefixtures("clean_database", "xmpp_cleanup_clients")
+async def test_disconnect_bot_and_client() -> None:
+
+    transport = _write_transport_mock()
+    # bot
+    bot_client = XMPPAsyncClient(transport)
+    bot_client.uid = "E0000000000000001234"
+    bot_client.devclass = "159"
+    bot_client.clientresource = ""
+    bot_repo.add(bot_client.uid, bot_client.uid, bot_client.devclass, "atom", "eco-legacy")
+    bot_client.disconnect()
+    transport.close.assert_called()
+
+    transport2 = _write_transport_mock()
+    ctrl = XMPPAsyncClient(transport2)
+    ctrl.uid = "fuid_tmpuser"
+    ctrl.devclass = ""
+    ctrl.clientresource = "IOSF00000001"
+    client_repo.add(ctrl.uid, ctrl.uid, "USER", ctrl.clientresource)
+    ctrl.disconnect()
+    transport2.close.assert_called()
+
+
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
+async def test_disconnect_exception() -> None:
+    transport = _write_transport_mock()
+    transport.close.side_effect = RuntimeError("boom")
+    client = XMPPAsyncClient(transport)
+    client.disconnect()  # no raise
+
+
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
+async def test_tag_strip_uri_exception() -> None:
+    transport = _write_transport_mock()
+    client = XMPPAsyncClient(transport)
+    assert client._tag_strip_uri(123) == 123  # type: ignore[arg-type]
+
+
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
+async def test_set_state_illegal_and_exception() -> None:
+    transport = _write_transport_mock()
+    client = XMPPAsyncClient(transport)
+    client.state = client.READY
+    client.set_state("CONNECT")  # illegal, logged
+    # state unchanged? set_state swallows
+    client.set_state("NONEXISTENT")  # exception, logged
+
+
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
+async def test_handle_ctl_branches() -> None:
+
+    transport = _write_transport_mock()
+    client = XMPPAsyncClient(transport)
+    client.uid = "fuid_tmpuser"
+    client.bumper_jid = "fuid_tmpuser@ecouser.net/IOSF00000001"
+    client.type = client.CONTROLLER
+    client.send = mock.Mock(side_effect=return_send_data)
+
+    # roster
+    xml = ET.fromstring('<iq id="r1" type="get"><query xmlns="jabber:iq:roster"/></iq>')
+    client._handle_ctl(xml, "roster query")
+    assert "feature-not-implemented" in client.send.mock_calls[0][1][0]
+
+    client.send.reset_mock()
+    # disco#items
+    xml = ET.fromstring('<iq id="d1" type="get"><query node="http://jabber.org/protocol/disco#items"/></iq>')
+    client._handle_ctl(xml, "disco#items")
+    assert "feature-not-implemented" in client.send.mock_calls[0][1][0]
+
+    client.send.reset_mock()
+    # disco#info
+    xml = ET.fromstring('<iq id="i1" type="get"><query node="http://jabber.org/protocol/disco#info"/></iq>')
+    client._handle_ctl(xml, "disco#info")
+    assert "feature-not-implemented" in client.send.mock_calls[0][1][0]
+
+    client.send.reset_mock()
+    # com:sf set to rl.ecorobot.net
+    xml = ET.fromstring(
+        '<iq id="s1" to="rl.ecorobot.net" type="set"><query xmlns="com:sf"><sf td="pub"/></query></iq>',
+    )
+    client._handle_ctl(xml, "com:sf")
+    # no send? It sends result
+    # just no exception
+
+    # admin from bot
+    client.type = client.BOT
+    client.send.reset_mock()
+    xml = ET.fromstring(
+        '<iq id="a1" type="set"><query xmlns="com:ctl"><ctl admin="adminuser"/></query></iq>',
+    )
+    client._handle_ctl(xml, "admin data")
+    # returns without send
+
+    # exception
+    client._handle_ctl(None, "data")  # type: ignore[arg-type]
+
+
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
+async def test_handle_ping_branches() -> None:
+
+    transport = _write_transport_mock()
+    client = XMPPAsyncClient(transport)
+    client.uid = "E0000000000000001234"
+    client.devclass = "159"
+    client.bumper_jid = "E0000000000000001234@159.ecorobot.net/atom"
+    client.type = client.BOT
+    client.state = client.READY
+    client.send = mock.Mock(side_effect=return_send_data)
+
+    # server ping (no @)
+    xml = ET.fromstring('<iq id="p1" to="159.ecorobot.net" type="get"><ping xmlns="urn:xmpp:ping"/></iq>')
+    client._handle_ping(xml)
+    assert 'type="result"' in client.send.mock_calls[0][1][0]
+
+    client.send.reset_mock()
+    # exception
+    client._handle_ping(None)  # type: ignore[arg-type]
+
+
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
+async def test_schedule_ping_exception() -> None:
+    transport = _write_transport_mock()
+    client = XMPPAsyncClient(transport)
+    client.uid = "u"
+    client.bumper_jid = "u@ecouser.net"
+    client.state = client.READY
+
+    def boom() -> None:
+        client.state = client.DISCONNECT
+        msg = "boom"
+        raise RuntimeError(msg)
+
+    client.send = mock.Mock(side_effect=boom)
+    await client.schedule_ping(10)
+
+
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
+async def test_schedule_ping_cancel() -> None:
+    transport = _write_transport_mock()
+    client = XMPPAsyncClient(transport)
+    client.uid = "u"
+    client.bumper_jid = "u@ecouser.net"
+    client.state = client.READY
+    client.send = mock.Mock(side_effect=return_send_data)
+
+    async def run() -> None:
+        await client.schedule_ping(10)
+
+    task = asyncio.create_task(run())
+    await asyncio.sleep(0)
+    task.cancel()
+    with contextlib.suppress(asyncio.CancelledError, Exception):
+        await task
+
+
+@pytest.mark.usefixtures("clean_database", "xmpp_cleanup_clients")
+async def test_handle_result_errno_and_permission(monkeypatch: pytest.MonkeyPatch) -> None:
+
+    monkeypatch.setattr(bumper_isc, "USE_AUTH", False)
+
+    transport = _write_transport_mock()
+    client = XMPPAsyncClient(transport)
+    client.uid = "E0000000000000001234"
+    client.devclass = "159"
+    client.type = client.BOT
+    client.bumper_jid = "E0000000000000001234@159.ecorobot.net/atom"
+    client.send = mock.Mock(side_effect=return_send_data)
+
+    # errno in data (not 103)
+    xml = ET.fromstring(
+        '<iq id="e1" to="fuid_tmpuser@ecouser.net/RES" type="set"><query xmlns="com:ctl"><ctl td="x" errno="5"/></query></iq>',
+    )
+    client._handle_result(xml, "errno='5'")
+
+    # permission denied 103 with error attr
+    xml = ET.fromstring(
+        '<iq id="e2" to="fuid_tmpuser@ecouser.net/RES" type="set">'
+        '<query xmlns="com:ctl"><ctl td="x" error="permission denied, please contact adminuser"/></query></iq>',
+    )
+    client._handle_result(xml, "errno='103'")
+    # sends adduser etc
+    assert client.send.call_count >= 1
+
+    # permission denied with admin attr
+    client.send.reset_mock()
+    xml = ET.fromstring(
+        '<iq id="e3" to="fuid_tmpuser@ecouser.net/RES" type="set">'
+        '<query xmlns="com:ctl"><ctl td="x" admin="adminuser"/></query></iq>',
+    )
+    client._handle_result(xml, "errno='103'")
+    assert client.send.call_count >= 1
+
+
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
+async def test_handle_result_de_ecorobot_and_forward() -> None:
+
+    transport = _write_transport_mock()
+    bot = XMPPAsyncClient(transport)
+    bot.uid = "E0000000000000001234"
+    bot.devclass = "159"
+    bot.type = bot.BOT
+    bot.bumper_jid = "E0000000000000001234@159.ecorobot.net/atom"
+    bot.send = mock.Mock(side_effect=return_send_data)
+
+    transport2 = _write_transport_mock()
+    ctrl = XMPPAsyncClient(transport2)
+    ctrl.uid = "fuid_tmpuser"
+    ctrl.type = ctrl.CONTROLLER
+    ctrl.state = ctrl.READY
+    ctrl.bumper_jid = "fuid_tmpuser@ecouser.net/RES"
+    ctrl.send = mock.Mock(side_effect=return_send_data)
+
+    XMPPServer.clients.append(bot)
+    XMPPServer.clients.append(ctrl)
+
+    # de.ecorobot.net send to all
+    xml = ET.fromstring(
+        '<iq id="d1" to="de.ecorobot.net" type="set"><query xmlns="com:ctl"><ctl td="x"/></query></iq>',
+    )
+    bot._handle_result(xml, "noerrno")
+
+    # forward to matching client
+    xml = ET.fromstring(
+        '<iq id="f1" to="fuid_tmpuser@ecouser.net/RES" type="set"><query xmlns="com:ctl"><ctl td="x"/></query></iq>',
+    )
+    bot._handle_result(xml, "noerrno")
+    assert ctrl.send.called
+
+    XMPPServer.clients.clear()
+
+
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
+async def test_handle_result_exception() -> None:
+    transport = _write_transport_mock()
+    client = XMPPAsyncClient(transport)
+    client.type = client.BOT
+    xml = ET.fromstring('<iq id="x" to="a@b/c" type="set"><query xmlns="com:ctl"/></iq>')
+    client._handle_result(xml, "errno='103'")
+
+
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
+async def test_handle_connect_branches() -> None:
+
+    transport = _write_transport_mock()
+    client = XMPPAsyncClient(transport)
+    client.state = client.CONNECT
+    client.send = mock.Mock(side_effect=return_send_data)
+
+    # no jabber:client -> close stream
+    client._handle_connect("foo bar", None)
+    assert client.send.mock_calls[0][1][0] == "</stream>"
+
+    client.send.reset_mock()
+    # auth ns branch
+    xml = ET.fromstring('<auth xmlns="urn:ietf:params:xml:ns:xmpp-sasl" mechanism="PLAIN">AAAA</auth>')
+    # make xml tag contain ns
+    client._handle_connect("x", xml)
+    # sasl auth called; xml_text not None maybe parts <2 -> send response
+    # no assertion strict
+
+    client.send.reset_mock()
+    # error branch
+    xml2 = ET.fromstring("<foo/>")
+    client._handle_connect("x", xml2)
+
+    # INIT state branches
+    client.state = client.INIT
+    client.send.reset_mock()
+    # stream
+    client._handle_connect("<stream:stream xmlns='jabber:client'/>", None)
+    assert client.send.call_count == 2
+
+    client.send.reset_mock()
+    # bind
+    xml3 = ET.fromstring('<iq type="set"><bind xmlns="urn:ietf:params:xml:ns:xmpp-bind"><resource>R</resource></bind></iq>')
+    client.uid = "u"
+    client.devclass = ""
+    client.clientresource = "R"
+    client.bumper_jid = "u@ecouser.net/R"
+    client._handle_connect("x", xml3)
+    assert client.state == client.BIND
+
+    client.send.reset_mock()
+    # non-bind iq -> error log
+    xml4 = ET.fromstring("<iq><foo/></iq>")
+    client._handle_connect("x", xml4)
+
+
+@pytest.mark.usefixtures("test_files", "xmpp_cleanup_clients")
+async def test_handle_starttls(monkeypatch: pytest.MonkeyPatch) -> None:
+    transport = _write_transport_mock()
+    client = XMPPAsyncClient(transport)
+    client.tls_upgraded = False
+    proto = mock.Mock()
+    transport.get_protocol = mock.Mock(return_value=proto)
+    loop = mock.Mock()
+    loop.start_tls = mock.AsyncMock(return_value=transport)
+    monkeypatch.setattr(asyncio, "get_event_loop", lambda: loop)
+    await client._handle_starttls()
+    assert client.tls_upgraded is True
+
+    # already upgraded early return
+    client2 = XMPPAsyncClient(_write_transport_mock())
+    client2.tls_upgraded = True
+    await client2._handle_starttls()
+
+    # exception path
+    transport3 = _write_transport_mock()
+    client3 = XMPPAsyncClient(transport3)
+    client3.tls_upgraded = False
+    proto3 = mock.Mock()
+    transport3.get_protocol = mock.Mock(return_value=proto3)
+    loop3 = mock.Mock()
+    loop3.start_tls = mock.AsyncMock(side_effect=RuntimeError("boom"))
+    monkeypatch.setattr(asyncio, "get_event_loop", lambda: loop3)
+    await client3._handle_starttls()  # no raise
+
+
+@pytest.mark.usefixtures("clean_database", "xmpp_cleanup_clients")
+async def test_handle_sasl_auth_branches(monkeypatch: pytest.MonkeyPatch) -> None:
+
+    transport = _write_transport_mock()
+    client = XMPPAsyncClient(transport)
+    client.state = client.CONNECT
+    client.send = mock.Mock(side_effect=return_send_data)
+
+    # xml_text None
+    xml = ET.fromstring('<auth xmlns="urn:ietf:params:xml:ns:xmpp-sasl" mechanism="PLAIN"/>')
+    client._handle_sasl_auth(xml)
+
+    # parts < 2
+    encoded = base64.b64encode(b"useronly")
+    xml2 = ET.fromstring(
+        f'<auth xmlns="urn:ietf:params:xml:ns:xmpp-sasl" mechanism="PLAIN">{encoded.decode()}</auth>',
+    )
+    client._handle_sasl_auth(xml2)
+
+    # exception
+    client._handle_sasl_auth(None)  # type: ignore[arg-type]
+
+    # bot branch with password parts
+    client2 = XMPPAsyncClient(_write_transport_mock())
+    client2.state = client2.CONNECT
+    client2.devclass = "159"
+    client2.uid = ""
+    client2.send = mock.Mock(side_effect=return_send_data)
+    # password with 3 parts
+    secret = "0/RESOURCE/secret"  # noqa: S105
+    encoded2 = base64.b64encode(b"\x00E0000000000000001234\x00" + secret.encode())
+    xml3 = ET.fromstring(
+        f'<auth xmlns="urn:ietf:params:xml:ns:xmpp-sasl" mechanism="PLAIN">{encoded2.decode()}</auth>',
+    )
+    client2._handle_sasl_auth(xml3)
+    assert client2.type == client2.BOT
+
+    # client auth failure path (wrong secret) with USE_AUTH
+    monkeypatch.setattr(bumper_isc, "USE_AUTH", True)
+    user_repo.add("canonical")
+
+    token_repo.add("canonical", "portal-token")
+    token_repo.add_auth_code("canonical", "auth-code")
+    client3 = XMPPAsyncClient(_write_transport_mock())
+    client3.state = client3.CONNECT
+    client3.send = mock.Mock(side_effect=return_send_data)
+    encoded3 = base64.b64encode(b"\x00canonical\x000/RESOURCE/wrong")
+    xml4 = ET.fromstring(
+        f'<auth xmlns="urn:ietf:params:xml:ns:xmpp-sasl" mechanism="PLAIN">{encoded3.decode()}</auth>',
+    )
+    client3._handle_sasl_auth(xml4)
+    assert client3.send.mock_calls[0][1][0] == '<response xmlns="urn:ietf:params:xml:ns:xmpp-sasl"/>'
+
+
+@pytest.mark.usefixtures("clean_database", "xmpp_cleanup_clients")
+async def test_handle_bind_branches(monkeypatch: pytest.MonkeyPatch) -> None:
+
+    monkeypatch.setattr(bumper_isc, "USE_AUTH", False)
+
+    # bot with no bot in db (get None) -> skip set_xmpp
+    transport = _write_transport_mock()
+    client = XMPPAsyncClient(transport)
+    client.uid = "E0000000000000001234"
+    client.devclass = "159"
+    client.type = client.BOT
+    client.state = client.INIT
+    client.send = mock.Mock(side_effect=return_send_data)
+    xml = ET.fromstring("<iq id='b1'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><resource>atom</resource></bind></iq>")
+    client._handle_bind(xml)
+    assert client.bumper_jid == "E0000000000000001234@159.ecorobot.net/atom"
+
+    # client with no resource element -> else branch name/address
+    transport2 = _write_transport_mock()
+    client2 = XMPPAsyncClient(transport2)
+    client2.uid = "fuid_tmpuser"
+    client2.devclass = ""
+    client2.type = client2.CONTROLLER
+    client2.account_user_id = "fuid_tmpuser"
+    client2.state = client2.INIT
+    client2.send = mock.Mock(side_effect=return_send_data)
+    xml2 = ET.fromstring("<iq id='b2'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'/></iq>")
+    client2._handle_bind(xml2)
+    assert "fuid_tmpuser@ecouser.net" in client2.bumper_jid
+
+    # client with account_user_id and resource -> add + set_xmpp
+    transport3 = _write_transport_mock()
+    client3 = XMPPAsyncClient(transport3)
+    client3.uid = "fuid_tmpuser2"
+    client3.devclass = ""
+    client3.type = client3.CONTROLLER
+    client3.account_user_id = "fuid_tmpuser2"
+    client3.clientresource = "RES"
+    client3.state = client3.INIT
+    client3.send = mock.Mock(side_effect=return_send_data)
+    xml3 = ET.fromstring(
+        "<iq id='b3'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><resource>RES</resource></bind></iq>",
+    )
+    client3._handle_bind(xml3)
+    assert client_repo.get("fuid_tmpuser2", resource="RES") is not None
+
+    # exception
+    client3._handle_bind(None)  # type: ignore[arg-type]
+
+
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
+async def test_handle_presence_branches() -> None:
+
+    transport = _write_transport_mock()
+    client = XMPPAsyncClient(transport)
+    client.uid = "E0000000000000001234"
+    client.devclass = "159"
+    client.bumper_jid = "E0000000000000001234@159.ecorobot.net/atom"
+    client.type = client.BOT
+    client.state = client.READY
+    client.send = mock.Mock(side_effect=return_send_data)
+
+    # status present
+    xml = ET.fromstring("<presence><status>hello</status></presence>")
+    client._handle_presence(xml)
+    assert client.send.called
+
+    client.send.reset_mock()
+    client.type = client.CONTROLLER
+    # available
+    xml2 = ET.fromstring('<presence type="available"/>')
+    client._handle_presence(xml2)
+    assert client.send.called
+
+    client.send.reset_mock()
+    # unavailable
+    xml3 = ET.fromstring('<presence type="unavailable"/>')
+    client._handle_presence(xml3)
+    assert client.state == client.DISCONNECT
+
+    client2 = XMPPAsyncClient(_write_transport_mock())
+    client2.uid = "u"
+    client2.bumper_jid = "u@ecouser.net"
+    client2.type = client2.CONTROLLER
+    client2.state = client2.READY
+    client2.send = mock.Mock(side_effect=return_send_data)
+    # unknown type
+    xml4 = ET.fromstring("<presence/>")
+    client2._handle_presence(xml4)
+    assert client2.send.called
+
+
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
+async def test_parse_data_branches(monkeypatch: pytest.MonkeyPatch) -> None:
+
+    transport = _write_transport_mock()
+    client = XMPPAsyncClient(transport)
+    client.uid = "u"
+    client.bumper_jid = "u@ecouser.net"
+    client.state = client.CONNECT
+    client.send = mock.Mock(side_effect=return_send_data)
+
+    monkeypatch.setattr(bumper_isc, "DEBUG_LOGGING_XMPP_REQUEST_ORIGINAL", True)
+    monkeypatch.setattr(bumper_isc, "DEBUG_LOGGING_XMPP_REQUEST_REFACTORED", True)
+
+    # xml declaration strip
+    data = b"<?xml version='1.0'?><stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' />"
+    client.parse_data(data)
+    assert client.send.called
+
+    client.send.reset_mock()
+    # invalid xml -> parse error
+    client.parse_data(b"<bad><unclosed>")
+    # no raise
+
+    client.send.reset_mock()
+    # unparsed item
+    client.state = client.CONNECT
+    client.parse_data(b"<foo/>")
+    # warning logged, no raise
+
+    client.send.reset_mock()
+    # end stream only
+    client.parse_data(b"</stream:stream>")
+    assert client.send.called
+
+    client.send.reset_mock()
+    # starttls item
+    client.tls_upgraded = False
+    client.state = client.CONNECT
+    # send stream first to set state? just call
+    client.parse_data(b"<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>")
+    # utils.store_service called; no raise
+
+
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
+async def test_handle_iq_branches() -> None:
+
+    transport = _write_transport_mock()
+    client = XMPPAsyncClient(transport)
+    client.uid = "u"
+    client.bumper_jid = "u@ecouser.net"
+    client.type = client.CONTROLLER
+    client.state = client.READY
+    client.send = mock.Mock(side_effect=return_send_data)
+
+    # non-iq tag -> skip
+    xml = ET.fromstring("<foo/>")
+    client._handle_iq(xml, "data")
+
+    # iq with child ping
+    xml2 = ET.fromstring('<iq id="p"><ping xmlns="urn:xmpp:ping"/></iq>')
+    client._handle_iq(xml2, "data")
+
+    # iq result type
+    xml3 = ET.fromstring('<iq type="result" id="r"/>')
+    client._handle_iq(xml3, "data")
+
+    # to_dict
+    d = client.to_dict()
+    assert d["uid"] == "u"
+
+
+@pytest.mark.usefixtures("xmpp_cleanup_clients")
+async def test_xml_replacer_and_to_dict() -> None:
+    transport = _write_transport_mock()
+    client = XMPPAsyncClient(transport)
+    client.uid = "u"
+    client.bumper_jid = "u@ecouser.net"
+
+    el = ET.fromstring('<iq xmlns="com:ctl"><query/></iq>')
+    out = client._xml_replacer(el, "query", "com:ctl")
+    assert "xmlns" in out
+    assert client.to_dict()["state"] in (0, 1, 2, 3, 4, 5)

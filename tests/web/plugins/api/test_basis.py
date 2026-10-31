@@ -2,33 +2,29 @@
 
 from aiohttp.test_utils import TestClient
 
+from tests.web.helpers import get_json
+
 
 async def test_get_by_area(webserver_client: TestClient) -> None:
     """A known area is answered with its data centre code."""
-    async with webserver_client.get("/api/basis/dc/get-by-area?area=de") as resp:
-        assert resp.status == 200
-        body = await resp.json()
-
+    status, body = await get_json(webserver_client, "/api/basis/dc/get-by-area?area=de")
+    assert status == 200
     assert body["code"] == 0
     assert body["data"]["dc"]
 
 
 async def test_get_by_area_rejects_an_unknown_area(webserver_client: TestClient) -> None:
     """An unknown area is answered with the list of the known ones."""
-    async with webserver_client.get("/api/basis/dc/get-by-area?area=zz") as resp:
-        assert resp.status == 200
-        body = await resp.json()
-
+    status, body = await get_json(webserver_client, "/api/basis/dc/get-by-area?area=zz")
+    assert status == 200
     assert body["code"] == 4000
     assert "area" in body["msg"]
 
 
 async def test_get_timezones(webserver_client: TestClient) -> None:
     """The timezone list is served from the static data."""
-    async with webserver_client.get("/api/basis/time/timezones?sort=asc") as resp:
-        assert resp.status == 200
-        body = await resp.json()
-
+    status, body = await get_json(webserver_client, "/api/basis/time/timezones?sort=asc")
+    assert status == 200
     assert body["code"] == 0
     data = body["data"]
     assert len(data) > 100

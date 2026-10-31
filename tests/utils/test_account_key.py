@@ -36,7 +36,15 @@ def test_a_value_from_another_key_is_not_read(tmp_path: Path, monkeypatch: pytes
     account_public_key()
 
     other_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-    ciphertext = other_key.public_key().encrypt(b"new@example.com", padding.PKCS1v15())
+    # RSA PKCS#1 v1.5 decryption can, very rarely, accept a random block as
+    # valid padding; retry until we get one that is rejected so the test is
+    # deterministic rather than probabilistic.
+    for _ in range(100):
+        ciphertext = other_key.public_key().encrypt(b"new@example.com", padding.PKCS1v15())
+        if decrypt_account_field(base64.b64encode(ciphertext).decode("ascii")) is None:
+            break
+    else:  # pragma: no cover
+        pytest.fail("could not find a ciphertext rejected by decrypt_account_field")
     assert decrypt_account_field(base64.b64encode(ciphertext).decode("ascii")) is None
     assert decrypt_account_field("not base64") is None
     assert decrypt_account_field("") is None

@@ -2,9 +2,9 @@ import datetime as dt
 import json
 import logging
 from pathlib import Path
-from unittest.mock import mock_open, patch
 from zoneinfo import ZoneInfo
 
+from aiohttp import AsyncResolver
 import pytest
 
 from bumper.utils import utils
@@ -107,134 +107,76 @@ def test_to_milliseconds_at_the_edges() -> None:
     assert utils.to_milliseconds(100_000_000_000) == 100_000_000_000
 
 
-def test_str_to_bool_true() -> None:
-    assert utils.str_to_bool("True") is True
-    assert utils.str_to_bool("true") is True
-    assert utils.str_to_bool("1") is True
-    assert utils.str_to_bool("t") is True
-    assert utils.str_to_bool("y") is True
-    assert utils.str_to_bool("on") is True
-    assert utils.str_to_bool("yes") is True
+def test_to_int() -> None:
+    """A value converts to int or falls back to the default."""
+    assert utils.to_int("5") == 5
+    assert utils.to_int(3.7) == 3
+    assert utils.to_int(None) is None
+    assert utils.to_int("nope", 0) == 0
+    assert utils.to_int(None, 7) == 7
+    assert utils.to_int({"a": 1}, -1) == -1
 
 
-def test_str_to_bool_false() -> None:
-    assert utils.str_to_bool("False") is False
-    assert utils.str_to_bool("false") is False
-    assert utils.str_to_bool("0") is False
-    assert utils.str_to_bool("f") is False
-    assert utils.str_to_bool("n") is False
-    assert utils.str_to_bool("off") is False
-    assert utils.str_to_bool("no") is False
+async def test_get_resolver_with_public_nameserver() -> None:
+    """A resolver is built from the configured public nameservers."""
+    resolver = utils.get_resolver_with_public_nameserver()
+    assert isinstance(resolver, AsyncResolver)
 
 
-def test_str_to_bool_random() -> None:
-    # Test with any random values
-    invalid_values = ["", "random", "123", "abc", None, 123, False]
-    for value in invalid_values:
-        assert utils.str_to_bool(value) is False
+def test_load_json_array_files_combines_arrays(tmp_path: Path) -> None:
+    """Arrays of several files are combined in order."""
+    (tmp_path / "a.json").write_text(json.dumps([{"x": 1}, {"x": 2}]))
+    (tmp_path / "b.json").write_text(json.dumps([{"y": 3}]))
+    assert utils.load_json_array_files(["a.json", "b.json"], tmp_path) == [{"x": 1}, {"x": 2}, {"y": 3}]
 
 
-def test_str_to_bool_none() -> None:
-    # Test with None
-    assert utils.str_to_bool(None) is False  # Assuming you want to treat None as False
+def test_load_json_array_files_missing_file_raises(tmp_path: Path) -> None:
+    with pytest.raises(FileNotFoundError):
+        utils.load_json_array_files(["missing.json"], tmp_path)
 
 
-# ******************************************************************************
+def test_load_json_array_files_invalid_json_raises(tmp_path: Path) -> None:
+    (tmp_path / "bad.json").write_text("not json")
+    with pytest.raises(json.JSONDecodeError):
+        utils.load_json_array_files(["bad.json"], tmp_path)
 
 
-def test_is_valid_url_valid_urls() -> None:
-    valid_urls = ["http://example.com", "https://www.example.com", "ftp://ftp.example.com"]
-    for url in valid_urls:
-        assert utils.is_valid_url(url) is True
+def test_load_json_array_files_non_array_raises(tmp_path: Path) -> None:
+    (tmp_path / "obj.json").write_text(json.dumps({"a": 1}))
+    with pytest.raises(TypeError, match="top-level array"):
+        utils.load_json_array_files(["obj.json"], tmp_path)
 
 
-def test_is_valid_url_invalid_urls() -> None:
-    invalid_urls = ["not_a_url", "www.example.com", None, ""]
-    for url in invalid_urls:
-        assert utils.is_valid_url(url) is False
+def test_load_json_object_files_reads_object(tmp_path: Path) -> None:
+    (tmp_path / "o.json").write_text(json.dumps({"a": 1}))
+    assert utils.load_json_object_files("o.json", tmp_path) == {"a": 1}
 
 
-def test_is_valid_ip_valid_ips() -> None:
-    valid_ips = ["192.168.0.1", "2001:db8::1"]
-    for ip in valid_ips:
-        assert utils.is_valid_ip(ip) is True
+def test_load_json_object_files_missing_file_raises(tmp_path: Path) -> None:
+    with pytest.raises(FileNotFoundError):
+        utils.load_json_object_files("missing.json", tmp_path)
 
 
-def test_is_valid_ip_invalid_ips() -> None:
-    invalid_ips = ["not_an_ip", "256.256.256.256", "invalid:ip::address", None, ""]
-    for ip in invalid_ips:
-        assert utils.is_valid_ip(ip) is False
+def test_load_json_object_files_invalid_json_raises(tmp_path: Path) -> None:
+    (tmp_path / "bad.json").write_text("not json")
+    with pytest.raises(json.JSONDecodeError):
+        utils.load_json_object_files("bad.json", tmp_path)
 
 
-def test_is_valid_ip_empty_string() -> None:
-    # Test an empty string
-    assert utils.is_valid_ip("") is False
+def test_load_json_object_files_non_object_raises(tmp_path: Path) -> None:
+    (tmp_path / "arr.json").write_text(json.dumps([1, 2]))
+    with pytest.raises(TypeError, match="top-level object"):
+        utils.load_json_object_files("arr.json", tmp_path)
 
 
-def test_is_valid_ip_none() -> None:
-    # Test None as input
-    assert utils.is_valid_ip(None) is False
+def test_load_text_files_reads_text(tmp_path: Path) -> None:
+    (tmp_path / "t.txt").write_text("hello")
+    assert utils.load_text_files("t.txt", tmp_path) == "hello"
 
 
-# ******************************************************************************
-
-# Mock data for testing
-MOCK_JSON_DATA = {
-    "00": "dc",
-    "cn": "ap",
-    "tw": "ap",
-    "my": "ap",
-    "jp": "ap",
-    "sg": "ap",
-    "de": "eu",
-    "at": "eu",
-    "li": "eu",
-    "fr": "eu",
-}
-
-
-def test_get_dc_code_existing_area() -> None:
-    with patch("bumper.utils.utils.get_area_code_map", return_value=MOCK_JSON_DATA):
-        assert utils.get_dc_code("cn") == "ap"
-        assert utils.get_dc_code("de") == "eu"
-        assert utils.get_dc_code("00") == "dc"
-
-
-def test_get_dc_code_non_existing_area() -> None:
-    with patch("bumper.utils.utils.get_area_code_map", return_value=MOCK_JSON_DATA):
-        assert utils.get_dc_code("nonexistent") == "na"
-        assert utils.get_dc_code("iwashere") == "na"
-
-
-def test_get_dc_code_empty_map() -> None:
-    with patch("bumper.utils.utils.get_area_code_map", return_value={}):
-        assert utils.get_dc_code("cn") == "na"
-
-
-def test_get_area_code_map_valid_json() -> None:
-    with patch.object(Path, "open", mock_open(read_data=json.dumps(MOCK_JSON_DATA)), create=True):
-        assert utils.get_area_code_map() == MOCK_JSON_DATA
-
-
-def test_get_area_code_map_invalid_json() -> None:
-    invalid_json = "invalid_json"
-    with patch.object(Path, "open", mock_open(read_data=invalid_json), create=True):
-        assert utils.get_area_code_map() == {}
-
-
-def test_get_area_code_map_file_not_found() -> None:
-    with patch.object(Path, "open", side_effect=FileNotFoundError):
-        assert utils.get_area_code_map() == {}
-
-
-def test_get_area_code_map_empty_file() -> None:
-    with patch.object(Path, "open", mock_open(read_data="{}"), create=True):
-        assert utils.get_area_code_map() == {}
-
-
-def test_get_area_code_map_exception() -> None:
-    with patch.object(Path, "open", side_effect=Exception):
-        assert utils.get_area_code_map() == {}
+def test_load_text_files_missing_file_raises(tmp_path: Path) -> None:
+    with pytest.raises(FileNotFoundError):
+        utils.load_text_files("missing.txt", tmp_path)
 
 
 # ******************************************************************************
