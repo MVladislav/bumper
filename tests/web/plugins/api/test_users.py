@@ -4,16 +4,16 @@ import pytest
 from bumper.db import bot_repo, client_repo, token_repo, user_repo
 from bumper.utils.settings import config as bumper_isc
 from bumper.web.auth_service import _generate_uid
+from tests.web.helpers import post_json
 
 USER_ID = _generate_uid(bumper_isc.USER_USERNAME_DEFAULT)
 
 
 @pytest.mark.usefixtures("clean_database")
 async def test_get_users_api(webserver_client: TestClient) -> None:
-    async with webserver_client.post("/api/users/user.do", json={}) as resp:
-        assert resp.status == 200
-        json_resp = await resp.json()
-        assert json_resp["result"] == "fail"
+    status, json_resp = await post_json(webserver_client, "/api/users/user.do", json={})
+    assert status == 200
+    assert json_resp["result"] == "fail"
 
 
 @pytest.mark.usefixtures("clean_database")

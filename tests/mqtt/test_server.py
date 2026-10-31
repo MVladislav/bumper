@@ -1,4 +1,5 @@
 import asyncio
+import base64
 from pathlib import Path
 import ssl
 from unittest import mock
@@ -479,3 +480,459 @@ async def test_on_broker_message_received_proxy_timeout(tmp_path: Path, monkeypa
         timeout=2.0,
     )
     proxy.publish.assert_awaited_once()
+
+
+async def test_authenticate_no_client_id() -> None:
+    """Missing client_id fails authentication."""
+    plugin = _make_plugin(None, allow_anonymous=False)  # type: ignore[arg-type]
+
+    session = Session()
+    session.username = "user"
+    session.password = "secret"  # noqa: S105
+    session.client_id = None
+
+    assert await plugin.authenticate(session=session) is False
+
+
+async def test_client_id_split_helper_none() -> None:
+    """A client id without '@' that is not a file-auth client cannot be split."""
+    plugin = _make_plugin(None)  # type: ignore[arg-type]
+
+    assert plugin._client_id_split_helper("noatsign") is None
+
+
+async def test_authenticate_split_helper_none_branch(tmp_path: Path) -> None:
+    """authenticate returns False when the client id cannot be split."""
+    plugin = _make_plugin(str(tmp_path / "passwd"), allow_anonymous=False)
+
+    session = Session()
+    session.username = None
+    session.password = None
+    session.client_id = "noatsign"
+
+    assert await plugin.authenticate(session=session) is False
+
+
+async def test_authenticate_resolves_transport_name(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """A resolved transport name differing from the did is logged."""
+    monkeypatch.setattr(
+        server_module.identity,
+        "resolve_transport_user",
+        lambda _transport_id, _secret: mock.MagicMock(userid="canonical"),
+    )
+
+    plugin = _make_plugin(str(tmp_path / "passwd"), allow_anonymous=False)
+
+    session = Session()
+    session.username = "app"
+    session.password = "secret"  # noqa: S105
+    session.client_id = "legacy@USER/resource"
+
+    with mock.patch("bumper.mqtt.server.client_repo.add"):
+        result = await plugin.authenticate(session=session)
+
+    assert result is True
+
+
+async def test_authenticate_username_backticks(tmp_path: Path) -> None:
+    """A username carrying base64 header/body info is decoded."""
+    header = base64.b64encode(b'{"fv":"1.0.0"}').decode()
+    body = base64.b64encode(b'{"app":"user"}').decode()
+    username = f"realuser`{header}`{body}"
+
+    plugin = _make_plugin(str(tmp_path / "passwd"), allow_anonymous=True)
+
+    session = Session()
+    session.username = username
+    session.password = None
+    session.client_id = "did@ecouser.net/res"
+
+    with mock.patch("bumper.mqtt.server.client_repo.add"):
+        result = await plugin.authenticate(session=session)
+
+    assert result is True
+    assert session.username == "realuser"
+
+
+async def test_authenticate_use_auth_no_password(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """USE_AUTH with no password fails authentication."""
+    monkeypatch.setattr(bumper_isc, "USE_AUTH", True)
+    plugin = _make_plugin(str(tmp_path / "passwd"), allow_anonymous=False)
+
+    session = Session()
+    session.username = "app"
+    session.password = None
+    session.client_id = "did@ecouser.net/res"
+
+    assert await plugin.authenticate(session=session) is False
+
+
+async def test_authenticate_use_auth_wrong_password(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """USE_AUTH with a wrong password fails authentication."""
+    monkeypatch.setattr(bumper_isc, "USE_AUTH", True)
+    monkeypatch.setattr(server_module.identity, "verify_transport_secret", lambda _user_id, _secret: False)
+    plugin = _make_plugin(str(tmp_path / "passwd"), allow_anonymous=False)
+
+    session = Session()
+    session.username = "app"
+    session.password = "wrong"  # noqa: S105
+    session.client_id = "did@ecouser.net/res"
+
+    assert await plugin.authenticate(session=session) is False
+
+
+async def test_read_password_file_missing(tmp_path: Path) -> None:
+    """A missing password file logs a warning."""
+    plugin = _make_plugin(str(tmp_path / "does-not-exist"))
+
+    assert plugin._users == {}
+
+
+async def test_read_password_file_none() -> None:
+    """A None password file logs a warning and loads no users."""
+    plugin = _make_plugin(None)  # type: ignore[arg-type]
+
+    assert plugin._users == {}
+
+
+async def test_read_password_file_malformed(tmp_path: Path) -> None:
+    """A malformed password file is handled."""
+    passwd = tmp_path / "passwd"
+    passwd.write_text("badline-no-colon\n")
+    plugin = _make_plugin(str(passwd))
+
+    assert plugin._users == {}
+
+
+async def test_read_password_file_unexpected(tmp_path: Path) -> None:
+    """An unexpected error reading the password file is handled."""
+    plugin = _make_plugin(str(tmp_path))
+
+    assert plugin._users == {}
+
+
+async def test_on_broker_message_received_proxyhelper_topic3(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """A message whose third-ish segment is proxyhelper returns early."""
+    monkeypatch.setattr(bumper_isc, "BUMPER_PROXY_MQTT", True)
+    plugin = _make_plugin(str(tmp_path / "passwd"))
+    proxy = mock.AsyncMock()
+    plugin._proxy_clients["cid"] = proxy
+
+    topic = "a/b/c/proxyhelper/d/e/f/g"
+    msg = IncomingApplicationMessage(None, topic, 0, b"payload", False)
+
+    await plugin.on_broker_message_received(msg, "cid")
+
+    proxy.publish.assert_not_awaited()
+
+
+async def test_on_broker_message_received_proxyhelper_topic6_missing(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """A missing request mapper entry logs a warning and returns."""
+    monkeypatch.setattr(bumper_isc, "BUMPER_PROXY_MQTT", True)
+    plugin = _make_plugin(str(tmp_path / "passwd"))
+    proxy = mock.AsyncMock()
+    proxy.request_mapper = {}
+    plugin._proxy_clients["cid"] = proxy
+
+    topic = "a/rid/c/d/e/f/proxyhelper/g/h/i/reqkey/k"
+    msg = IncomingApplicationMessage(None, topic, 0, b"payload", False)
+
+    with LogCapture() as log:
+        await plugin.on_broker_message_received(msg, "cid")
+        log.check_present(
+            (
+                f"{_LOGGER_NAME}.proxy",
+                "WARNING",
+                "Request mapper is missing entry, probably request took to long... Client_id: cid :: Request_id: reqkey",
+            ),
+            order_matters=False,
+        )
+
+    proxy.publish.assert_not_awaited()
+
+
+async def test_on_broker_message_received_proxyhelper_topic6_success(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """A present request mapper entry converts the topic and forwards."""
+    monkeypatch.setattr(bumper_isc, "BUMPER_PROXY_MQTT", True)
+    plugin = _make_plugin(str(tmp_path / "passwd"))
+    proxy = mock.AsyncMock()
+    proxy.request_mapper = {"reqkey": "orig"}
+    plugin._proxy_clients["cid"] = proxy
+
+    topic = "a/rid/c/d/e/f/proxyhelper/g/h/i/reqkey/k"
+    msg = IncomingApplicationMessage(None, topic, 0, b"payload", False)
+
+    await plugin.on_broker_message_received(msg, "cid")
+
+    proxy.publish.assert_awaited_once()
+
+
+async def test_on_broker_message_received_proxy_exception(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """An exception while forwarding to Ecovacs is logged."""
+    monkeypatch.setattr(bumper_isc, "BUMPER_PROXY_MQTT", True)
+    plugin = _make_plugin(str(tmp_path / "passwd"))
+    proxy = mock.AsyncMock()
+    proxy.publish = mock.AsyncMock(side_effect=RuntimeError("boom"))
+    proxy.request_mapper = {}
+    plugin._proxy_clients["cid"] = proxy
+
+    topic = "iot/atr/test/user/class/res/j"
+    msg = IncomingApplicationMessage(None, topic, 0, b"payload", False)
+
+    await plugin.on_broker_message_received(msg, "cid")
+
+    proxy.publish.assert_awaited_once()
+
+
+async def test_on_broker_client_disconnected_proxy(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Disconnecting a proxied client pops and disconnects the proxy."""
+    monkeypatch.setattr(bumper_isc, "BUMPER_PROXY_MQTT", True)
+    plugin = _make_plugin(str(tmp_path / "passwd"))
+    proxy = mock.AsyncMock()
+    plugin._proxy_clients["cid"] = proxy
+
+    await plugin.on_broker_client_disconnected("cid", Session())
+
+    assert "cid" not in plugin._proxy_clients
+    proxy.disconnect.assert_awaited_once()
+
+
+async def test_set_client_connected_user_branch(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A user client id updates the client repo."""
+    plugin = _make_plugin(None)  # type: ignore[arg-type]
+
+    fake_client = mock.MagicMock(userid="uid")
+    monkeypatch.setattr(server_module.client_repo, "get", lambda _did, resource=None: fake_client)  # noqa: ARG005
+    monkeypatch.setattr(server_module.client_repo, "set_mqtt", mock.MagicMock())
+
+    plugin._set_client_connected("did@USER/res", True, Session())
+
+    server_module.client_repo.set_mqtt.assert_called_once()
+
+
+async def test_set_client_connected_exception(monkeypatch: pytest.MonkeyPatch) -> None:
+    """An exception while setting connected state is logged."""
+    plugin = _make_plugin(None)  # type: ignore[arg-type]
+
+    def _raise(_did: str) -> None:
+        msg = "boom"
+        raise RuntimeError(msg)
+
+    monkeypatch.setattr(server_module.bot_repo, "get", _raise)
+
+    plugin._set_client_connected("did@botclass/res", True, Session())
+
+
+async def test_set_bot_timezone_success(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Setting the bot timezone sends a command."""
+    plugin = _make_plugin(None)  # type: ignore[arg-type]
+    monkeypatch.setattr(bumper_isc, "SYNC_TIMEZONE", True)
+    helper = mock.AsyncMock()
+    monkeypatch.setattr(bumper_isc, "mqtt_helperbot", helper)
+    monkeypatch.setattr(server_module.bot_repo, "get", lambda did: mock.MagicMock(did=did, class_id="class", resource="res"))
+    monkeypatch.setattr(server_module.utils, "get_tzm_and_ts", lambda: (60, 1000))
+
+    await plugin._set_bot_timezone("did")
+
+    helper.send_command.assert_awaited_once()
+
+
+async def test_set_bot_timezone_disabled() -> None:
+    """Disabled timezone sync returns early."""
+    plugin = _make_plugin(None)  # type: ignore[arg-type]
+    bumper_isc.SYNC_TIMEZONE = False
+    await plugin._set_bot_timezone("did")
+    bumper_isc.SYNC_TIMEZONE = True
+
+
+async def test_set_bot_timezone_no_helper(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A missing helperbot is handled."""
+    plugin = _make_plugin(None)  # type: ignore[arg-type]
+    monkeypatch.setattr(bumper_isc, "SYNC_TIMEZONE", True)
+    monkeypatch.setattr(bumper_isc, "mqtt_helperbot", None)
+
+    await plugin._set_bot_timezone("did")
+
+
+async def test_set_bot_timezone_no_bot(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A missing bot returns early."""
+    plugin = _make_plugin(None)  # type: ignore[arg-type]
+    monkeypatch.setattr(bumper_isc, "SYNC_TIMEZONE", True)
+    monkeypatch.setattr(bumper_isc, "mqtt_helperbot", mock.AsyncMock())
+    monkeypatch.setattr(server_module.bot_repo, "get", lambda _did: None)
+
+    await plugin._set_bot_timezone("did")
+
+
+async def test_mqttserver_init_exception(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Constructor failure is logged and re-raised."""
+
+    def _raise(*_args: object, **_kwargs: object) -> None:
+        msg = "boom"
+        raise RuntimeError(msg)
+
+    monkeypatch.setattr(server_module, "Broker", _raise)
+
+    with pytest.raises(RuntimeError):
+        MQTTServer(MQTTBinding(HOST, MQTT_PORT, True))
+
+
+def _fake_mqtt_server() -> MQTTServer:
+    """Build an MQTTServer whose broker is a lightweight mock."""
+    server = MQTTServer(MQTTBinding(HOST, MQTT_PORT, True))
+    server._broker = mock.MagicMock()
+    server._broker.transitions.state = "new"
+    return server
+
+
+async def test_start_from_stopping_state() -> None:
+    """Starting while stopping waits and forces stopping_success."""
+    server = _fake_mqtt_server()
+    server._broker.transitions.state = "stopping"
+    server.wait_for_state_change = mock.AsyncMock()
+
+    await server.start()
+
+    server.wait_for_state_change.assert_awaited_once()
+    server._broker.transitions.stopping_success.assert_called_once()
+
+
+async def test_start_from_invalid_state() -> None:
+    """Starting from an unexpected state logs a warning and does nothing."""
+    server = _fake_mqtt_server()
+    server._broker.transitions.state = "starting"
+
+    await server.start()
+
+    server._broker.start.assert_not_called()
+
+
+async def test_start_exception() -> None:
+    """An exception during broker start is logged and re-raised."""
+    server = _fake_mqtt_server()
+    server._broker.transitions.state = "new"
+
+    async def _raise_start() -> None:
+        msg = "boom"
+        raise RuntimeError(msg)
+
+    server._broker.start = _raise_start
+
+    with pytest.raises(RuntimeError):
+        await server.start()
+
+
+async def test_shutdown_from_starting_state() -> None:
+    """Shutdown while starting waits and shuts down if it reaches started."""
+    server = _fake_mqtt_server()
+    server._broker.transitions.state = "starting"
+
+    async def _wait(_desired: str, **_kwargs: object) -> None:
+        server._broker.transitions.state = "started"
+
+    server.wait_for_state_change = _wait
+    server._broker.shutdown = mock.AsyncMock()
+
+    await server.shutdown()
+
+    server._broker.shutdown.assert_awaited_once()
+
+
+async def test_shutdown_from_stopping_state() -> None:
+    """Shutdown while stopping just waits for it to stabilize."""
+    server = _fake_mqtt_server()
+    server._broker.transitions.state = "stopping"
+    server.wait_for_state_change = mock.AsyncMock()
+
+    await server.shutdown()
+
+    server.wait_for_state_change.assert_awaited_once()
+
+
+async def test_shutdown_from_invalid_state() -> None:
+    """Shutdown from an unexpected state logs a warning."""
+    server = _fake_mqtt_server()
+    server._broker.transitions.state = "new"
+
+    with LogCapture() as log:
+        await server.shutdown()
+        log.check_present(
+            (
+                _LOGGER_NAME,
+                "WARNING",
+                f"MQTT server is not in a valid state for shutdown. Current state: {server.state}",
+            ),
+            order_matters=False,
+        )
+
+
+async def test_shutdown_exception() -> None:
+    """An exception during broker shutdown is logged and re-raised."""
+    server = _fake_mqtt_server()
+    server._broker.transitions.state = "started"
+
+    async def _raise_shutdown() -> None:
+        msg = "boom"
+        raise RuntimeError(msg)
+
+    server._broker.shutdown = _raise_shutdown
+
+    with pytest.raises(RuntimeError):
+        await server.shutdown()
+
+
+async def test_wait_for_state_change_timeout(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A wait that never resolves logs a timeout warning."""
+    server = _fake_mqtt_server()
+    server._broker.transitions.state = "started"
+
+    async def _no_sleep(_delay: float) -> None:
+        return None
+
+    monkeypatch.setattr(asyncio, "sleep", _no_sleep)
+
+    with LogCapture() as log:
+        await server.wait_for_state_change("stopped", max_wait=0.0)
+        log.check_present(
+            (
+                _LOGGER_NAME,
+                "WARNING",
+                f"Timeout waiting for MQTT server to reach state 'stopped' :: Current state: '{server.state}'",
+            ),
+            order_matters=False,
+        )
+
+
+async def test_wait_for_state_change_success(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A wait that resolves logs the reached-state debug line."""
+    server = _fake_mqtt_server()
+    server._broker.transitions.state = "started"
+
+    async def _sleep_and_flip(_delay: float) -> None:
+        server._broker.transitions.state = "stopped"
+
+    monkeypatch.setattr(asyncio, "sleep", _sleep_and_flip)
+
+    with LogCapture() as log:
+        await server.wait_for_state_change("stopped", max_wait=1.0)
+        log.check_present(
+            (
+                _LOGGER_NAME,
+                "DEBUG",
+                f"Reached state :: '{server.state}' == 'stopped'",
+            ),
+            order_matters=False,
+        )
+
+
+async def test_set_client_connected_bot_branch(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A bot client id updates the bot repo and schedules timezone sync."""
+    plugin = _make_plugin(None)  # type: ignore[arg-type]
+
+    fake_bot = mock.MagicMock(did="did")
+    monkeypatch.setattr(server_module.bot_repo, "get", lambda _did: fake_bot)
+    monkeypatch.setattr(server_module.bot_repo, "set_mqtt", mock.MagicMock())
+
+    plugin._set_client_connected("did@botclass/res", True, Session())
+
+    server_module.bot_repo.set_mqtt.assert_called_once()

@@ -251,3 +251,98 @@ def test_a_trace_in_the_map_is_kept() -> None:
     normalised = map_doc.normalise_map_document(payload)
 
     assert map_doc.decode_trace(normalised) == trace
+
+
+# ******************************************************************************
+
+
+def test_decode_grid_of_a_non_dict_section() -> None:
+    """A section that is not an object decodes to nothing."""
+    assert map_doc.decode_grid({**MAP_DOCUMENT, "minorMap": "oops"}) == b""
+
+
+def test_decode_grid_of_an_undecodable_payload() -> None:
+    """A payload that is not valid LZMA decodes to nothing."""
+    broken = base64.b64encode(b"this is not lzma").decode()
+    assert map_doc.decode_grid({**MAP_DOCUMENT, "minorMap": {"value": broken}}) == b""
+
+
+def test_decode_profile() -> None:
+    """The profile of the map is parsed back into its JSON form."""
+    profile = [["1", "0;1,2,1;3,4,1"]]
+    document = {**MAP_DOCUMENT, "mapProfile": {"value": _encode_7z(json.dumps(profile).encode())}}
+
+    assert map_doc.decode_profile(document) == profile
+
+
+def test_decode_profile_without_a_payload() -> None:
+    """A map without a profile has none."""
+    assert map_doc.decode_profile(MAP_DOCUMENT) is None
+
+
+def test_decode_profile_of_invalid_json() -> None:
+    """A profile that is not valid JSON is ignored."""
+    document = {**MAP_DOCUMENT, "mapProfile": {"value": _encode_7z(b"not json")}}
+
+    assert map_doc.decode_profile(document) is None
+
+
+def test_map_dimensions_of_a_non_dict_section() -> None:
+    """A map section that is not an object has no dimensions."""
+    assert map_doc.map_dimensions({**MAP_DOCUMENT, "majorMap": "oops"}) == (0, 0, 0, 0)
+
+
+def test_trace_pieces_of_a_non_dict_section() -> None:
+    """A trace section that is not an object has no pieces."""
+    assert map_doc.trace_pieces({**MAP_DOCUMENT, "mapTrace": "oops"}) == {}
+
+
+def test_map_pixel_of_a_non_dict_section() -> None:
+    """A map section that is not an object has the default cell size."""
+    assert map_doc.map_pixel({**MAP_DOCUMENT, "majorMap": "oops"}) == 50
+
+
+def test_map_pixel_of_a_non_numeric_value() -> None:
+    """A cell size that is not a number falls back to the default."""
+    assert map_doc.map_pixel({**MAP_DOCUMENT, "majorMap": {**MAP_DOCUMENT["majorMap"], "pixel": "abc"}}) == 50
+    assert map_doc.map_pixel({**MAP_DOCUMENT, "majorMap": {**MAP_DOCUMENT["majorMap"], "pixel": True}}) == 50
+
+
+# ******************************************************************************
+
+
+def test_normalise_map_document_without_a_wrapper() -> None:
+    """An upload that is already the map document is passed through."""
+    assert map_doc.normalise_map_document(MAP_DOCUMENT) is MAP_DOCUMENT
+
+
+def test_normalise_map_document_with_an_empty_wrapper() -> None:
+    """A wrapper without a payload is passed through."""
+    payload = {**MAP_DOCUMENT, "mapInfo": {}}
+
+    assert map_doc.normalise_map_document(payload) is payload
+
+
+def test_normalise_map_document_with_an_undecodable_wrapper() -> None:
+    """A wrapper whose payload does not decode is passed through."""
+    broken = base64.b64encode(b"this is not lzma").decode()
+    payload = {**MAP_DOCUMENT, "mapInfo": {"value": broken}}
+
+    assert map_doc.normalise_map_document(payload) is payload
+
+
+def test_normalise_map_document_of_a_non_dict_document() -> None:
+    """A wrapper whose payload is not an object is passed through."""
+    payload = {**MAP_DOCUMENT, "mapInfo": {"value": _encode_7z(json.dumps([1, 2]).encode())}}
+
+    assert map_doc.normalise_map_document(payload) is payload
+
+
+def test_normalise_map_document_without_a_trace_next_to_the_map() -> None:
+    """A wrapper with no trace beside it keeps the map document as it came."""
+    document = {**MAP_DOCUMENT, "mapTrace": {**MAP_DOCUMENT["mapTrace"], "traceValue": ""}}
+    payload = {"mapInfo": {"value": _encode_7z(json.dumps(document).encode())}}
+
+    normalised = map_doc.normalise_map_document(payload)
+
+    assert normalised["mid"] == MAP_DOCUMENT["mid"]
