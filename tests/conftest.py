@@ -6,6 +6,7 @@ MQTT, XMPP, and web server components used in bumper tests.
 
 import asyncio
 from collections.abc import AsyncIterator, Awaitable, Callable, Generator
+import contextlib
 import logging
 from pathlib import Path
 import ssl
@@ -124,8 +125,13 @@ async def mqtt_server(test_files: dict[str, Path]) -> AsyncIterator[MQTTServer]:
     # The helper bot is a client of the server, it has to let go of the
     # connection first, or the server waits for it while it stops.
     if bumper_isc.mqtt_helperbot is not None:
-        await bumper_isc.mqtt_helperbot.disconnect()
-    await bumper_isc.mqtt_server.shutdown()
+        with contextlib.suppress(Exception):
+            await asyncio.wait_for(bumper_isc.mqtt_helperbot.disconnect(), timeout=5.0)
+    if bumper_isc.mqtt_server is not None:
+        with contextlib.suppress(Exception):
+            await asyncio.wait_for(bumper_isc.mqtt_server.shutdown(), timeout=5.0)
+    # Give the OS time to release port 8883 before the next test starts.
+    await asyncio.sleep(0.5)
 
 
 @pytest.fixture
@@ -154,7 +160,7 @@ async def _start_mqtt_server(password_file: str, allow_anonymous: bool = False) 
             break
         except Exception as exc:
             last_error = exc
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(1.0)
     if last_error is not None:
         raise last_error
 
@@ -204,7 +210,8 @@ async def helper_bot(mqtt_server: MQTTServer) -> AsyncIterator[MQTTHelperBot]:
         raise RuntimeError(msg)
 
     yield bumper_isc.mqtt_helperbot
-    await bumper_isc.mqtt_helperbot.disconnect()
+    with contextlib.suppress(Exception):
+        await asyncio.wait_for(bumper_isc.mqtt_helperbot.disconnect(), timeout=5.0)
 
 
 @pytest.fixture
@@ -242,3 +249,9 @@ async def webserver_client(
     client = await aiohttp_client(bumper_isc.web_server._app)
     yield client
     await client.close()
+    # Shut down the web server so it releases any connections to the
+    # MQTT broker before the mqtt_server fixture tears down.
+    if bumper_isc.web_server is not None:
+        with contextlib.suppress(Exception):
+            await bumper_isc.web_server.shutdown()
+        bumper_isc.web_server = None
