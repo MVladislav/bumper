@@ -16,8 +16,6 @@ from bumper.utils.settings import config as bumper_isc
 
 _LOGGER = logging.getLogger(__name__)
 
-# ******************************************************************************
-
 
 def store_service(coro: Coroutine[Any, Any, None]) -> None:
     """Create and store a new asyncio task."""
@@ -43,9 +41,6 @@ async def check_file_exists(file: Path) -> bool:
         return False
 
 
-# ******************************************************************************
-
-
 def default_log_warn_not_impl(func: str) -> None:
     """Get default log warn for not implemented."""
     _LOGGER.debug(f"!!! POSSIBLE THIS API IS NOT (FULL) IMPLEMENTED :: {func} !!!")
@@ -60,9 +55,6 @@ def default_exception_str_builder(e: Exception | None = None, info: str | None =
     if info is not None:
         i_info = f" :: {info}"
     return f"Unexpected exception occurred{i_info}{i_error}"
-
-
-# ******************************************************************************
 
 
 def convert_to_millis(seconds: float) -> int:
@@ -115,11 +107,6 @@ def get_tzm_and_ts() -> tuple[int, int]:
     return offset_minutes, timestamp_s
 
 
-def str_to_bool(value: str | int | bool | None) -> bool:
-    """Convert str to bool."""
-    return str(value).lower() in ["true", "1", "t", "y", "on", "yes"]
-
-
 @overload
 def to_int(value: Any) -> int | None: ...
 
@@ -138,22 +125,16 @@ def to_int(value: Any, default: int | None = None) -> int | None:
         return default
 
 
-# ******************************************************************************
-
-
 def get_resolver_with_public_nameserver() -> AsyncResolver:
     """Get resolver."""
     # requires aiodns
-    return AsyncResolver(nameservers=bumper_isc.PROXY_NAMESERVER)
+    return AsyncResolver(nameservers=bumper_isc.PROXY_NAMESERVERS)
 
 
 async def resolve(host: str) -> str:
     """Resolve host."""
     hosts = await get_resolver_with_public_nameserver().resolve(host)
     return str(hosts[0]["host"])
-
-
-# ******************************************************************************
 
 
 def is_valid_url(url: str | None) -> bool:
@@ -164,9 +145,6 @@ def is_valid_url(url: str | None) -> bool:
 def is_valid_ip(ip: str | None) -> bool:
     """Validate if is ipv4 or ipv6."""
     return bool(validators.ipv4(ip) or validators.ipv6(ip))
-
-
-# ******************************************************************************
 
 
 def get_dc_code(area_code: str) -> str:

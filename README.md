@@ -8,7 +8,7 @@
 [![Release Docker](https://github.com/MVladislav/bumper/actions/workflows/docker-release.yml/badge.svg)](https://github.com/MVladislav/bumper/actions/workflows/docker-release.yml)
 [![Release Drafter](https://github.com/MVladislav/bumper/actions/workflows/release-drafter.yml/badge.svg)](https://github.com/MVladislav/bumper/actions/workflows/release-drafter.yml)
 
-> **Bumper** is a self-hosted central server for Ecovacs vacuum robots.
+> **Bumper** is a self-hosted central server for Ecovacs robots, including DEEBOT vacuums and GOAT mowers.
 > It replaces the Ecovacs cloud, giving you full local control through a privacy-first,
 > high-performance stack: Python + uv, Docker Swarm, and NGINX.
 
@@ -18,7 +18,7 @@
 
 - **Self-Hosted**: Operate without Ecovacs cloud servers.
 - **Privacy-First**: All data stays within your network.
-- **High Performance**: Built on Python 3.13.x with [uv](https://pypi.org/project/uv/) for efficient async I/O.
+- **High Performance**: Built on Python 3.13+ with [uv](https://pypi.org/project/uv/) for efficient async I/O.
 - **Docker Swarm & Compose**: One-command startup with turnkey NGINX configuration.
 - **Modular**: Easily extend protocols and add integrations.
 
@@ -30,84 +30,53 @@
 
 ### 🔧 Prerequisites
 
-Prepare TLS certificates and minimal environment variables before any deployment:
-
 **TLS certificates**:
 
-Bumper automatically generates certificates on first startup. Alternatively, place your own certs in `certs/ca.crt`, `certs/bumper.crt`, `certs/bumper.key`.
+[Certificates](https://mvladislav.github.io/bumper/getting_started/certificates/).
 
 **Environment variables**:
 
 Create a `.env` file with at least the following:
 
 ```env
-NETWORK_MODE=overlay        # by default "bridge"
+# 'overlay' for Docker Swarm, 'bridge' for plain Docker Compose
+NETWORK_MODE=overlay
 
-# Needs to be set when running with Docker; default is auto-detected from socket
-BUMPER_ANNOUNCE_IP=192.168.0.100  # your server's public/local IP
+# required by the Compose file
+BUMPER_ANNOUNCE_IP=192.168.0.100  # your server's local IP
 ```
 
-Full configuration options are available in the [Wiki](https://MVladislav.github.io/bumper/infos/Env_Var/).
+Full configuration options are available in the
+[Environment Variables](https://mvladislav.github.io/bumper/configuration/environment/).
 
 ### ✨ Docker Swarm Deployment
 
-**Step 1 – Clone the repository**
+**Step 1 - Clone the repository**
 
 ```sh
-$git clone https://github.com/MVladislav/bumper.git
-$cd bumper
+git clone https://github.com/MVladislav/bumper.git
+cd bumper
 ```
 
-**Step 2 – Initiate Docker in Swarm mode**
+**Step 2 - Initiate Docker in Swarm mode**
 
 ```sh
-$docker swarm init
+docker swarm init
 ```
 
-**Step 3 – Start services**
-
-> alias for [docker-swarm](https://github.com/MVladislav/.dotfiles/blob/0b069b6a8435a43037789d8b5c4e1c0c65c6a142/zsh/profile-append#L146)
+**Step 3 - Start services**
 
 ```sh
-$docker-swarm-compose deebot      # alias for Docker Swarm Compose
-# or
-$docker compose up -d             # standard Docker Compose
+# Docker Swarm: pulls ghcr.io/mvladislav/bumper (tag from VERSION_BUMPER, default "latest")
+docker-swarm-compose deebot
+
+# or plain Docker Compose: builds the image from this checkout
+docker compose up -d
 ```
 
-**Step 4 – Open the UI**
+**Step 4 - Open the UI**
 
 Visit `https://ecovacs.net/` in your browser.
-
----
-
-## 🛠️ Running Locally (without Docker)
-
-**Step 1 – Clone the repo**
-
-```sh
-$git clone https://github.com/MVladislav/bumper.git
-$cd bumper
-```
-
-**Step 2 – Prepare environment**
-
-```sh
-$python3 -m venv .venv
-$source .venv/bin/activate
-$python3 -m pip install uv
-```
-
-**Step 3 – Install dependencies**
-
-```sh
-$uv sync --no-dev
-```
-
-**Step 4 – Start Bumper**
-
-```sh
-$uv run bumper
-```
 
 ---
 
@@ -115,10 +84,12 @@ $uv run bumper
 
 In-depth guides and architecture details are available in the `docs/` folder or online:
 
-- **Online**: [Wiki](https://MVladislav.github.io/bumper/)
-- **How It Works**: `docs/infos/How_It_Works.md`
-- **Docker Usage**: `docs/configs/Docker.md`
-- **Integrate with Your App**: `docs/configs/Use_With_App.md`
+- **Online**: [Documentation](https://mvladislav.github.io/bumper/)
+- **Getting started**: [DNS Setup](https://mvladislav.github.io/bumper/getting_started/dns/) and [Certificates](https://mvladislav.github.io/bumper/getting_started/certificates/)
+- **Docker Usage**: [Docker](https://mvladislav.github.io/bumper/usage/docker/)
+- **Mobile App**: [Mobile App Integration](https://mvladislav.github.io/bumper/usage/mobile_app/)
+- **Environment Variables**: [Configuration](https://mvladislav.github.io/bumper/configuration/environment/)
+- **How It Works**: [Architecture](https://mvladislav.github.io/bumper/internals/architecture/)
 
 ---
 
@@ -126,35 +97,14 @@ In-depth guides and architecture details are available in the `docs/` folder or 
 
 ### 🤖 Supported Robots
 
-> Note: There are several EcoVacs models that have not been tested yet.
->
-> However, it has only been reported to work on the following models:
-
-| Model              | Protocol | Version            | App Tested                                                                                                         |
-| :----------------- | :------- | :----------------- | :----------------------------------------------------------------------------------------------------------------- |
-| Deebot 900/901     | MQTT     |                    | Ecovacs / Ecovacs Home                                                                                             |
-| Deebot 600         | MQTT     |                    | Ecovacs Home                                                                                                       |
-| Deebot Ozmo 950    | MQTT     |                    | Ecovacs Home                                                                                                       |
-| Deebot T10 Plus    | MQTT     | `1.7.2`            | Ecovacs Home                                                                                                       |
-| Deebot T10 Plus    | MQTT     | `1.7.5`            | See [Defeating Certificate Pinning (BOT)](https://mvladislav.github.io/bumper/internals/certificate-unpinning-bot) |
-| Deebot T80 Omni    | MQTT     | `1.15.0`/`1.36.0`  | See [Discussion #90](https://github.com/MVladislav/bumper/discussions/90)                                          |
-| Deebot X1 Omni     | MQTT     | `1.15.7`/`2.3.9`   | See [Discussion #51](https://github.com/MVladislav/bumper/discussions/51)                                          |
-| Deebot X2 Pro Omni | MQTT     | `1.76.6`/`1.81.10` | See [Discussion #56](https://github.com/MVladislav/bumper/discussions/56)                                          |
-| Deebot X9 Pro Omni | MQTT     | `1.17.0`/`1.42.2`  | See [Discussion #97](https://github.com/MVladislav/bumper/discussions/97)                                          |
-| Deebot Ozmo 601    | XMPP     |                    | Ecovacs                                                                                                            |
-| Deebot Ozmo 930    | XMPP     |                    | Ecovacs / Ecovacs Home                                                                                             |
-| Deebot M81 Pro     | XMPP     |                    | Ecovacs                                                                                                            |
+See [Model Compatibility](https://mvladislav.github.io/bumper/reference/models/) for reported working models, known limitations, and cases that still need verification.
 
 ### 📱 Supported Apps
 
-| Service                        | Version    | Works | Notes                                                                                                          |
-| :----------------------------- | :--------- | :---- | :------------------------------------------------------------------------------------------------------------- |
-| Ecovacs Home                   | `2.2.1`    | ✅    |                                                                                                                |
-| Ecovacs Home                   | `2.4.1`    | ✅    | Works best                                                                                                     |
-| Ecovacs Home                   | `2.4.3`    | ✅    |                                                                                                                |
-| Ecovacs Home                   | >= `2.4.4` | 🛠️    | [Defeating Certificate Pinning (APP)](https://mvladislav.github.io/bumper/internals/certificate-unpinning-app) |
-| Deebot 4 Home Assistant        | `2.1.2`    | ✅    |                                                                                                                |
-| EcovacsBumper (HA integration) | `1.5.3`    | ✅    |                                                                                                                |
+The official Ecovacs app works with Bumper once it is patched, and the patch is not
+tied to an app version anymore - there is no version table to keep. See
+[Mobile App Integration](https://mvladislav.github.io/bumper/usage/mobile_app/) and
+[Certificate Pinning Bypass (APP)](https://mvladislav.github.io/bumper/internals/certificate-unpinning-app/).
 
 ---
 
@@ -175,23 +125,31 @@ Contributions are welcome! To get started:
 1. Fork the repo and create a feature branch.
 2. Run tests and linters:
    ```sh
-   $uv run pytest
-   $uv run mypy
+   uv run --active pytest tests
+   uv run --active --frozen ruff check bumper/
+   uv run --active --frozen ruff format --check bumper/
+   uv run --active --frozen mypy bumper/
+   uv run --active --frozen pylint bumper/
    ```
 3. Submit a pull request against `main`.
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines.
+See the [Development Guide](https://mvladislav.github.io/bumper/development/dev-guide/) for the full setup.
 
 ---
 
 ## 🧪 Testing Needed
 
-Bumper relies on community testing for broader device coverage. If you test Bumper with your robot, please open an issue with:
+Bumper relies on community testing for broader device coverage. If you test Bumper
+with your robot, please open a [discussion](https://github.com/MVladislav/bumper/discussions) with:
 
-- Robot model and firmware
-- App version
-- Protocol used (MQTT/XMPP)
-- Success or failure details
+- `classid` and `model` (from the app, or match the name in `bumper/web/static_api/productIotMap.json`)
+- Firmware version
+- Protocol used (MQTT / XMPP / NGIoT)
+- Whether the app works, or only a client such as `deebot-client`
+- Success or failure details, with `DEBUG_BUMPER_LEVEL=DEBUG` logs
+
+The confirmed models are tracked on the
+[Model Compatibility](https://mvladislav.github.io/bumper/reference/models/) page.
 
 ---
 

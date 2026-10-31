@@ -12,6 +12,7 @@ import pytest
 from testfixtures import LogCapture
 
 import bumper
+import bumper.__main__
 from bumper.utils.settings import config as bumper_isc
 
 
@@ -97,6 +98,7 @@ async def test_start_missing_listen() -> None:
 
 @mock.patch("bumper.start")
 @mock.patch("bumper.shutdown")
+@pytest.mark.filterwarnings("ignore::RuntimeWarning")
 def test_main_entrypoint(mock_shutdown: mock.MagicMock, mock_start: mock.MagicMock) -> None:
     """Running bumper via __main__ entry point triggers shutdown but not start."""
     with LogCapture():

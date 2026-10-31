@@ -22,32 +22,31 @@ Bumper recreates Ecovacs’s central cloud services locally, so your robots and 
 
 ## 🔒 App / Authentication
 
-The official Ecovacs cloud authenticates users and binds robots to accounts, enabling control via the app. Bumper implements this flow locally:
+Bumper recreates the account and token plumbing the app expects, but it does not verify Ecovacs request signatures. The app logs in with an account name, receives an opaque access token, exchanges an IoT token for an auth code, and then receives OAuth tokens. The same auth code links the account to the XMPP or MQTT transport.
 
-1. **Discovery Endpoint**
-    - Robot issues HTTPS GET to `lbo.ecovacs.net:8007` for service addresses.
-    - App uses the same endpoint for initial configuration.
-2. **Login API**
-    - App encrypts credentials with Ecovacs’s public key and POSTs to `/api/login`.
-    - Bumper accepts payloads and returns a session token (JWT).
-3. **Session Management**
-    - The token is sent in cookies or headers on subsequent REST calls.
-    - Robots have no built‑in auth: once on Wi‑Fi, they connect using the stored announce IP without re‑authenticating.
+The account key is separate from the TLS key. The private half stays in the data directory, so Bumper can read the fields the app encrypts and no other server can.
 
-> **Note:** True E2E encryption isn’t possible without Ecovacs’s private key. Bumper fakes this step to maintain compatibility.
+One account has three public ids: `A` for the account, `U` for the unified
+identity, and `I` for the IoT session. Each app installation has a client id
+and resource (`K`/`R`), with its own token row. A `BumperUser` owns its app
+devices, while every local account receives the shared robot inventory; legacy
+ids are aliases on that same record. This keeps parallel app clients separate
+without creating duplicate accounts.
+
+See [Authentication](authentication.md) for the full flow, the trust model, and the known gaps.
 
 ---
 
 ## 🔒 Login / Authentication / REST API
 
-Bumper’s Web Server module simulates the Ecovacs cloud’s REST API for login and command routing:
+Bumper’s Web Server module simulates the Ecovacs REST API for login and command routing:
 
 - **Discovery**: Robots and the mobile app retrieve service endpoints (XMPP broker or MQTT server addresses) via HTTPS requests to the discovery URL exposed on ports 443/8007.
-- **Authentication**: The app submits encrypted credentials; Bumper accepts the payload and establishes a session internally, returning a token or cookie to authorize subsequent calls.
-- **Command Routing**: When the app issues a command (e.g., start cleaning), it makes a REST call against Bumper’s web service. The request is enqueued and handed off to the MQTT helper or forwarded to the XMPP server, depending on the robot’s protocol.
+- **Authentication**: The app submits account data; a normal login creates or finds the local account and returns an access token, while a session check resolves the existing account by the app device. Later calls name the account with that token or with a user id. The HTTP layer does not verify request signatures.
+- **Command Routing**: When the app issues a command (for example, start cleaning), it makes a REST call against Bumper’s web service. The request is enqueued and handed off to the MQTT helper or forwarded to the XMPP server, depending on the robot’s protocol.
 - **Status Queries**: The app can poll for the robot’s latest state via REST endpoints, which query the latest telemetry stored by Bumper.
 
-These paths mirror the patterns used by the official servers, ensuring the app functions unmodified.
+These paths mirror the patterns the app expects, so the app works unmodified.
 
 ## 🔗 XMPP Protocol
 
@@ -83,14 +82,14 @@ _Example Models: Deebot 600, 900, 901, Ozmo 950_
     - Helper Bot publishes the command to `p2p/<device_id>`.
 4. **Response Handling**
     - Robot executes the command and publishes results back to `p2p/<device_id>` or `rsp/<device_id>`.
-    - Helper Bot captures responses and makes them available via REST for the app.
+    - Helper Bot stores responses and makes them available via REST for the app.
 
 ---
 
 ## ⚙️ Helper Bot
 
 - An internal MQTT client that bridges REST API calls to MQTT topics.
-- Authenticates with the same JWT and listens on command topics.
+- Connects with a fixed client id that the broker accepts before any other check.
 - Correlates request/response pairs by message ID for REST replies.
 
 ---

@@ -1,14 +1,32 @@
 import base64
+from collections.abc import Iterator
 import gzip
 import io
 import json
 from pathlib import Path
 import tarfile
+from urllib.parse import quote
 
-from aiohttp.test_utils import TestClient
+from aiohttp.test_utils import TestClient, make_mocked_request
+from aiohttp.web_exceptions import HTTPInternalServerError
 import pytest
 
 from bumper.utils.settings import config as bumper_isc
+from bumper.web import single_paths
+from bumper.web.envelope import ApiError
+from bumper.web.single_paths import (
+    _build_ca_archive,
+    _get_ca_cert,
+    _parse_upload_meta,
+)
+
+
+@pytest.fixture(autouse=True)
+def _clear_ca_archive_cache() -> Iterator[None]:
+    """Keep the cached archive from hiding a certificate change in a test."""
+    _build_ca_archive.cache_clear()
+    yield
+    _build_ca_archive.cache_clear()
 
 
 async def test_ca_certificates_missing_self_signed(
@@ -26,32 +44,39 @@ async def test_ca_certificates_missing_self_signed(
 
 
 @pytest.mark.parametrize("only_self_signed", [True, False])
-async def test_ca_certificates_content(tmp_path: Path, webserver_client: TestClient, only_self_signed: bool) -> None:
+async def test_ca_certificates_content(
+    tmp_path: Path,
+    webserver_client: TestClient,
+    only_self_signed: bool,
+) -> None:
+    original_ca_cert = bumper_isc.ca_cert
+    original_only_self_signed = bumper_isc.CA_CERT_API_ONLY_BUMPER_CERT
+    ca_cert = tmp_path / "ca.crt"
+    ca_cert.write_bytes(original_ca_cert.read_bytes() + b"# SELF_CERT\n")
+    bumper_isc.ca_cert = ca_cert
     bumper_isc.CA_CERT_API_ONLY_BUMPER_CERT = only_self_signed
-    bumper_isc.ca_archive_file = tmp_path / f"ca-certificates{only_self_signed!s}.tar.gz"
 
-    # Extend cert with fake info
-    with bumper_isc.ca_cert.open("a") as f:
-        f.write("# SELF_CERT\n")
+    try:
+        resp = await webserver_client.get("/ca-certificates.tar.gz")
+        assert resp.status == 200
+        data = await resp.read()
 
-    resp = await webserver_client.get("/ca-certificates.tar.gz")
-    assert resp.status == 200
-    data = await resp.read()
+        with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as tar:
+            names = tar.getnames()
+            assert "ca-certificates/ca-certificates.crt" in names
+            assert "ca-certificates/MD5SUMS" in names
 
-    # Validate cert content
-    with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as tar:
-        names = tar.getnames()
-        assert "ca-certificates/ca-certificates.crt" in names
-        assert "ca-certificates/MD5SUMS" in names
+            crt = tar.extractfile("ca-certificates/ca-certificates.crt").read().decode()
+            assert "SELF_CERT" in crt
 
-        crt = tar.extractfile("ca-certificates/ca-certificates.crt").read().decode()
-        assert "SELF_CERT" in crt
-
-        crt_count = crt.count("BEGIN CERTIFICATE")
-        if only_self_signed:
-            assert crt_count == 1, f"Expected exactly one certificate when CA_CERT_API_ONLY_BUMPER_CERT=True, got {crt_count}"
-        else:
-            assert crt_count >= 2, f"Expected multiple certificates when CA_CERT_API_ONLY_BUMPER_CERT=False, got {crt_count}"
+            crt_count = crt.count("BEGIN CERTIFICATE")
+            if only_self_signed:
+                assert crt_count == 1, f"Expected exactly one certificate when CA_CERT_API_ONLY_BUMPER_CERT=True, got {crt_count}"
+            else:
+                assert crt_count >= 2, f"Expected multiple certificates when CA_CERT_API_ONLY_BUMPER_CERT=False, got {crt_count}"
+    finally:
+        bumper_isc.ca_cert = original_ca_cert
+        bumper_isc.CA_CERT_API_ONLY_BUMPER_CERT = original_only_self_signed
 
 
 async def test_newauth_unknown_todo(webserver_client: TestClient) -> None:
@@ -148,7 +173,7 @@ async def test_codepush_update_check_default(webserver_client: TestClient) -> No
 
 async def test_codepush_update_check_with_key(webserver_client: TestClient) -> None:
     async with webserver_client.get(
-        "/v0.1/public/codepush/update_check?deployment_key=RSYAx668chaf0tpKvf1kJNaVJmDzi4g83wsg78",  # gitleaks:allow
+        "/v0.1/public/codepush/update_check?deployment_key=RSYAx668chaf0tpKvf1kJNaVJmDzi4g83wsg78",
     ) as resp:
         assert resp.status == 200
         data = await resp.json()
@@ -174,3 +199,189 @@ async def test_content_agreement(webserver_client: TestClient) -> None:
         assert resp.status == 200
         text = await resp.text()
         assert "Welcome to Bumper" in text
+
+
+async def test_ca_certificates_appends_newline(
+    tmp_path: Path,
+    webserver_client: TestClient,
+) -> None:
+    original_ca_cert = bumper_isc.ca_cert
+    original_only_self_signed = bumper_isc.CA_CERT_API_ONLY_BUMPER_CERT
+    ca_cert = tmp_path / "ca.crt"
+    ca_cert.write_bytes(original_ca_cert.read_bytes().rstrip(b"\n") + b"# SELF_CERT")
+    bumper_isc.ca_cert = ca_cert
+    bumper_isc.CA_CERT_API_ONLY_BUMPER_CERT = False
+
+    try:
+        resp = await webserver_client.get("/ca-certificates.tar.gz")
+        assert resp.status == 200
+    finally:
+        bumper_isc.ca_cert = original_ca_cert
+        bumper_isc.CA_CERT_API_ONLY_BUMPER_CERT = original_only_self_signed
+
+
+async def test_ca_certificates_api_error(monkeypatch: pytest.MonkeyPatch) -> None:
+
+    def boom() -> bytes:
+        raise ApiError(msg="boom", code="x")
+
+    monkeypatch.setattr(single_paths, "_build_ca_archive", boom)
+    request = make_mocked_request("GET", "/")
+    with pytest.raises(ApiError):
+        await single_paths.handle_ca_certificates(request)  # type: ignore[arg-type]
+
+
+async def test_ca_certificates_generic_error(monkeypatch: pytest.MonkeyPatch) -> None:
+
+    def boom() -> bytes:
+        msg = "boom"
+        raise ValueError(msg)
+
+    monkeypatch.setattr(single_paths, "_build_ca_archive", boom)
+    request = make_mocked_request("GET", "/")
+    with pytest.raises(HTTPInternalServerError):
+        await single_paths.handle_ca_certificates(request)  # type: ignore[arg-type]
+
+
+def test_get_ca_cert_os_error(tmp_path: Path) -> None:
+
+    directory = tmp_path / "dir"
+    directory.mkdir()
+    with pytest.raises(HTTPInternalServerError):
+        _get_ca_cert(directory)
+
+
+async def test_newauth_invalid_json(webserver_client: TestClient) -> None:
+    async with webserver_client.post(
+        "/newauth.do",
+        data="{bad",
+        headers={"Content-Type": "application/json"},
+    ) as resp:
+        assert resp.status == 500
+
+
+async def test_lookup_unknown_service(webserver_client: TestClient) -> None:
+    async with webserver_client.post(
+        "/lookup.do",
+        json={"todo": "FindBest", "service": "Nope"},
+    ) as resp:
+        assert resp.status == 200
+        data = await resp.json()
+        assert data == {}
+
+
+async def test_lookup_unknown_todo(webserver_client: TestClient) -> None:
+    async with webserver_client.post("/lookup.do", json={"todo": "Nope"}) as resp:
+        assert resp.status == 200
+        data = await resp.json()
+        assert data == {}
+
+
+async def test_lookup_invalid_json(webserver_client: TestClient) -> None:
+    async with webserver_client.post(
+        "/lookup.do",
+        data="{bad",
+        headers={"Content-Type": "application/json"},
+    ) as resp:
+        assert resp.status == 500
+
+
+async def test_lookup_api_error(monkeypatch: pytest.MonkeyPatch) -> None:
+
+    async def boom(_request: object) -> object:
+        raise ApiError(msg="boom", code="x")
+
+    monkeypatch.setattr(single_paths, "read_body", boom)
+    request = make_mocked_request("POST", "/")
+    with pytest.raises(ApiError):
+        await single_paths.handle_lookup(request)  # type: ignore[arg-type]
+
+
+async def test_config_android_conf_api_error(monkeypatch: pytest.MonkeyPatch) -> None:
+
+    def raise_api_error(*_args: object, **_kwargs: object) -> object:
+        raise ApiError(msg="boom", code="x")
+
+    monkeypatch.setattr("bumper.web.single_paths.web.json_response", raise_api_error)
+    request = make_mocked_request("GET", "/")
+    with pytest.raises(ApiError):
+        await single_paths.handle_config_android_conf(request)  # type: ignore[arg-type]
+
+
+async def test_config_android_conf_generic(monkeypatch: pytest.MonkeyPatch) -> None:
+
+    def raise_value_error(*_args: object, **_kwargs: object) -> object:
+        msg = "boom"
+        raise ValueError(msg)
+
+    monkeypatch.setattr("bumper.web.single_paths.web.json_response", raise_value_error)
+    request = make_mocked_request("GET", "/")
+    with pytest.raises(HTTPInternalServerError):
+        await single_paths.handle_config_android_conf(request)  # type: ignore[arg-type]
+
+
+def test_parse_upload_meta_empty() -> None:
+
+    assert _parse_upload_meta("") == {}
+
+
+def test_parse_upload_meta_invalid() -> None:
+
+    assert _parse_upload_meta("%7Bbad") == {}
+
+
+def test_parse_upload_meta_non_mapping() -> None:
+
+    assert _parse_upload_meta(quote(json.dumps([1, 2]))) == {}
+
+
+def test_parse_upload_meta_valid() -> None:
+
+    assert _parse_upload_meta(quote(json.dumps({"bindEvt": "findPet"}))) == {"bindEvt": "findPet"}
+
+
+async def test_sa_debug_true_no_gzip(webserver_client: TestClient) -> None:
+    bumper_isc.DEBUG_LOGGING_SA_RESULT = True
+    try:
+        async with webserver_client.post(
+            "/sa",
+            json={"gzip": "0", "data_list": "abc"},
+        ) as resp:
+            assert resp.status == 200
+    finally:
+        bumper_isc.DEBUG_LOGGING_SA_RESULT = False
+
+
+async def test_sa_invalid_json_debug(webserver_client: TestClient) -> None:
+    bumper_isc.DEBUG_LOGGING_SA_RESULT = True
+    try:
+        async with webserver_client.post(
+            "/sa",
+            data="{bad",
+            headers={"Content-Type": "application/json"},
+        ) as resp:
+            assert resp.status == 500
+    finally:
+        bumper_isc.DEBUG_LOGGING_SA_RESULT = False
+
+
+async def test_sa_api_error(monkeypatch: pytest.MonkeyPatch) -> None:
+
+    async def boom(_request: object) -> object:
+        raise ApiError(msg="boom", code="x")
+
+    monkeypatch.setattr(single_paths, "read_body", boom)
+    bumper_isc.DEBUG_LOGGING_SA_RESULT = True
+    try:
+        request = make_mocked_request("POST", "/")
+        with pytest.raises(ApiError):
+            await single_paths.handle_sa(request)  # type: ignore[arg-type]
+    finally:
+        bumper_isc.DEBUG_LOGGING_SA_RESULT = False
+
+
+async def test_global_app_bury_point_appevent(webserver_client: TestClient) -> None:
+    async with webserver_client.post("/Global_APP_BuryPoint/api/appevent") as resp:
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["header"]["result_code"] == "000000"

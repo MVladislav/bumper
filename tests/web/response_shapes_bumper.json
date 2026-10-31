@@ -1,0 +1,484 @@
+{
+  "/api/appsvr/app.do#GetCodepush": {
+    "POST": [
+      {
+        "code": "int",
+        "data": "dict",
+        "ret": "str",
+        "todo": "str"
+      }
+    ]
+  },
+  "/api/appsvr/app.do#GetGlobalDeviceList": {
+    "POST": [
+      {
+        "code": "int",
+        "devices": "list",
+        "ret": "str",
+        "todo": "str"
+      }
+    ]
+  },
+  "/api/appsvr/app.do#RobotControl": {
+    "POST": [
+      {
+        "code": "int",
+        "data": "dict",
+        "ret": "str",
+        "todo": "str"
+      }
+    ]
+  },
+  "/api/appsvr/app/config": {
+    "GET": [
+      {
+        "code": "int",
+        "data": "list",
+        "message": "str",
+        "ret": "str"
+      }
+    ]
+  },
+  "/api/appsvr/codepush/checkupdate": {
+    "GET": [
+      {
+        "code": "int",
+        "data": "dict",
+        "message": "str",
+        "ret": "str"
+      }
+    ]
+  },
+  "/api/appsvr/improve": {
+    "GET": [
+      {
+        "code": "int",
+        "data": "dict"
+      }
+    ]
+  },
+  "/api/appsvr/improve/user/accept": {
+    "GET": [
+      {
+        "code": "int",
+        "data": "dict"
+      }
+    ]
+  },
+  "/api/appsvr/oauth/token": {
+    "GET": [
+      {
+        "code": "int",
+        "data": "dict",
+        "message": "str",
+        "ret": "str"
+      }
+    ]
+  },
+  "/api/appsvr/ota/firmware": {
+    "POST": [
+      {
+        "code": "int",
+        "message": "str"
+      }
+    ]
+  },
+  "/api/appsvr/service/list": {
+    "GET": [
+      {
+        "code": "int",
+        "data": "dict",
+        "ret": "str",
+        "todo": "str"
+      }
+    ]
+  },
+  "/api/dim/devmanager.do#HasUnreadMsg": {
+    "POST": [
+      {
+        "ret": "str",
+        "unRead": "bool"
+      }
+    ]
+  },
+  "/api/ecms/app/ad/res": {
+    "POST": [
+      {
+        "code": "int",
+        "data": "list",
+        "message": "str",
+        "success": "bool"
+      }
+    ]
+  },
+  "/api/ecms/app/ad/res/v2": {
+    "POST": [
+      {
+        "code": "int",
+        "data": "list",
+        "message": "str",
+        "success": "bool"
+      }
+    ]
+  },
+  "/api/ecms/app/ad/res/v3": {
+    "POST": [
+      {
+        "code": "int",
+        "data": "list",
+        "message": "str",
+        "success": "bool"
+      }
+    ]
+  },
+  "/api/ecms/app/push/event": {
+    "POST": [
+      {
+        "code": "int",
+        "data": "str",
+        "message": "str",
+        "success": "bool"
+      }
+    ]
+  },
+  "/api/ecms/app/resources": {
+    "GET": [
+      {
+        "code": "int",
+        "data": "list",
+        "message": "str",
+        "success": "bool"
+      }
+    ]
+  },
+  "/api/ecms/app/user/theme": {
+    "GET": [
+      {
+        "code": "int",
+        "message": "str",
+        "success": "bool"
+      }
+    ]
+  },
+  "/api/homed/home/list": {
+    "GET": [
+      {
+        "code": "int",
+        "data": "list",
+        "message": "str",
+        "ret": "str"
+      }
+    ]
+  },
+  "/api/homed/v2/matter/paa": {
+    "GET": [
+      {
+        "code": "int",
+        "data": "dict",
+        "message": "str",
+        "success": "bool"
+      }
+    ]
+  },
+  "/api/iot/devmanager.do#q": {
+    "POST": [
+      {
+        "id": "str",
+        "payloadType": "str",
+        "resp": "dict",
+        "ret": "str"
+      }
+    ]
+  },
+  "/api/iot/endpoint/control": {
+    "POST": [
+      {
+        "body": "dict",
+        "header": "dict"
+      }
+    ]
+  },
+  "/api/microservice-recomend/userReminderResult/": {
+    "POST": [
+      {
+        "code": "int",
+        "message": "str",
+        "success": "bool"
+      }
+    ]
+  },
+  "/api/neng/message/hasUnreadMsg": {
+    "POST": [
+      {
+        "code": "int",
+        "data": "dict"
+      }
+    ]
+  },
+  "/api/new-perm/token/sst/issue": {
+    "POST": [
+      {
+        "code": "int",
+        "data": "dict",
+        "msg": "str"
+      }
+    ]
+  },
+  "/api/notice/app": {
+    "GET": [
+      {
+        "code": "int",
+        "data": "dict"
+      }
+    ]
+  },
+  "/api/ota/products/wukong/class/p95mgv/firmware/latest.json": {
+    "GET": [
+      {
+        "force": "bool",
+        "fw0": "dict",
+        "name": "str",
+        "version": "str"
+      }
+    ]
+  },
+  "/api/pim/consumable/getPurchaseUrl": {
+    "POST": [
+      {
+        "code": "int",
+        "data": "list",
+        "msg": "str",
+        "ret": "str"
+      }
+    ]
+  },
+  "/api/pim/product/getProductIotMap": {
+    "POST": [
+      {
+        "code": "int",
+        "data": "list"
+      }
+    ]
+  },
+  "/api/pim/product/setting": {
+    "GET": [
+      {
+        "code": "int",
+        "data": "dict",
+        "message": "str",
+        "success": "bool"
+      }
+    ]
+  },
+  "/api/pim/v2/voice/getLanuages": {
+    "POST": [
+      {
+        "code": "int",
+        "message": "str",
+        "ret": "str",
+        "voices": "list"
+      }
+    ]
+  },
+  "/api/pim/voice/get": {
+    "POST": [
+      {
+        "code": "int",
+        "message": "str",
+        "ret": "str",
+        "voices": "list"
+      }
+    ]
+  },
+  "/api/pim/voice/getLanuages": {
+    "POST": [
+      {
+        "code": "int",
+        "message": "str",
+        "ret": "str",
+        "voices": "list"
+      }
+    ]
+  },
+  "/api/users/user.do#GetAuthCode": {
+    "POST": [
+      {
+        "code": "str",
+        "result": "str",
+        "todo": "str"
+      }
+    ]
+  },
+  "/v0.1/public/codepush/update_check": {
+    "GET": [
+      {
+        "update_info": "dict"
+      }
+    ]
+  },
+  "/v1/private/<VARS>/common/checkAPPVersion": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v1/private/<VARS>/common/getAreaSupportService": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v1/private/<VARS>/common/getConfig": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "list",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v1/private/<VARS>/common/getCurrentAreaSupportServiceInfo": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v1/private/<VARS>/common/getUserConfig": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v1/private/<VARS>/common/uploadDeviceInfo": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v1/private/<VARS>/help/getProductHelpIndex": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v1/private/<VARS>/osmall/getCountryConfig": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v2/private/<VARS>/common/YIKOBasicSetting": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "NoneType",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v2/private/<VARS>/common/getCurrentAreaSupportServiceInfo": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v2/private/<VARS>/member/getExpByScene": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v2/private/<VARS>/message/hasMoreUnReadMsg": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v2/private/<VARS>/user/checkAgreementBatch": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "list",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v2/private/<VARS>/user/checkLogin": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v3/private/<VARS>/common/getBottomNavigateInfoList": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  }
+}

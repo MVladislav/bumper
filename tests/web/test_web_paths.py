@@ -1,16 +1,15 @@
 from pathlib import Path
 from unittest.mock import patch
 
-from aiohttp.test_utils import TestClient
+from aiohttp import web
+from aiohttp.test_utils import TestClient, make_mocked_request
 import pytest
 
 from bumper.db import bot_repo, clean_log_repo, photo_repo, user_repo
+from bumper.mqtt.server import MQTTServer
+from bumper.utils.settings import config as bumper_isc
 from bumper.web.utils.models import CleanLog
-
-# @pytest.mark.usefixtures("clean_database", "helper_bot")
-# async def test_restart_helperbot(webserver_client: TestClient) -> None:
-#     async with webserver_client.get("/restart_Helperbot") as resp:
-#       assert resp.status == 200
+from bumper.web.web_paths import _handle_remove_entity
 
 
 @pytest.mark.usefixtures("clean_database", "mqtt_server")
@@ -76,11 +75,11 @@ async def test_the_page_holds_every_section(webserver_client: TestClient) -> Non
 @pytest.mark.usefixtures("clean_database")
 async def test_the_clean_logs_can_be_filtered_by_robot(webserver_client: TestClient) -> None:
     """The jobs of one robot can be picked out."""
-    bot_repo.add("sn_1234", "did_1234", "p95mgv", "rljY", "eco-ng")
-    bot_repo.add("sn_5678", "did_5678", "p95mgv", "rljY", "eco-ng")
+    bot_repo.add("sn_1234", "did_1234", "p95mgv", "res1", "eco-ng")
+    bot_repo.add("sn_5678", "did_5678", "p95mgv", "res1", "eco-ng")
     for did in ("did_1234", "did_5678"):
         start = 1699297517
-        clean_log = CleanLog(f"{did}@{start}@sdu9")
+        clean_log = CleanLog(f"{did}@{start}@res9")
         clean_log.did = did
         clean_log.ts = start
         clean_log.type = "auto"
@@ -91,8 +90,8 @@ async def test_the_clean_logs_can_be_filtered_by_robot(webserver_client: TestCli
         body = await resp.text()
 
     # The job of the other robot is gone, the robot itself is still listed.
-    assert "did_5678@1699297517@sdu9" in body
-    assert "did_1234@1699297517@sdu9" not in body
+    assert "did_5678@1699297517@res9" in body
+    assert "did_1234@1699297517@res9" not in body
     # The robot that is picked is the one that is shown.
     assert '<option value="did_5678" selected>' in body
 
@@ -100,11 +99,11 @@ async def test_the_clean_logs_can_be_filtered_by_robot(webserver_client: TestCli
 @pytest.mark.usefixtures("clean_database")
 async def test_the_clean_logs_show_every_robot_without_a_filter(webserver_client: TestClient) -> None:
     """Without a filter every job is shown."""
-    bot_repo.add("sn_1234", "did_1234", "p95mgv", "rljY", "eco-ng")
-    bot_repo.add("sn_5678", "did_5678", "p95mgv", "rljY", "eco-ng")
+    bot_repo.add("sn_1234", "did_1234", "p95mgv", "res1", "eco-ng")
+    bot_repo.add("sn_5678", "did_5678", "p95mgv", "res1", "eco-ng")
     for did in ("did_1234", "did_5678"):
         start = 1699297517
-        clean_log = CleanLog(f"{did}@{start}@sdu9")
+        clean_log = CleanLog(f"{did}@{start}@res9")
         clean_log.did = did
         clean_log.ts = start
         clean_log.type = "auto"
@@ -114,9 +113,47 @@ async def test_the_clean_logs_show_every_robot_without_a_filter(webserver_client
         assert resp.status == 200
         body = await resp.text()
 
-    assert "did_5678@1699297517@sdu9" in body
-    assert "did_1234@1699297517@sdu9" in body
+    assert "did_5678@1699297517@res9" in body
+    assert "did_1234@1699297517@res9" in body
     assert '<option value="" selected>' in body
+
+
+@pytest.mark.usefixtures("clean_database")
+@pytest.mark.parametrize(
+    ("stop_reason", "label"),
+    [
+        (None, "Unknown"),
+        (-2, "Unknown"),
+        (-1, "Cleaning"),
+        (1, "Finished"),
+        (2, "Manually stopped"),
+        (3, "Finished with warnings"),
+        (99, "Unknown (99)"),
+    ],
+)
+async def test_a_clean_log_shows_its_stop_reason(
+    webserver_client: TestClient,
+    stop_reason: int | None,
+    label: str,
+) -> None:
+    """The stop reason is shown as text, with the stored value as its tooltip."""
+    did = "did_1234"
+    start = 1699297517
+    clean_log = CleanLog(f"{did}@{start}@res9")
+    clean_log.did = did
+    clean_log.ts = start
+    clean_log.type = "auto"
+    clean_log.stop_reason = stop_reason
+    clean_log_repo.add_or_update(clean_log)
+
+    async with webserver_client.get("/clean_logs") as resp:
+        assert resp.status == 200
+        body = await resp.text()
+
+    if stop_reason is None:
+        assert f">{label}<" in body
+    else:
+        assert f'<td title="{stop_reason}">{label}</td>' in body
 
 
 @pytest.mark.usefixtures("clean_database")
@@ -124,7 +161,7 @@ async def test_a_clean_log_shows_its_map(webserver_client: TestClient) -> None:
     """The map of a job is behind the menu of the job."""
     did = "did_1234"
     start = 1699297517
-    clean_log = CleanLog(f"{did}@{start}@sdu9")
+    clean_log = CleanLog(f"{did}@{start}@res9")
     clean_log.did = did
     clean_log.ts = start
     clean_log.type = "auto"
@@ -158,7 +195,7 @@ async def test_a_clean_log_without_a_map_has_no_map(webserver_client: TestClient
     """A job without a map has nothing to show."""
     did = "did_1234"
     start = 1699297517
-    clean_log = CleanLog(f"{did}@{start}@sdu9")
+    clean_log = CleanLog(f"{did}@{start}@res9")
     clean_log.did = did
     clean_log.ts = start
     clean_log.type = "auto"
@@ -176,7 +213,7 @@ async def test_a_map_of_another_job_is_not_shown(webserver_client: TestClient) -
     """The map of a job is the map that was uploaded after the job started."""
     did = "did_1234"
     start = 1699297517
-    clean_log = CleanLog(f"{did}@{start}@sdu9")
+    clean_log = CleanLog(f"{did}@{start}@res9")
     clean_log.did = did
     clean_log.ts = start
     clean_log.type = "auto"
@@ -205,7 +242,7 @@ async def test_a_map_of_another_job_is_not_shown(webserver_client: TestClient) -
 @pytest.mark.usefixtures("clean_database")
 async def test_the_actions_of_a_row_are_a_menu(webserver_client: TestClient) -> None:
     """The actions of a row hide behind a small menu."""
-    bot_repo.add("sn_1234", "did_1234", "p95mgv", "rljY", "eco-ng")
+    bot_repo.add("sn_1234", "did_1234", "p95mgv", "res1", "eco-ng")
     bot_repo.set_nick("did_1234", "DEEBOT T10")
 
     async with webserver_client.get("/bots") as resp:
@@ -277,7 +314,7 @@ async def test_set_user_nickname_for_an_unknown_user(webserver_client: TestClien
 @pytest.mark.usefixtures("clean_database")
 async def test_set_bot_nickname(webserver_client: TestClient) -> None:
     """The nickname is the display name the app shows for the robot."""
-    bot_repo.add("sn_nick", "did_nick", "p95mgv", "rljY", "eco-ng")
+    bot_repo.add("sn_nick", "did_nick", "p95mgv", "res1", "eco-ng")
 
     async with webserver_client.get("/bot/nickname/did_nick?nickname=Test%20robot") as resp:
         assert resp.status == 200
@@ -285,3 +322,219 @@ async def test_set_bot_nickname(webserver_client: TestClient) -> None:
 
     assert body["status"] == "successfully set nickname for did_nick"
     assert bot_repo.get("did_nick").nick == "Test robot"
+
+
+async def test_the_bots_page_shows_the_firmware_version(webserver_client: TestClient) -> None:
+    """The version of the firmware a robot runs is shown with the bot."""
+    bot_repo.add("sn_1234", "did_1234", "p95mgv", "res1", "eco-ng")
+    bot_repo.set_fw_ver("did_1234", "1.2.3")
+
+    async with webserver_client.get("/bots") as resp:
+        assert resp.status == 200
+        body = await resp.text()
+
+    assert "1.2.3" in body
+    assert "Firmware" in body
+
+
+async def test_the_bots_page_shows_no_version_when_the_robot_reported_none(webserver_client: TestClient) -> None:
+    """A robot that did not report a version shows a dash."""
+    bot_repo.add("sn_1234", "did_1234", "p95mgv", "res1", "eco-ng")
+
+    async with webserver_client.get("/bots") as resp:
+        assert resp.status == 200
+        body = await resp.text()
+
+    assert "Firmware" in body
+
+
+@pytest.mark.usefixtures("clean_database", "mqtt_server", "helper_bot")
+async def test_restart_helper_bot_success(webserver_client: TestClient) -> None:
+    async with webserver_client.get("/restart_Helperbot") as resp:
+        assert resp.status == 200
+        body = await resp.json()
+    assert body["status"] == "complete"
+
+
+async def test_restart_helper_bot_failed(
+    monkeypatch: pytest.MonkeyPatch,
+    webserver_client: TestClient,
+) -> None:
+    async def _false() -> bool:
+        return False
+
+    monkeypatch.setattr("bumper.web.web_paths._restart_helper_bot", _false)
+    async with webserver_client.get("/restart_Helperbot") as resp:
+        assert resp.status == 200
+        body = await resp.json()
+    assert body["status"] == "failed"
+
+
+async def test_restart_mqtt_server_failed(
+    monkeypatch: pytest.MonkeyPatch,
+    webserver_client: TestClient,
+    mqtt_server: MQTTServer,
+) -> None:
+    monkeypatch.setattr(bumper_isc, "mqtt_server", None)
+    try:
+        async with webserver_client.get("/restart_MQTTServer") as resp:
+            assert resp.status == 200
+            body = await resp.json()
+        assert body["status"] == "failed"
+    finally:
+        bumper_isc.mqtt_server = mqtt_server
+
+
+@pytest.mark.usefixtures("clean_database", "mqtt_server", "helper_bot")
+async def test_restart_mqtt_server_with_helper_bot(webserver_client: TestClient) -> None:
+    async with webserver_client.get("/restart_MQTTServer") as resp:
+        assert resp.status == 200
+        body = await resp.json()
+    assert body["status"] == "complete"
+
+
+async def test_restart_invalid_service(webserver_client: TestClient) -> None:
+    async with webserver_client.get("/restart_Foo") as resp:
+        assert resp.status == 200
+        body = await resp.json()
+    assert body["status"] == "invalid service"
+
+
+async def test_restart_service_exception(
+    monkeypatch: pytest.MonkeyPatch,
+    webserver_client: TestClient,
+) -> None:
+    async def boom() -> bool:
+        msg = "boom"
+        raise RuntimeError(msg)
+
+    monkeypatch.setattr("bumper.web.web_paths._restart_helper_bot", boom)
+    async with webserver_client.get("/restart_Helperbot") as resp:
+        assert resp.status == 500
+
+
+async def test_handle_base_exception(
+    monkeypatch: pytest.MonkeyPatch,
+    webserver_client: TestClient,
+) -> None:
+    async def boom(request: object, template_name: str | None = None) -> dict[str, object]:
+        _ = (request, template_name)
+        msg = "boom"
+        raise RuntimeError(msg)
+
+    monkeypatch.setattr("bumper.web.web_paths._get_context", boom)
+    async with webserver_client.get("/") as resp:
+        assert resp.status == 500
+
+
+async def test_handle_partial_exception(
+    monkeypatch: pytest.MonkeyPatch,
+    webserver_client: TestClient,
+) -> None:
+    async def boom(request: object, template_name: str | None = None) -> dict[str, object]:
+        _ = (request, template_name)
+        msg = "boom"
+        raise RuntimeError(msg)
+
+    monkeypatch.setattr("bumper.web.web_paths._get_context", boom)
+    async with webserver_client.get("/server-status") as resp:
+        assert resp.status == 500
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_remove_clean_logs_failed(
+    monkeypatch: pytest.MonkeyPatch,
+    webserver_client: TestClient,
+) -> None:
+    clean_log = CleanLog("did@1@res")
+    clean_log.did = "did"
+    clean_log_repo.add_or_update(clean_log)
+    monkeypatch.setattr(clean_log_repo, "clear", lambda: None)
+    async with webserver_client.get("/clean_logs/remove/anything") as resp:
+        assert resp.status == 200
+        body = await resp.json()
+    assert "failed" in body["status"]
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_remove_bot_failed(
+    monkeypatch: pytest.MonkeyPatch,
+    webserver_client: TestClient,
+) -> None:
+    bot_repo.add("sn", "did_fail", "p95mgv", "res1", "eco-ng")
+    monkeypatch.setattr(bot_repo, "remove", lambda _did: None)
+    async with webserver_client.get("/bot/remove/did_fail") as resp:
+        assert resp.status == 200
+        body = await resp.json()
+    assert "failed" in body["status"]
+
+
+async def test_remove_entity_exception(
+    monkeypatch: pytest.MonkeyPatch,
+    webserver_client: TestClient,
+) -> None:
+    def boom(did: str) -> None:
+        _ = did
+        msg = "boom"
+        raise RuntimeError(msg)
+
+    monkeypatch.setattr(bot_repo, "remove", boom)
+    async with webserver_client.get("/bot/remove/did_x") as resp:
+        assert resp.status == 500
+
+
+async def test_remove_entity_not_implemented() -> None:
+    handler = _handle_remove_entity("unknown")
+    request = make_mocked_request("GET", "/x", app=web.Application(), match_info={})
+    response = await handler(request)
+    assert response.status == 200
+
+
+async def test_set_bot_nickname_failed(webserver_client: TestClient) -> None:
+    async with webserver_client.get("/bot/nickname/did_1234") as resp:
+        assert resp.status == 200
+        body = await resp.json()
+    assert "failed" in body["status"]
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_set_bot_nickname_unknown(webserver_client: TestClient) -> None:
+    async with webserver_client.get("/bot/nickname/did_nope?nickname=Test") as resp:
+        assert resp.status == 200
+        body = await resp.json()
+    assert "failed" in body["status"]
+
+
+async def test_set_bot_nickname_exception(
+    monkeypatch: pytest.MonkeyPatch,
+    webserver_client: TestClient,
+) -> None:
+    def boom_get(did: str) -> object:
+        _ = did
+        msg = "boom"
+        raise RuntimeError(msg)
+
+    monkeypatch.setattr(bot_repo, "get", boom_get)
+    async with webserver_client.get("/bot/nickname/did_1234?nickname=Test") as resp:
+        assert resp.status == 500
+
+
+async def test_set_user_nickname_failed(webserver_client: TestClient) -> None:
+    async with webserver_client.get("/user/nickname/uid_1234") as resp:
+        assert resp.status == 200
+        body = await resp.json()
+    assert "failed" in body["status"]
+
+
+async def test_set_user_nickname_exception(
+    monkeypatch: pytest.MonkeyPatch,
+    webserver_client: TestClient,
+) -> None:
+    def boom_get(uid: str) -> object:
+        _ = uid
+        msg = "boom"
+        raise RuntimeError(msg)
+
+    monkeypatch.setattr(user_repo, "get_by_id", boom_get)
+    async with webserver_client.get("/user/nickname/uid_1234?nickname=Test") as resp:
+        assert resp.status == 500

@@ -87,7 +87,7 @@ def build_trace() -> bytes:
     for step in range(150):
         row = TOP + 30 + (step * 3) % 200
         column = LEFT + 30 + (step * 5) % 200
-        trace += struct.pack("<hh", row - SIZE // 2, column - SIZE // 2)
+        trace += struct.pack("<hh", row * 5 - 2000, column * 5 - 1995)
         trace += bytes([1])
     return bytes(trace)
 

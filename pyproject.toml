@@ -75,7 +75,7 @@ dev = [
   "types-setuptools>=80.9.0.20250822", # https://pypi.org/project/types-setuptools
 ]
 docs = [
-  "mkdocs-material>=9.6.14", # https://pypi.org/project/mkdocs-material/
+  "mkdocs-material>=9.6.14,<10", # https://pypi.org/project/mkdocs-material/
   "mkdocs-glightbox>=0.4.0", # https://pypi.org/project/mkdocs-glightbox/
 ]
 
@@ -96,6 +96,17 @@ source = "vcs"
 
 [tool.hatch.metadata]
 allow-direct-references = true
+
+# ___________________________________ DJLINT ___________________________________
+# https://www.djlint.com/docs/configuration/
+[tool.djlint]
+profile = "jinja"
+extension = "jinja2"
+indent = 2
+max_attribute_length = 120
+preserve_blank_lines = true
+line_break_after_multiline_tag = true
+single_attribute_per_line = true
 
 # ____________________________________ RUFF ____________________________________
 # https://docs.astral.sh/ruff/settings/
@@ -266,6 +277,7 @@ disable = [
   "too-many-arguments",
   "too-many-instance-attributes",
   "too-many-locals",
+  "too-many-public-methods",
   "too-many-ancestors",
   "logging-fstring-interpolation",
   "broad-exception-caught",

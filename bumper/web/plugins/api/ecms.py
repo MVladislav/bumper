@@ -1,63 +1,57 @@
 """Ecms plugin module."""
 
-from collections.abc import Iterable
 import logging
 from typing import Any
 
 from aiohttp import web
 from aiohttp.web_fileresponse import FileResponse
 from aiohttp.web_request import Request
-from aiohttp.web_response import Response
-from aiohttp.web_routedef import AbstractRouteDef
 
-from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
-from bumper.web.plugins import WebserverPlugin
+from bumper.web.context import read_body
+from bumper.web.envelope import LEGACY, ApiError, bind
+from bumper.web.hosts import api_host
 from bumper.web.static_api import get_bot_image_path
-from bumper.web.utils.response_helper import response_success_v3
+
+from . import PREFIX
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class EcmsPlugin(WebserverPlugin):
-    """Ecms plugin."""
-
-    @property
-    def routes(self) -> Iterable[AbstractRouteDef]:
-        """Plugin routes."""
-        return [
-            web.route("*", "/ecms/file/get/{id}", _get_bot_image),  # TODO: real response is a svga response
-            web.route("*", "/ecms/app/ad/res", _handle_ad_res),
-            web.route("*", "/ecms/app/ad/res/v2", _handle_ad_res),
-            web.route("*", "/ecms/app/ad/res/v3", _handle_ad_res),
-            web.route("*", "/ecms/app/ad/res/v3/", _handle_ad_res),
-            web.route("*", "/ecms/app/element/hint", _handle_hint),
-            web.route("*", "/ecms/app/resources", _handle_resources),
-            web.route("*", "/ecms/app/push/event", _handle_push_event),
-            web.route("*", "/ecms/app/user/theme", _handle_user_theme),
-        ]
+routes = web.RouteTableDef()
 
 
+@routes.view(f"{PREFIX}/ecms/file/get/{{id}}")
 async def _get_bot_image(_: Request) -> FileResponse:
     """Get generic image of bot."""
     return FileResponse(get_bot_image_path())
 
 
-async def _handle_ad_res(_: Request) -> Response:
+@routes.view(f"{PREFIX}/ecms/app/ad/res")
+@routes.view(f"{PREFIX}/ecms/app/ad/res/v2")
+@routes.view(f"{PREFIX}/ecms/app/ad/res/V2")
+@routes.view(f"{PREFIX}/ecms/app/ad/res/v3")
+@routes.view(f"{PREFIX}/ecms/app/ad/res/v3/")
+@bind(LEGACY.with_result(None).with_success(True))
+async def _handle_ad_res(_: Request) -> Any:
     """Ad res."""
-    return response_success_v3(data=[], result_key=None, include_success=True)
+    return []
 
 
-async def _handle_hint(request: Request) -> Response:
+@routes.view(f"{PREFIX}/ecms/app/element/hint")
+@bind(LEGACY.with_result(None).with_success(True))
+async def _handle_hint(request: Request) -> Any:
     """Hint."""
     codes = request.query.get("codes", "").split(",")
     data = {}
     for code in codes:
         data[code] = False
-    return response_success_v3(data=data, result_key=None, include_success=True)
+    return data
 
 
-async def _handle_resources(request: Request) -> Response:
+@routes.view(f"{PREFIX}/ecms/app/resources")
+@bind(LEGACY.with_result(None).with_success(True))
+async def _handle_resources(request: Request) -> Any:
     """Resources."""
     locations = request.query.get("locations", "")
     lang = request.query.get("lang", "en").lower()
@@ -66,8 +60,8 @@ async def _handle_resources(request: Request) -> Response:
     if locations == "home_manage_intro":
         data = []
     elif locations == "robotui_func_ops":
-        domain1 = f"adv-app.{bumper_isc.DOM_SUB_1}{bumper_isc.DOMAIN_MAIN}"
-        domain2 = f"api-app.{bumper_isc.DOM_SUB_1}{bumper_isc.DOMAIN_MAIN}"
+        domain1 = api_host("adv-app", bumper_isc.DOMAIN_MAIN, bumper_isc.DOM_SUB_1)
+        domain2 = api_host("api-app", bumper_isc.DOMAIN_MAIN, bumper_isc.DOM_SUB_1)
         data = [
             {
                 "action": {
@@ -114,27 +108,36 @@ async def _handle_resources(request: Request) -> Response:
                 ],
             },
         ]
-    elif locations == "home_manage_intro":
-        data = []
     else:
         _LOGGER.warning(f"locations is not know :: {locations}")
-    return response_success_v3(data=data, result_key=None, include_success=True)
+    return data
 
 
-async def _handle_push_event(_: Request) -> Response:
+@routes.view(f"{PREFIX}/ecms/app/push/event")
+@bind(LEGACY.with_result(None).with_success(True))
+async def _handle_push_event(request: Request) -> Any:
     """Push Event."""
-    # dataCategory = request.query.get("dataCategory", "Discover-Hint")
-    # resourceId = request.query.get("resourceId", "Robot")
-    return response_success_v3(data="ok", result_key=None, include_success=True)
+    data_category = request.query.get("dataCategory", "")
+    resource_id = request.query.get("resourceId", "")
+    if not data_category or not resource_id:
+        msg = "request params missing: dataCategory or resourceId"
+        raise ApiError(msg=msg, code=500)
+
+    return "ok"
 
 
-async def _handle_user_theme(_: Request) -> Response:
+@routes.view(f"{PREFIX}/ecms/app/user/theme")
+@bind(LEGACY.with_result(None).with_success(True).with_optional_data())
+async def _handle_user_theme(_: Request) -> Any:
     """User Theme."""
-    # TODO: check what's needed to be implemented
-    utils.default_log_warn_not_impl("_handle_member_list")
-    # lang = request.query.get("lang", "EN")
-    # country = request.query.get("country", "US")
-    # plat = request.query.get("plat", "android")
-    # version = request.query.get("v", "3.9")
-    # section = request.query.get("section", "PUBLIC")
-    return response_success_v3(data=None, result_key=None, include_success=True)
+    return None
+
+
+@routes.view(f"{PREFIX}/ecms/app/user/theme/enabled")
+@bind(LEGACY.with_result(None).with_success(True).with_optional_data())
+async def _handle_user_theme_enabled(request: Request) -> Any:
+    """Whether the user theme is enabled."""
+    if request.method == "PUT":
+        await read_body(request)
+        return None
+    return {"enabled": True}

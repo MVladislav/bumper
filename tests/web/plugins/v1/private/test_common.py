@@ -1,10 +1,13 @@
+import base64
 import json
 
 from aiohttp.test_utils import TestClient
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 import pytest
 
 from bumper.db import user_repo
-from bumper.web.utils.response_helper import RETURN_API_SUCCESS
+from bumper.web.envelope import RETURN_API_SUCCESS
 
 
 @pytest.mark.usefixtures("clean_database")
@@ -25,10 +28,65 @@ async def test_check_app_version(webserver_client: TestClient) -> None:
 
 @pytest.mark.usefixtures("clean_database")
 async def test_upload_device_info(webserver_client: TestClient) -> None:
-    async with webserver_client.get("/v1/private/us/en/dev_1234/global_e/1/0/0/common/uploadDeviceInfo") as resp:
+    device_id = "reported_device_id"
+    user_repo.add("account_id")
+    user_repo.add_device("account_id", device_id)
+    async with webserver_client.get(
+        f"/v1/private/us/en/{device_id}/global_e/1/0/0/common/uploadDeviceInfo?deviceNum={device_id}&model=Test Phone",
+    ) as resp:
         assert resp.status == 200
         json_resp = await resp.json()
         assert json_resp["code"] == RETURN_API_SUCCESS
+    assert user_repo.get_by_id("account_id").device_names == {device_id: "Test Phone"}
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_get_user_device_returns_the_current_app_device(webserver_client: TestClient) -> None:
+    """The account device screen lists the local app device."""
+    device_id = "test_device_id"
+    user_repo.add("account_id")
+    user_repo.add_device("account_id", device_id)
+    user_repo.set_device_name("account_id", device_id, "Test Phone")
+
+    async with webserver_client.get(
+        f"/v1/private/us/en/{device_id}/global_e/3.16.0/google_play/1/common/getUserDevice?uid=account_id",
+    ) as response:
+        assert response.status == 200
+        data = (await response.json())["data"]
+        device = data["userDeviceList"][0]
+        assert data["helpModule"] is None
+        assert device["id"] == device_id
+        assert device["deviceName"] == "Test Phone"
+        assert device["isCurrentDevice"] == "Y"
+        assert isinstance(device["lastLoginTime"], str)
+        assert device["isTrust"] == "N"
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_delete_user_device_answers_successfully(webserver_client: TestClient) -> None:
+    """Removing a saved app device is acknowledged."""
+    user_repo.add("account_to_delete")
+    user_repo.add_device("account_to_delete", "old-device")
+    async with webserver_client.get(
+        "/v1/private/us/en/dev_1234/global_e/3.16.0/google_play/1/common/deleteUserDevice?uid=account_to_delete&userDeviceId=old-device",
+    ) as response:
+        assert response.status == 200
+        result = await response.json()
+        assert result["code"] == RETURN_API_SUCCESS
+        assert result["data"] is None
+    assert "old-device" not in user_repo.get_by_id("account_to_delete").devices
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_get_all_service_info_reports_local_support_options(webserver_client: TestClient) -> None:
+    """The service directory does not advertise unavailable cloud support."""
+    async with webserver_client.get(
+        "/v1/private/us/en/dev_1234/global_e/3.16.0/google_play/1/common/getAllServiceInfo",
+    ) as response:
+        assert response.status == 200
+        data = (await response.json())["data"]
+        assert data["phoneServiceInfo"]["isSupport"] == "N"
+        assert data["emailInfo"]["isSupport"] == "N"
 
 
 @pytest.mark.usefixtures("clean_database")
@@ -62,6 +120,8 @@ async def test_get_config(webserver_client: TestClient) -> None:
         config_value = json.loads(json_resp["data"][0]["value"])
         assert "publicKey" in config_value
         assert isinstance(config_value["publicKey"], str)
+        public_key = serialization.load_der_public_key(base64.b64decode(config_value["publicKey"]))
+        assert isinstance(public_key, RSAPublicKey)
 
     # Test with multiple keys
     async with webserver_client.get(
@@ -114,6 +174,8 @@ async def test_get_config(webserver_client: TestClient) -> None:
         "FIND.PASSWORD.FAQ.CONF",
         "PASSWORD.STRENGTH.URL",
         "SUGGESTION.DEFAULT.FLAG",
+        "DEVICE.OTP.CONFIG",
+        "AREA.CONFIG",
     ]
     async with webserver_client.get(f"/v1/private/us/en/dev_1234/ios/1/0/0/common/getConfig?keys={','.join(all_keys)}") as resp:
         assert resp.status == 200
@@ -126,6 +188,14 @@ async def test_get_config(webserver_client: TestClient) -> None:
         returned_keys = [item["key"] for item in json_resp["data"]]
         for key in all_keys:
             assert key in returned_keys
+
+        # The app shows the option to export the data of the account when
+        # the flag of the area config is on.
+        area = next(item for item in json_resp["data"] if item["key"] == "AREA.CONFIG")
+        assert json.loads(area["value"])["sensitiveDataExportFlag"] == "N"
+
+        device_otp = next(item for item in json_resp["data"] if item["key"] == "DEVICE.OTP.CONFIG")
+        assert json.loads(device_otp["value"]) == {"ttlSeconds": 120}
 
 
 @pytest.mark.usefixtures("clean_database")

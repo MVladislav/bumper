@@ -4,6 +4,7 @@ from unittest import mock
 
 from amqtt.client import ClientConfig, MQTTClient
 from amqtt.session import IncomingApplicationMessage
+import pytest
 
 from bumper.mqtt import proxy as mqtt_proxy
 from bumper.utils.settings import config as bumper_isc
@@ -94,3 +95,84 @@ async def test_proxy_connect_uri() -> None:
     proxy._client.connect = mock.AsyncMock()
     await proxy.connect("user", "pass")
     proxy._client.connect.assert_awaited_once_with("mqtts://user:pass@broker.example:8883")
+
+
+async def test_proxy_connect_failure_reraises() -> None:
+    """A connect failure is logged and re-raised (lines 48-50)."""
+    proxy = mqtt_proxy.ProxyClient("client_1", "broker.example", port=8883)
+    proxy._client.connect = mock.AsyncMock(side_effect=OSError("boom"))
+    with pytest.raises(OSError, match="boom"):
+        await proxy.connect("user", "pass")
+
+
+async def test_proxy_subscribe_and_publish() -> None:
+    """subscribe() and publish() forward to the underlying client (lines 89, 98)."""
+    proxy = mqtt_proxy.ProxyClient("client_1", "broker.example", port=8883)
+    proxy._client.subscribe = mock.AsyncMock()
+    proxy._client.publish = mock.AsyncMock()
+
+    await proxy.subscribe("iot/atr/+/+/+/+/+", 1)
+    proxy._client.subscribe.assert_awaited_once_with([("iot/atr/+/+/+/+/+", 1)])
+
+    await proxy.publish("topic/a", b"data", 0)
+    proxy._client.publish.assert_awaited_once_with("topic/a", b"data", 0)
+
+
+def _client_with_messages(*, messages: list[IncomingApplicationMessage | None], connected: list[bool]) -> mock.AsyncMock:
+    """Return an AsyncMock client that yields the given messages then disconnects."""
+    client = mock.AsyncMock()
+    client.session.transitions.is_connected = mock.Mock(side_effect=connected)
+    client.deliver_message.side_effect = messages
+    return client
+
+
+async def test_handle_messages_stops_on_none_message() -> None:
+    """_handle_messages returns when deliver_message yields None (line 62)."""
+    proxy = mqtt_proxy.ProxyClient("client_1", "127.0.0.1", port=8883)
+    proxy._client = _client_with_messages(messages=[None], connected=[True, False])
+    bumper_isc.mqtt_helperbot = mock.AsyncMock()
+
+    await proxy._handle_messages()
+
+    bumper_isc.mqtt_helperbot.publish.assert_not_called()
+
+
+async def test_handle_messages_handles_none_data() -> None:
+    """_handle_messages tolerates a message with no data payload (line 65->68)."""
+    proxy = mqtt_proxy.ProxyClient("client_1", "127.0.0.1", port=8883)
+    msg = IncomingApplicationMessage(None, "iot/atr/test/from_did/from_class/from_res/j", 0, None, False)
+    proxy._client = _client_with_messages(messages=[msg], connected=[True, False])
+    bumper_isc.mqtt_helperbot = mock.AsyncMock()
+
+    await proxy._handle_messages()
+
+    bumper_isc.mqtt_helperbot.publish.assert_awaited_once_with("iot/atr/test/from_did/from_class/from_res/j", "")
+
+
+async def test_handle_messages_skips_proxyhelper_sender() -> None:
+    """A p2p message already sent by proxyhelper is dropped, not forwarded (lines 73-74)."""
+    proxy = mqtt_proxy.ProxyClient("client_1", "127.0.0.1", port=8883)
+    msg = IncomingApplicationMessage(
+        None,
+        "iot/p2p/test/proxyhelper/from_res/to_did/to_class/to_res/q/req1",
+        0,
+        b"cmd",
+        False,
+    )
+    proxy._client = _client_with_messages(messages=[msg], connected=[True, False])
+    bumper_isc.mqtt_helperbot = mock.AsyncMock()
+
+    await proxy._handle_messages()
+
+    bumper_isc.mqtt_helperbot.publish.assert_not_called()
+
+
+async def test_handle_messages_swallows_exception() -> None:
+    """An error while delivering a message is logged, not raised (lines 84-85)."""
+    proxy = mqtt_proxy.ProxyClient("client_1", "127.0.0.1", port=8883)
+    proxy._client = _client_with_messages(messages=[RuntimeError("deliver failed")], connected=[True, False])
+    bumper_isc.mqtt_helperbot = mock.AsyncMock()
+
+    await proxy._handle_messages()  # must not raise
+
+    bumper_isc.mqtt_helperbot.publish.assert_not_called()

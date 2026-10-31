@@ -1,30 +1,20 @@
 """Member plugin module."""
 
-from collections.abc import Iterable
+from typing import Any
 
 from aiohttp import web
 from aiohttp.web_request import Request
-from aiohttp.web_response import Response
-from aiohttp.web_routedef import AbstractRouteDef
 
-from bumper.web.plugins import WebserverPlugin
-from bumper.web.utils.response_helper import response_success_v1
+from bumper.web.envelope import GL_V1, bind
 
 from . import BASE_URL
 
-
-class MemberPlugin(WebserverPlugin):
-    """Member plugin."""
-
-    @property
-    def routes(self) -> Iterable[AbstractRouteDef]:
-        """Plugin routes."""
-        return [
-            web.route("*", f"{BASE_URL}member/getExpByScene", handle_get_exp_by_scene),
-        ]
+routes = web.RouteTableDef()
 
 
-async def handle_get_exp_by_scene(request: Request) -> Response:
+@routes.view(f"{BASE_URL}member/getExpByScene")
+@bind(GL_V1)
+async def handle_get_exp_by_scene(request: Request) -> Any:
     """Get exp by scene."""
     scene = request.query.get("scene", "")
 
@@ -56,15 +46,13 @@ async def handle_get_exp_by_scene(request: Request) -> Response:
 
     key_only_once1 = "only"  # only because
     key_only_once2 = "Once"  # of code spell :D
-    return response_success_v1(
-        {
-            "completeList": [
-                {
-                    "getExp": 0,
-                    "getPoint": get_point,
-                    f"{key_only_once1}{key_only_once2}": "N",
-                    "prompt": prompt,
-                },
-            ],
-        },
-    )
+    return {
+        "completeList": [
+            {
+                "getExp": 0,
+                "getPoint": get_point,
+                f"{key_only_once1}{key_only_once2}": "N",
+                "prompt": prompt,
+            },
+        ],
+    }

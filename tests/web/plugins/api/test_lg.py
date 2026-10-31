@@ -32,7 +32,7 @@ async def test_lg_logs(webserver_client: TestClient) -> None:
     postbody = {
         "auth": {
             "realm": "ecouser.net",
-            "resource": "ECOGLOBLEac5ae987",
+            "resource": "ECOGLOBLE00000000",
             "token": "token_1234",
             "userid": USER_ID,
             "with": "users",
@@ -54,7 +54,7 @@ async def test_lg_logs_show_the_map_of_a_job(webserver_client: TestClient) -> No
     test_did = "did_1234"
     bot_repo.add("sn_1234", test_did, "ls1ok3", "res_1234", "eco-ng")
     start = 1699297517
-    clean_log = CleanLog(f"{test_did}@{start}@sdu9")
+    clean_log = CleanLog(f"{test_did}@{start}@res9")
     clean_log.did = test_did
     clean_log.ts = start
     clean_log.type = "auto"
@@ -82,7 +82,7 @@ async def test_lg_logs_show_the_map_of_a_job(webserver_client: TestClient) -> No
     assert len(json_resp["logs"]) == 1
     # The app loads the picture on its own, so the url has to point at the
     # server the app is talking to.
-    assert json_resp["logs"][0]["imageUrl"].endswith("/api/photo/download?id=1699297817000did_1234")
+    assert json_resp["logs"][0]["imageUrl"].endswith("/api/photo/download?id=1699297817000did_1234&format=svg")
 
 
 @pytest.mark.usefixtures("clean_database", "helper_bot")

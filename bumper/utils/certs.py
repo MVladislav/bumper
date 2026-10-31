@@ -5,14 +5,14 @@ import datetime as dt
 from ipaddress import ip_address
 import logging
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any
 
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ec, rsa
 from cryptography.x509.oid import ExtendedKeyUsageOID, NameOID
 
-from bumper.utils.settings import config as bumper_isc
+from bumper.utils.settings import KeyType, config as bumper_isc
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -216,7 +216,7 @@ def _build_san_list() -> list[str]:
     return san_list
 
 
-def _generate_key(key_type: Literal["ec", "rsa"] = "ec") -> ec.EllipticCurvePrivateKey | rsa.RSAPrivateKey:
+def _generate_key(key_type: KeyType = "ec") -> ec.EllipticCurvePrivateKey | rsa.RSAPrivateKey:
     """Generate private key based on type."""
     key: ec.EllipticCurvePrivateKey | rsa.RSAPrivateKey | None = None
     if key_type == "rsa":
@@ -364,7 +364,7 @@ def generate_certificates() -> bool:
         msg = "Wrong Certificate Key Type provided"
         raise ValueError(msg)
 
-    ca_pem_path = bumper_isc.certs_dir / "ca.pem"
+    ca_pem_path = bumper_isc.ca_pem
     ca_cert_bump = bumper_isc.ca_cert
     ca_key_bump = bumper_isc.ca_key
     server_cert_bump = bumper_isc.server_cert
@@ -376,6 +376,11 @@ def generate_certificates() -> bool:
 
     # Check if all required certificates exist
     if all(p.exists() for p in [ca_cert_bump, server_cert_bump, server_key_bump]):
+        if not ca_pem_path.exists():
+            ca_pem_path.parent.mkdir(parents=True, exist_ok=True)
+            ca_pem_path.write_bytes(
+                server_key_bump.read_bytes() + server_cert_bump.read_bytes() + ca_cert_bump.read_bytes(),
+            )
         _LOGGER.debug("All certificate files already exist, skipping generation")
         return False
 

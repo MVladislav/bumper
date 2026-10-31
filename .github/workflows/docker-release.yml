@@ -9,6 +9,25 @@ on:
     tags:
       - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
   workflow_dispatch:
+    inputs:
+      test_build:
+        description: "Build a test image instead of a release image"
+        required: false
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+      suffix:
+        description: "Suffix appended to the version tag for test builds"
+        required: false
+        default: "rc"
+        type: string
+      version:
+        description: "Version override for test builds (leave empty to use the version from pyproject.toml)"
+        required: false
+        default: ""
+        type: string
 
 env:
   # Use docker.io for Docker Hub if empty
@@ -30,6 +49,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7.0.1
 
+      - name: Read the project version
+        id: project
+        run: |
+          version=$(sed -n 's/^version = "\(.*\)"/\1/p' pyproject.toml | head -1)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          # Allow a manual version override for test builds.
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.test_build }}" = "true" ] && [ -n "${{ inputs.version }}" ]; then
+            echo "effective=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "effective=$version" >> "$GITHUB_OUTPUT"
+          fi
+
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata (tags, labels)
         id: meta
@@ -42,10 +73,14 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             type=sha
-            type=ref,event=branch
-            type=raw,value=develop
+            type=raw,value=test,enable=${{ github.event_name == 'workflow_dispatch' && inputs.test_build == 'true' }}
+            type=raw,value=test-${{ steps.project.outputs.effective }},enable=${{ github.event_name == 'workflow_dispatch' && inputs.test_build == 'true' }}
+            type=raw,value=${{ inputs.suffix || 'rc' }},enable=${{ github.event_name == 'workflow_dispatch' && inputs.test_build == 'true' }}
+            type=raw,value=${{ inputs.suffix || 'rc' }}-${{ steps.project.outputs.effective }},enable=${{ github.event_name == 'workflow_dispatch' && inputs.test_build == 'true' }}
           flavor: |
-            latest=auto
+            # `latest` belongs to a version tag only, never to a branch or a
+            # manual run. A manual test build additionally gets `test`/suffix.
+            latest=${{ startsWith(github.ref, 'refs/tags/v') }}
 
       # https://github.com/docker/setup-qemu-action
       - name: Set up QEMU
@@ -77,5 +112,5 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             BUILDTIME=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
-            VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+            VERSION=${{ (github.event_name == 'workflow_dispatch' && inputs.test_build == 'true') && format('{0}-{1}', steps.project.outputs.effective, inputs.suffix || 'rc') || fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
             REVISION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}

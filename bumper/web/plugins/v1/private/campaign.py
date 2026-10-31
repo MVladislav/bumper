@@ -1,43 +1,31 @@
 """Campaign plugin module."""
 
-from collections.abc import Iterable
 from datetime import datetime, timedelta
+from typing import Any
 
 from aiohttp import web
 from aiohttp.web_request import Request
-from aiohttp.web_response import Response
-from aiohttp.web_routedef import AbstractRouteDef
 
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
-from bumper.web.plugins import WebserverPlugin
-from bumper.web.utils.response_helper import response_success_v1
+from bumper.web.envelope import GL_V1, bind
 
 from . import BASE_URL
 
-
-class CampaignPlugin(WebserverPlugin):
-    """Campaign plugin."""
-
-    @property
-    def routes(self) -> Iterable[AbstractRouteDef]:
-        """Plugin routes."""
-        return [
-            web.route("*", f"{BASE_URL}campaign/homePageAlert", _handle_home_page_alert),
-        ]
+routes = web.RouteTableDef()
 
 
-async def _handle_home_page_alert(_: Request) -> Response:
+@routes.view(f"{BASE_URL}campaign/homePageAlert")
+@bind(GL_V1)
+async def _handle_home_page_alert(_: Request) -> Any:
     """Homepage alert."""
-    return response_success_v1(
-        {
-            "clickSchemeUrl": None,
-            "clickWebUrl": None,
-            "hasCampaign": "N",
-            "imageUrl": None,
-            "nextAlertTime": utils.convert_to_millis(
-                (datetime.now(tz=bumper_isc.LOCAL_TIMEZONE) + timedelta(hours=12)).timestamp(),
-            ),
-            "serverTime": utils.get_current_time_as_millis(),
-        },
-    )
+    return {
+        "clickSchemeUrl": None,
+        "clickWebUrl": None,
+        "hasCampaign": "N",
+        "imageUrl": None,
+        "nextAlertTime": utils.convert_to_millis(
+            (datetime.now(tz=bumper_isc.LOCAL_TIMEZONE) + timedelta(hours=12)).timestamp(),
+        ),
+        "serverTime": utils.get_current_time_as_millis(),
+    }

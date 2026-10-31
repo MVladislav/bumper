@@ -33,6 +33,13 @@ class BotRepo(BaseRepo):
         rec = self._get(query_instance.did == did)
         return models.VacBotDevice.from_dict(rec) if isinstance(rec, dict | Document) else None
 
+    def get_by_did_or_name(self, value: str) -> models.VacBotDevice | None:
+        """Get a bot by device ID or by the serial number in its name."""
+        bot = self.get(value)
+        if bot is not None:
+            return bot
+        return next((bot for bot in self.list_all() if bot.name == value), None)
+
     def list_all(self) -> list[models.VacBotDevice]:
         """List all bots."""
         bots = []
@@ -48,6 +55,10 @@ class BotRepo(BaseRepo):
     def set_nick(self, did: str | None, nick: str) -> None:
         """Set bot nickname."""
         self._set_field(did, "nick", nick)
+
+    def set_fw_ver(self, did: str | None, fw_ver: str) -> None:
+        """Set the version of the firmware the robot runs."""
+        self._set_field(did, "fw_ver", fw_ver)
 
     def set_mqtt(self, did: str | None, mqtt: bool) -> None:
         """Set MQTT connection status."""

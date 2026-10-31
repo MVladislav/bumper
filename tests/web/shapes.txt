@@ -1,0 +1,278 @@
+* /api/appsvr/akvs/start_watch raw
+* /api/appsvr/app/config LEGACY
+* /api/appsvr/codepush/checkupdate LEGACY
+* /api/appsvr/device/blacklist/check LEGACY
+* /api/appsvr/device/{did}/nickname Template no-ret success
+* /api/appsvr/improve LEGACY_BARE no-ret no-message
+* /api/appsvr/improve/accept raw
+* /api/appsvr/improve/user/accept raw
+* /api/appsvr/notice/home TODO_RET no-message
+* /api/appsvr/notice/list TODO_RET no-message
+* /api/appsvr/oauth/token LEGACY
+* /api/appsvr/oauth_callback LEGACY
+* /api/appsvr/ota/firmware raw
+* /api/appsvr/product/getConfigGroups Template no-ret no-message side-car
+* /api/appsvr/service/list LEGACY
+* /api/basis/dc/get-by-area raw
+* /api/basis/time/timezones LEGACY_BARE no-ret no-message
+* /api/ecms/app/ad/res Template no-ret success
+* /api/ecms/app/ad/res/V2 Template no-ret success
+* /api/ecms/app/ad/res/v2 Template no-ret success
+* /api/ecms/app/ad/res/v3 Template no-ret success
+* /api/ecms/app/ad/res/v3/ Template no-ret success
+* /api/ecms/app/element/hint Template no-ret success
+* /api/ecms/app/push/event Template no-ret success
+* /api/ecms/app/resources Template no-ret success
+* /api/ecms/app/user/theme Template no-ret success
+* /api/ecms/app/user/theme/enabled Template no-ret success
+* /api/ecms/file/get/{id} raw
+* /api/homed/home/list LEGACY_NO_RET no-ret
+* /api/homed/home/member/role/update Template no-ret
+* /api/homed/home/role/list LEGACY_NO_RET no-ret
+* /api/homed/home/update Template no-ret
+* /api/homed/member/list LEGACY_NO_RET no-ret
+* /api/homed/v2/matter/fabric raw
+* /api/homed/v2/matter/paa Template no-ret success
+* /api/idi/data_collect/upload/generalData raw
+* /api/microservice-recomend/userReminderResult/ Template no-ret success
+* /api/neng/message/getShareMsgs LEGACY_BARE no-ret no-message
+* /api/neng/message/getlist LEGACY_BARE no-ret no-message
+* /api/neng/message/hasUnreadMsg LEGACY_BARE no-ret no-message
+* /api/neng/message/read Template no-ret
+* /api/neng/v2/message/push Template no-ret
+* /api/neng/v3/message/latest_by_did LEGACY_NO_RET no-ret
+* /api/neng/v3/message/list LEGACY
+* /api/neng/v3/message/pushStatus Template no-ret
+* /api/neng/v3/product/msg/tabs LEGACY
+* /api/neng/v3/shareMsg/hasUnreadMsg LEGACY_NO_RET no-ret
+* /api/neng/v3/shareMsg/read Template no-ret
+* /api/notice/app LEGACY_BARE no-ret no-message
+* /api/ota/products/wukong/class/{class}/firmware/latest.json raw
+* /api/photo/all Template no-ret success
+* /api/photo/download raw
+* /api/photo/list Template no-ret success
+* /api/pim/api/pim/file/get/{id} raw
+* /api/pim/consumable/getPurchaseUrl LEGACY_MSG no-ret
+* /api/pim/dictionary/getErrDetail Template no-ret
+* /api/pim/eventdetail.html raw
+* /api/pim/faqproblem.html raw
+* /api/pim/file/get/{id} raw
+* /api/pim/product/getConfigGroups Template no-ret side-car
+* /api/pim/product/getConfignetAll Template no-ret side-car
+* /api/pim/product/getProductIotMap LEGACY_BARE no-ret no-message
+* /api/pim/product/setting LEGACY_NO_RET no-ret
+* /api/pim/v2/voice/getLanuages Template data_key=voices no-ret
+* /api/pim/voice/download/{id} raw
+* /api/pim/voice/get Template data_key=voices no-ret
+* /api/pim/voice/getLanuages Template data_key=voices no-ret
+* /api/rapp/sds/user/data/del Template no-ret
+* /api/rapp/sds/user/data/list Template no-ret
+* /api/rapp/sds/user/data/map/get Template no-ret
+* /api/sds/baidu/audio/getcred Template no-ret success
+* /app/dln/api/log/clean_result/data raw
+* /app/dln/api/log/clean_result/del LEGACY
+* /app/dln/api/log/clean_result/list LEGACY_NO_RET no-ret
+* /app_adv/goat/maintenance_guide_o_series.html raw
+* /app_adv/goat/pin_code_settings.html raw
+* /app_adv/goat/rtk.html raw
+* /app_adv/goat/winter_guide.html raw
+* /app_adv/pim/active_discovery.html raw
+* /app_adv/pim/faq_problem_new.html raw
+* /app_adv/pim/find_qrcode.html raw
+* /app_adv/pim/network_setup_preparation_by_series.html raw
+* /app_adv/pim/offline.html raw
+* /app_adv/pim/viewWiFi.html raw
+* /data_collect/upload/generalData raw
+* /pim/advanced_features.html raw
+* /pim/base_station_guide_newton_curi.html raw
+* /pim/images/{id} raw
+* /pim/set_pin_code_guide.html raw
+* /pim/third_party_voice_control.html raw
+* /public/{id}/{image} raw
+* /upload/global/{year}/{month}/{day}/{id} raw
+* /v1/global/auth/getAuthCode GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}//service/activityList GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}//service/groupList GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}//service/proactiveMessages GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}//tips/groupList GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}//tips/tipsList GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}//user/getMyUserMenuInfo GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/ad/getAdByPositionType GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/ad/getBootScreen GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/agreement/getUserAcceptInfo GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/campaign/homePageAlert GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/common/checkAPPVersion GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/common/checkVersion GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/common/deleteUserDevice GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/common/getAboutBriefItem GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/common/getAgreementURLBatch GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/common/getAllServiceInfo GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/common/getAreaSupportService GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/common/getAreas GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/common/getBottomNavigateInfoList GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/common/getConfig GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/common/getCurrentAreaSupportServiceInfo GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/common/getSystemReminder GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/common/getTimestamp Template no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/common/getUserConfig GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/common/getUserDevice GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/common/uploadDeviceInfo GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/device/getCurrent GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/device/otp/generate GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/help/getHelpIndex GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/help/getProductHelpIndex GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/intl/member/basicInfo GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/intl/member/signStatus GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/member/getExpByScene GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/message/getMsgList GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/message/hasUnreadMsg GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/osmall/getCountryConfig GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/osmall/index/getBannerList GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/osmall/index/getConfNetRobotPartsGoods GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/osmall/index/getGoodsCategory GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/osmall/index/getLayout GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/osmall/index/getRecommendGoods GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/osmall/proxy/cart/get-count GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/osmall/proxy/coupon-send-activity/get-customer-coupon-send-activity-coupon GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/osmall/proxy/go/marketing/common/v1/price-activity/get-product-tag GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/osmall/proxy/my/get-my-coupon GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/osmall/proxy/my/get-user-center-coupon-list GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/osmall/proxy/order/list GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/osmall/proxy/product/get-bonus-points GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/osmall/proxy/product/material-accessory-list GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/osmall/proxy/v2/web/benefit/get-benefits GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/osmall/proxy/v2/web/express-icon/index GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/osmall/proxy/v2/web/payment-icon/index GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/osmall2/index/articleList GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/osmall2/index/geActivityZoneList GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/osmall2/index/getLayout GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/osmall2/index/getRecommendGoods GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/osmall2/index/getTopBannerList GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/shop/getCnWapShopConfig GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/acceptAgreementBatch GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/addBackupEmail GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/bindEmail2 GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/cancelAcceptAgreementBatch GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/center/modifyUserNickname GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/changeArea GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/changeLang GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/checkAgreement GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/checkAgreementBatch GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/checkEmailVerifyByScene GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/checkLogin GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/checkUserDeviceSN GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/getAuthCode GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/getBackupEmailByAccount GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/getMemberInfo GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/getMyUserMenuInfo GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/getUserAccountInfo GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/getUserMenuInfo GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/login GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/loginHistory GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/logout GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/modifyPassword GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/queryChangeArea GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/sendEmailVerifyCode GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/userData/applyList GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/userSetting/getMsgReceiveSetting GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/userSetting/getSuggestionSetting GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/userSetting/getUserAccountSetting GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/userSetting/modifyUserAccountSetting GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/userSetting/saveUserSetting GL_V1 no-ret success
+* /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/verify/check GL_V1 no-ret success
+* /v2/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}//message/hasMoreUnReadMsg GL_V1 no-ret success
+* /v2/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/common/getBottomNavigateInfoList GL_V1 no-ret success
+* /v2/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/common/getCurrentAreaSupportServiceInfo GL_V1 no-ret success
+* /v2/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/help/getHelpIndex GL_V1 no-ret success
+* /v2/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/member/getBindBenefit GL_V1 no-ret success
+* /v2/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/member/getExpByScene GL_V1 no-ret success
+* /v2/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/message/hasMoreUnReadMsg GL_V1 no-ret success
+* /v2/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/message/moduleConfiguration GL_V1 no-ret success
+* /v2/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/message/waterfallFlow GL_V1 no-ret success
+* /v2/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/cancelAcceptAgreementBatch GL_V1 no-ret success
+* /v2/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/checkAgreementBatch GL_V1 no-ret success
+* /v2/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/checkLogin GL_V1 no-ret success
+* /v2/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/login GL_V1 no-ret success
+* /v2/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/login2 GL_V1 no-ret success
+* /v2/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/user/modifyPassword GL_V1 no-ret success
+* /v2/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/userSetting/getMsgReceiveSetting GL_V1 no-ret success
+* /v3/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/common/getBottomNavigateInfoList GL_V1 no-ret success
+* /web/page raw
+GET / raw
+GET /api/appsvr/codepush/download/{deployment_key} raw
+GET /api/appsvr/device/prop/list LEGACY
+GET /api/pim/product/entry/group LEGACY_NO_RET no-ret
+GET /api/pim/product/image raw
+GET /bot/nickname/{did} raw
+GET /bot/remove/{did} raw
+GET /bots raw
+GET /ca-certificates.tar.gz raw
+GET /clean_log/remove/{clean_log_id} raw
+GET /clean_logs raw
+GET /clean_logs/remove/{placeholder} raw
+GET /client/remove/{userid} raw
+GET /clients raw
+GET /config/Android.conf raw
+GET /content/agreement raw
+GET /favicon.ico raw
+GET /restart_{service} raw
+GET /server-status raw
+GET /static raw
+GET /user/nickname/{userid} raw
+GET /user/remove/{userid} raw
+GET /users raw
+GET /v0.1/public/codepush/update_check raw
+GET /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/discover/info/getAllInfoPage GL_V1 no-ret success
+GET /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/discover/info/getLabelList GL_V1 no-ret success
+GET /v2/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/common/YIKOBasicSetting GL_V1 no-ret success
+HEAD / raw
+HEAD /api/appsvr/codepush/download/{deployment_key} raw
+HEAD /api/appsvr/device/prop/list LEGACY
+HEAD /api/pim/product/entry/group LEGACY_NO_RET no-ret
+HEAD /api/pim/product/image raw
+HEAD /bot/nickname/{did} raw
+HEAD /bot/remove/{did} raw
+HEAD /bots raw
+HEAD /ca-certificates.tar.gz raw
+HEAD /clean_log/remove/{clean_log_id} raw
+HEAD /clean_logs raw
+HEAD /clean_logs/remove/{placeholder} raw
+HEAD /client/remove/{userid} raw
+HEAD /clients raw
+HEAD /config/Android.conf raw
+HEAD /content/agreement raw
+HEAD /favicon.ico raw
+HEAD /restart_{service} raw
+HEAD /server-status raw
+HEAD /static raw
+HEAD /user/nickname/{userid} raw
+HEAD /user/remove/{userid} raw
+HEAD /users raw
+HEAD /v0.1/public/codepush/update_check raw
+HEAD /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/discover/info/getAllInfoPage GL_V1 no-ret success
+HEAD /v1/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/discover/info/getLabelList GL_V1 no-ret success
+HEAD /v2/private/{country}/{language}/{devid}/{apptype}/{appversion}/{devtype}/{aid}/common/YIKOBasicSetting GL_V1 no-ret success
+POST /Global_APP_BuryPoint/api raw
+POST /Global_APP_BuryPoint/api/appevent raw
+POST /api/appsvr/app.do GetGlobalDeviceList: Template data_key=devices no-message, GetCodepush: TODO_RET no-message, RobotControl: TODO_RET no-message, GetAppVideoUrl: TODO_RET no-message, GetDeviceProtocolV2: TODO_RET no-message, DecodeQrCode: TODO_RET no-message
+POST /api/content/agreement GL_V1 no-ret success
+POST /api/dim/devmanager.do raw
+POST /api/homed/device/move Template no-ret
+POST /api/homed/home/create LEGACY_NO_RET no-ret
+POST /api/homed/home/delete LEGACY_NO_RET no-ret
+POST /api/iot/devmanager.do raw
+POST /api/iot/endpoint/control raw
+POST /api/iot/endpoint/control/v2 raw
+POST /api/lg/log.do raw
+POST /api/new-perm/token/sst/issue Template no-ret
+POST /api/pim/product/getShareInfo raw
+POST /api/pim/product/software/config/batch Template
+POST /api/users/user.do FindBest: LEGACY_FLAT no-message flat, loginByItToken: LEGACY_FLAT no-message flat, GetAuthCode: LEGACY_FLAT no-message flat, GetDeviceList: LEGACY_FLAT no-message flat, SetDeviceNick: LEGACY_FLAT no-message flat, AddOneDevice: LEGACY_FLAT no-message flat, DeleteOneDevice: LEGACY_FLAT no-message flat, logout: LEGACY_FLAT no-message flat, GetUsersInfo: LEGACY_FLAT no-message flat
+POST /biz-app-config/api/v2/chat_bot_id/config raw
+POST /lookup.do raw
+POST /newauth.do Template data_key=authCode no-message
+POST /sa raw
+POST /v0.1/public/codepush/report_Status/deploy raw
+POST /v0.1/public/codepush/report_Status/download raw
+POST /v0.1/public/codepush/report_status/deploy raw
+POST /v0.1/public/codepush/report_status/download raw

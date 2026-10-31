@@ -1,5 +1,16 @@
-[allowlist]
-paths = ['bumper/web/static_api/updateCheck.json']
+[[allowlists]]
+description = "The update check of the app carries the keys of the release."
+paths = ['''bumper/web/static_api/updateCheck\.json''']
+
+[[allowlists]]
+description = "The credentials of the tests are fake, not secrets."
+targetRules = ["generic-api-key"]
+paths = [
+  '''tests/mqtt/test_helper_bot\.py''',
+  '''tests/web/plugins/api/test_appsvr\.py''',
+  '''tests/web/plugins/api/test_photo\.py''',
+  '''tests/web/test_single_paths\.py''',
+]
 
 [extend]
 useDefault = true

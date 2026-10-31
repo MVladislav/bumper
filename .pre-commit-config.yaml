@@ -56,7 +56,14 @@ repos:
           - prettier@3.6.2
         exclude_types:
           - python
-        exclude: ^uv\.lock|\.(css|js)$|bumper/web/static_api/timezones\.json
+        exclude: ^uv\.lock|\.(css|js)$|bumper/web/static_api/timezones\.json$
+
+  # djLint for Jinja2 templates
+  - repo: https://github.com/Riverside-Healthcare/djLint
+    rev: v1.47.0
+    hooks:
+      - id: djlint-reformat-jinja
+        name: Format Jinja2 templates
 
   # Secret detection
   - repo: https://github.com/Yelp/detect-secrets
@@ -129,3 +136,11 @@ repos:
         types: [python]
         require_serial: true
         exclude: (^tests/.+)|(^scripts/.+)|(^configs/.+)
+      - id: api-snapshots
+        name: Sync API route and shape snapshots
+        entry: scripts/run-in-dev-env.sh python3 scripts/api/sync-route-snapshots.py
+        language: script
+        files: ^bumper/web/.*\.py$
+        types: [python]
+        pass_filenames: false
+        require_serial: true

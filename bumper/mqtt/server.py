@@ -19,7 +19,7 @@ from amqtt.session import IncomingApplicationMessage, Session
 from pwdlib import PasswordHash
 from pwdlib.exceptions import UnknownHashError
 
-from bumper.db import bot_repo, client_repo, token_repo
+from bumper.db import bot_repo, client_repo, identity
 from bumper.mqtt import helper_bot, proxy as mqtt_proxy
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
@@ -199,7 +199,7 @@ class BumperMQTTServerPlugin(BaseAuthPlugin):  # type: ignore[misc]
     class Config:
         """Allow empty username and password file."""
 
-        allow_anonymous: bool = field(default=True)
+        allow_anonymous: bool = field(default=False)
         password_file: str | None = None
 
     def __init__(self, context: BaseContext) -> None:
@@ -251,6 +251,12 @@ class BumperMQTTServerPlugin(BaseAuthPlugin):  # type: ignore[misc]
                 raise Exception(error_msg)
             did, class_id, resource, client_type = result
 
+            account_user_id = did
+            if client_type == "user" and (account := identity.resolve_transport_user(did, password)) is not None:
+                account_user_id = account.userid
+                if account_user_id != did:
+                    _LOGGER.debug("Resolved the transport client name to its account")
+
             # username has more information included
             if username and "`" in username and (username_info := username.split("`")) and len(username_info) >= 3:
                 # Content example: {"fv":"1.0.0","wv":"v2.1.0"}
@@ -269,40 +275,52 @@ class BumperMQTTServerPlugin(BaseAuthPlugin):  # type: ignore[misc]
                         "No password provided and password authentication is enabled ('USE_AUTH')",
                     )
                     raise Exception(error_msg)
-                if not token_repo.verify_auth_code(did, password):
+                if not identity.verify_transport_secret(account_user_id, password):
                     _LOGGER.warning("Bumper Authentication Failed :: Wrong password")
                     raise Exception(error_msg)
 
             if username and client_type == "bot":
-                bot_repo.add(username, did, class_id, resource, "eco-ng")
-                _LOGGER.info(f"Bumper Authentication Success :: Bot :: Username: {username} :: ClientID: {client_id}")
-
-                if bumper_isc.BUMPER_PROXY_MQTT and username is not None and password is not None:
-                    mqtt_server = await utils.resolve(bumper_isc.PROXY_MQTT_DOMAIN)
-                    _LOGGER_PROXY.info(f"MQTT Proxy Mode :: Using server {mqtt_server} for client {client_id}")
-                    proxy = mqtt_proxy.ProxyClient(
-                        client_id,
-                        mqtt_server,
-                        config=ClientConfig(check_hostname=False, verify_cert=False),
-                    )
-                    self._proxy_clients[client_id] = proxy
-                    await proxy.connect(username, password)
-
+                await self._register_bot(username, did, class_id, resource, client_id, password)
                 return True
 
             # all other will add as a client
-            client_repo.add(username, did, class_id, resource)
+            client_repo.add(username, account_user_id, class_id, resource)
             _LOGGER.info(f"Bumper Authentication Success :: Client :: Username: {username} :: ClientID: {client_id}")
             return True
         except Exception:
-            _LOGGER.exception(f"Session: {session}")
+            _LOGGER.exception(f"Bumper Authentication Failed :: ClientID: {client_id} :: Username: {username}")
 
         # Check for allow anonymous
-        if self._get_config_option("allow_anonymous", True):
+        if self._get_config_option("allow_anonymous", False):
             _LOGGER.info(f"Anonymous Authentication Success :: config allows anonymous :: Username: {username}")
             return True
 
         return False
+
+    async def _register_bot(
+        self,
+        username: str,
+        did: str,
+        class_id: str,
+        resource: str,
+        client_id: str,
+        password: str | None,
+    ) -> None:
+        """Store a robot and share it with every local account."""
+        bot_repo.add(username, did, class_id, resource, "eco-ng")
+        identity.assign_bot_to_all_users(did)
+        _LOGGER.info(f"Bumper Authentication Success :: Bot :: Username: {username} :: ClientID: {client_id}")
+
+        if bumper_isc.BUMPER_PROXY_MQTT and password is not None:
+            mqtt_server = await utils.resolve(bumper_isc.PROXY_MQTT_DOMAIN)
+            _LOGGER_PROXY.info(f"MQTT Proxy Mode :: Using server {mqtt_server} for client {client_id}")
+            proxy = mqtt_proxy.ProxyClient(
+                client_id,
+                mqtt_server,
+                config=ClientConfig(check_hostname=False, verify_cert=False),
+            )
+            self._proxy_clients[client_id] = proxy
+            await proxy.connect(username, password)
 
     def _read_password_file(self) -> None:
         password_file = self._get_config_option("password_file", None)
@@ -422,17 +440,25 @@ class BumperMQTTServerPlugin(BaseAuthPlugin):  # type: ignore[misc]
 
             if (result := self._client_id_split_helper(client_id)) is None:
                 return
-            did, _, __, client_type = result
+            did, _, resource, client_type = result
 
             if client_type == "bot":
                 if bot := bot_repo.get(did):
                     bot_repo.set_mqtt(bot.did, connected)
                     if connected:
-                        asyncio.create_task(self._set_bot_timezone(did))  # noqa: RUF006
+                        _task = asyncio.create_task(self._set_bot_timezone(did))
+
+                        def _on_done(task: asyncio.Task[None]) -> None:
+                            if not task.cancelled():
+                                exc = task.exception()
+                                if exc is not None:
+                                    _LOGGER.debug("set_bot_timezone failed: %r", exc)
+
+                        _task.add_done_callback(_on_done)
                 return
             if client_type == "user":
-                if client := client_repo.get(did):
-                    client_repo.set_mqtt(client.userid, connected)
+                if client := client_repo.get(did, resource=resource):
+                    client_repo.set_mqtt(client.userid, connected, resource=resource)
                 return
         except Exception:
             _LOGGER.exception("Failed to connect client")
@@ -446,7 +472,7 @@ class BumperMQTTServerPlugin(BaseAuthPlugin):  # type: ignore[misc]
             return None
 
         # if not identified with a user class_id, we mark as bot
-        client_type: Literal["bot", "user"] = "user" if class_id in bumper_isc.USER_REALMS else "bot"
+        client_type: Literal["bot", "user"] = "user" if class_id in bumper_isc.USER_CLASS_IDS else "bot"
         return did, class_id, resource, client_type
 
     async def _set_bot_timezone(self, did: str) -> None:

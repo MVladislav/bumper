@@ -10,7 +10,7 @@ from .users import UserRepo
 user_repo = UserRepo()
 token_repo = TokenRepo()
 clean_log_repo = CleanLogRepo()
-client_repo = ClientRepo()
+client_repo = ClientRepo(user_repo.get_by_id)
 bot_repo = BotRepo()
 photo_repo = PhotoRepo()
 
