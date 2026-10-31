@@ -107,11 +107,6 @@ def get_tzm_and_ts() -> tuple[int, int]:
     return offset_minutes, timestamp_s
 
 
-def str_to_bool(value: str | int | bool | None) -> bool:
-    """Convert str to bool."""
-    return str(value).lower() in ["true", "1", "t", "y", "on", "yes"]
-
-
 @overload
 def to_int(value: Any) -> int | None: ...
 
