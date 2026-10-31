@@ -7,14 +7,14 @@ coverage:
       python:
         target: auto
         paths:
-          - bumper/*
+          - bumper/
     patch:
       default:
         target: auto
       python:
         target: auto
         paths:
-          - bumper/*
+          - bumper/
 
 comment:
   layout: "header, diff, flags, components"
