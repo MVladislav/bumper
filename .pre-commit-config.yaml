@@ -60,7 +60,7 @@ repos:
 
   # djLint for Jinja2 templates
   - repo: https://github.com/Riverside-Healthcare/djLint
-    rev: v1.47.0
+    rev: v1.48.1
     hooks:
       - id: djlint-reformat-jinja
         name: Format Jinja2 templates
@@ -104,7 +104,7 @@ repos:
 
   # Python-specific hooks ######################################################
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.17.1
+    rev: v0.17.3
     hooks:
       - id: ruff-check
         args:
