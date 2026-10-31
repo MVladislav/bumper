@@ -18,6 +18,7 @@ from cachetools import TTLCache
 from bumper.db import bot_repo
 from bumper.mqtt.handle_atr import clean_log
 from bumper.utils import utils
+from bumper.utils.device_error_handler import record_device_error_report
 from bumper.web.envelope import (
     TODO_RET,
     response_ngiot_ack,
@@ -70,7 +71,7 @@ def _sanitise_request_id(value: Any) -> str | None:
     if not isinstance(value, str):
         return None
     if _REQUEST_ID_PATTERN.fullmatch(value) is None:
-        _LOGGER.warning("Ignoring malformed request id :: %r", value[:80])
+        _LOGGER.warning(f"Ignoring malformed request id :: {value[:80]!r}")
         return None
     return value
 
@@ -464,6 +465,7 @@ class MQTTHelperBot:
             if topic_split[1] == "p2p" and topic_split[10] in self._commands:
                 command = self._commands[topic_split[10]]
                 self._remember_fw_ver(command.did, decoded_payload)
+                record_device_error_report(command.did, "mqtt-p2p", decoded_payload)
                 command.add_response(decoded_payload)
             elif topic_split[1] == "atr" and topic_split[2] in ("onStats", "reportStats", "onLastTimeStats"):
                 clean_log(

@@ -1,15 +1,16 @@
 # Error Codes
 
-The robot reports the error it runs into with a number. This page lists every
-number the robot uses and what it means, so the numbers in Home Assistant or in
-the app can be read.
+Robots report errors as numeric codes. This page documents the codes Bumper
+currently maps; unrecognized numeric codes remain visible without an invented
+description.
 
-The numbers come from the robot data the official app carries around, and the
-names are the ones the app uses.
+Code meanings can vary by robot family. The sections below group codes by the
+component or fault area suggested by their names and available reference data;
+they do not imply that every code applies to every robot.
 
-## The unit itself
+## Robot components
 
-| Code | Name                                  | Meaning                        |
+| Code | Name                                  | Description                    |
 | ---- | ------------------------------------- | ------------------------------ |
 | 0    | `ERROR_NO`                            | No error                       |
 | 101  | `ERROR_BATTERY_LOW`                   | Battery low                    |
@@ -39,9 +40,9 @@ names are the ones the app uses.
 | 128  | `ERROR_SET_HARDWIPE_BRUSH`            | Hard wipe brush not set        |
 | 129  | `ERROR_BIND_HARDWIPE_BRUSH`           | Hard wipe brush not bound      |
 
-## The air treatment
+## Appliance components
 
-| Code | Name                                | Meaning                       |
+| Code | Name                                | Description                   |
 | ---- | ----------------------------------- | ----------------------------- |
 | 201  | `ERROR_AIRFILTERUNISTALL`           | Air filter not installed      |
 | 202  | `ERROR_ULTRASONICCOMPONENTABNORMAL` | Ultrasonic component abnormal |
@@ -52,9 +53,9 @@ names are the ones the app uses.
 | 207  | `ERROR_ION_STERILIZE_FAULT`         | Ion sterilize fault           |
 | 209  | `ERROR_DTOF_ABNORMAL`               | dToF sensor abnormal          |
 
-## The mop station
+## Mop station
 
-| Code | Name                           | Meaning                               |
+| Code | Name                           | Description                           |
 | ---- | ------------------------------ | ------------------------------------- |
 | 301  | `ERROR_MCD_NO_CLEANWATER`      | Mop station: no clean water           |
 | 302  | `ERROR_MCD_FULL_DIRTYWATER`    | Mop station: dirty water full         |
@@ -66,9 +67,9 @@ names are the ones the app uses.
 | 308  | `ERROR_MCD_CONNECTION_ERROR`   | Mop station: connection error         |
 | 309  | `ERROR_TANK_TOOHOT_ERROR`      | Water tank too hot                    |
 
-## The base station
+## Base station
 
-| Code | Name                                    | Meaning                                            |
+| Code | Name                                    | Description                                        |
 | ---- | --------------------------------------- | -------------------------------------------------- |
 | 310  | `ERROR_AUTO_EMPTY_OPEN`                 | Auto empty station: lid open                       |
 | 311  | `ERROR_AUTO_EMPTY_UNINSTALL`            | Auto empty station: not installed                  |
@@ -81,16 +82,50 @@ names are the ones the app uses.
 | 318  | `ERROR_BASE_STATION_UD_WATER_FULL`      | Base station: undiluted water full                 |
 | 319  | `ERROR_BASE_STATION_CLEAN_WATER_EMPTY`  | Base station: clean water empty                    |
 
-## The camera
+## GOAT mower
 
-| Code | Name                           | Meaning                           |
+| Code | Name                             | Description              |
+| ---- | -------------------------------- | ------------------------ |
+| 401  | `ERROR_TILT`                     | Tilt                     |
+| 402  | `ERROR_OVERHANG`                 | Overhang                 |
+| 403  | `ERROR_SENSOR`                   | Sensor                   |
+| 404  | `ERROR_BATTERY`                  | Battery                  |
+| 405  | `ERROR_LEFT_DRIVING_WHEEL`       | Left driving wheel       |
+| 406  | `ERROR_ROTATION_CUTTER_HEAD`     | Rotation cutter head     |
+| 407  | `ERROR_BUMP_PLATE`               | Bump plate               |
+| 408  | `ERROR_TO_ERASE`                 | To erase                 |
+| 409  | `ERROR_CLEAN_LENS`               | Clean lens               |
+| 410  | `ERROR_GET_LOST`                 | Get lost                 |
+| 411  | `ERROR_STATION_LOCATION`         | Station location         |
+| 412  | `ERROR_BEACON_LOCATION`          | Beacon location          |
+| 414  | `ERROR_RGBD_DIRTY`               | RGBD dirty               |
+| 415  | `ERROR_PANORAMIC_CAMEAR_DIRTY`   | Panoramic camera dirty   |
+| 416  | `ERROR_BATTERY_HIGH_TEMPERATURE` | Battery high temperature |
+| 417  | `ERROR_BATTERY_LOW_TEMPERATURE`  | Battery low temperature  |
+| 418  | `ERROR_IN_FORBIDDEN_AREA`        | In forbidden area        |
+| 420  | `ERROR_OUT_OF_MAP_RANGE`         | Out of map range         |
+| 421  | `ERROR_BEACON_SINGAL`            | Beacon signal            |
+| 422  | `ERROR_GPS_SIGNAL_WEAK_BACK`     | GPS signal weak back     |
+| 423  | `ERROR_GPS_SIGNAL_WEAK_WAIT`     | GPS signal weak wait     |
+| 424  | `ERROR_RIGHT_DRIVING_WHEEL`      | Right driving wheel      |
+| 430  | `ERROR_SENSOR430`                | Sensor 430               |
+| 431  | `ERROR_SENSOR431`                | Sensor 431               |
+| 432  | `ERROR_SENSOR432`                | Sensor 432               |
+| 433  | `ERROR_SENSOR433`                | Sensor 433               |
+| 434  | `ERROR_SENSOR434`                | Sensor 434               |
+| 435  | `ERROR_SENSOR435`                | Sensor 435               |
+| 520  | `ERROR_TRAPPED`                  | Trapped                  |
+
+## Camera and vision
+
+| Code | Name                           | Description                       |
 | ---- | ------------------------------ | --------------------------------- |
 | 601  | `ERROR_ClosedAIVISideAbnormal` | Closed AI vision: side abnormal   |
 | 602  | `ERROR_ClosedAIVIRollAbnormal` | Closed AI vision: roller abnormal |
 
-## In the code
+## Code reference
 
-The mapping lives in `bumper/utils/device_errors.py`:
+The mapping is maintained in `bumper/utils/device_errors.py`:
 
 ```python
 from bumper.utils.device_errors import describe
@@ -98,4 +133,7 @@ from bumper.utils.device_errors import describe
 describe(312)
 ```
 
-returns `Auto empty station: dust bag full (312)`.
+This returns `Auto empty station: dust bag full (312)`. The app-compatible
+`api/pim/eventdetail.html?errcode=...` page uses the same mapping. Guidance is
+curated for some codes; other codes receive safe, general recommendations that
+are identified as generic rather than official Ecovacs instructions.

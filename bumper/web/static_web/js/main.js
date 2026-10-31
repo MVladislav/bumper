@@ -1,5 +1,31 @@
 let openPanel = null;
 
+document.addEventListener("click", (event) => {
+  const badge = event.target.closest(".error-tag");
+  if (badge) {
+    event.preventDefault();
+    const dialog = document.getElementById("error-detail-dialog");
+    document.getElementById("error-dialog-code").textContent = badge.dataset.errorCode;
+    document.getElementById("error-dialog-name").textContent = badge.dataset.errorName;
+    document.getElementById("error-dialog-description").textContent = badge.dataset.errorDescription;
+    document.getElementById("error-dialog-recommendation").textContent = badge.dataset.errorRecommendation;
+    const metadata = [];
+    if (badge.dataset.errorSource) {
+      metadata.push(`Source: ${badge.dataset.errorSource}`);
+    }
+    if (badge.dataset.errorTime) {
+      metadata.push(`Reported: ${badge.dataset.errorTime}`);
+    }
+    document.getElementById("error-dialog-meta").textContent = metadata.join(" · ");
+    dialog.showModal();
+    return;
+  }
+
+  if (event.target.matches("[data-error-dialog-close]") || event.target.id === "error-detail-dialog") {
+    document.getElementById("error-detail-dialog").close();
+  }
+});
+
 function showToast(message, type = "info") {
   const toastContainer = document.getElementById("toast-container");
 

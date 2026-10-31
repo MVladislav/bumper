@@ -8,6 +8,7 @@ from testfixtures import LogCapture
 
 from bumper.db import bot_repo, clean_log_repo
 from bumper.mqtt.helper_bot import CommandDto, MQTTCommandModel, MQTTHelperBot, _fw_ver_of
+from bumper.utils.device_error_handler import discard_device_error_report, get_device_error_report
 from tests import HOST, MQTT_PORT
 
 
@@ -261,6 +262,50 @@ async def test_helperbot_message(mqtt_client: Client) -> None:
             log.clear()
         finally:
             await mqtt_helperbot.disconnect()
+
+
+@pytest.mark.usefixtures("helper_bot")
+async def test_mqtt_error_broadcast_updates_runtime_error_state(mqtt_client: Client) -> None:
+    """Keep a broker-visible error broadcast available during this process."""
+    discard_device_error_report("bot_serial")
+    payload = "<ctl ts='1560904925396' td='errors' old='' new='110'/>"
+
+    try:
+        await mqtt_client.publish("iot/atr/errors/bot_serial/ls1ok3/res2/x", payload.encode())
+        await asyncio.sleep(0.1)
+
+        report = get_device_error_report("bot_serial")
+        assert report is not None
+        assert report.codes == (110,)
+        assert report.reported_at == 1560904925396
+        assert report.source == "mqtt"
+    finally:
+        discard_device_error_report("bot_serial")
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_ngiot_get_info_response_records_nested_get_error() -> None:
+    """Record nested getError data where firmware versions are remembered."""
+    did = "ngiot-error-did"
+    discard_device_error_report(did)
+    bot_repo.add("serial_ngiot", did, "300lc5", "resource", "eco-ng")
+    helper = MQTTHelperBot(HOST, MQTT_PORT, True)
+    request_id = "getError"
+    helper._commands[request_id] = CommandDto("j", did)
+    topic = Topic(f"iot/p2p/getInfo/{did}/300lc5/resource/helperbot/bumper/helperbot/p/{request_id}/j")
+    payload = (
+        b'{"header":{"tzm":60,"ts":"1793456317228356743","fwVer":"1.11.23"},'
+        b'"body":{"code":0,"msg":"ok","data":{"getError":{"code":0,"msg":"ok","data":{"code":[520]}}}}}'
+    )
+    try:
+        await helper._on_message(topic, payload)
+        report = get_device_error_report(did)
+        assert report is not None
+        assert report.codes == (520,)
+        assert report.source == "mqtt-p2p"
+        assert bot_repo.get(did).fw_ver == "1.11.23"
+    finally:
+        discard_device_error_report(did)
 
 
 async def test_helperbot_expire_message(mqtt_client: Client, helper_bot: MQTTHelperBot) -> None:
@@ -600,6 +645,8 @@ async def test_helperbot_send_command_p2p_preserves_generic_command_data(
 
 
 async def test_helperbot_send_command_p2p_charge(mqtt_client: Client, helper_bot: MQTTHelperBot) -> None:
+    """Handle a charge reply without relying on the fixture's short timeout."""
+    helper_bot._timeout = 1
     cmdjson = {
         "cmd": "charge",
         "did": "did_charge_cmd",
@@ -610,6 +657,7 @@ async def test_helperbot_send_command_p2p_charge(mqtt_client: Client, helper_bot
     cmd = MQTTCommandModel(cmdjson, version=MQTTCommandModel.VERSION_P2P)
 
     send_task = asyncio.create_task(helper_bot._send_command_p2p(cmd))
+    await asyncio.sleep(0)
 
     msg_payload = '{"body": {"msg": "ok"}}'
     msg_topic_name = f"iot/p2p/charge/did_charge_cmd/ls1ok3/res_charge_cmd/helperbot/bumper/helperbot/p/{cmd.request_id}/j"

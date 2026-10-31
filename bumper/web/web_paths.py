@@ -16,6 +16,8 @@ import aiohttp_jinja2
 
 from bumper.db import bot_repo, clean_log_repo, client_repo, identity, photo_repo, user_repo
 from bumper.utils import utils
+from bumper.utils.device_error_handler import discard_device_error_report, get_device_error_report
+from bumper.utils.device_errors import DEVICE_ERRORS_BY_CODE, describe, recommendation
 from bumper.utils.settings import config as bumper_isc
 
 if TYPE_CHECKING:
@@ -194,20 +196,7 @@ async def _get_context(request: Request, template_name: str | None = None) -> di
         }
     if template_name and template_name == "bots":
         return {
-            "bots": [
-                {
-                    "name": bot.name,
-                    "nick": bot.nick,
-                    "did": bot.did,
-                    "class_id": bot.class_id,
-                    "resource": bot.resource,
-                    "company": bot.company,
-                    "fw_ver": bot.fw_ver,
-                    "mqtt_connection": bot.mqtt_connection,
-                    "xmpp_connection": bot.xmpp_connection,
-                }
-                for bot in bot_repo.list_all()
-            ],
+            "bots": [_bot_context(bot) for bot in bot_repo.list_all()],
         }
     if template_name and template_name == "clients":
         return {
@@ -295,6 +284,36 @@ async def _get_context(request: Request, template_name: str | None = None) -> di
     }
 
 
+def _bot_context(bot: "VacBotDevice") -> dict[str, Any]:
+    """Build one dashboard row with only error reports seen this runtime."""
+    report = get_device_error_report(bot.did) or get_device_error_report(bot.name)
+    codes = report.codes if report is not None else ()
+    return {
+        "name": bot.name,
+        "nick": bot.nick,
+        "did": bot.did,
+        "class_id": bot.class_id,
+        "resource": bot.resource,
+        "company": bot.company,
+        "fw_ver": bot.fw_ver,
+        "mqtt_connection": bot.mqtt_connection,
+        "xmpp_connection": bot.xmpp_connection,
+        "device_error_reported": report is not None,
+        "device_errors": [
+            {
+                "code": code,
+                "name": DEVICE_ERRORS_BY_CODE[code].name if code in DEVICE_ERRORS_BY_CODE else "Unknown device error",
+                "description": describe(code, include_code=False),
+                "recommendation": recommendation(code),
+            }
+            for code in codes
+        ],
+        "device_error_previous_codes": list(report.previous_codes) if report else [],
+        "device_error_received_at": report.received_at if report else "",
+        "device_error_source": report.source if report else "",
+    }
+
+
 def _handle_remove_entity(entity_type: str) -> Callable[[Request], Awaitable[Response]]:
     """Handle remove entity."""
 
@@ -332,6 +351,10 @@ def _handle_remove_entity(entity_type: str) -> Callable[[Request], Awaitable[Res
                 remove_func(entity_id)
                 if get_func(entity_id):
                     return web.json_response({"status": f"failed to remove {entity_type}"})
+                if entity_type == "bot":
+                    discard_device_error_report(entity_id)
+                    if bot := bot_repo.get(entity_id):
+                        discard_device_error_report(bot.name)
                 return web.json_response({"status": f"successfully removed {entity_type}"})
             return web.json_response({"status": f"not implemented for {entity_type}"})
         except Exception:
