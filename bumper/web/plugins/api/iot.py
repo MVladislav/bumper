@@ -98,7 +98,7 @@ async def handle_commands(
 
             # Answer "offline" straight away rather than publishing.
             if _bot_mqtt_connected(bot) is False:
-                _LOGGER.info(f"Bot {cmd_request.did} is not connected to MQTT :: reporting endpoint offline")
+                _LOGGER.debug(f"Bot {cmd_request.did} is not connected to MQTT :: reporting endpoint offline")
                 if version == MQTTCommandModel.VERSION_NEW:
                     return response_ngiot_offline(cmd_request.request_id)
                 return response_error_endpoint_offline()
