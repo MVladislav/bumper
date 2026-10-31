@@ -15,3 +15,35 @@ coverage:
         target: auto
         paths:
           - bumper/*
+
+comment:
+  layout: "header, diff, flags, components"
+
+component_management:
+  default_rules:
+    statuses:
+      - type: project
+        target: auto
+        branches:
+          - "!main"
+  individual_components:
+    - component_id: web
+      name: web
+      paths:
+        - bumper/web/**
+    - component_id: mqtt
+      name: mqtt
+      paths:
+        - bumper/mqtt/**
+    - component_id: xmpp
+      name: xmpp
+      paths:
+        - bumper/xmpp/**
+    - component_id: db
+      name: db
+      paths:
+        - bumper/db/**
+    - component_id: utils
+      name: utils
+      paths:
+        - bumper/utils/**
