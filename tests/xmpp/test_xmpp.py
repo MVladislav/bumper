@@ -673,10 +673,10 @@ async def test_xmpp_server_disconnect_with_coro() -> None:
     server.server.is_serving.return_value = True
     server.server.close = mock.Mock()
     server.server.wait_closed = mock.AsyncMock()
-    server.server_coro = mock.Mock()
+    server.server_coro = asyncio.create_task(asyncio.sleep(10))
     await server.disconnect()
     assert server.exit_flag is True
-    server.server_coro.cancel.assert_called_once()
+    assert server.server_coro is None
 
 
 @pytest.mark.usefixtures("xmpp_cleanup_clients")

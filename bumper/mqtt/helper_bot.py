@@ -201,6 +201,7 @@ class MQTTHelperBot:
         self._commands: MutableMapping[str, CommandDto] = TTLCache(maxsize=timeout * 60, ttl=timeout * 1.1)
         self._fw_vers: dict[str, str] = {}
         self._mqtt_task: asyncio.Task[None] | None = None  # Task for managing MQTT connection
+        self._disconnect_event = asyncio.Event()
 
     @property
     async def is_connected(self) -> bool:
@@ -219,23 +220,29 @@ class MQTTHelperBot:
     async def start(self) -> None:
         """Start the helper bot and manage the MQTT connection."""
         if self._mqtt_task is None or self._mqtt_task.done():
+            self._disconnect_event.clear()
             self._mqtt_task = asyncio.create_task(self._mqtt_loop())
 
     async def disconnect(self) -> None:
         """Disconnect helper bot."""
         _LOGGER.info("Disconnecting HelperBot...")
-        if self._mqtt_task:
-            self._mqtt_task.cancel()
-            with contextlib.suppress(asyncio.CancelledError, TimeoutError):
-                await asyncio.wait_for(self._mqtt_task, timeout=3)
-            self._mqtt_task = None
-        # Explicitly set the client to None to ensure cleanup
+        self._disconnect_event.set()
+        task = self._mqtt_task
+        if task is not None:
+            try:
+                await asyncio.wait_for(asyncio.shield(task), timeout=3)
+            except TimeoutError:
+                task.cancel()
+                with contextlib.suppress(asyncio.CancelledError):
+                    await task
+            finally:
+                self._mqtt_task = None
         self._client = None
         self._is_connected = False
 
     async def _mqtt_loop(self) -> None:
         """Manage MQTT connection and reconnection in the main loop."""
-        while True:
+        while not self._disconnect_event.is_set():
             try:
                 ssl_ctx: ssl.SSLContext | None = None
                 if self._use_ssl:
@@ -250,21 +257,58 @@ class MQTTHelperBot:
                     identifier=HELPER_BOT_CLIENT_ID,
                 ) as client:
                     self._client = client
+                    await self._subscribe_topics()
                     self._is_connected = True
                     _LOGGER.info("Helper Bot connected successfully.")
-                    await self._subscribe_topics()
-
-                    # Listen for messages
-                    async for message in client.messages:
-                        await self._on_message(message.topic, message.payload)
+                    if not await self._listen_until_disconnect(client):
+                        return
             except MqttError as e:
                 self._is_connected = False
+                if self._disconnect_event.is_set():
+                    break
                 _LOGGER.warning(f"MQTT connection lost: {e}. Reconnecting in {RECONNECT_INTERVAL} seconds...")
-                await asyncio.sleep(RECONNECT_INTERVAL)
+                await self._wait_before_reconnect()
             except Exception:
                 self._is_connected = False
+                if self._disconnect_event.is_set():
+                    break
                 _LOGGER.exception("Unexpected error in MQTT loop")
-                await asyncio.sleep(RECONNECT_INTERVAL)
+                await self._wait_before_reconnect()
+            finally:
+                self._client = None
+                self._is_connected = False
+
+    async def _listen_until_disconnect(self, client: MQTTClient) -> bool:
+        """Listen for messages until the connection fails or shutdown is requested."""
+        message_task = asyncio.create_task(self._process_messages(client))
+        disconnect_task = asyncio.create_task(self._disconnect_event.wait())
+        tasks = (message_task, disconnect_task)
+        try:
+            done, _ = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+            if disconnect_task in done:
+                message_task.cancel()
+                await asyncio.gather(message_task, return_exceptions=True)
+                return False
+
+            disconnect_task.cancel()
+            await asyncio.gather(disconnect_task, return_exceptions=True)
+            message_task.result()
+        finally:
+            for task in tasks:
+                if not task.done():
+                    task.cancel()
+            await asyncio.gather(*tasks, return_exceptions=True)
+        return True
+
+    async def _process_messages(self, client: MQTTClient) -> None:
+        """Process messages from one MQTT connection."""
+        async for message in client.messages:
+            await self._on_message(message.topic, message.payload)
+
+    async def _wait_before_reconnect(self) -> None:
+        """Wait for a reconnect interval, but wake immediately on shutdown."""
+        with contextlib.suppress(TimeoutError):
+            await asyncio.wait_for(self._disconnect_event.wait(), timeout=RECONNECT_INTERVAL)
 
     async def send_command(self, cmd: MQTTCommandModel) -> Response:
         """Send command over MQTT."""

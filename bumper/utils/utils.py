@@ -21,7 +21,17 @@ def store_service(coro: Coroutine[Any, Any, None]) -> None:
     """Create and store a new asyncio task."""
     task = asyncio.create_task(coro)
     bumper_isc.background_tasks.add(task)
-    task.add_done_callback(bumper_isc.background_tasks.discard)
+
+    def _finish_service(completed: asyncio.Task[None]) -> None:
+        bumper_isc.background_tasks.discard(completed)
+        if completed.cancelled():
+            return
+        try:
+            completed.result()
+        except Exception:
+            _LOGGER.exception("Background service task failed")
+
+    task.add_done_callback(_finish_service)
 
 
 async def with_timeout(coro: Awaitable[Any], seconds: int = 3) -> Any:
