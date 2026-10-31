@@ -15,6 +15,9 @@ class DeviceError:
     code: int
     name: str
     description: str
+    recommendation: str = (
+        "Check the Ecovacs app for model-specific steps. If the issue persists, record the error code and contact support."
+    )
 
 
 # The errors the robot reports, in the order of their number.
@@ -73,6 +76,35 @@ DEVICE_ERRORS: tuple[DeviceError, ...] = (
     DeviceError(317, "ERROR_BASE_STATION_UD_WATER_UNINSTALL", "Base station: undiluted water module not installed"),
     DeviceError(318, "ERROR_BASE_STATION_UD_WATER_FULL", "Base station: undiluted water full"),
     DeviceError(319, "ERROR_BASE_STATION_CLEAN_WATER_EMPTY", "Base station: clean water empty"),
+    DeviceError(401, "ERROR_TILT", "Tilt"),
+    DeviceError(402, "ERROR_OVERHANG", "Overhang"),
+    DeviceError(403, "ERROR_SENSOR", "Sensor"),
+    DeviceError(404, "ERROR_BATTERY", "Battery"),
+    DeviceError(405, "ERROR_LEFT_DRIVING_WHEEL", "Left driving wheel"),
+    DeviceError(406, "ERROR_ROTATION_CUTTER_HEAD", "Rotation cutter head"),
+    DeviceError(407, "ERROR_BUMP_PLATE", "Bump plate"),
+    DeviceError(408, "ERROR_TO_ERASE", "To erase"),
+    DeviceError(409, "ERROR_CLEAN_LENS", "Clean lens"),
+    DeviceError(410, "ERROR_GET_LOST", "Get lost"),
+    DeviceError(411, "ERROR_STATION_LOCATION", "Station location"),
+    DeviceError(412, "ERROR_BEACON_LOCATION", "Beacon location"),
+    DeviceError(414, "ERROR_RGBD_DIRTY", "RGBD dirty"),
+    DeviceError(415, "ERROR_PANORAMIC_CAMEAR_DIRTY", "Panoramic camera dirty"),
+    DeviceError(416, "ERROR_BATTERY_HIGH_TEMPERATURE", "Battery high temperature"),
+    DeviceError(417, "ERROR_BATTERY_LOW_TEMPERATURE", "Battery low temperature"),
+    DeviceError(418, "ERROR_IN_FORBIDDEN_AREA", "In forbidden area"),
+    DeviceError(420, "ERROR_OUT_OF_MAP_RANGE", "Out of map range"),
+    DeviceError(421, "ERROR_BEACON_SINGAL", "Beacon signal"),
+    DeviceError(422, "ERROR_GPS_SIGNAL_WEAK_BACK", "GPS signal weak back"),
+    DeviceError(423, "ERROR_GPS_SIGNAL_WEAK_WAIT", "GPS signal weak wait"),
+    DeviceError(424, "ERROR_RIGHT_DRIVING_WHEEL", "Right driving wheel"),
+    DeviceError(430, "ERROR_SENSOR430", "Sensor 430"),
+    DeviceError(431, "ERROR_SENSOR431", "Sensor 431"),
+    DeviceError(432, "ERROR_SENSOR432", "Sensor 432"),
+    DeviceError(433, "ERROR_SENSOR433", "Sensor 433"),
+    DeviceError(434, "ERROR_SENSOR434", "Sensor 434"),
+    DeviceError(435, "ERROR_SENSOR435", "Sensor 435"),
+    DeviceError(520, "ERROR_TRAPPED", "Trapped"),
     DeviceError(601, "ERROR_ClosedAIVISideAbnormal", "Closed AI vision: side abnormal"),
     DeviceError(602, "ERROR_ClosedAIVIRollAbnormal", "Closed AI vision: roller abnormal"),
 )
@@ -80,8 +112,36 @@ DEVICE_ERRORS: tuple[DeviceError, ...] = (
 # The errors by their number, for a quick lookup.
 DEVICE_ERRORS_BY_CODE: dict[int, DeviceError] = {error.code: error for error in DEVICE_ERRORS}
 
+_DEVICE_ERROR_RECOMMENDATIONS: dict[int, str] = {
+    101: "Return the robot to its charging station and allow it to charge before resuming.",
+    103: "Check the wheels for wrapped hair or debris. Clear the obstruction before restarting the robot.",
+    104: "Wipe the downward-facing sensors with a soft, dry cloth and move the robot to a well-lit, clear floor.",
+    105: "Move the robot to a clear, level area and remove anything trapping it before resuming.",
+    106: "Clean the side brush and replace it if the bristles are worn.",
+    108: "Check the side brush for wrapped debris and confirm it turns freely.",
+    109: "Remove hair and debris from the roller and check that it turns freely.",
+    110: "Reinstall the dust box and confirm it is seated correctly.",
+    111: "Check that the bumper moves freely and clear any debris around it.",
+    112: "Clear objects around the laser sensor and check that its cover can rotate freely.",
+    113: "Clean the main brush and replace it if it is worn.",
+    114: "Empty and reinstall the dust box.",
+    301: "Refill and reinstall the clean-water tank.",
+    302: "Empty and reinstall the dirty-water tank.",
+    303: "Install the clean-water tank and confirm it is seated correctly.",
+    304: "Install the dirty-water tank and confirm it is seated correctly.",
+    310: "Close the auto-empty station lid and retry.",
+    312: "Replace the dust bag and reset the station indicator if the model requires it.",
+    319: "Refill the station's clean-water tank.",
+    401: "Place the mower on a level surface and check that it is not tilted or lifted.",
+    402: "Move the mower away from an edge or overhang and place it on supported ground.",
+    409: "Clean the mower lens with a soft, dry cloth.",
+    418: "Move the mower out of the forbidden area or update the boundary in the app.",
+    420: "Return the mower inside the mapped work area and check the map boundaries.",
+    520: "Free the mower from the obstruction and place it on stable, open ground before resuming.",
+}
 
-def describe(code: int | None) -> str:
+
+def describe(code: int | None, *, include_code: bool = True) -> str:
     """Return what an error code means.
 
     A code the robot does not know is returned as it is, so nothing is lost.
@@ -90,5 +150,18 @@ def describe(code: int | None) -> str:
         return ""
     error = DEVICE_ERRORS_BY_CODE.get(code)
     if error is None:
-        return f"Unknown error ({code})"
-    return f"{error.description} ({code})"
+        return f"Unknown error ({code})" if include_code else "Unknown error"
+    return f"{error.description} ({code})" if include_code else error.description
+
+
+def recommendation(code: int | None) -> str:
+    """Return a cautious next step for a known error code."""
+    if code is None:
+        return "Check the robot and the Ecovacs app for the current status."
+    return _DEVICE_ERROR_RECOMMENDATIONS.get(
+        code,
+        (
+            "Check the robot and the Ecovacs app for model-specific recovery steps. "
+            "If it persists, record this code and contact support."
+        ),
+    )

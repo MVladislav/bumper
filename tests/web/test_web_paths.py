@@ -3,10 +3,12 @@ from unittest.mock import patch
 
 from aiohttp import web
 from aiohttp.test_utils import TestClient, make_mocked_request
+from aiomqtt import Client
 import pytest
 
 from bumper.db import bot_repo, clean_log_repo, photo_repo, user_repo
 from bumper.mqtt.server import MQTTServer
+from bumper.utils.device_error_handler import discard_device_error_report, record_device_error_report
 from bumper.utils.settings import config as bumper_isc
 from bumper.web.utils.models import CleanLog
 from bumper.web.web_paths import _handle_remove_entity
@@ -70,6 +72,7 @@ async def test_the_page_holds_every_section(webserver_client: TestClient) -> Non
     # The map of a job is shown with the job it belongs to.
     assert "Maps" not in body
     assert 'id="map-viewer"' in body
+    assert 'id="error-detail-dialog"' in body
 
 
 @pytest.mark.usefixtures("clean_database")
@@ -346,6 +349,102 @@ async def test_the_bots_page_shows_no_version_when_the_robot_reported_none(webse
         body = await resp.text()
 
     assert "Firmware" in body
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_bots_page_displays_mqtt_error_broadcast(
+    webserver_client: TestClient,
+    mqtt_client: Client,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Show and warn about the MQTT error event received from a bot."""
+    bot_repo.add("sn_520", "did_520", "300lc5", "res_520", "eco-ng")
+    assert bot_repo.get("did_520") is not None
+    discard_device_error_report("did_520")
+
+    try:
+        with caplog.at_level("WARNING", logger="bumper.utils.device_error_handler"):
+            await mqtt_client.publish(
+                "iot/atr/errors/did_520/300lc5/res_520/x",
+                '<ctl ts="1234" td="errors" old="" new="520"/>',
+            )
+            async with webserver_client.get("/bots") as resp:
+                body = await resp.text()
+
+        assert resp.status == 200
+        assert "Errors" in body
+        assert 'data-error-code="520"' in body
+        assert 'data-error-description="Trapped"' in body
+        assert ">520</a>" in body
+        assert "520 · Trapped" not in body
+        assert "ERROR_TRAPPED" in body
+        assert 'class="badge bg-warning text-dark error-tag"' in body
+        assert 'id="error-detail-dialog"' not in body
+        assert "&lt;ctl" not in body
+        assert "Robot reported device error(s)" in caplog.text
+    finally:
+        discard_device_error_report("did_520")
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_bots_page_displays_json_get_error_response(
+    webserver_client: TestClient,
+    mqtt_client: Client,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Display the JSON P2P GetError response used by newer robot classes."""
+    bot_repo.add("sn_json", "did_json", "300lc5", "res_json", "eco-ng")
+    discard_device_error_report("did_json")
+    payload = b'{"header":{"ts":"1234"},"body":{"data":{"code":[520]}}}'
+
+    try:
+        with caplog.at_level("WARNING", logger="bumper.utils.device_error_handler"):
+            await mqtt_client.publish("iot/p2p/getError/did_json/300lc5/res_json/robot/bumper/p/id/j", payload)
+            async with webserver_client.get("/bots") as response:
+                body = await response.text()
+
+        assert response.status == 200
+        assert 'data-error-code="520"' in body
+        assert ">520</a>" in body
+        assert "Trapped (520)" not in body
+        assert "Robot reported device error(s)" in caplog.text
+    finally:
+        discard_device_error_report("did_json")
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_bots_page_distinguishes_unreported_errors_from_cleared_errors(webserver_client: TestClient) -> None:
+    """Do not imply a bot has no errors before it reports an error state."""
+    bot_repo.add("sn_unreported", "did_unreported", "p95mgv", "res_unreported", "eco-ng")
+    discard_device_error_report("did_unreported")
+
+    async with webserver_client.get("/bots") as resp:
+        body = await resp.text()
+
+    assert resp.status == 200
+    assert "Not reported" not in body
+    assert "No active error" not in body
+    assert "Errors" in body
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_bots_page_shows_the_code_that_was_cleared(webserver_client: TestClient) -> None:
+    """Show a compact cleared-code label after a JSON GetError clear response."""
+    did = "did_json_clear"
+    bot_repo.add("sn_json_clear", did, "300lc5", "res_json_clear", "eco-ng")
+    discard_device_error_report(did)
+    try:
+        record_device_error_report(did, "mqtt-p2p", '{"body":{"data":{"code":[520]}}}')
+        record_device_error_report(did, "mqtt-p2p", '{"body":{"data":{"code":[0]}}}')
+
+        async with webserver_client.get("/bots") as response:
+            body = await response.text()
+
+        assert response.status == 200
+        assert "Cleared: 520" in body
+        assert 'data-error-code="520"' not in body
+    finally:
+        discard_device_error_report(did)
 
 
 @pytest.mark.usefixtures("clean_database", "mqtt_server", "helper_bot")

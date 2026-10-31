@@ -101,6 +101,27 @@
         <img id="map-viewer-image" src="" alt="" draggable="false" />
       </div>
     </dialog>
+
+    <dialog id="error-detail-dialog" class="error-dialog" aria-labelledby="error-dialog-title">
+      <div class="error-dialog-header">
+        <div>
+          <div class="error-dialog-eyebrow">Robot error</div>
+          <h2 id="error-dialog-title" class="error-dialog-title">
+            <span id="error-dialog-code" class="badge bg-warning text-dark"></span>
+            <span id="error-dialog-name"></span>
+          </h2>
+        </div>
+        <button type="button" class="error-dialog-close" aria-label="Close" data-error-dialog-close>×</button>
+      </div>
+      <div class="error-dialog-body">
+        <p id="error-dialog-description" class="error-dialog-description"></p>
+        <section class="error-dialog-advice">
+          <h3>What to try</h3>
+          <p id="error-dialog-recommendation"></p>
+        </section>
+        <p id="error-dialog-meta" class="error-dialog-meta"></p>
+      </div>
+    </dialog>
   </body>
 
 </html>

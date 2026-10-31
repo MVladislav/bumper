@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="{{ language }}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Robot error {{ code }}</title>
+    <style>
+      :root { color-scheme: light dark; font: 16px/1.55 system-ui, sans-serif; }
+      body { margin: 0; padding: 1.25rem; background: #f5f7fa; color: #19212b; }
+      main { box-sizing: border-box; max-width: 42rem; margin: 0 auto; padding: 1.5rem; border: 1px solid #d8dee8; border-radius: 1rem; background: white; }
+      .eyebrow { color: #596579; font-size: .85rem; text-transform: uppercase; letter-spacing: .06em; }
+      h1 { margin: .25rem 0 1rem; font-size: 1.5rem; }
+      .code { display: inline-block; padding: .2rem .65rem; border-radius: 999px; background: #fff0cc; color: #664600; font-weight: 700; }
+      .guidance { margin-top: 1rem; padding: 1rem; border-left: 4px solid #4778c7; background: #f1f6ff; }
+      .note { margin-top: 1.25rem; color: #596579; font-size: .9rem; }
+      @media (prefers-color-scheme: dark) {
+        body { background: #10151b; color: #e8edf5; }
+        main { border-color: #384352; background: #1b232e; }
+        .eyebrow, .note { color: #b0bdce; }
+        .guidance { background: #202e42; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">Robot error{% if class_id %} · {{ class_id }}{% endif %}</p>
+      <h1>Today's floor report has a plot twist: {{ name }}.</h1>
+      <p class="code">Code {{ code }}</p>
+      <p>{{ description }}</p>
+      <section class="guidance" aria-labelledby="guidance-title">
+        <h2 id="guidance-title">What to try next</h2>
+        <p>{{ recommendation }}</p>
+      </section>
+      <p class="note">
+        {% if known %}
+          The error code and description are the serious part. The suggested step is Bumper's best general advice, not model-specific magic.
+        {% else %}
+          Bumper has not mapped this code yet. Keep the code when reporting the issue; the robot has submitted a plot twist we have not named yet.
+        {% endif %}
+      </p>
+    </main>
+  </body>
+</html>

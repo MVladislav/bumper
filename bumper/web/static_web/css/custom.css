@@ -226,6 +226,121 @@ footer {
   filter: drop-shadow(0 1rem 2rem rgba(0, 0, 0, 0.5));
 }
 
+.error-tag {
+  display: inline-block;
+  margin: 0.1rem 0.15rem 0.1rem 0;
+  text-decoration: none;
+}
+
+.error-tag:hover,
+.error-tag:focus-visible {
+  color: #212529;
+  filter: brightness(0.94);
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.error-dialog {
+  width: min(30rem, calc(100vw - 2rem));
+  max-width: none;
+  max-height: calc(100vh - 2rem);
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  transition: none;
+  color: var(--text-color);
+  background: var(--bs-body-bg);
+  border: 1px solid var(--card-border-color);
+  border-radius: var(--radius);
+  box-shadow: 0 1.25rem 3.5rem rgba(0, 0, 0, 0.28);
+}
+
+.error-dialog::backdrop {
+  background: rgba(10, 15, 22, 0.58);
+  backdrop-filter: blur(3px);
+}
+
+.error-dialog-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.4rem 1rem;
+  border-bottom: 1px solid var(--card-border-color);
+}
+
+.error-dialog-eyebrow {
+  margin-bottom: 0.35rem;
+  color: var(--muted-color);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.error-dialog-title {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.error-dialog-title .badge {
+  flex: 0 0 auto;
+}
+
+.error-dialog-close {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  padding: 0;
+  color: var(--muted-color);
+  background: transparent;
+  border: 1px solid var(--card-border-color);
+  border-radius: 50%;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.error-dialog-close:hover {
+  color: var(--text-color);
+  background: var(--background-color-hover, var(--bs-tertiary-bg));
+}
+
+.error-dialog-body {
+  padding: 1.15rem 1.4rem 1.35rem;
+}
+
+.error-dialog-description {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.error-dialog-advice {
+  padding: 0.9rem 1rem;
+  background: var(--background-color);
+  border: 1px solid var(--card-border-color);
+  border-radius: calc(var(--radius) - 0.25rem);
+}
+
+.error-dialog-advice h3 {
+  margin-bottom: 0.35rem;
+  font-size: 0.85rem;
+}
+
+.error-dialog-advice p,
+.error-dialog-meta {
+  margin: 0;
+}
+
+.error-dialog-meta {
+  margin-top: 0.9rem;
+  color: var(--muted-color);
+  font-size: 0.75rem;
+}
+
 /* The menu of the actions of a row. */
 .menu {
   position: relative;

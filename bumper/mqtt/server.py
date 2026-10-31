@@ -22,6 +22,8 @@ from pwdlib.exceptions import UnknownHashError
 from bumper.db import bot_repo, client_repo, identity
 from bumper.mqtt import helper_bot, proxy as mqtt_proxy
 from bumper.utils import utils
+from bumper.utils.device_error_handler import record_device_error_report
+from bumper.utils.device_error_reports import parse_device_error_report
 from bumper.utils.settings import config as bumper_isc
 
 _LOGGER = logging.getLogger(__name__)
@@ -368,9 +370,22 @@ class BumperMQTTServerPlugin(BaseAuthPlugin):  # type: ignore[misc]
             elif topic_split[3] == "helperbot":
                 # Helperbot sending command
                 _log__helperbot_message("Send Command", topic, data_decoded)
+            elif topic_split[1] == "p2p":
+                _log__helperbot_message("Received Message", topic, data_decoded)
+                if topic_split[2].lower() in {"geterror", "geterrors"} and len(topic_split) > 3:
+                    record_device_error_report(topic_split[3], "mqtt-p2p", data_decoded)
             elif topic_split[1] == "atr":
                 # Broadcast message received on atr
                 _log__helperbot_message("Received Broadcast", topic, data_decoded)
+                if len(topic_split) > 3:
+                    report = parse_device_error_report(data_decoded)
+                    if report is not None:
+                        record_device_error_report(topic_split[3], "mqtt", data_decoded)
+                    elif any("error" in part.lower() for part in topic_split[2:]):
+                        _LOGGER.warning(
+                            f"Could not parse MQTT device-error broadcast :: topic_kind={topic_split[2]} :: "
+                            f"payload_bytes={len(data_decoded.encode())}",
+                        )
             else:
                 _log__helperbot_message("Received Message", topic, data_decoded)
 
@@ -452,7 +467,7 @@ class BumperMQTTServerPlugin(BaseAuthPlugin):  # type: ignore[misc]
                             if not task.cancelled():
                                 exc = task.exception()
                                 if exc is not None:
-                                    _LOGGER.debug("set_bot_timezone failed: %r", exc)
+                                    _LOGGER.debug(f"set_bot_timezone failed: {exc!r}")
 
                         _task.add_done_callback(_on_done)
                 return

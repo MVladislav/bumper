@@ -76,6 +76,9 @@ Run the three linters and pytest before opening a PR - CI gates on all of them.
 - The filter **mutates the record in place**, so a log line can look different
   depending on which handlers ran before the one you read. Do not assert on
   sanitized output in a test without applying the filter yourself first.
+- Use f-string formatting for logger calls, for example
+  `_LOGGER.info(f"Device error {code}")`. Keep messages clear and consistent
+  with f-string style across the codebase.
 
 **Web layer**
 
