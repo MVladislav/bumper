@@ -160,7 +160,7 @@ class WebServer:
 
             async with ClientSession(
                 headers=request.headers,
-                connector=TCPConnector(verify_ssl=False, resolver=utils.get_resolver_with_public_nameserver()),
+                connector=TCPConnector(ssl=False, resolver=utils.get_resolver_with_public_nameserver()),
             ) as session:
                 data: Any = None
                 json_data: Any = None
