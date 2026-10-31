@@ -446,7 +446,15 @@ class BumperMQTTServerPlugin(BaseAuthPlugin):  # type: ignore[misc]
                 if bot := bot_repo.get(did):
                     bot_repo.set_mqtt(bot.did, connected)
                     if connected:
-                        asyncio.create_task(self._set_bot_timezone(did))  # noqa: RUF006
+                        _task = asyncio.create_task(self._set_bot_timezone(did))
+
+                        def _on_done(task: asyncio.Task[None]) -> None:
+                            if not task.cancelled():
+                                exc = task.exception()
+                                if exc is not None:
+                                    _LOGGER.debug("set_bot_timezone failed: %r", exc)
+
+                        _task.add_done_callback(_on_done)
                 return
             if client_type == "user":
                 if client := client_repo.get(did, resource=resource):
