@@ -6,7 +6,6 @@ MQTT, XMPP, and web server components used in bumper tests.
 
 import asyncio
 from collections.abc import AsyncIterator, Awaitable, Callable, Generator
-import contextlib
 import logging
 from pathlib import Path
 import ssl
@@ -120,26 +119,36 @@ def log_helper(level: str) -> LogHelper:
 @pytest.fixture
 async def mqtt_server(test_files: dict[str, Path]) -> AsyncIterator[MQTTServer]:
     """Start authenticated MQTT server."""
-    bumper_isc.mqtt_server = await _start_mqtt_server(str(test_files["passwd"]))
-    yield bumper_isc.mqtt_server
+    server = await _start_mqtt_server(str(test_files["passwd"]))
+    bumper_isc.mqtt_server = server
+    yield server
     # The helper bot is a client of the server, it has to let go of the
     # connection first, or the server waits for it while it stops.
-    if bumper_isc.mqtt_helperbot is not None:
-        with contextlib.suppress(Exception):
-            await asyncio.wait_for(bumper_isc.mqtt_helperbot.disconnect(), timeout=5.0)
-    if bumper_isc.mqtt_server is not None:
-        with contextlib.suppress(Exception):
-            await asyncio.wait_for(bumper_isc.mqtt_server.shutdown(), timeout=5.0)
-    # Give the OS time to release port 8883 before the next test starts.
-    await asyncio.sleep(0.5)
+    helper_bot = bumper_isc.mqtt_helperbot
+    try:
+        if helper_bot is not None:
+            await helper_bot.disconnect()
+    finally:
+        try:
+            await server.shutdown()
+        finally:
+            if bumper_isc.mqtt_server is server:
+                bumper_isc.mqtt_server = None
+            if bumper_isc.mqtt_helperbot is helper_bot:
+                bumper_isc.mqtt_helperbot = None
 
 
 @pytest.fixture
 async def mqtt_server_anonymous(test_files: dict[str, Path]) -> AsyncIterator[MQTTServer]:
     """Start anonymous MQTT server."""
-    bumper_isc.mqtt_server = await _start_mqtt_server(str(test_files["passwd"]), allow_anonymous=True)
-    yield bumper_isc.mqtt_server
-    await bumper_isc.mqtt_server.shutdown()
+    server = await _start_mqtt_server(str(test_files["passwd"]), allow_anonymous=True)
+    bumper_isc.mqtt_server = server
+    yield server
+    try:
+        await server.shutdown()
+    finally:
+        if bumper_isc.mqtt_server is server:
+            bumper_isc.mqtt_server = None
 
 
 async def _start_mqtt_server(password_file: str, allow_anonymous: bool = False) -> MQTTServer:
@@ -202,16 +211,20 @@ async def helper_bot(mqtt_server: MQTTServer) -> AsyncIterator[MQTTHelperBot]:
         msg = "MQTT server must be started before creating client."
         raise RuntimeError(msg)
 
-    bumper_isc.mqtt_helperbot = MQTTHelperBot(HOST, MQTT_PORT, True, 0.1)
-    await bumper_isc.mqtt_helperbot.start()
+    helper = MQTTHelperBot(HOST, MQTT_PORT, True, 0.1)
+    bumper_isc.mqtt_helperbot = helper
+    await helper.start()
 
-    if await bumper_isc.mqtt_helperbot.is_connected is not True:
+    if await helper.is_connected is not True:
         msg = "MQTT helper bot should be connected with MQTT server."
         raise RuntimeError(msg)
 
-    yield bumper_isc.mqtt_helperbot
-    with contextlib.suppress(Exception):
-        await asyncio.wait_for(bumper_isc.mqtt_helperbot.disconnect(), timeout=5.0)
+    yield helper
+    try:
+        await helper.disconnect()
+    finally:
+        if bumper_isc.mqtt_helperbot is helper:
+            bumper_isc.mqtt_helperbot = None
 
 
 @pytest.fixture
@@ -220,7 +233,12 @@ async def xmpp_server() -> AsyncIterator[XMPPServer]:
     bumper_isc.xmpp_server = XMPPServer(HOST, 5223)
     await bumper_isc.xmpp_server.start_async_server()
     yield bumper_isc.xmpp_server
-    await bumper_isc.xmpp_server.disconnect()
+    server = bumper_isc.xmpp_server
+    try:
+        await server.disconnect()
+    finally:
+        if bumper_isc.xmpp_server is server:
+            bumper_isc.xmpp_server = None
 
 
 @pytest.fixture
@@ -248,10 +266,14 @@ async def webserver_client(
     )
     client = await aiohttp_client(bumper_isc.web_server._app)
     yield client
-    await client.close()
-    # Shut down the web server so it releases any connections to the
-    # MQTT broker before the mqtt_server fixture tears down.
-    if bumper_isc.web_server is not None:
-        with contextlib.suppress(Exception):
-            await bumper_isc.web_server.shutdown()
-        bumper_isc.web_server = None
+    try:
+        await client.close()
+    finally:
+        # Close the web server before its MQTT broker dependency is torn down.
+        server = bumper_isc.web_server
+        if server is not None:
+            try:
+                await server.shutdown()
+            finally:
+                if bumper_isc.web_server is server:
+                    bumper_isc.web_server = None

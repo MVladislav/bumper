@@ -171,6 +171,7 @@ class Config:
     xmpp_server: "XMPPServer | None" = None
     background_tasks: set[asyncio.Task[None]] = set()
     shutting_down: bool = False
+    shutdown_event: asyncio.Event = asyncio.Event()
     CODEPUSH_LOCAL_PACKAGE: bool = str_to_bool(os.environ.get("CODEPUSH_LOCAL_PACKAGE"))
 
     # metadata -----------------------------------------------------------------

@@ -8,6 +8,7 @@ from testfixtures import LogCapture
 
 from bumper.db import bot_repo, clean_log_repo
 from bumper.mqtt.helper_bot import CommandDto, MQTTCommandModel, MQTTHelperBot, _fw_ver_of
+from bumper.mqtt.server import MQTTServer
 from bumper.utils.device_error_handler import discard_device_error_report, get_device_error_report
 from tests import HOST, MQTT_PORT
 
@@ -104,7 +105,7 @@ def test_mqtt_command_model_create_topic() -> None:
 
 
 @pytest.mark.usefixtures("mqtt_client")
-async def test_helperbot_connect() -> None:
+async def test_helperbot_connect(mqtt_server: MQTTServer) -> None:
     mqtt_helperbot = MQTTHelperBot(HOST, MQTT_PORT, True)
     try:
         await mqtt_helperbot.start()
@@ -114,6 +115,7 @@ async def test_helperbot_connect() -> None:
         assert not await mqtt_helperbot.is_connected
         assert mqtt_helperbot._client is None
         assert mqtt_helperbot._mqtt_task is None
+        assert all(session.client_id != "helperbot@bumper/helperbot" for session in mqtt_server.sessions)
 
 
 @pytest.mark.usefixtures("mqtt_client")
@@ -478,12 +480,14 @@ async def test_helperbot_send_command_plain_timeout(helper_bot: MQTTHelperBot) -
         "data": {},
     }
     cmd = MQTTCommandModel(cmdjson, version=MQTTCommandModel.VERSION_P2P)
+    helper_bot._timeout = 0.1
     # Do not send a response, so it times out
     result = await helper_bot.send_command_plain(cmd)
     assert result is None
 
 
 async def test_helperbot_send_command_plain_valid_response(mqtt_client: Client, helper_bot: MQTTHelperBot) -> None:
+    helper_bot._timeout = 1
     cmdjson = {
         "cmd": "getBattery",
         "did": "did_valid",
@@ -495,8 +499,7 @@ async def test_helperbot_send_command_plain_valid_response(mqtt_client: Client, 
 
     # Start a task to send the command
     send_task = asyncio.create_task(helper_bot.send_command_plain(cmd))
-
-    # Give the command time to be published and the CommandDto to be registered
+    await asyncio.sleep(0)
 
     # Publish the response to a topic where the request_id is at index 10
     msg_payload = '{"body": {"data": {"value": 80}}}'
@@ -509,6 +512,7 @@ async def test_helperbot_send_command_plain_valid_response(mqtt_client: Client, 
 
 
 async def test_helperbot_send_command_old(mqtt_client: Client, helper_bot: MQTTHelperBot) -> None:
+    helper_bot._timeout = 1
     cmdjson = {
         "payloadType": "j",
         "toId": "did_old",
@@ -521,6 +525,7 @@ async def test_helperbot_send_command_old(mqtt_client: Client, helper_bot: MQTTH
     cmd = MQTTCommandModel(cmdjson, version=MQTTCommandModel.VERSION_OLD)
 
     send_task = asyncio.create_task(helper_bot._send_command_old(cmd))
+    await asyncio.sleep(0)
 
     msg_payload = '{"ret":"ok","ver":"0.13.5"}'
     msg_topic_name = f"iot/p2p/GetWKVer/did_old/ls1ok3/res_old/helperbot/bumper/helperbot/p/{cmd.request_id}/j"
@@ -534,6 +539,7 @@ async def test_helperbot_send_command_old(mqtt_client: Client, helper_bot: MQTTH
 
 
 async def test_helperbot_send_command_new(mqtt_client: Client, helper_bot: MQTTHelperBot) -> None:
+    helper_bot._timeout = 1
     cmdjson = {
         "fmt": "j",
         "apn": "getStats",
@@ -546,6 +552,7 @@ async def test_helperbot_send_command_new(mqtt_client: Client, helper_bot: MQTTH
     cmd = MQTTCommandModel(cmdjson, version=MQTTCommandModel.VERSION_NEW)
 
     send_task = asyncio.create_task(helper_bot._send_command_new(cmd))
+    await asyncio.sleep(0)
 
     msg_payload = '{"body": {"data": {"area": 0}}}'
     msg_topic_name = f"iot/p2p/getStats/did_new/ls1ok3/res_new/helperbot/bumper/helperbot/p/{cmd.request_id}/j"
@@ -561,6 +568,7 @@ async def test_helperbot_send_command_new(mqtt_client: Client, helper_bot: MQTTH
 
 
 async def test_helperbot_send_command_p2p_get_battery(mqtt_client: Client, helper_bot: MQTTHelperBot) -> None:
+    helper_bot._timeout = 1
     cmdjson = {
         "cmd": "getBatteryInfo",
         "did": "did_battery",
@@ -571,6 +579,7 @@ async def test_helperbot_send_command_p2p_get_battery(mqtt_client: Client, helpe
     cmd = MQTTCommandModel(cmdjson, version=MQTTCommandModel.VERSION_P2P)
 
     send_task = asyncio.create_task(helper_bot._send_command_p2p(cmd))
+    await asyncio.sleep(0)
 
     msg_payload = '{"body": {"data": {"value": 90}}}'
     msg_topic_name = f"iot/p2p/getBattery/did_battery/ls1ok3/res_battery/helperbot/bumper/helperbot/p/{cmd.request_id}/j"
@@ -586,6 +595,7 @@ async def test_helperbot_send_command_p2p_get_battery(mqtt_client: Client, helpe
 
 
 async def test_helperbot_send_command_p2p_get_charge_state(mqtt_client: Client, helper_bot: MQTTHelperBot) -> None:
+    helper_bot._timeout = 1
     cmdjson = {
         "cmd": "getChargeState",
         "did": "did_charge",
@@ -596,6 +606,7 @@ async def test_helperbot_send_command_p2p_get_charge_state(mqtt_client: Client, 
     cmd = MQTTCommandModel(cmdjson, version=MQTTCommandModel.VERSION_P2P)
 
     send_task = asyncio.create_task(helper_bot._send_command_p2p(cmd))
+    await asyncio.sleep(0)
 
     msg_payload = '{"body": {"data": {"isCharging": 1}}}'
     msg_topic_name = f"iot/p2p/getChargeState/did_charge/ls1ok3/res_charge/helperbot/bumper/helperbot/p/{cmd.request_id}/j"
@@ -615,6 +626,7 @@ async def test_helperbot_send_command_p2p_preserves_generic_command_data(
     helper_bot: MQTTHelperBot,
 ) -> None:
     """Legacy commands without custom projections must not lose their data."""
+    helper_bot._timeout = 1
     cmdjson = {
         "cmd": "getBindToken",
         "did": "did_bind_token",
@@ -624,6 +636,7 @@ async def test_helperbot_send_command_p2p_preserves_generic_command_data(
     }
     cmd = MQTTCommandModel(cmdjson, version=MQTTCommandModel.VERSION_P2P)
     send_task = asyncio.create_task(helper_bot._send_command_p2p(cmd))
+    await asyncio.sleep(0)
 
     msg_payload = (
         '{"body":{"data":{"region":"eu-central-1","channel":"production-did_bind_token",'

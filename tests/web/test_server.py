@@ -7,7 +7,7 @@ import pytest
 from yarl import URL
 
 from bumper.utils.settings import config as bumper_isc
-from bumper.web.server import WebServer, WebserverBinding
+from bumper.web.server import WEB_SHUTDOWN_TIMEOUT, WebServer, WebserverBinding
 from tests import HOST, WEBSERVER_PORT
 
 
@@ -21,6 +21,37 @@ async def test_webserver_no_ssl() -> None:
     server = WebServer(WebserverBinding(HOST, WEBSERVER_PORT + 1, False), False)
     await server.start()
     await server.shutdown()
+
+
+async def test_webserver_shutdown_timeout_is_bounded() -> None:
+    """Do not retain HTTP handlers past the Ecovacs client's request deadline."""
+    server = WebServer(WebserverBinding(HOST, WEBSERVER_PORT + 1, False), False)
+    await server.start()
+    try:
+        assert server._runner is not None
+        assert server._runner._shutdown_timeout == WEB_SHUTDOWN_TIMEOUT
+    finally:
+        await server.shutdown()
+
+
+async def test_multiple_web_bindings_share_one_runner() -> None:
+    """Bind TLS and cleartext sites under one app lifecycle runner."""
+    server = WebServer(
+        [
+            WebserverBinding(HOST, WEBSERVER_PORT + 9, False),
+            WebserverBinding(HOST, WEBSERVER_PORT + 10, False),
+        ],
+        False,
+    )
+    await server.start()
+    try:
+        assert server.started
+        assert server._runner is not None
+        assert len(server._runner.sites) == 2
+    finally:
+        await server.shutdown()
+    assert not server.started
+    assert server._runner is None
 
 
 @pytest.mark.usefixtures("clean_database", "xmpp_server", "helper_bot")

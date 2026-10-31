@@ -69,10 +69,6 @@ async def handle_commands(
 ) -> Response:
     """Handle commands."""
     try:
-        if bumper_isc.mqtt_helperbot is None:
-            msg = "'bumper_isc.mqtt_helperbot' is None"
-            raise Exception(msg)
-
         json_body: dict[str, Any] = {}
         if version == MQTTCommandModel.VERSION_OLD:
             json_body = json.loads(await request.text())
@@ -103,6 +99,8 @@ async def handle_commands(
                     return response_ngiot_offline(cmd_request.request_id)
                 return response_error_endpoint_offline()
 
+            if bumper_isc.mqtt_helperbot is None:
+                return response_error_endpoint_offline()
             return await bumper_isc.mqtt_helperbot.send_command(cmd_request)
 
         if cmd_request.td is not None:

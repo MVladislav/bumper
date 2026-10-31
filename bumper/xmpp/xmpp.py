@@ -51,7 +51,9 @@ class XMPPServer:
         _LOGGER.info("Shutting down XMPP Server...")
 
         _LOGGER.debug("waiting for all clients to disconnect")
-        for client in self.clients:
+        clients = tuple(self.clients)
+        ping_tasks = [client.schedule_ping_task for client in clients if client.schedule_ping_task is not None]
+        for client in clients:
             client.disconnect()
 
         self.exit_flag = True
@@ -61,6 +63,10 @@ class XMPPServer:
         _LOGGER.debug("shutting down")
         if self.server_coro is not None:
             self.server_coro.cancel()
+            await asyncio.gather(self.server_coro, return_exceptions=True)
+            self.server_coro = None
+        if ping_tasks:
+            await asyncio.gather(*ping_tasks, return_exceptions=True)
 
 
 class XMPPServerProtocol(asyncio.Protocol):
@@ -130,14 +136,7 @@ class XMPPAsyncClient:
         """Ensure proper cleanup of the schedule_ping_task."""
         if self.schedule_ping_task and not self.schedule_ping_task.done():
             self.schedule_ping_task.cancel()
-            try:
-                loop = asyncio.get_event_loop()
-                if loop.is_running():
-                    self.schedule_ping_task = asyncio.ensure_future(self.schedule_ping_task)
-                else:
-                    loop.run_until_complete(self.schedule_ping_task)
-            except (asyncio.CancelledError, RuntimeError):
-                _LOGGER_CLIENT.debug(f"Ping task canceled for {self.bumper_jid}")
+        self.schedule_ping_task = None
 
     def send(self, command: str) -> None:
         """Send command."""

@@ -5,6 +5,7 @@ Also verifies the __main__ entrypoint runs without side effects.
 
 import asyncio
 import runpy
+import socket
 import sys
 from unittest import mock
 
@@ -14,6 +15,43 @@ from testfixtures import LogCapture
 import bumper
 import bumper.__main__
 from bumper.utils.settings import config as bumper_isc
+
+
+def _available_port(used: set[int]) -> int:
+    """Choose an unused high port for a full-stack lifecycle test."""
+    while True:
+        with socket.socket() as listener:
+            listener.bind(("127.0.0.1", 0))
+            port = listener.getsockname()[1]
+        if port not in used:
+            used.add(port)
+            return port
+
+
+async def _wait_for_services(start_task: asyncio.Task[None]) -> bool:
+    """Wait until startup has brought each configured service online."""
+    for _ in range(500):
+        if start_task.done():
+            return False
+        mqtt_server = bumper_isc.mqtt_server
+        helper_bot = bumper_isc.mqtt_helperbot
+        xmpp_server = bumper_isc.xmpp_server
+        web_server = bumper_isc.web_server
+        if (
+            mqtt_server is not None
+            and mqtt_server.state == "started"
+            and helper_bot is not None
+            and helper_bot._is_connected
+            and xmpp_server is not None
+            and xmpp_server.server is not None
+            and xmpp_server.server.is_serving()
+            and web_server is not None
+            and web_server.started
+        ):
+            await asyncio.sleep(0)
+            return not start_task.done()
+        await asyncio.sleep(0.01)
+    return False
 
 
 @pytest.mark.parametrize(
@@ -26,7 +64,7 @@ from bumper.utils.settings import config as bumper_isc
     ],
 )
 @pytest.mark.usefixtures("clean_database")
-async def test_start_stop(debug: bool, proxy: bool) -> None:
+async def test_start_stop(debug: bool, proxy: bool, monkeypatch: pytest.MonkeyPatch) -> None:
     """Start and stop bumper with combinations of debug and proxy settings."""
     # Configure settings
     bumper_isc.debug_bumper_verbose = 2
@@ -34,18 +72,23 @@ async def test_start_stop(debug: bool, proxy: bool) -> None:
         bumper_isc.debug_bumper_level = "DEBUG"
     bumper_isc.BUMPER_PROXY_MQTT = proxy
     bumper_isc.BUMPER_PROXY_WEB = proxy
+    monkeypatch.setattr(bumper_isc, "bumper_listen", "127.0.0.1")
+    used_ports: set[int] = set()
+    for setting in (
+        "XMPP_LISTEN_PORT_TLS",
+        "MQTT_LISTEN_PORT_TLS",
+        "MQTT_LISTEN_PORT",
+        "WEB_SERVER_TLS_LISTEN_PORT",
+        "WEB_SERVER_LISTEN_PORT",
+    ):
+        monkeypatch.setattr(bumper_isc, setting, _available_port(used_ports))
 
     with LogCapture() as log:
-        # Launch start() in background
+        # Startup remains alive in maintenance until shutdown is requested.
         start_task = asyncio.create_task(bumper.start())
-        await asyncio.wait_for(start_task, timeout=2)
+        assert await asyncio.wait_for(_wait_for_services(start_task), timeout=5)
         log.check_present(("bumper", "INFO", "Starting Bumpers..."))
-
-        # Await startup log, timeout after 5s
-        await asyncio.wait_for(
-            asyncio.to_thread(lambda: log.check_present(("bumper", "INFO", "Bumper started successfully"))),
-            timeout=5,
-        )
+        log.check_present(("bumper", "INFO", "Bumper started successfully"))
 
         if proxy:
             assert bumper_isc.BUMPER_PROXY_MQTT is True

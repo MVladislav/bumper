@@ -26,6 +26,10 @@ from bumper.web.utils import middlewares
 _LOGGER = logging.getLogger(__name__)
 _LOGGER_PROXY = logging.getLogger(f"{__name__}.proxy")
 
+# The Ecovacs app gives up after 15 seconds; shutdown should not retain handlers
+# for aiohttp's 60-second default after that client-side deadline has passed.
+WEB_SHUTDOWN_TIMEOUT = 15.0
+
 
 @dataclasses.dataclass(frozen=True)
 class WebserverBinding:
@@ -41,7 +45,8 @@ class WebServer:
 
     def __init__(self, bindings: list[WebserverBinding] | WebserverBinding, proxy_mode: bool) -> None:
         """Web Server init."""
-        self._runners: list[web.AppRunner] = []
+        self._runner: web.AppRunner | None = None
+        self._started = False
         self._bindings = [bindings] if isinstance(bindings, WebserverBinding) else bindings
         self._app = web.Application(middlewares=[middlewares.log_all_requests, middlewares.shape_failures])
 
@@ -99,12 +104,11 @@ class WebServer:
         try:
             _LOGGER.info("Starting WebServer")
             self._log_voice_files()
+            runner = web.AppRunner(self._app, shutdown_timeout=WEB_SHUTDOWN_TIMEOUT)
+            self._runner = runner
+            await runner.setup()
             for binding in self._bindings:
                 _LOGGER.info(f"Starting WebServer Server at {binding.host}:{binding.port}")
-                runner = web.AppRunner(self._app)
-                self._runners.append(runner)
-                await runner.setup()
-
                 ssl_ctx: ssl.SSLContext | None = None
                 if binding.use_ssl:
                     ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
@@ -119,7 +123,14 @@ class WebServer:
                 )
 
                 await site.start()
+            self._started = True
         except Exception:
+            if self._runner is not None:
+                try:
+                    await self._runner.cleanup()
+                except Exception:
+                    _LOGGER.exception("Failed to clean up a partially started web server")
+                self._runner = None
             _LOGGER.exception(utils.default_exception_str_builder())
             raise
 
@@ -140,15 +151,18 @@ class WebServer:
         """Shutdown server."""
         try:
             _LOGGER.info("Shutting down Web Server...")
-            for runner in self._runners:
-                await runner.shutdown()
-                await runner.cleanup()
-            self._runners.clear()
-            await self._app.shutdown()
-            await self._app.cleanup()
+            if self._runner is not None:
+                await self._runner.cleanup()
+                self._runner = None
+            self._started = False
         except Exception:
             _LOGGER.exception(utils.default_exception_str_builder())
             raise
+
+    @property
+    def started(self) -> bool:
+        """Return whether all configured web listeners have started."""
+        return self._started
 
     async def _handle_proxy(self, request: Request) -> Response:
         try:

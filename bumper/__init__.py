@@ -2,7 +2,7 @@
 
 import argparse
 import asyncio
-from contextlib import suppress
+import contextlib
 import logging
 from pathlib import Path
 import sys
@@ -36,6 +36,8 @@ async def start() -> None:
 
 async def start_configuration() -> None:
     """Initialize Bumper configuration."""
+    bumper_isc.shutting_down = False
+    bumper_isc.shutdown_event = asyncio.Event()
     if bumper_isc.debug_bumper_level == "DEBUG":
         asyncio.get_running_loop().set_debug(True)
 
@@ -86,14 +88,14 @@ async def start_service() -> None:
     """Start Bumper services."""
     # Start XMPP Server
     if bumper_isc.xmpp_server is not None:
-        utils.store_service(bumper_isc.xmpp_server.start_async_server())
+        await bumper_isc.xmpp_server.start_async_server()
 
     # Start MQTT Server
     if bumper_isc.mqtt_server is not None:
         await bumper_isc.mqtt_server.start()
-        while bumper_isc.mqtt_server.state != "started":
-            _LOGGER.info("Waiting for MQTT server to start...")
-            await asyncio.sleep(0.1)
+        if bumper_isc.mqtt_server.state != "started":
+            msg = f"MQTT server did not start; current state is {bumper_isc.mqtt_server.state}"
+            raise RuntimeError(msg)
 
         # Start MQTT Helperbot
         if bumper_isc.mqtt_helperbot is not None:
@@ -104,7 +106,7 @@ async def start_service() -> None:
 
     # Start web servers
     if bumper_isc.web_server is not None:
-        utils.store_service(bumper_isc.web_server.start())
+        await bumper_isc.web_server.start()
 
 
 async def maintenance() -> None:
@@ -112,7 +114,8 @@ async def maintenance() -> None:
     try:
         while not bumper_isc.shutting_down:
             token_repo.revoke_expired()
-            await asyncio.sleep(5)
+            with contextlib.suppress(TimeoutError):
+                await asyncio.wait_for(bumper_isc.shutdown_event.wait(), timeout=5)
     except asyncio.CancelledError:
         pass
 
@@ -121,29 +124,39 @@ async def shutdown() -> None:
     """Shutdown Bumper."""
     _LOGGER.info("Shutting down...")
     bumper_isc.shutting_down = True
+    bumper_isc.shutdown_event.set()
 
     if bumper_isc.mqtt_helperbot is not None:
         await bumper_isc.mqtt_helperbot.disconnect()
+        bumper_isc.mqtt_helperbot = None
 
     if bumper_isc.web_server is not None:
         await bumper_isc.web_server.shutdown()
+        bumper_isc.web_server = None
 
     if bumper_isc.mqtt_server is not None:
-        while bumper_isc.mqtt_server.state in ["starting", "stopping"]:
-            _LOGGER.info("Waiting for MQTT Server to stabilize before shutdown...")
-            await asyncio.sleep(0.1)
-        if bumper_isc.mqtt_server.state == "started":
-            await bumper_isc.mqtt_server.shutdown()
+        mqtt_server = bumper_isc.mqtt_server
+        if mqtt_server.state in {"starting", "stopping"}:
+            await mqtt_server.wait_for_state_change(
+                mqtt_server.state,
+                reverse=True,
+                max_wait=server_mqtt.SHUTDOWN_TIMEOUT,
+            )
+        if mqtt_server.state == "started":
+            await mqtt_server.shutdown()
+        elif mqtt_server.state not in {"stopped", "not_started"}:
+            _LOGGER.warning(f"MQTT server did not reach a stopped state :: state={mqtt_server.state}")
+        bumper_isc.mqtt_server = None
 
-    if bumper_isc.xmpp_server is not None and bumper_isc.xmpp_server.server:
+    if bumper_isc.xmpp_server is not None:
         await bumper_isc.xmpp_server.disconnect()
+        bumper_isc.xmpp_server = None
 
-    tasks = [task for task in asyncio.all_tasks() if task is not asyncio.current_task()]
-    # tasks = [task for task in bumper_isc.background_tasks if task is not asyncio.current_task()]
+    tasks = [task for task in bumper_isc.background_tasks if task is not asyncio.current_task()]
     for task in tasks:
         task.cancel()
-    with suppress(asyncio.CancelledError):
-        await asyncio.gather(*tasks)
+    if tasks:
+        await asyncio.gather(*tasks, return_exceptions=True)
 
     _LOGGER.info("Shutdown complete!")
 
