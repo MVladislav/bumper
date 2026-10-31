@@ -61,12 +61,7 @@ def test_files(tmp_path_factory: pytest.TempPathFactory) -> dict[str, Path]:
     passwd_bad = tmp_dir / "passwd_bad"
     passwd_bad.write_text("test-client:badhash\n")
 
-    bumper_isc.certs_dir = tmp_dir / "certs"
-    bumper_isc.ca_cert = bumper_isc.certs_dir / "ca.crt"
-    bumper_isc.ca_key = bumper_isc.certs_dir / "ca.key"
-    bumper_isc.ca_pem = bumper_isc.certs_dir / "ca.pem"
-    bumper_isc.server_cert = bumper_isc.certs_dir / "bumper.crt"
-    bumper_isc.server_key = bumper_isc.certs_dir / "bumper.key"
+    _apply_cert_paths(tmp_dir)
     generate_certificates()
 
     db_file = tmp_dir / "tmp.db"
@@ -81,24 +76,27 @@ def test_files(tmp_path_factory: pytest.TempPathFactory) -> dict[str, Path]:
     }
 
 
+_CERT_ATTRS = ("certs_dir", "ca_cert", "ca_key", "ca_pem", "server_cert", "server_key")
+
+
+def _apply_cert_paths(base: Path) -> None:
+    """Point the config at a cert directory rooted at ``base``."""
+    bumper_isc.certs_dir = base / "certs"
+    bumper_isc.ca_cert = bumper_isc.certs_dir / "ca.crt"
+    bumper_isc.ca_key = bumper_isc.certs_dir / "ca.key"
+    bumper_isc.ca_pem = bumper_isc.certs_dir / "ca.pem"
+    bumper_isc.server_cert = bumper_isc.certs_dir / "bumper.crt"
+    bumper_isc.server_key = bumper_isc.certs_dir / "bumper.key"
+
+
 @pytest.fixture
-def test_certs(tmp_path: Path) -> None:
-    saved_cert_dir = bumper_isc.certs_dir
-    bumper_isc.certs_dir = tmp_path / "certs"
-    bumper_isc.ca_cert = bumper_isc.certs_dir / "ca.crt"
-    bumper_isc.ca_key = bumper_isc.certs_dir / "ca.key"
-    bumper_isc.ca_pem = bumper_isc.certs_dir / "ca.pem"
-    bumper_isc.server_cert = bumper_isc.certs_dir / "bumper.crt"
-    bumper_isc.server_key = bumper_isc.certs_dir / "bumper.key"
-
+def test_certs(tmp_path: Path) -> Path:
+    """Temporarily point config at a fresh cert directory, restoring on teardown."""
+    saved = {name: getattr(bumper_isc, name) for name in _CERT_ATTRS}
+    _apply_cert_paths(tmp_path)
     yield bumper_isc.certs_dir
-
-    bumper_isc.certs_dir = saved_cert_dir
-    bumper_isc.ca_cert = bumper_isc.certs_dir / "ca.crt"
-    bumper_isc.ca_key = bumper_isc.certs_dir / "ca.key"
-    bumper_isc.ca_pem = bumper_isc.certs_dir / "ca.pem"
-    bumper_isc.server_cert = bumper_isc.certs_dir / "bumper.crt"
-    bumper_isc.server_key = bumper_isc.certs_dir / "bumper.key"
+    for name, value in saved.items():
+        setattr(bumper_isc, name, value)
 
 
 @pytest.fixture

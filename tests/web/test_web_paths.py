@@ -1,11 +1,15 @@
 from pathlib import Path
 from unittest.mock import patch
 
-from aiohttp.test_utils import TestClient
+from aiohttp import web
+from aiohttp.test_utils import TestClient, make_mocked_request
 import pytest
 
 from bumper.db import bot_repo, clean_log_repo, photo_repo, user_repo
+from bumper.mqtt.server import MQTTServer
+from bumper.utils.settings import config as bumper_isc
 from bumper.web.utils.models import CleanLog
+from bumper.web.web_paths import _handle_remove_entity
 
 
 @pytest.mark.usefixtures("clean_database", "mqtt_server")
@@ -342,3 +346,195 @@ async def test_the_bots_page_shows_no_version_when_the_robot_reported_none(webse
         body = await resp.text()
 
     assert "Firmware" in body
+
+
+@pytest.mark.usefixtures("clean_database", "mqtt_server", "helper_bot")
+async def test_restart_helper_bot_success(webserver_client: TestClient) -> None:
+    async with webserver_client.get("/restart_Helperbot") as resp:
+        assert resp.status == 200
+        body = await resp.json()
+    assert body["status"] == "complete"
+
+
+async def test_restart_helper_bot_failed(
+    monkeypatch: pytest.MonkeyPatch,
+    webserver_client: TestClient,
+) -> None:
+    async def _false() -> bool:
+        return False
+
+    monkeypatch.setattr("bumper.web.web_paths._restart_helper_bot", _false)
+    async with webserver_client.get("/restart_Helperbot") as resp:
+        assert resp.status == 200
+        body = await resp.json()
+    assert body["status"] == "failed"
+
+
+async def test_restart_mqtt_server_failed(
+    monkeypatch: pytest.MonkeyPatch,
+    webserver_client: TestClient,
+    mqtt_server: MQTTServer,
+) -> None:
+    monkeypatch.setattr(bumper_isc, "mqtt_server", None)
+    try:
+        async with webserver_client.get("/restart_MQTTServer") as resp:
+            assert resp.status == 200
+            body = await resp.json()
+        assert body["status"] == "failed"
+    finally:
+        bumper_isc.mqtt_server = mqtt_server
+
+
+@pytest.mark.usefixtures("clean_database", "mqtt_server", "helper_bot")
+async def test_restart_mqtt_server_with_helper_bot(webserver_client: TestClient) -> None:
+    async with webserver_client.get("/restart_MQTTServer") as resp:
+        assert resp.status == 200
+        body = await resp.json()
+    assert body["status"] == "complete"
+
+
+async def test_restart_invalid_service(webserver_client: TestClient) -> None:
+    async with webserver_client.get("/restart_Foo") as resp:
+        assert resp.status == 200
+        body = await resp.json()
+    assert body["status"] == "invalid service"
+
+
+async def test_restart_service_exception(
+    monkeypatch: pytest.MonkeyPatch,
+    webserver_client: TestClient,
+) -> None:
+    async def boom() -> bool:
+        msg = "boom"
+        raise RuntimeError(msg)
+
+    monkeypatch.setattr("bumper.web.web_paths._restart_helper_bot", boom)
+    async with webserver_client.get("/restart_Helperbot") as resp:
+        assert resp.status == 500
+
+
+async def test_handle_base_exception(
+    monkeypatch: pytest.MonkeyPatch,
+    webserver_client: TestClient,
+) -> None:
+    async def boom(request: object, template_name: str | None = None) -> dict[str, object]:
+        _ = (request, template_name)
+        msg = "boom"
+        raise RuntimeError(msg)
+
+    monkeypatch.setattr("bumper.web.web_paths._get_context", boom)
+    async with webserver_client.get("/") as resp:
+        assert resp.status == 500
+
+
+async def test_handle_partial_exception(
+    monkeypatch: pytest.MonkeyPatch,
+    webserver_client: TestClient,
+) -> None:
+    async def boom(request: object, template_name: str | None = None) -> dict[str, object]:
+        _ = (request, template_name)
+        msg = "boom"
+        raise RuntimeError(msg)
+
+    monkeypatch.setattr("bumper.web.web_paths._get_context", boom)
+    async with webserver_client.get("/server-status") as resp:
+        assert resp.status == 500
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_remove_clean_logs_failed(
+    monkeypatch: pytest.MonkeyPatch,
+    webserver_client: TestClient,
+) -> None:
+    clean_log = CleanLog("did@1@res")
+    clean_log.did = "did"
+    clean_log_repo.add_or_update(clean_log)
+    monkeypatch.setattr(clean_log_repo, "clear", lambda: None)
+    async with webserver_client.get("/clean_logs/remove/anything") as resp:
+        assert resp.status == 200
+        body = await resp.json()
+    assert "failed" in body["status"]
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_remove_bot_failed(
+    monkeypatch: pytest.MonkeyPatch,
+    webserver_client: TestClient,
+) -> None:
+    bot_repo.add("sn", "did_fail", "p95mgv", "res1", "eco-ng")
+    monkeypatch.setattr(bot_repo, "remove", lambda _did: None)
+    async with webserver_client.get("/bot/remove/did_fail") as resp:
+        assert resp.status == 200
+        body = await resp.json()
+    assert "failed" in body["status"]
+
+
+async def test_remove_entity_exception(
+    monkeypatch: pytest.MonkeyPatch,
+    webserver_client: TestClient,
+) -> None:
+    def boom(did: str) -> None:
+        _ = did
+        msg = "boom"
+        raise RuntimeError(msg)
+
+    monkeypatch.setattr(bot_repo, "remove", boom)
+    async with webserver_client.get("/bot/remove/did_x") as resp:
+        assert resp.status == 500
+
+
+async def test_remove_entity_not_implemented() -> None:
+    handler = _handle_remove_entity("unknown")
+    request = make_mocked_request("GET", "/x", app=web.Application(), match_info={})
+    response = await handler(request)
+    assert response.status == 200
+
+
+async def test_set_bot_nickname_failed(webserver_client: TestClient) -> None:
+    async with webserver_client.get("/bot/nickname/did_1234") as resp:
+        assert resp.status == 200
+        body = await resp.json()
+    assert "failed" in body["status"]
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_set_bot_nickname_unknown(webserver_client: TestClient) -> None:
+    async with webserver_client.get("/bot/nickname/did_nope?nickname=Test") as resp:
+        assert resp.status == 200
+        body = await resp.json()
+    assert "failed" in body["status"]
+
+
+async def test_set_bot_nickname_exception(
+    monkeypatch: pytest.MonkeyPatch,
+    webserver_client: TestClient,
+) -> None:
+    def boom_get(did: str) -> object:
+        _ = did
+        msg = "boom"
+        raise RuntimeError(msg)
+
+    monkeypatch.setattr(bot_repo, "get", boom_get)
+    async with webserver_client.get("/bot/nickname/did_1234?nickname=Test") as resp:
+        assert resp.status == 500
+
+
+async def test_set_user_nickname_failed(webserver_client: TestClient) -> None:
+    async with webserver_client.get("/user/nickname/uid_1234") as resp:
+        assert resp.status == 200
+        body = await resp.json()
+    assert "failed" in body["status"]
+
+
+async def test_set_user_nickname_exception(
+    monkeypatch: pytest.MonkeyPatch,
+    webserver_client: TestClient,
+) -> None:
+    def boom_get(uid: str) -> object:
+        _ = uid
+        msg = "boom"
+        raise RuntimeError(msg)
+
+    monkeypatch.setattr(user_repo, "get_by_id", boom_get)
+    async with webserver_client.get("/user/nickname/uid_1234?nickname=Test") as resp:
+        assert resp.status == 500

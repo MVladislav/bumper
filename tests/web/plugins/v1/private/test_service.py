@@ -3,6 +3,8 @@
 from aiohttp.test_utils import TestClient
 import pytest
 
+from tests.web.helpers import get_json
+
 _PRIVATE = "/v1/private/us/en/dev_1234/global_e/3.16.0/google_play/1"
 
 
@@ -17,6 +19,6 @@ async def test_double_slash_service_and_tips_routes(webserver_client: TestClient
         "//tips/tipsList": {"tipsList": []},
     }
     for path, expected in responses.items():
-        async with webserver_client.get(f"{_PRIVATE}{path}") as response:
-            assert response.status == 200
-            assert (await response.json())["data"] == expected
+        status, body = await get_json(webserver_client, f"{_PRIVATE}{path}")
+        assert status == 200
+        assert body["data"] == expected

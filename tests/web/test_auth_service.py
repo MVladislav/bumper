@@ -1,8 +1,9 @@
 import asyncio
 import base64
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 import logging
+import types
 from types import CoroutineType
 from typing import Any
 
@@ -17,12 +18,22 @@ from bumper.utils.account_ids import is_account_uid
 from bumper.utils.account_key import account_public_key
 from bumper.utils.settings import config as bumper_isc
 from bumper.web.auth_service import (
+    _auth_any_user_extends,
     _check_token,
+    _client_id_from_request,
+    _ensure_token,
     _generate_auth_code,
+    _generate_it_token,
     _generate_token,
     _generate_uid,
+    _get_auth_code,
     _get_login_details,
+    _token_for_access_token,
+    _token_for_legacy_request,
+    _verify_access_token,
     generate_jwt_helper,
+    issue_portal_token,
+    remaining_milliseconds,
 )
 from bumper.web.envelope import ApiError
 from bumper.web.jwt import get_jwt_details, verify_jwt
@@ -976,3 +987,353 @@ async def test_login_by_it_token_returns_the_account(webserver_client: TestClien
     assert data["last"] > 0
     assert not _has_own_user_record(LEGACY_IOT_ID)
     assert user_repo.get_by_id(LEGACY_IOT_ID).userid == userid
+
+
+def _raise_boom(*_a: Any, **_k: Any) -> None:
+    """Raise a runtime error for exception-path tests."""
+    msg = "boom"
+    raise RuntimeError(msg)
+
+
+# --- Additional coverage for auth_service branches ---
+@pytest.mark.usefixtures("clean_database")
+async def test_login_post_account_non_string(webserver_client: TestClient) -> None:
+    """A non-string account field falls through to the encrypted-account path."""
+    async with webserver_client.post(
+        "/v1/private/us/en/dev_nonstr/ios/1/0/0/user/login",
+        json={"account": 123},
+    ) as resp:
+        assert resp.status == 200
+        data = await resp.json()
+
+    assert data["code"] == "0000"
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_login_resolves_user_from_uid(webserver_client: TestClient) -> None:
+    """A missing login name with a presented uid resolves the account by device."""
+    async with webserver_client.post(
+        "/v1/private/us/en/dev_uidbase/ios/1/0/0/user/login",
+        json={"account": "base_user"},
+    ) as resp:
+        base = await resp.json()
+    uid = base["data"]["uid"]
+
+    async with webserver_client.post(
+        "/v1/private/us/en/dev_uidbase/ios/1/0/0/user/login",
+        params={"uid": uid},
+        json={"account": "nonexistent_name"},
+    ) as resp:
+        assert resp.status == 200
+        data = await resp.json()
+
+    assert data["code"] == "0000"
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_login_exception(webserver_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
+    """An unexpected failure in login becomes a 500."""
+    monkeypatch.setattr("bumper.web.auth_service.identity.resolve_login", lambda _: (_ for _ in ()).throw(RuntimeError("boom")))
+
+    async with webserver_client.post(
+        "/v1/private/us/en/dev_exc/ios/1/0/0/user/login",
+        json={"account": "exc_user"},
+    ) as resp:
+        assert resp.status == 500
+
+
+def test_auth_any_user_extends_no_device(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Without a device id the device binding is skipped."""
+    user = models.BumperUser(userid="no_device_user")
+    bind_calls: list[Any] = []
+    monkeypatch.setattr("bumper.web.auth_service.user_repo.bind_device", lambda *a, **k: bind_calls.append((a, k)))
+    monkeypatch.setattr("bumper.web.auth_service.token_repo.revoke_user_expired", lambda *_: None)
+
+    _auth_any_user_extends(user, None)
+
+    assert bind_calls == []
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_get_auth_code_it_token_fails(webserver_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
+    """A failure to mint an IT token is reported as an expired login."""
+    user = user_repo.create("it_fail_user")
+    token_repo.add(user.userid, "access_token")
+    monkeypatch.setattr("bumper.web.auth_service._generate_it_token", lambda *_a, **_k: None)
+
+    async with webserver_client.get(
+        f"/v1/global/auth/getAuthCode?uid={user.account_id}&accessToken=access_token",
+    ) as resp:
+        assert resp.status == 200
+        data = await resp.json()
+
+    assert data.get("code") == "0004"
+    assert data.get("msg") == "Expired user login"
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_get_auth_code_exception(webserver_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
+    """An unexpected failure in get_auth_code becomes a 500."""
+    monkeypatch.setattr("bumper.web.auth_service.identity.resolve_user", _raise_boom)
+
+    async with webserver_client.get("/v1/global/auth/getAuthCode?uid=x&accessToken=t") as resp:
+        assert resp.status == 500
+
+
+def test_verify_access_token_non_str_user(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A JWT whose user id is not a string is rejected."""
+    user = models.BumperUser(userid="verify_user")
+    monkeypatch.setattr("bumper.web.auth_service.token_repo.get_valid_by_token", lambda _: None)
+    monkeypatch.setattr("bumper.web.auth_service.verify_jwt", lambda _: {"user_id": 123})
+
+    assert _verify_access_token(user, "token") is False
+
+
+def test_token_for_access_token_details_none(monkeypatch: pytest.MonkeyPatch) -> None:
+    """An opaque token that is neither a row nor a valid JWT yields None."""
+    user = models.BumperUser(userid="tfa_user")
+    monkeypatch.setattr("bumper.web.auth_service.token_repo.get_by_token", lambda _: None)
+    monkeypatch.setattr("bumper.web.auth_service.verify_jwt", lambda _: None)
+
+    assert _token_for_access_token(user, "bad") is None
+
+
+def test_token_for_access_token_auth_code_branch(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A JWT carrying an auth code resolves to the matching token row."""
+    user = models.BumperUser(userid="tfa_user2")
+    row = models.Token(
+        userid=user.userid,
+        token="portal",  # noqa: S106
+        expiration=datetime.now(tz=bumper_isc.LOCAL_TIMEZONE) + timedelta(days=1),
+    )
+    monkeypatch.setattr("bumper.web.auth_service.token_repo.get_by_token", lambda _: None)
+    monkeypatch.setattr("bumper.web.auth_service.verify_jwt", lambda _: {"auth_code": "code_x"})
+    monkeypatch.setattr("bumper.web.auth_service.token_repo.get_by_client_id", lambda _: None)
+    monkeypatch.setattr("bumper.web.auth_service.token_repo.get_by_auth_code", lambda _: row)
+    monkeypatch.setattr("bumper.web.auth_service._row_belongs_to", lambda _r, _u: True)
+    monkeypatch.setattr("bumper.web.auth_service.remaining_milliseconds", lambda _: 1000)
+
+    assert _token_for_access_token(user, "jwt") is row
+
+
+def test_generate_it_token_failure(monkeypatch: pytest.MonkeyPatch) -> None:
+    """When neither attachment path works the IT token is not created."""
+    monkeypatch.setattr("bumper.web.auth_service.token_repo.add_it_token_to_token", lambda *_a, **_k: False)
+    monkeypatch.setattr("bumper.web.auth_service.token_repo.add_it_token", lambda *_a, **_k: False)
+
+    assert _generate_it_token("gen_it_user", None) is None
+
+
+@pytest.mark.usefixtures("clean_database")
+def test_ensure_token_provisions() -> None:
+    """A missing token row is provisioned."""
+    result = _ensure_token("ensure_user")
+
+    assert result is not None
+    assert result.userid == "ensure_user"
+
+
+@pytest.mark.usefixtures("clean_database")
+def test_issue_portal_token() -> None:
+    """issue_portal_token returns a live portal token."""
+    token = issue_portal_token("portal_issue_user")
+
+    assert token is not None
+
+
+def test_remaining_milliseconds_naive() -> None:
+    """A naive expiration is interpreted in the local timezone."""
+    token = models.Token(
+        userid="rm_user",
+        token="t",  # noqa: S106
+        expiration=datetime.now() + timedelta(days=1),  # noqa: DTZ005
+    )
+
+    assert remaining_milliseconds(token) >= 0
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_get_new_auth_user_not_found(webserver_client: TestClient) -> None:
+    """An IT token for an unknown account is rejected."""
+    token_repo.add("ghost_newauth", "portal_token")
+    token_repo.add_it_token("ghost_newauth", "ghost_it_token")
+
+    async with webserver_client.post(
+        "/newauth.do",
+        json={"itToken": "ghost_it_token", "todo": "OLoginByITToken"},
+    ) as resp:
+        assert resp.status == 200
+        data = await resp.json()
+
+    assert data.get("result") == "fail"
+    assert data.get("error") == "New auth failed, no account found for it-token"
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_get_new_auth_exception(webserver_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
+    """An unexpected failure in get_new_auth becomes a 500."""
+    token_repo.add("ghost_newauth2", "portal_token")
+    token_repo.add_it_token("ghost_newauth2", "ghost_it_token2")
+    monkeypatch.setattr("bumper.web.auth_service.identity.resolve_user", _raise_boom)
+
+    async with webserver_client.post(
+        "/newauth.do",
+        json={"itToken": "ghost_it_token2", "todo": "OLoginByITToken"},
+    ) as resp:
+        assert resp.status == 500
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_get_auth_code_v2_auth_not_mapping(webserver_client: TestClient) -> None:
+    """A non-mapping auth falls back to the query parameter for the user id."""
+    user = user_repo.create("v2_nonmap")
+    async with webserver_client.post(
+        f"/api/users/user.do?u={user.account_id}",
+        json={"todo": "GetAuthCode", "auth": "not-a-mapping"},
+    ) as resp:
+        assert resp.status == 200
+        data = await resp.json()
+
+    assert data.get("result") == "ok"
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_get_auth_code_v2_token_invalid(webserver_client: TestClient) -> None:
+    """An invalid JWT in the auth block is ignored and the user still resolves."""
+    user = user_repo.create("v2_badjwt")
+    async with webserver_client.post(
+        "/api/users/user.do",
+        json={"todo": "GetAuthCode", "auth": {"userid": user.account_id, "token": "not.a.jwt"}},
+    ) as resp:
+        assert resp.status == 200
+        data = await resp.json()
+
+    assert data.get("result") == "ok"
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_get_auth_code_v2_exception(webserver_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
+    """An unexpected failure in get_auth_code_v2 becomes a 500."""
+    monkeypatch.setattr("bumper.web.auth_service.identity.resolve_user", _raise_boom)
+
+    async with webserver_client.post(
+        "/api/users/user.do",
+        json={"todo": "GetAuthCode", "auth": {"userid": "any"}},
+    ) as resp:
+        assert resp.status == 500
+
+
+def test_token_for_legacy_request_by_secret(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A token that is a live secret of the account is reused."""
+    user = models.BumperUser(userid="legacy_secret_user")
+    row = models.Token(
+        userid=user.userid,
+        token="secret",  # noqa: S106
+        expiration=datetime.now(tz=bumper_isc.LOCAL_TIMEZONE) + timedelta(days=1),
+    )
+    monkeypatch.setattr("bumper.web.auth_service.token_repo.get_by_secret", lambda _: row)
+    monkeypatch.setattr("bumper.web.auth_service._row_belongs_to", lambda _r, _u: True)
+
+    assert _token_for_legacy_request(user, "secret") is row
+
+
+def test_token_for_legacy_request_details_none(monkeypatch: pytest.MonkeyPatch) -> None:
+    """An unverifiable token that is not a known secret yields None."""
+    user = models.BumperUser(userid="legacy_none_user")
+    monkeypatch.setattr("bumper.web.auth_service.token_repo.get_by_secret", lambda _: None)
+    monkeypatch.setattr("bumper.web.auth_service.verify_jwt", lambda _: None)
+
+    assert _token_for_legacy_request(user, "bad") is None
+
+
+def test_token_for_legacy_request_client_id(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A JWT naming a client resolves to that client's token row."""
+    user = models.BumperUser(userid="legacy_cid_user")
+    row = models.Token(
+        userid=user.userid,
+        token="portal",  # noqa: S106
+        expiration=datetime.now(tz=bumper_isc.LOCAL_TIMEZONE) + timedelta(days=1),
+    )
+    monkeypatch.setattr("bumper.web.auth_service.token_repo.get_by_secret", lambda _: None)
+    monkeypatch.setattr("bumper.web.auth_service.verify_jwt", lambda _: {"client_id": "cid_x"})
+    monkeypatch.setattr("bumper.web.auth_service.token_repo.get_by_client_id", lambda _: row)
+    monkeypatch.setattr("bumper.web.auth_service._row_belongs_to", lambda _r, _u: True)
+
+    assert _token_for_legacy_request(user, "jwt") is row
+
+
+def test_token_for_legacy_request_final_none(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A verified token that names no usable row yields None."""
+    user = models.BumperUser(userid="legacy_final_user")
+    monkeypatch.setattr("bumper.web.auth_service.token_repo.get_by_secret", lambda _: None)
+    monkeypatch.setattr("bumper.web.auth_service.verify_jwt", lambda _: {})
+
+    assert _token_for_legacy_request(user, "jwt") is None
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_oauth_callback_missing_code(webserver_client: TestClient) -> None:
+    """A callback without an auth code is rejected in the endpoint's shape."""
+    async with webserver_client.get("/api/appsvr/oauth_callback") as resp:
+        assert resp.status == 200
+        data = await resp.json()
+
+    assert data.get("ret") == "fail"
+    assert data.get("error") == "You not provide a auth_code"
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_oauth_callback_user_not_found(webserver_client: TestClient) -> None:
+    """An auth code for an unknown account is rejected."""
+    token_repo.add("ghost_oauth", "portal_token")
+    token_repo.add_auth_code("ghost_oauth", "ghost_auth_code")
+
+    async with webserver_client.get("/api/appsvr/oauth_callback?code=ghost_auth_code") as resp:
+        assert resp.status == 200
+        data = await resp.json()
+
+    assert data.get("ret") == "fail"
+    assert data.get("error") == "No account found for auth code"
+
+
+@pytest.mark.usefixtures("clean_database")
+async def test_oauth_callback_exception(webserver_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
+    """An unexpected failure in oauth_callback becomes a 500."""
+    user = user_repo.create("oauth_exc_user")
+    token_repo.add(user.userid, "portal_token")
+    token_repo.add_auth_code(user.userid, "exc_auth_code")
+    monkeypatch.setattr("bumper.web.auth_service.generate_jwt_helper", _raise_boom)
+
+    async with webserver_client.get("/api/appsvr/oauth_callback?code=exc_auth_code") as resp:
+        assert resp.status == 500
+
+
+def test_client_id_from_request_state_cid() -> None:
+    """A state payload carrying a cid is preferred over the query parameters."""
+    state_value = json.dumps({"cid": "cid_from_state"})
+    req = types.SimpleNamespace(query=types.SimpleNamespace(get={"state": state_value}.get))
+
+    assert _client_id_from_request(req) == "cid_from_state"
+
+
+def test_get_auth_code_helper_none() -> None:
+    """No code and no refresh token yields None."""
+    req = types.SimpleNamespace(query=types.SimpleNamespace(get=lambda _: None))
+
+    assert _get_auth_code(req) is None
+
+
+def test_get_auth_code_helper_invalid_refresh() -> None:
+    """An unverifiable refresh token yields None."""
+    req = types.SimpleNamespace(query=types.SimpleNamespace(get=lambda key: "garbage" if key == "refresh_token" else None))
+
+    assert _get_auth_code(req) is None
+
+
+@pytest.mark.asyncio
+async def test_generate_jwt_helper_no_data() -> None:
+    """A missing data mapping is replaced with an empty one."""
+    token, exp = await generate_jwt_helper(data=None)
+
+    assert token is not None
+    assert exp is not None
