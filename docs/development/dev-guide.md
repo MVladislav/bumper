@@ -6,7 +6,7 @@ This guide covers setting up a local development environment, running the applic
 
 ## 🔧 Prerequisites
 
-- Python 3.13 or newer installed
+- Python 3.15 recommended (3.13 and 3.14 are supported)
 - Git
 
 ---
@@ -20,18 +20,23 @@ git clone https://github.com/MVladislav/bumper.git
 cd bumper
 ```
 
-**Step 2 - Create and activate virtual environment, install uv**
+**Step 2 - Create and activate a virtual environment**
 
 ```sh
 python3 -m venv .venv
 source .venv/bin/activate
+```
+
+**Step 3 - Install uv inside the virtual environment**
+
+```sh
 python3 -m pip install uv
 ```
 
-**Step 3 - Install project dependencies**
+**Step 4 - Install project dependencies**
 
 ```sh
-uv sync --active --all-groups --upgrade
+uv sync --active --python 3.15 --all-groups --upgrade
 ```
 
 ---

@@ -56,7 +56,7 @@ Run the three linters and pytest before opening a PR - CI gates on all of them.
 
 **Python / style**
 
-- Python 3.13+ (`requires-python`); CI runs 3.13 and 3.14. Modern typing is
+- Python 3.13+ (`requires-python`); Python 3.15 is the default and CI tests 3.13, 3.14, and 3.15. Modern typing is
   mandatory: `X | None`, built-in generics, `from __future__ import annotations`
   is not needed and not used.
 - Every module, class, and function needs a docstring. `ruff` runs with
@@ -385,13 +385,13 @@ inline - categories, template, and version resolver. What matters:
 
 **Workflows** (`.github/workflows/`)
 
-| Workflow              | Trigger                   | Notes                                                       |
-| --------------------- | ------------------------- | ----------------------------------------------------------- |
-| `ci.yml`              | push `main`/`dev`, any PR | prek + mypy/pylint, then pytest on Python 3.13 **and** 3.14 |
-| `codeql-analysis.yml` | push `main`/`dev`, any PR | Python only                                                 |
-| `docker-release.yml`  | push `dev`, tag `v*`      | Builds `linux/amd64` + `linux/arm64` to `ghcr.io`           |
-| `mkdocs-release.yml`  | push `main`               | `mkdocs gh-deploy` to the `gh-pages` branch                 |
-| `release-drafter.yml` | tag `v*`                  | Updates the release draft                                   |
+| Workflow              | Trigger                   | Notes                                                          |
+| --------------------- | ------------------------- | -------------------------------------------------------------- |
+| `ci.yml`              | push `main`/`dev`, any PR | prek + mypy/pylint, then pytest on Python 3.13, 3.14, and 3.15 |
+| `codeql-analysis.yml` | push `main`/`dev`, any PR | Python only                                                    |
+| `docker-release.yml`  | push `dev`, tag `v*`      | Builds `linux/amd64` + `linux/arm64` to `ghcr.io`              |
+| `mkdocs-release.yml`  | push `main`               | `mkdocs gh-deploy` to the `gh-pages` branch                    |
+| `release-drafter.yml` | tag `v*`                  | Updates the release draft                                      |
 
 Three things to know before changing CI or expecting a release:
 

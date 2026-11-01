@@ -235,6 +235,8 @@ skip_covered = true
 
 # ------------------------------------ MYPY ------------------------------------
 [tool.mypy]
+# Type-check against the oldest supported interpreter, not the CI default.
+python_version = "3.13"
 exclude = ["^tests/.*", "^docs/.*"]
 follow_imports = "silent"
 show_error_codes = true
@@ -258,7 +260,9 @@ disable_error_code = "typeddict-unknown-key"
 
 # ----------------------------------- PYLINT -----------------------------------
 [tool.pylint.MAIN]
-jobs = 2
+# Pylint's parallel mode serializes linter state with dill, which currently
+# fails on Python 3.15 because code.co_lnotab was removed.
+jobs = 1
 ignore = ["tests"]
 fail-on = ["I"]
 max-line-length = 130

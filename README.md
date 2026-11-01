@@ -18,7 +18,7 @@
 
 - **Self-Hosted**: Operate without Ecovacs cloud servers.
 - **Privacy-First**: All data stays within your network.
-- **High Performance**: Built on Python 3.13+ with [uv](https://pypi.org/project/uv/) for efficient async I/O.
+- **High Performance**: Built on Python 3.13+ (3.15 by default) with [uv](https://pypi.org/project/uv/) for efficient async I/O.
 - **Docker Swarm & Compose**: One-command startup with turnkey NGINX configuration.
 - **Modular**: Easily extend protocols and add integrations.
 

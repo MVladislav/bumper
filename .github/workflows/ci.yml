@@ -19,6 +19,7 @@ concurrency:
 env:
   UV_CACHE_DIR: /tmp/.uv-cache
   PROJECT_PATH: "bumper"
+  PYTHON_VERSION: "3.15"
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -39,7 +40,7 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
-          python-version: "3.13"
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: 🏗 Install the project
         run: uv sync --locked --dev
@@ -67,7 +68,7 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
           cache-local-path: ${{ env.UV_CACHE_DIR }}
-          python-version: "3.13"
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: 🏗 Install the project
         run: uv sync --locked --dev
@@ -89,9 +90,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Compatibility matrix; 3.15 is the default.
         python-version:
           - "3.13"
           - "3.14"
+          - "3.15"
 
     steps:
       # https://github.com/actions/checkout
