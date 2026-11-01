@@ -105,7 +105,7 @@ for apk in "${WORK}"/*.apk; do
   zipalign -f -p 4 "${apk}" "${WORK}/${name}.aligned"
   # v1 and v2 are requested explicitly so older app versions in the APK_URL list
   # work too; apksigner settles on v3 for a minSdk 32 build regardless.
-  java -jar /opt/build-tools/apksigner.jar sign \
+  java --enable-native-access=ALL-UNNAMED -jar /opt/build-tools/apksigner.jar sign \
     --ks "${KS_FILE}" --ks-key-alias "${KS_ALIAS}" \
     --ks-pass "pass:${KS_PASS}" --key-pass "pass:${KS_PASS}" \
     --v1-signing-enabled true --v2-signing-enabled true --v3-signing-enabled true \
