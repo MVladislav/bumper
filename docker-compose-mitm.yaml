@@ -11,6 +11,7 @@ x-basic-deploy: &basic-deploy
     order: stop-first
   restart_policy:
     condition: any
+    delay: 5s
   resources:
     limits:
       cpus: ${RESOURCES_LIMITS_CPUS:-1}
@@ -22,6 +23,7 @@ x-basic-deploy: &basic-deploy
 x-basic: &basic
   env_file: ${ENV_FILE:-.env}
   cap_add:
+    - CHOWN # Allows changing file ownership (`chown`,`chgrp`)
     - DAC_READ_SEARCH # Bypasses file read and directory execute permissions (`ls`,`cat`,`find`)
     - SETGID # Allows setting group ID (`setgid`,`newgrp`,`chgrp`,`setregid()`)
     - SETUID # Allows setting user ID (`setuid`,`su`,`sudo`,`passwd`)
@@ -42,7 +44,7 @@ x-basic: &basic
   healthcheck:
     disable: true
   tmpfs:
-    - /tmp:rw,nosuid,nodev,noexec,relatime,size=512m
+    - /tmp:rw,relatime,size=512m,nodev,nosuid,noexec
   restart: always
 
 ################################################################################
