@@ -48,6 +48,19 @@ See the package on GitHub Container Registry [here](https://github.com/MVladisla
 
 ---
 
+## 👤 Container User
+
+Bumper runs as the unprivileged user `bumper` (uid/gid `1000`). The data
+directory is the only writable state, so a host directory mounted at
+`/bumper/data` must be writable by that id.
+
+A named volume takes the ownership from the image and needs no manual step.
+The container starts as root, repairs the ownership of `/bumper/data` and
+`/bumper/certs`, and then drops to `bumper`; that is how a volume created by an
+image that still ran as root keeps working after an upgrade.
+
+---
+
 ## 🚀 Docker Swarm Deployment
 
 **Step 1 - Clone the repository**

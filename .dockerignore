@@ -6,5 +6,9 @@
 !bumper/
 !bumper/**
 !pyproject.toml
-
 !README.md
+!uv.lock
+
+# Python caches are not part of the image
+**/__pycache__
+**/*.pyc

@@ -169,6 +169,25 @@ Run the three linters and pytest before opening a PR - CI gates on all of them.
   Bot/app trust depends on the CA, so treat anything touching cert generation,
   SANs, or the CA archive as security-sensitive.
 
+**Docker image**
+
+- `Dockerfile` is the only place the Python and uv image tags are written;
+  `docker-compose*.yaml` does not repeat them as build args.
+- The image installs from `uv.lock` with `--locked`, and `.dockerignore` is an
+  allowlist that has to keep `uv.lock` and `pyproject.toml`. The builder has no
+  compiler: every runtime dependency resolves to a musllinux wheel for
+  `amd64` and `arm64`. Adding a dependency without wheels for either platform
+  breaks the multi-arch release, so check the lock before relying on a source
+  build.
+- Dependencies are installed before `bumper/` is copied, so a source change
+  does not invalidate the dependency layer. Keep that split.
+- The container runs as uid/gid `1000` (`bumper`). `/bumper/data` is the only
+  writable state; the entrypoint repairs a root-owned volume from an older
+  image before dropping privileges, so do not remove it without a migration.
+  The repair needs `CAP_CHOWN`, which the shipped Compose files grant in
+  `cap_add`; without it the entrypoint exits with an instruction instead of
+  starting a server that cannot write its database.
+
 ## Testing
 
 - Tests live in `tests/` mirroring the package layout (`tests/db`, `tests/mqtt`,
