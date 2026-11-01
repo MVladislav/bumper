@@ -1,0 +1,2455 @@
+<!DOCTYPE html><html lang="en" class="no-js"><head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://mvladislav.github.io/bumper/internals/authentication/">
+      
+      
+        <link rel="prev" href="../architecture/">
+      
+      
+        <link rel="next" href="../sniffing/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>Authentication - Bumper Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        
+        <link rel="stylesheet" href="../../assets/external/fonts.googleapis.com/css.49ea35f2.css">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/mermaid.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="deep-purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#authentication" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Bumper Docs" class="md-header__button md-logo" aria-label="Bumper Docs" data-md-component="logo">
+      
+  <img src="../../images/favicon.ico" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Bumper Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Authentication
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required="">
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix="">
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/MVladislav/bumper" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Bumper Docs" class="md-nav__button md-logo" aria-label="Bumper Docs" data-md-component="logo">
+      
+  <img src="../../images/favicon.ico" alt="logo">
+
+    </a>
+    Bumper Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/MVladislav/bumper" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix="">
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2">
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/dns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DNS Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/certificates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Certificate Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3">
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Usage
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Usage
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Command-Line Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/docker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/mobile_app/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mobile App Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4">
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Configuration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/environment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Environment Variables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5">
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/error-codes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error Codes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Compatibility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked="">
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Internals
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Internals
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+      
+        <li class="md-nav__item">
+  <a href="#trust-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔐 Trust model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#identity-layers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🧩 Identity layers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧩 Identity layers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-the-user-id-is-made" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How the user id is made
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#one-account-several-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        One account, several names
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-official-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🌐 The official flow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🌐 The official flow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-the-app-reads-the-account-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The app reads the account key
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-the-app-logs-in" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. The app logs in
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-the-app-exchanges-the-account-token-for-an-iot-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The app exchanges the account token for an IoT token
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-the-app-gets-oauth-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. The app gets OAuth tokens
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-later-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Later calls
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#signing-on-the-modern-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✍️ Signing on the modern API
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-bumper-implements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🛠️ What Bumper implements
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🛠️ What Bumper implements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#login-and-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Login and tokens
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getauthcode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GetAuthCode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#newauthdo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        newauth.do
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#oauth-and-jwt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OAuth and JWT
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-account-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The account key
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#email-password-and-otp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Email, password, and OTP
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#robot-transports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Robot transports
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-app-on-the-wire" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📱 The app on the wire
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-robot-on-the-wire" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🤖 The robot on the wire
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🗺️ Code map
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#known-gaps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ⚠️ Known gaps
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sniffing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sniffing &amp; Reverse Engineering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../certificate-unpinning-app/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Certificate Pinning Bypass (APP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../certificate-unpinning-bot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Certificate Pinning Bypass (BOT)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../certificate-unpinning-goat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Certificate Pinning Bypass (GOAT)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7">
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/dev-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/web-api-endpoints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Web API Endpoints
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/static-data-update/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Static Data Update
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/MVladislav/bumper/actions" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing &amp; CI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../origins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Origins &amp; Credits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+      
+        <li class="md-nav__item">
+  <a href="#trust-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔐 Trust model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#identity-layers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🧩 Identity layers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧩 Identity layers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-the-user-id-is-made" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How the user id is made
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#one-account-several-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        One account, several names
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-official-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🌐 The official flow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🌐 The official flow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-the-app-reads-the-account-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The app reads the account key
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-the-app-logs-in" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. The app logs in
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-the-app-exchanges-the-account-token-for-an-iot-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The app exchanges the account token for an IoT token
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-the-app-gets-oauth-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. The app gets OAuth tokens
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-later-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Later calls
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#signing-on-the-modern-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✍️ Signing on the modern API
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-bumper-implements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🛠️ What Bumper implements
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🛠️ What Bumper implements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#login-and-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Login and tokens
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getauthcode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GetAuthCode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#newauthdo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        newauth.do
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#oauth-and-jwt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OAuth and JWT
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-account-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The account key
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#email-password-and-otp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Email, password, and OTP
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#robot-transports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Robot transports
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-app-on-the-wire" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📱 The app on the wire
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-robot-on-the-wire" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🤖 The robot on the wire
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🗺️ Code map
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#known-gaps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ⚠️ Known gaps
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="authentication">Authentication</h1>
+<p>Bumper reproduces the account and token plumbing the Ecovacs app expects, but
+it does not reproduce the cloud's security model. The app must work on a LAN
+without an Ecovacs account, so Bumper accepts the identity the client names and
+issues its own tokens. This page describes both sides: what the official app
+does, and what Bumper does with it.</p>
+<p>The important consequence is at the top: <strong>HTTP request signatures are not
+verified</strong>. JWTs are verified when Bumper uses their claims as proof of account
+ownership.</p>
+<hr>
+<h2 id="trust-model">🔐 Trust model</h2>
+<p>Bumper is built for a trusted local network. It:</p>
+<ul>
+<li>accepts an account name without checking a password,</li>
+<li>issues an app token for any account name,</li>
+<li>accepts the app's encrypted fields but does not verify who sent them,</li>
+<li>decodes some bearer-token claims for request context without checking the
+  signature,</li>
+<li>lets the MQTT and XMPP servers skip token checks because <code>USE_AUTH</code> is <code>False</code>.</li>
+</ul>
+<p>The TLS CA is the real trust boundary. A device that trusts Bumper's CA can
+talk to Bumper; Bumper does not establish a second identity for it. Do not
+expose the web, MQTT, or XMPP listeners to an untrusted network.</p>
+<p><code>USE_AUTH</code> in <code>bumper/utils/settings.py</code> is a code constant, not an
+environment variable. Setting it to <code>True</code> enables secret checks in MQTT and
+XMPP. The checks accept a live portal token, auth code, or IT token, or a valid
+access JWT signed by this Bumper instance. It does not make the HTTP API verify
+request signatures.</p>
+<hr>
+<h2 id="identity-layers">🧩 Identity layers</h2>
+<p>The account and each app installation have separate identities:</p>
+<table>
+<thead>
+<tr>
+<th>Identity</th>
+<th>Used by</th>
+<th>Shape / role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Account id (<code>A</code>)</td>
+<td>app and modern API</td>
+<td><code>YYYYMMDDHHMMSS_&lt;32 lowercase hex&gt;</code></td>
+</tr>
+<tr>
+<td>Unified id (<code>U</code>)</td>
+<td>IoT auth-code exchange</td>
+<td>same shape as <code>A</code>, generated independently</td>
+</tr>
+<tr>
+<td>IoT id (<code>I</code>)</td>
+<td>OAuth and legacy transports</td>
+<td>16 lowercase letters or digits</td>
+</tr>
+<tr>
+<td>Client id (<code>K</code>)</td>
+<td>OAuth and app-installation row</td>
+<td>24 lowercase hex characters</td>
+</tr>
+<tr>
+<td>Resource (<code>R</code>)</td>
+<td>XMPP/MQTT connection and client</td>
+<td>client-provided resource string</td>
+</tr>
+<tr>
+<td>App device id (<code>D</code>)</td>
+<td>app path and device ownership</td>
+<td>generated by the app</td>
+</tr>
+<tr>
+<td>Robot id</td>
+<td>robot, MQTT, XMPP</td>
+<td>serial number or device id, depending on robot generation</td>
+</tr>
+</tbody>
+</table>
+<p>Bumper stores the account in <code>BumperUser</code> (<code>bumper/web/utils/models.py</code>) and the
+short-lived session data in <code>Token</code> (<code>bumper/db/tokens.py</code>). The user record
+carries <code>A</code>, <code>U</code>, <code>I</code>, the login name, aliases, app device ids, and the robots
+known to the local service. Each local account receives the shared robot list.
+Each token row carries one portal token and its related
+IT token, auth code, <code>K</code>, <code>R</code>, and device id. <code>ClientRepo</code> stores the live
+connection state for each app client/resource.</p>
+<h3 id="how-the-user-id-is-made">How the user id is made</h3>
+<p>New accounts receive independent <code>A</code>, <code>U</code>, and <code>I</code> values. <code>A</code> is also the
+internal <code>userid</code> of a newly created account. Existing records keep their
+internal id; when first used, Bumper adopts a presented public id into an empty
+field or generates a missing id, and retains the old id as an alias. The
+pre-redesign 20-character SHA-256-derived id is recognized as a legacy alias,
+not generated as the new public account id.</p>
+<p>Login resolves the provided name case-insensitively. For <code>login2</code>, Bumper
+decrypts <code>encryptAccount</code> with its local account key and stores the result as
+the login name. The encrypted password is accepted but not checked. If no name
+is provided, the configured <code>USER_USERNAME_DEFAULT</code> is used.</p>
+<h3 id="one-account-several-names">One account, several names</h3>
+<p>The app does not use one name for an account. It logs in with a login name,
+uses <code>A</code> and <code>U</code> during the modern flow, and uses <code>I</code> for OAuth and legacy
+transports. Each app installation also has a device id and client/resource
+pair. Bumper keeps one <code>BumperUser</code> per account and resolves its public ids and
+legacy ids as aliases (<code>bumper/db/identity.py</code>). Accounts with different login
+names remain separate unless a shared device, presented account id, or valid
+token links them.</p>
+<p>When a name resolves to a second user record and the link is proven - the
+token names one record and the request names the other, or the app device is
+bound to one record and the request names the other - the older record wins.
+The duplicate's devices, robots, homes, tokens, and clients move to the older
+record, and its id becomes an alias. Startup also merges duplicate public ids,
+login names, and app-device ownership before reconciling client rows. Rows with
+no account owner are removed; rows carrying an account alias are moved to the
+canonical account. Distinct client ids or resources remain distinct rows.</p>
+<p><code>checkLogin</code> never creates a user. It resolves an unknown name by the app
+device and fails if neither is known, because a check is not a registration.
+The normal login creates an account when the login name is new, then binds the
+device to it. Reusing the same login name resolves to the same account.</p>
+<hr>
+<h2 id="the-official-flow">🌐 The official flow</h2>
+<p>The current app uses two API families at once. The account screens and the
+login handshake use the modern <code>*.ecovacs.com</code> API. The robot-facing calls and
+the OAuth exchange use the legacy <code>*.ecouser.net</code> API.</p>
+<pre class="mermaid"><code>%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "fontFamily": "Inter, Roboto, Helvetica, Arial",
+    "fontSize": "14px",
+    "background": "#fbf9ff",
+    "primaryColor": "#ede7f6",
+    "primaryTextColor": "#242436",
+    "primaryBorderColor": "#7e57c2",
+    "lineColor": "#5e35b1",
+    "textColor": "#242436",
+    "secondaryColor": "#f4f1fa",
+    "tertiaryColor": "#ffffff",
+    "mainBkg": "#ede7f6",
+    "nodeBorder": "#7e57c2",
+    "actorBkg": "#ede7f6",
+    "actorBorder": "#7e57c2",
+    "actorTextColor": "#242436",
+    "actorLineColor": "#9e9eb5",
+    "signalColor": "#5e35b1",
+    "signalTextColor": "#242436",
+    "labelBoxBkgColor": "#ede7f6",
+    "labelBoxBorderColor": "#7e57c2",
+    "labelTextColor": "#242436",
+    "loopTextColor": "#242436",
+    "noteBkgColor": "#fff8e1",
+    "noteTextColor": "#3b3b4f",
+    "noteBorderColor": "#c9a227",
+    "activationBkgColor": "#e8e0f5",
+    "activationBorderColor": "#7e57c2",
+    "sequenceNumberColor": "#242436"
+  },
+  "sequence": {
+    "useMaxWidth": true,
+    "mirrorActors": false,
+    "actorMargin": 44,
+    "messageMargin": 32,
+    "diagramMarginX": 16,
+    "diagramMarginY": 16
+  }
+}}%%
+sequenceDiagram
+    autonumber
+    participant App as Ecovacs app
+    participant API as Bumper API
+    participant DB as Account, token, and client store
+    participant Broker as MQTT and XMPP
+    participant Robot as Robot
+
+    App-&gt;&gt;API: getConfig?keys=PUBLIC.KEY.CONFIG
+    API--&gt;&gt;App: RSA public key
+    App-&gt;&gt;API: user/login2 (encryptAccount)
+    API-&gt;&gt;DB: resolve login, create A/U/I, bind D, store token
+    API--&gt;&gt;App: accessToken, uid=A, ucUid=U
+    App-&gt;&gt;API: getAuthCode (A, accessToken, D)
+    API-&gt;&gt;DB: attach IT token to this token row
+    API--&gt;&gt;App: IT token, ecovacsUid=U
+    App-&gt;&gt;API: newauth.do (IT token, K, R)
+    API-&gt;&gt;DB: store K/R and auth code on the same row
+    API--&gt;&gt;App: auth code
+    App-&gt;&gt;API: oauth_callback
+    API-&gt;&gt;DB: resolve auth code and client row
+    API--&gt;&gt;App: userId=I, JWTs with I/K/R
+    App-&gt;&gt;Broker: connect with the client secret and R
+    Broker-&gt;&gt;DB: resolve client to canonical account
+    Note over Broker,DB: Only when USE_AUTH is true
+    Broker-&gt;&gt;Robot: relay commands and telemetry</code></pre>
+<h3 id="1-the-app-reads-the-account-key">1. The app reads the account key</h3>
+<p>The app asks the modern API for configuration:</p>
+<div class="highlight"><pre><span></span><code>GET /v1/private/{country}/{language}/{deviceId}/{appType}/{version}/{deviceType}/{aid}/common/getConfig?keys=PUBLIC.KEY.CONFIG
+</code></pre></div>
+<p>The answer contains the RSA public key as base64 DER. The app uses it to
+encrypt fields such as <code>encryptAccount</code>, <code>encryptPwd</code>, <code>encryptEmail</code>, and the
+backup address before they leave the phone. The private key never leaves the
+server.</p>
+<p>Bumper serves the public half at the same path. The key is generated once and
+stored in <code>BUMPER_ACCOUNT_KEY</code> (default <code>${BUMPER_DATA}/account.key</code>) with mode
+<code>0600</code>. It is separate from the TLS server key on purpose: the app needs RSA,
+the default TLS key is EC, and rotating the TLS certificate must not rotate the
+account key.</p>
+<h3 id="2-the-app-logs-in">2. The app logs in</h3>
+<p>The modern login path is:</p>
+<div class="highlight"><pre><span></span><code>GET /v2/private/{country}/{language}/{deviceId}/{appType}/{version}/{deviceType}/{aid}/user/login2
+</code></pre></div>
+<p>The request carries <code>encryptAccount</code> and <code>encryptPwd</code>, plus the signing query
+parameters described below. Bumper decrypts the account name, resolves or
+creates one account, binds the app device id, and issues a portal token. The
+answer contains <code>accessToken</code>, <code>uid</code> (<code>A</code>), <code>ucUid</code> (<code>U</code>), <code>loginName</code>,
+<code>username</code>, <code>country</code>, and the response fields expected by the app.</p>
+<p>If the account is new, the cloud may answer with <code>loginResult: HIGH_RISK</code> and
+<code>loginRiskScene: NEW_DEVICE</code>, and the app asks for an email code before it
+continues. Bumper answers success directly.</p>
+<h3 id="3-the-app-exchanges-the-account-token-for-an-iot-token">3. The app exchanges the account token for an IoT token</h3>
+<p>The app calls the OpenAPI host:</p>
+<div class="highlight"><pre><span></span><code>GET /v1/global/auth/getAuthCode?uid={uid}&amp;accessToken={token}&amp;bizType=ECOVACS_IOT&amp;deviceId={deviceId}
+</code></pre></div>
+<p>The answer is an IT token:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0000"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"authCode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GLOBAL_APP_ECOVACS_IOT_&lt;32 hex&gt;"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"ecovacsUid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;user id&gt;"</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Despite the field name, this <code>authCode</code> is the IT token. It is attached to the
+token row identified by the presented access token. The app then posts it
+to the legacy login:</p>
+<div class="highlight"><pre><span></span><code>POST /newauth.do
+{"todo": "OLoginByITToken", "itToken": "GLOBAL_APP_ECOVACS_IOT_&lt;32 hex&gt;"}
+</code></pre></div>
+<p>The answer is the real auth code:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">"todo"</span><span class="p">:</span><span class="w"> </span><span class="s2">"result"</span><span class="p">,</span><span class="w"> </span><span class="nt">"result"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="p">,</span><span class="w"> </span><span class="nt">"authCode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;32 hex&gt;"</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<h3 id="4-the-app-gets-oauth-tokens">4. The app gets OAuth tokens</h3>
+<p>The auth code is exchanged on the legacy API:</p>
+<div class="highlight"><pre><span></span><code>GET /api/appsvr/oauth_callback?state={"cid":"&lt;client id&gt;"}&amp;code={authCode}
+</code></pre></div>
+<p>The answer carries <code>userId</code> (<code>I</code>), <code>access_token</code>, <code>refresh_token</code>, and
+<code>expire_at</code> in milliseconds. The access token is a JWT. Its claims name the
+client (<code>c</code> = <code>K</code>), the user (<code>u</code> = <code>I</code>), the client resource (<code>r</code> = <code>R</code>), and
+the auth code (<code>ac</code>).</p>
+<p>The app refreshes the pair through:</p>
+<div class="highlight"><pre><span></span><code>GET /api/appsvr/oauth/token?grant_type=refresh_token&amp;refresh_token={jwt}&amp;client_id={client id}
+</code></pre></div>
+<p>The refresh token is the same kind of JWT with <code>t: "r"</code>; the access token has
+<code>t: "a"</code>.</p>
+<h3 id="5-later-calls">5. Later calls</h3>
+<p>The modern API sends the access token as <code>accessToken</code> in the query string and
+also as <code>authorization: Bearer &lt;jwt&gt;</code> on some calls. The legacy API sends the
+opaque token as <code>token</code> or <code>accessToken</code>, depending on the endpoint.</p>
+<p>The MQTT and XMPP transports resolve the presented IoT name and secret to the
+canonical account. With <code>USE_AUTH=True</code>, an access JWT must be signed by this
+Bumper instance. Connection rows retain their client/resource identity, so
+parallel app installations do not overwrite one another.</p>
+<hr>
+<h2 id="signing-on-the-modern-api">✍️ Signing on the modern API</h2>
+<p>The modern API adds five query parameters to every call:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>authAppkey</code></td>
+<td>The app key. The app ships several, for the app and for OpenAPI.</td>
+</tr>
+<tr>
+<td><code>authTimespan</code></td>
+<td>The app clock in milliseconds, plus the server offset.</td>
+</tr>
+<tr>
+<td><code>authTimeZone</code></td>
+<td>The device timezone, for example <code>GMT+2</code>.</td>
+</tr>
+<tr>
+<td><code>requestId</code></td>
+<td>A per-request random id.</td>
+</tr>
+<tr>
+<td><code>authSign</code></td>
+<td>A digest over the app key, the sorted parameters, and a native secret.</td>
+</tr>
+</tbody>
+</table>
+<p>The reference implementation builds the canonical string from the app key and
+the sorted query parameters, appends the secret, and digests the result. The
+keys and secrets are resolved from the native <code>libeco-network.so</code> library, not
+from Java constants.</p>
+<p>Bumper ignores all five parameters. It does not reject a missing, stale, or
+wrong <code>authSign</code>. This is intentional for a LAN server: the app must
+work with a clock that is not synchronized to Ecovacs, and the signature
+protects a cloud account Bumper does not have.</p>
+<p>The legacy API has a parallel scheme. <code>com.ecovacs.lib_iot_client</code> sends
+<code>appid</code>, <code>ts</code>, and <code>sign</code>, where <code>sign</code> is <code>SHA1(appid + APP_SECRET + ts)</code>.
+Bumper does not verify those either. The app ships several app ids and secrets
+for the <code>ecovacs</code> and <code>yeedi</code> brands; Bumper does not need them.</p>
+<hr>
+<h2 id="what-bumper-implements">🛠️ What Bumper implements</h2>
+<h3 id="login-and-tokens">Login and tokens</h3>
+<p><code>bumper/web/auth_service.py:login</code> serves both <code>user/login</code> and
+<code>user/checkLogin</code> on v1 and v2. The behavior is:</p>
+<ol>
+<li>Decrypt <code>encryptAccount</code> when present, then resolve the login name.</li>
+<li>Create an account with <code>A</code>, <code>U</code>, and <code>I</code> when the login name is new.</li>
+<li>Bind the app device id to that account.</li>
+<li>Remove expired token rows for the account.</li>
+<li>Generate a fresh opaque portal token and store a row for this login.</li>
+<li>Return <code>uid=A</code> and <code>ucUid=U</code> in the login document.</li>
+</ol>
+<p><code>checkLogin</code> never creates a user. An unknown name is resolved by the app
+device, and a request that matches neither is rejected. A check with a valid
+<code>accessToken</code> returns the same token. A check without a token issues a new one
+for the known account; an invalid supplied token is rejected. The portal token
+is opaque; it is not a JWT.</p>
+<p>The portal-token lifetime is <code>TOKEN_VALIDITY_SECONDS</code> (30 days). Expiry removes
+the token row, including its IT token and auth code. A check with an expired
+portal token fails rather than silently replacing it. The modern
+<code>/v1/global/auth/getAuthCode</code> path requires a live portal token.</p>
+<h3 id="getauthcode">GetAuthCode</h3>
+<p>There are two paths:</p>
+<ul>
+<li><code>/v1/global/auth/getAuthCode</code> and the private <code>getAuthCode</code> endpoint return
+  the IT token in <code>authCode</code>. A live access token is required, and the IT token
+  is attached to the token row that access token identifies.</li>
+<li><code>api/users/user.do</code> with <code>todo: GetAuthCode</code> returns the legacy auth code in
+  <code>code</code>. It uses the token row named by the request when possible, or creates
+  a portal-token row when no row is available.</li>
+</ul>
+<p>Both paths resolve the presented account names to one user. A JWT claim is
+used to link accounts only after <code>verify_jwt</code> checks the signature, expiry, and
+access-token type. The IT token and auth code remain attached to the same
+client token row, so the next exchanges preserve the client boundary.</p>
+<h3 id="newauthdo">newauth.do</h3>
+<p><code>bumper/web/single_paths.py:handle_new_auth</code> accepts only
+<code>todo: OLoginByITToken</code>. It calls <code>get_new_auth</code>, which looks up the IT token,
+rejects an expired row, and returns the existing or newly generated auth code.
+The request's <code>clientID</code> and <code>resource</code> are stored on that same token and
+client row.
+The response is bound to the <code>AUTH</code> shape, so the answer is
+<code>{"todo": "result", "result": "ok", "authCode": "..."}</code>.</p>
+<p><code>loginByItToken</code> on <code>api/users/user.do</code> answers with <code>userId=I</code>, the portal
+token from the matching client row, and <code>last</code>, its remaining lifetime in
+milliseconds. The IT token is only the input of the exchange.</p>
+<h3 id="oauth-and-jwt">OAuth and JWT</h3>
+<p><code>oauth_callback</code> resolves the auth code to its token row, reads that row's
+client id and resource, and generates two JWTs with <code>generate_jwt_helper</code>:</p>
+<ul>
+<li>access token: <code>t: "a"</code>, expiry <code>ACCESS_TOKEN_VALIDITY_SECONDS</code> (30 minutes)</li>
+<li>refresh token: <code>t: "r"</code>, expiry <code>REFRESH_TOKEN_VALIDITY_SECONDS</code> (30 days)</li>
+</ul>
+<p>The token row remains until the refresh token expires. A successful OAuth
+exchange moves its expiry to the refresh token's expiry, and each successful
+refresh extends the session. This lets the app resume after an idle period
+without keeping the access JWT long-lived. Logout removes the row and revokes
+the refresh session.</p>
+<p>The tokens are signed with the TLS server key (<code>bumper_isc.server_key</code>) and the
+algorithm in <code>TOKEN_JWT_ALG</code>. The default follows the certificate key type:
+<code>ES256</code> for EC and <code>RS256</code> for RSA.</p>
+<p><code>bumper/web/jwt.py</code> has two readers. <code>get_jwt_details</code> and
+<code>extract_jwt_details</code> decode the claims without checking the signature for the
+request context. <code>verify_jwt</code> loads the public key from the TLS certificate,
+checks the signature, the expiry, and the token type, and is the only reader
+that may be used as proof. The legacy <code>GetAuthCode</code> call, the refresh grant, and
+transport authentication use <code>verify_jwt</code>; a refresh token is not accepted
+where an access token is required. Account resolution also uses a JWT only
+after this check, even when <code>USE_AUTH</code> is off, because the claim can move a
+name between accounts.</p>
+<h3 id="the-account-key">The account key</h3>
+<p><code>bumper/utils/account_key.py</code> owns the RSA key used for encrypted account
+fields:</p>
+<ul>
+<li><code>account_public_key()</code> returns base64 DER, which is what
+  <code>PUBLIC.KEY.CONFIG</code> serves.</li>
+<li><code>decrypt_account_field()</code> decodes base64, decrypts with PKCS#1 v1.5, and
+  returns the stripped UTF-8 text, or <code>None</code> on a malformed or foreign value.</li>
+<li><code>_load_or_create()</code> generates a 2048-bit RSA key on first use, writes it with
+  <code>O_EXCL</code> at mode <code>0600</code>, and re-reads it if another process won the race.</li>
+</ul>
+<p>The private key is not used to sign JWTs or TLS certificates. It only decrypts
+the fields the app encrypts with the public key.</p>
+<p>If the key changes, the app keeps the old public key for the life of its
+process. Force-stop the app after replacing <code>account.key</code>; otherwise the next
+email or password change returns <code>1008</code> because the ciphertext cannot be
+decrypted.</p>
+<h3 id="email-password-and-otp">Email, password, and OTP</h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user/sendEmailVerifyCode</code></td>
+<td>Returns a fresh <code>verifyId</code> UUID. No mail is sent.</td>
+</tr>
+<tr>
+<td><code>user/checkEmailVerifyByScene</code></td>
+<td>Accepts <code>EMAIL_VERIFY_CODE</code> (default <code>666666</code>).</td>
+</tr>
+<tr>
+<td><code>user/bindEmail2</code></td>
+<td>Checks <code>verifyCode</code>, decrypts <code>encryptEmail</code>, stores it as <code>email</code>.</td>
+</tr>
+<tr>
+<td><code>user/addBackupEmail</code></td>
+<td>Decrypts <code>encryptEmail</code> and stores it as <code>backup_email</code>.</td>
+</tr>
+<tr>
+<td><code>user/modifyPassword</code></td>
+<td>Returns success with <code>data: null</code>. The password is not stored.</td>
+</tr>
+<tr>
+<td><code>device/otp/generate</code></td>
+<td>Returns a six digit code and stores it for <code>DEVICE_OTP_TTL_SECONDS</code>.</td>
+</tr>
+<tr>
+<td><code>device/verify/check</code></td>
+<td>Accepts the code while it is in the TTL.</td>
+</tr>
+</tbody>
+</table>
+<p><code>bindEmail2</code> and <code>addBackupEmail</code> use <code>claimed_userid</code>, which reads <code>userid</code>,
+<code>uid</code>, a <code>userid</code> header, or the <code>auth</code> query object. None of those is signed.
+The address is stored only, not verified against a mailbox.</p>
+<p>The OTP flow is equally local: the code is generated, returned to the caller,
+and accepted for the TTL. It is not a security control against a LAN peer.</p>
+<h3 id="robot-transports">Robot transports</h3>
+<p>The app reaches the robot through XMPP or MQTT, depending on the model.</p>
+<p><strong>XMPP</strong> (<code>bumper/xmpp/xmpp.py</code>)</p>
+<ul>
+<li>The app and the robot connect over TLS on port <code>5223</code>.</li>
+<li>SASL PLAIN carries an authzid, the user id, and a password. The password is
+  either a bare secret or <code>0/&lt;resource&gt;/&lt;secret&gt;</code>. Bumper reads the user id and
+  the resource from the NUL-separated payload and joins the rest of the
+  password after the resource, because a JWT never contains <code>/</code>.</li>
+<li>A client with a <code>devclass</code> is a robot: Bumper stores it as a bot and accepts
+  it without a token check.</li>
+<li>A client without a <code>devclass</code> is the app. Bumper resolves the name through
+  the portal token, the auth code, the IT token, or a signed access JWT to the
+  canonical account and records the client under that account and resource.
+  With <code>USE_AUTH=True</code> the secret must verify with
+  <code>identity.verify_transport_secret</code>; with <code>USE_AUTH=False</code> the client is
+  accepted and a name is adopted only when it already resolves or a valid
+  secret links it.</li>
+<li>The bound JID is <code>&lt;uid&gt;@&lt;devclass&gt;.ecorobot.net/atom</code> for a robot and
+  <code>&lt;uid&gt;@&lt;server&gt;/&lt;resource&gt;</code> for the app.</li>
+</ul>
+<p><strong>MQTT</strong> (<code>bumper/mqtt/server.py</code>)</p>
+<ul>
+<li>The broker listens on <code>1883</code> (plain) and <code>8883</code> (TLS).</li>
+<li>A client id has the form <code>&lt;did&gt;@&lt;class id&gt;/&lt;resource&gt;</code>.</li>
+<li>The class id decides the side: <code>USER_CLASS_IDS</code> (<code>ecouser</code>, <code>bumper</code>,
+  <code>USER</code>) means app, anything else means robot.</li>
+<li>The username may carry base64 app headers after a backtick; Bumper decodes
+  them for logging and keeps the first segment as the username.</li>
+<li>The helper bot uses a fixed client id and is accepted before any other check.</li>
+<li>Bumper resolves the presented client name to the canonical account before it
+  stores the client. Each client id/resource has its own row, so one account
+  can keep parallel app installations and transport connections.</li>
+<li>With <code>USE_AUTH=False</code>, Bumper accepts the password as-is. With
+  <code>USE_AUTH=True</code>, the password must be a portal token, an auth code, an IT
+  token, or a signed access JWT issued for that account.</li>
+<li>A password file can also hold <code>username:hash</code> entries for broker users. It is
+  read from <code>${BUMPER_DATA}/passwd</code>.</li>
+</ul>
+<p>The helper bot is Bumper's own client. It connects to the broker with the fixed
+<code>HELPER_BOT_CLIENT_ID</code>, bypasses authentication, and is the only component that
+writes the firmware version it learns from a robot into the database.</p>
+<hr>
+<h2 id="the-app-on-the-wire">📱 The app on the wire</h2>
+<p>These facts come from the app package and are useful when a login fails:</p>
+<ul>
+<li>The legacy client is <code>com.ecovacs.lib_iot_client</code>; it builds <code>appid</code>, <code>ts</code>,
+  and <code>sign</code> in <code>NetRequestUtil</code>.</li>
+<li>The modern client is <code>com.eco.econetwork</code>; <code>SigningInterceptor</code> and
+  <code>OpenSigningInterceptor</code> add <code>authAppkey</code>, <code>authTimespan</code>, <code>authTimeZone</code>,
+  <code>requestId</code>, and <code>authSign</code>.</li>
+<li>The app reads <code>PUBLIC.KEY.CONFIG</code> before it encrypts account fields.</li>
+<li>The app pins no certificate except the MQTT broker. The MQTT pin is embedded
+  in a <code>classes*.dex</code>; <code>scripts/app/apk-patch/patch-mqtt-trust.py</code> removes it so
+  Paho falls back to the platform store.</li>
+<li>The NGIoT channel uses a native mbedTLS stack. It reads the system CA store
+  and ignores the user store, so a user-installed Bumper CA does not cover it.
+  If only that channel fails, suspect this before the certificate names.</li>
+<li>The app's account screens need React Native and Hermes. A white screen there
+  is usually a missing <code>libhermes.so</code> for the emulator ABI, not a Bumper auth
+  failure.</li>
+</ul>
+<p>The app package is the source for these details.</p>
+<hr>
+<h2 id="the-robot-on-the-wire">🤖 The robot on the wire</h2>
+<p>The robot does not log in with an Ecovacs account. It is provisioned with the
+server address and a local identity, and then it connects:</p>
+<ul>
+<li>Older robots use XMPP with the serial number as the user id and <code>atom</code> as
+  the resource.</li>
+<li>Newer robots use MQTT with the serial number or device id as the client id,
+  the model as the class id, and a resource name.</li>
+<li>The auth code is the link from the account login to the transport. The robot
+  receives it through the app's provisioning step, not through the cloud login.</li>
+<li>TLS is verified against the CA the robot trusts. That CA is the one Bumper
+  serves at <code>/ca-certificates.tar.gz</code>.</li>
+</ul>
+<p>When Bumper sees a robot for the first time, the MQTT or XMPP login creates the
+bot record. Later calls use that record to resolve the serial number, model,
+and resource.</p>
+<hr>
+<h2 id="code-map">🗺️ Code map</h2>
+<table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Login, tokens, auth codes</td>
+<td><code>bumper/web/auth_service.py</code></td>
+</tr>
+<tr>
+<td>JWT decoding and checking</td>
+<td><code>bumper/web/jwt.py</code></td>
+</tr>
+<tr>
+<td>Request identity helpers</td>
+<td><code>bumper/web/context.py</code></td>
+</tr>
+<tr>
+<td>Account names and aliases</td>
+<td><code>bumper/db/identity.py</code></td>
+</tr>
+<tr>
+<td>Public account id shapes</td>
+<td><code>bumper/utils/account_ids.py</code></td>
+</tr>
+<tr>
+<td>Token and user records</td>
+<td><code>bumper/db/tokens.py</code>, <code>bumper/db/users.py</code></td>
+</tr>
+<tr>
+<td>Client records</td>
+<td><code>bumper/db/clients.py</code></td>
+</tr>
+<tr>
+<td>Account RSA key</td>
+<td><code>bumper/utils/account_key.py</code></td>
+</tr>
+<tr>
+<td>Auth endpoints (v1)</td>
+<td><code>bumper/web/plugins/v1/private/user.py</code></td>
+</tr>
+<tr>
+<td>Auth endpoints (v2)</td>
+<td><code>bumper/web/plugins/v2/private/user.py</code></td>
+</tr>
+<tr>
+<td>OpenAPI auth code</td>
+<td><code>bumper/web/plugins/v1/global_auth.py</code></td>
+</tr>
+<tr>
+<td>newauth.do</td>
+<td><code>bumper/web/single_paths.py</code></td>
+</tr>
+<tr>
+<td>OAuth callback</td>
+<td><code>bumper/web/plugins/api/appsvr.py</code></td>
+</tr>
+<tr>
+<td>XMPP authentication</td>
+<td><code>bumper/xmpp/xmpp.py</code></td>
+</tr>
+<tr>
+<td>MQTT authentication</td>
+<td><code>bumper/mqtt/server.py</code></td>
+</tr>
+<tr>
+<td>OTP endpoints</td>
+<td><code>bumper/web/plugins/v1/private/device.py</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="known-gaps">⚠️ Known gaps</h2>
+<ul>
+<li><code>authSign</code> is not verified. A wrong signature is accepted.</li>
+<li><code>appid</code>, <code>ts</code>, and the legacy <code>sign</code> are not verified.</li>
+<li>The account password is ignored. Any password logs in.</li>
+<li>Some request-context helpers decode JWT claims without checking the
+  signature. Account linking and transport authentication use <code>verify_jwt</code>,
+  which checks the signature, expiry, and token type.</li>
+<li><code>USE_AUTH</code> is a code constant, not an environment setting.</li>
+<li>The auth code and IT token are removed when their portal/refresh session row
+  expires. The legacy <code>GetAuthCode</code> path can create a fresh row; modern
+  <code>getAuthCode</code> requires a live portal token and the client must log in again.</li>
+<li>A logout with a recognized token revokes only its client row. A logout with
+  no token revokes every token and client for the account; an unknown supplied
+  token does not log out unrelated clients.</li>
+<li>The email verification code is fixed. Bumper never sends mail.</li>
+<li>The OTP is returned to the caller and accepted for its TTL. It is a UX
+  emulation, not a second factor.</li>
+</ul>
+<p>These are deliberate for a self-hosted LAN replacement. Treat the network and
+the CA as the security boundary, not the application tokens.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/MVladislav/bumper" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+        <script src="../../assets/external/cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.min.js"></script>
+      
+    
+  
+<script id="init-glightbox">document.querySelectorAll('.glightbox').forEach(function(element) {
+    try {
+        var img = element.querySelector('img');
+        if (img) {
+            const imageSrc = img.dataset.src || img.src;
+            if (imageSrc) {
+                element.setAttribute('href', imageSrc);
+            } else {
+                console.log('No img element with src or data-src attribute found');
+            }
+        } else {
+            console.log('No img element found');
+        }
+    } catch (error) {
+        console.log('Error:', error);
+    }
+});
+const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script></body></html>
