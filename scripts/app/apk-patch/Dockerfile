@@ -3,7 +3,7 @@
 # Everything the app patching needs runs in here, so the host only needs docker:
 # a JDK (keytool, apksigner), the Android build-tools (zipalign), python3 for the
 # two patchers, and curl/unzip for fetching and unpacking the XAPK.
-FROM eclipse-temurin:21-jdk-jammy
+FROM eclipse-temurin:25-jdk-jammy
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
