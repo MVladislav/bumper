@@ -30,10 +30,13 @@ jobs:
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
 
-      # https://github.com/actions/setup-python
-      - uses: actions/setup-python@v7.1.0
+      # https://github.com/astral-sh/setup-uv
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@v10.3.3
         with:
-          python-version: 3.15.2
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+          python-version: "3.15"
 
       - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
       # https://github.com/actions/cache
@@ -43,5 +46,5 @@ jobs:
           path: .cache
           restore-keys: |
             mkdocs-material-
-      - run: pip install "mkdocs-material>=9.6.14,<10" "mkdocs-glightbox>=0.4.0"
-      - run: mkdocs gh-deploy --force
+      - run: uv sync --locked --group docs
+      - run: uv run --frozen mkdocs gh-deploy --force

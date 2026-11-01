@@ -15,7 +15,7 @@ It supports both XMPP and MQTT-based models transparently.
 
 - A Wi-Fi enabled Ecovacs robot
 - A server in your local network to run the Bumper services
-- Python 3.13 or newer with [uv](https://pypi.org/project/uv/) **or** Docker
+- Python 3.13 or newer (3.15 recommended) with [uv](https://pypi.org/project/uv/) **or** Docker
 - A DNS server capable of overriding specific domain queries
 - A client that can connect and control the robot:
     - The official "Ecovacs" or "Ecovacs Home" Android/iOS apps (when configured correctly)
