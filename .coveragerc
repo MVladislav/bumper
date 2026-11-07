@@ -4,6 +4,7 @@ source = bumper
 
 omit =
     tests/*
+    scripts/*
 
 [report]
 exclude_lines =
