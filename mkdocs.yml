@@ -29,6 +29,7 @@ nav:
       - Development Guide: development/dev-guide.md
       - Web API Endpoints: development/web-api-endpoints.md
       - Static Data Update: development/static-data-update.md
+      - Robot Wi-Fi Onboarding: development/robot-onboarding.md
       - Testing & CI: https://github.com/MVladislav/bumper/actions
   - Origins & Credits: origins.md
 

@@ -482,6 +482,20 @@ async def test_on_broker_message_received_proxy_timeout(tmp_path: Path, monkeypa
     proxy.publish.assert_awaited_once()
 
 
+async def test_onboarding_scsync_topic_is_not_misclassified_as_invalid(
+    tmp_path: Path,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """The short setup-sync topic is not an Ecovacs command topic."""
+    plugin = _make_plugin(str(tmp_path / "passwd"))
+    message = IncomingApplicationMessage(None, "iot/scsync/<redacted>", 0, b"{}", False)
+
+    with caplog.at_level("WARNING", logger="bumper.mqtt.server.proxy"):
+        await plugin.on_broker_message_received(message, "<redacted>@p95mgv/<redacted>")
+
+    assert "Received message with invalid topic" not in caplog.text
+
+
 async def test_authenticate_no_client_id() -> None:
     """Missing client_id fails authentication."""
     plugin = _make_plugin(None, allow_anonymous=False)  # type: ignore[arg-type]
