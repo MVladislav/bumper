@@ -2,6 +2,7 @@
 
 import asyncio
 from collections.abc import Mapping
+import copy
 import json
 import logging
 import secrets
@@ -620,7 +621,7 @@ async def _decode_qr_code(_: Request, post_body: Mapping[str, Any]) -> Any:
         if botprod["classid"] != mid:
             continue
         name = botprod.get("product", {}).get("name")
-        robot = get_config_groups_robot(value=name, key="groupName")
+        robot = copy.deepcopy(get_config_groups_robot(value=name, key="groupName"))
         product_category = get_product_category(device_name=name, robot=robot)
         if robot:
             robot["mid"] = mid
