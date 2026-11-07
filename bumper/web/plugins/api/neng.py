@@ -75,14 +75,14 @@ async def _handle_v3_latest_by_did(_: Request) -> Any:
 
 
 @routes.view(f"{PREFIX}/neng/v3/message/list")
-@bind(LEGACY)
+@bind(LEGACY_NO_RET)
 async def _handle_v3_message_list(_: Request) -> Any:
     # EcoVacs Home
     return []
 
 
 @routes.view(f"{PREFIX}/neng/v3/product/msg/tabs")
-@bind(LEGACY)
+@bind(LEGACY_NO_RET)
 async def _handle_v3_product_msg_tabs(_: Request) -> Any:
     # EcoVacs Home
     return [
