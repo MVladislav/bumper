@@ -1,0 +1,16 @@
+/* Mermaid draws its own text colors, so give every diagram a light card that
+   stays legible on both the light and the dark page palette. */
+.md-typeset .mermaid {
+  background: #fbf9ff;
+  border: 1px solid #d8d0e8;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+  padding: 1rem 1.25rem;
+}
+
+.md-typeset .mermaid svg {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+}
