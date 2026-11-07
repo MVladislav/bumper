@@ -64,13 +64,25 @@ async def test_handle_app_do_global_device_list(webserver_client: TestClient, ap
         assert json_resp["ret"] == "ok"
         assert len(json_resp["devices"]) == 1
 
+    bot_repo.add("sn_5678", "did_5678", "p95mgv", "res_5678", "eco-ng")
+    identity.assign_bot_to_all_users("did_5678")
+    async with webserver_client.post("/api/appsvr/app.do", json=data_global_device_list) as resp:
+        assert resp.status == 200
+        assert len((await resp.json())["devices"]) == 2
+
+    selected_device_request = data_global_device_list | {"did": "did_5678"}
+    async with webserver_client.post("/api/appsvr/app.do", json=selected_device_request) as resp:
+        assert resp.status == 200
+        selected_devices = (await resp.json())["devices"]
+    assert [device["did"] for device in selected_devices] == ["did_5678"]
+
     data_global_device_list["auth"]["userid"] = "second_user"
     data_global_device_list["userid"] = "second_user"
     async with webserver_client.post("/api/appsvr/app.do", json=data_global_device_list) as resp:
         assert resp.status == 200
         json_resp = await resp.json()
         assert json_resp["ret"] == "ok"
-        assert len(json_resp["devices"]) == 1
+        assert len(json_resp["devices"]) == 2
 
 
 @pytest.mark.usefixtures("clean_database", "helper_bot")

@@ -10,6 +10,7 @@ from aiohttp.web_response import Response
 
 from bumper.db import bot_repo
 from bumper.mqtt.helper_bot import MQTTCommandModel
+from bumper.onboarding import wifi_setup
 from bumper.utils import utils
 from bumper.utils.settings import config as bumper_isc
 from bumper.web.envelope import (
@@ -78,6 +79,9 @@ async def handle_commands(
         else:
             _LOGGER.warning(f"MQTT command version not known :: '{version}'")
         cmd_request = MQTTCommandModel(cmdjson=json_body, version=version)
+        auth = json_body.get("auth")
+        setup_user_id = auth.get("userid") if isinstance(auth, dict) else None
+        setup_user_id = setup_user_id if isinstance(setup_user_id, str) and setup_user_id else None
 
         # Its a command
         if cmd_request.did is not None:
@@ -105,10 +109,17 @@ async def handle_commands(
 
         if cmd_request.td is not None:
             if cmd_request.td == "PollSCResult":  # Seen when doing initial wifi config
+                setup_key = json_body.get("sck")
+                if isinstance(setup_key, str) and setup_key:
+                    result = wifi_setup.result(setup_key, setup_user_id)
+                    return web.json_response(result)
                 return web.json_response({"ret": "ok"})
             if cmd_request.td == "HasUnreadMsg":  # EcoVacs Home
                 return web.json_response({"ret": "ok", "unRead": False})
             if cmd_request.td.startswith("PreWifiConfig"):
+                setup_key = json_body.get("sck")
+                if isinstance(setup_key, str) and setup_key:
+                    wifi_setup.begin(setup_key, setup_user_id)
                 return web.json_response({"ret": "ok"})
             _LOGGER.warning(f"TD is not know :: {cmd_request.td} :: connected to MQTT")
 

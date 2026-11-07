@@ -516,7 +516,11 @@ async def _handle_device_nickname(request: Request) -> Any:
 
 async def _get_global_device_list(request: Request, post_body: Mapping[str, Any]) -> Any:
     """Return the devices of the account."""
-    return device_list(_request_user(request, post_body))
+    devices = device_list(_request_user(request, post_body))
+    requested_did = post_body.get("did")
+    if isinstance(requested_did, str) and requested_did:
+        devices = [device for device in devices if device["did"] == requested_did]
+    return devices
 
 
 def _request_user(request: Request, post_body: Mapping[str, Any]) -> BumperUser | None:

@@ -21,6 +21,7 @@ from pwdlib.exceptions import UnknownHashError
 
 from bumper.db import bot_repo, client_repo, identity
 from bumper.mqtt import helper_bot, proxy as mqtt_proxy
+from bumper.onboarding import wifi_setup
 from bumper.utils import utils
 from bumper.utils.device_error_handler import record_device_error_report
 from bumper.utils.device_error_reports import parse_device_error_report
@@ -359,6 +360,21 @@ class BumperMQTTServerPlugin(BaseAuthPlugin):  # type: ignore[misc]
                 if isinstance(message.data, bytes | bytearray)
                 else str(message.data)
             )
+
+            if len(topic_split) == 3 and topic_split[:2] == ["iot", "scsync"]:
+                sender = self._client_id_split_helper(client_id)
+                if sender is not None:
+                    did, robot_type, resource, sender_kind = sender
+                    bot = bot_repo.get(did)
+                    wifi_setup.observe_sync_key(
+                        topic_split[2],
+                        did=did,
+                        name=bot.name if bot is not None else "",
+                        robot_type=robot_type,
+                        resource=resource,
+                        sender_kind=sender_kind,
+                    )
+                return
 
             if len(topic_split) < 7:
                 _LOGGER_PROXY.warning(f"Received message with invalid topic: {topic}")
