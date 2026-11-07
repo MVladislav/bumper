@@ -1,5 +1,6 @@
 import asyncio
 import base64
+import json
 from pathlib import Path
 import ssl
 from unittest import mock
@@ -724,17 +725,22 @@ async def test_set_client_connected_exception(monkeypatch: pytest.MonkeyPatch) -
 
 
 async def test_set_bot_timezone_success(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Setting the bot timezone sends a command."""
+    """Setting the bot clock and timezone sends the native p2p commands."""
     plugin = _make_plugin(None)  # type: ignore[arg-type]
     monkeypatch.setattr(bumper_isc, "SYNC_TIMEZONE", True)
     helper = mock.AsyncMock()
+    helper.publish_command.return_value = True
     monkeypatch.setattr(bumper_isc, "mqtt_helperbot", helper)
     monkeypatch.setattr(server_module.bot_repo, "get", lambda did: mock.MagicMock(did=did, class_id="class", resource="res"))
     monkeypatch.setattr(server_module.utils, "get_tzm_and_ts", lambda: (60, 1000))
 
     await plugin._set_bot_timezone("did")
 
-    helper.send_command.assert_awaited_once()
+    models = [call.args[0] for call in helper.publish_command.await_args_list]
+    assert [model.cmd_name for model in models] == ["SetTime", "SetTZ"]
+    assert json.loads(models[0].payload) == {"ts": 1_000_000, "tsInSec": 1000}
+    assert json.loads(models[1].payload) == {"offset": 60}
+    assert all(model.create_topic().startswith(f"iot/p2p/{model.cmd_name}/") for model in models)
 
 
 async def test_set_bot_timezone_disabled() -> None:

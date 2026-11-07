@@ -11,7 +11,7 @@ Variables not listed here are hardcoded or not configurable via environment.
 | Variable        | Default | Description                                                                                                                                              |
 | --------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `TZ`            | `UTC`   | Timezone for scheduling and log timestamps. Set to any [IANA zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones), e.g., `Europe/Berlin`. |
-| `SYNC_TIMEZONE` | `false` | Sync the server timezone offset to robots when they connect over MQTT.                                                                                   |
+| `SYNC_TIMEZONE` | `false` | Sync the server clock and timezone offset to robots when they connect over MQTT.                                                                         |
 
 ---
 

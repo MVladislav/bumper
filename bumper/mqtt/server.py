@@ -9,7 +9,7 @@ from datetime import datetime
 import logging
 from pathlib import Path
 import time
-from typing import Literal
+from typing import Any, Literal
 
 from amqtt.broker import Broker
 from amqtt.client import ClientConfig
@@ -491,7 +491,7 @@ class BumperMQTTServerPlugin(BaseAuthPlugin):  # type: ignore[misc]
         return did, class_id, resource, client_type
 
     async def _set_bot_timezone(self, did: str) -> None:
-        """Set bot timezone, sync on connect."""
+        """Sync the clock and timezone of a bot, once it connects."""
         try:
             if bumper_isc.SYNC_TIMEZONE is False:
                 return
@@ -502,36 +502,32 @@ class BumperMQTTServerPlugin(BaseAuthPlugin):  # type: ignore[misc]
                 return
 
             offset_minutes, timestamp_s = utils.get_tzm_and_ts()
-            timestamp_s_ts = timestamp_s * 1000
-            timestamp_s_bd = timestamp_s * 1_000_000
 
-            json_body = {
-                "cmdName": "setTimeZone",
-                "toId": bot.did,
-                "toType": bot.class_id,
-                "toRes": bot.resource,
-                "payload": {
-                    "header": {
-                        "pri": 2,
-                        "ts": str(timestamp_s_ts),
-                        "tzm": offset_minutes,
-                        "ver": "0.0.22",
-                    },
-                    "body": {
-                        "data": {
-                            "tzm": offset_minutes,
-                            "bdTaskID": str(timestamp_s_bd),
-                        },
-                    },
-                },
-            }
-            cmd_request = helper_bot.MQTTCommandModel(cmdjson=json_body, version="1")
+            # The robot's time module handles the native p2p commands `SetTime` and `SetTZ`.
+            # `setTimeZone` is an app-to-cloud call: the robot has no handler for it, so the
+            # clock and the offset have to be sent natively for the bot to leave its
+            # unset RTC default behind.
+            commands: tuple[tuple[str, dict[str, Any]], ...] = (
+                ("SetTime", {"ts": timestamp_s * 1000, "tsInSec": timestamp_s}),
+                ("SetTZ", {"offset": offset_minutes}),
+            )
+            for cmd_name, payload in commands:
+                json_body = {
+                    "cmdName": cmd_name,
+                    "toId": bot.did,
+                    "toType": bot.class_id,
+                    "toRes": bot.resource,
+                    "payloadType": "j",
+                    "payload": payload,
+                }
+                cmd_request = helper_bot.MQTTCommandModel(cmdjson=json_body, version="1")
+                if not await bumper_isc.mqtt_helperbot.publish_command(cmd_request):
+                    _LOGGER.warning(f"Could not send '{cmd_name}' to bot {bot.did}")
+
             _LOGGER.info(
-                f"Syncing timezone for bot {bot.did}: "
-                f"tzm={offset_minutes} :: ts={timestamp_s_ts} :: bdTaskID={timestamp_s_bd} "
+                f"Syncing clock and timezone for bot {bot.did}: "
+                f"tzm={offset_minutes} :: ts={timestamp_s} "
                 f"({datetime.fromtimestamp(timestamp_s, tz=bumper_isc.LOCAL_TIMEZONE).strftime('%Y-%m-%d %H:%M')})",
             )
-
-            await bumper_isc.mqtt_helperbot.send_command(cmd_request)
         except Exception:
             _LOGGER.exception("Failed to set timezone on bot")
