@@ -18,22 +18,25 @@ Every script is in the folder of what it is for:
 
 ## The tools of the API
 
-| Script                                    | What it does                                                                                               | Do you need it?                                                   |
-| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| `api/api-table.py`                        | Prints the route table with the shape of every endpoint                                                    | When you want to see what the server serves                       |
-| `api/1-convert-mitmproxy-flows-export.py` | Turns mitmproxy flows into transcripts, including complete decoded MQTT streams even on TLS port 443       | When you have a new recording to inspect                          |
-| `api/2-extract-response-shapes.py`        | Writes the shape of every captured answer into the two files under `tests/web/`                            | When the traffic has grown and the shapes are to be checked again |
-| `api/check-captured-apis.py`              | Compares the route table with the captured traffic: what does the app call that the server does not serve? | When you look for a gap in the API                                |
-| `api/sync-route-snapshots.py`             | Writes `tests/web/routes.txt` and `tests/web/shapes.txt` from the live route table                         | When an endpoint or its answer shape changes                      |
-| `api/check-eco-firmware.sh`               | Checks the firmware of a robot against the one the cloud offers                                            | When a robot does not get the update it should                    |
+| Script                                    | What it does                                                                                               | Do you need it?                                |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| `api/api-table.py`                        | Prints the route table with the shape of every endpoint                                                    | When you want to see what the server serves    |
+| `api/1-convert-mitmproxy-flows-export.py` | Turns mitmproxy flows into transcripts, including complete decoded MQTT streams even on TLS port 443       | When you have a new recording to inspect       |
+| `api/2-extract-response-shapes.py`        | Previews or merges captured answer shapes into the fixtures under `tests/web/`                             | When reviewing newly captured response shapes  |
+| `api/check-captured-apis.py`              | Compares the route table with the captured traffic: what does the app call that the server does not serve? | When you look for a gap in the API             |
+| `api/sync-route-snapshots.py`             | Writes `tests/web/routes.txt` and `tests/web/shapes.txt` from the live route table                         | When an endpoint or its answer shape changes   |
+| `api/check-eco-firmware.sh`               | Checks the firmware of a robot against the one the cloud offers                                            | When a robot does not get the update it should |
 
 The converter and the extractor are numbered because the extractor reads what
 the converter writes. `check-captured-apis.py` is an optional diagnostic and
 can run after step 1.
 
-`2-extract-response-shapes.py` writes `tests/web/response_shapes.json` and
-`tests/web/response_shapes_bumper.json` - the fixtures that
-`tests/web/test_response_shapes.py` checks the server against in CI.
+`2-extract-response-shapes.py` previews changes by default. `--write` adds
+captured shapes without deleting existing variants; `--replace` rebuilds a
+fixture from all matching local transcripts and should only be used when that
+capture set is complete. It updates `tests/web/response_shapes.json` and
+`tests/web/response_shapes_bumper.json`, which
+`tests/web/test_response_shapes.py` checks in CI.
 `sync-route-snapshots.py` writes the route and shape snapshots that
 `tests/web/test_routes.py` and `tests/web/test_shapes.py` pin. The pre-commit
 hook runs it when a file under `bumper/web/` changes; a snapshot change is
@@ -51,13 +54,14 @@ uv run --active --frozen python scripts/api/1-convert-mitmproxy-flows-export.py 
 # optional: see what the app called that the server does not answer
 uv run --active --frozen python scripts/api/check-captured-apis.py
 
-# 2. refresh the response-shape fixtures
+# 2. preview, then merge reviewed response-shape fixtures
 uv run --active --frozen python scripts/api/2-extract-response-shapes.py
+uv run --active --frozen python scripts/api/2-extract-response-shapes.py --write
 ```
 
 The converter keeps the input name, so name the input with one of the
-prefixes the extractor reads: `flows_official_*` and `flows_new_*` for answers
-of the official server, `flows-bumper-*` for answers of this server. `-o`
+prefixes the extractor reads: `flows-cloud-*` for answers of the official
+server, `flows-bumper-*` for answers of this server. `-o`
 chooses a different output path, and `-o -` writes to stdout.
 
 ## The data the API answers with

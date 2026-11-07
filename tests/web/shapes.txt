@@ -32,7 +32,7 @@
 * /api/homed/home/update Template no-ret
 * /api/homed/member/list LEGACY_NO_RET no-ret
 * /api/homed/v2/matter/fabric raw
-* /api/homed/v2/matter/paa Template no-ret success
+* /api/homed/v2/matter/paa Template no-ret
 * /api/idi/data_collect/upload/generalData raw
 * /api/microservice-recomend/userReminderResult/ Template no-ret success
 * /api/neng/message/getShareMsgs LEGACY_BARE no-ret no-message
@@ -41,9 +41,9 @@
 * /api/neng/message/read Template no-ret
 * /api/neng/v2/message/push Template no-ret
 * /api/neng/v3/message/latest_by_did LEGACY_NO_RET no-ret
-* /api/neng/v3/message/list LEGACY
+* /api/neng/v3/message/list LEGACY_NO_RET no-ret
 * /api/neng/v3/message/pushStatus Template no-ret
-* /api/neng/v3/product/msg/tabs LEGACY
+* /api/neng/v3/product/msg/tabs LEGACY_NO_RET no-ret
 * /api/neng/v3/shareMsg/hasUnreadMsg LEGACY_NO_RET no-ret
 * /api/neng/v3/shareMsg/read Template no-ret
 * /api/notice/app LEGACY_BARE no-ret no-message

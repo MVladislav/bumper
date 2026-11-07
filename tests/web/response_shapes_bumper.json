@@ -1,4 +1,24 @@
 {
+  "/api/appsvr/app.do#DecodeQrCode": {
+    "POST": [
+      {
+        "code": "int",
+        "data": "dict",
+        "ret": "str",
+        "todo": "str"
+      }
+    ]
+  },
+  "/api/appsvr/app.do#GetAppVideoUrl": {
+    "POST": [
+      {
+        "code": "int",
+        "data": "dict",
+        "ret": "str",
+        "todo": "str"
+      }
+    ]
+  },
   "/api/appsvr/app.do#GetCodepush": {
     "POST": [
       {
@@ -26,6 +46,13 @@
         "data": "dict",
         "ret": "str",
         "todo": "str"
+      },
+      {
+        "code": "int",
+        "err": "int",
+        "errno": "int",
+        "ret": "str",
+        "todo": "str"
       }
     ]
   },
@@ -36,10 +63,35 @@
         "data": "list",
         "message": "str",
         "ret": "str"
+      },
+      {
+        "code": "int",
+        "data": "list",
+        "message": "str"
       }
     ]
   },
   "/api/appsvr/codepush/checkupdate": {
+    "GET": [
+      {
+        "code": "int",
+        "data": "dict",
+        "message": "str",
+        "ret": "str"
+      }
+    ]
+  },
+  "/api/appsvr/device/blacklist/check": {
+    "GET": [
+      {
+        "code": "int",
+        "data": "list",
+        "message": "str",
+        "ret": "str"
+      }
+    ]
+  },
+  "/api/appsvr/device/prop/list": {
     "GET": [
       {
         "code": "int",
@@ -57,6 +109,13 @@
       }
     ]
   },
+  "/api/appsvr/improve/accept": {
+    "POST": [
+      {
+        "code": "int"
+      }
+    ]
+  },
   "/api/appsvr/improve/user/accept": {
     "GET": [
       {
@@ -65,13 +124,44 @@
       }
     ]
   },
+  "/api/appsvr/notice/home": {
+    "GET": [
+      {
+        "code": "int",
+        "data": "dict",
+        "ret": "str",
+        "todo": "str"
+      }
+    ]
+  },
   "/api/appsvr/oauth/token": {
+    "GET": [
+      {
+        "code": "int",
+        "error": "str",
+        "ret": "str",
+        "todo": "str"
+      },
+      {
+        "code": "int",
+        "data": "dict",
+        "message": "str",
+        "ret": "str"
+      }
+    ]
+  },
+  "/api/appsvr/oauth_callback": {
     "GET": [
       {
         "code": "int",
         "data": "dict",
         "message": "str",
         "ret": "str"
+      },
+      {
+        "data": "dict",
+        "ret": "str",
+        "todo": "str"
       }
     ]
   },
@@ -83,13 +173,36 @@
       }
     ]
   },
+  "/api/appsvr/product/getConfigGroups": {
+    "POST": [
+      {
+        "code": "int",
+        "configFAQ": "dict",
+        "data": "list"
+      }
+    ]
+  },
   "/api/appsvr/service/list": {
     "GET": [
       {
         "code": "int",
         "data": "dict",
+        "message": "str",
+        "ret": "str"
+      },
+      {
+        "code": "int",
+        "data": "dict",
         "ret": "str",
         "todo": "str"
+      }
+    ]
+  },
+  "/api/basis/time/timezones": {
+    "GET": [
+      {
+        "code": "int",
+        "data": "list"
       }
     ]
   },
@@ -131,6 +244,26 @@
       }
     ]
   },
+  "/api/ecms/app/ad/res/v3/": {
+    "POST": [
+      {
+        "code": "int",
+        "data": "list",
+        "message": "str",
+        "success": "bool"
+      }
+    ]
+  },
+  "/api/ecms/app/element/hint": {
+    "GET": [
+      {
+        "code": "int",
+        "data": "dict",
+        "message": "str",
+        "success": "bool"
+      }
+    ]
+  },
   "/api/ecms/app/push/event": {
     "POST": [
       {
@@ -155,13 +288,32 @@
     "GET": [
       {
         "code": "int",
+        "data": "NoneType",
+        "message": "str",
+        "success": "bool"
+      },
+      {
+        "code": "int",
         "message": "str",
         "success": "bool"
       }
     ]
   },
+  "/api/homed/device/move": {
+    "POST": [
+      {
+        "code": "int",
+        "message": "str"
+      }
+    ]
+  },
   "/api/homed/home/list": {
     "GET": [
+      {
+        "code": "int",
+        "data": "list",
+        "message": "str"
+      },
       {
         "code": "int",
         "data": "list",
@@ -180,6 +332,30 @@
       }
     ]
   },
+  "/api/iot/devmanager.do#PollSCResult": {
+    "POST": [
+      {
+        "debug": "str",
+        "errno": "int",
+        "ret": "str",
+        "subCode": "int"
+      },
+      {
+        "did": "str",
+        "name": "str",
+        "resource": "str",
+        "ret": "str",
+        "type": "str"
+      }
+    ]
+  },
+  "/api/iot/devmanager.do#PreWifiConfig": {
+    "POST": [
+      {
+        "ret": "str"
+      }
+    ]
+  },
   "/api/iot/devmanager.do#q": {
     "POST": [
       {
@@ -195,11 +371,23 @@
       {
         "body": "dict",
         "header": "dict"
+      },
+      {
+        "debug": "str",
+        "errno": "int",
+        "id": "str",
+        "ret": "str"
       }
     ]
   },
   "/api/microservice-recomend/userReminderResult/": {
     "POST": [
+      {
+        "code": "int",
+        "data": "NoneType",
+        "message": "str",
+        "success": "bool"
+      },
       {
         "code": "int",
         "message": "str",
@@ -242,6 +430,16 @@
       }
     ]
   },
+  "/api/photo/list": {
+    "GET": [
+      {
+        "code": "int",
+        "data": "list",
+        "message": "str",
+        "success": "bool"
+      }
+    ]
+  },
   "/api/pim/consumable/getPurchaseUrl": {
     "POST": [
       {
@@ -249,6 +447,34 @@
         "data": "list",
         "msg": "str",
         "ret": "str"
+      }
+    ]
+  },
+  "/api/pim/dictionary/getErrDetail": {
+    "POST": [
+      {
+        "code": "int",
+        "data": "list",
+        "msg": "str"
+      }
+    ]
+  },
+  "/api/pim/product/entry/group": {
+    "GET": [
+      {
+        "code": "int",
+        "data": "list",
+        "message": "str"
+      }
+    ]
+  },
+  "/api/pim/product/getConfignetAll": {
+    "POST": [
+      {
+        "code": "int",
+        "configFAQ": "dict",
+        "data": "list",
+        "msg": "str"
       }
     ]
   },
@@ -265,6 +491,11 @@
       {
         "code": "int",
         "data": "dict",
+        "message": "str"
+      },
+      {
+        "code": "int",
+        "data": "dict",
         "message": "str",
         "success": "bool"
       }
@@ -272,6 +503,11 @@
   },
   "/api/pim/v2/voice/getLanuages": {
     "POST": [
+      {
+        "code": "int",
+        "msg": "str",
+        "voices": "list"
+      },
       {
         "code": "int",
         "message": "str",
@@ -306,6 +542,46 @@
         "code": "str",
         "result": "str",
         "todo": "str"
+      },
+      {
+        "code": "str",
+        "ret": "str",
+        "todo": "str"
+      }
+    ]
+  },
+  "/api/users/user.do#SetDeviceNick": {
+    "POST": [
+      {
+        "result": "str",
+        "todo": "str"
+      }
+    ]
+  },
+  "/app/dln/api/log/clean_result/list": {
+    "GET": [
+      {
+        "code": "int",
+        "data": "list",
+        "message": "str"
+      }
+    ]
+  },
+  "/newauth.do#OLoginByITToken": {
+    "POST": [
+      {
+        "authCode": "str",
+        "result": "str",
+        "todo": "str"
+      }
+    ]
+  },
+  "/v0.1/public/codepush/report_status/deploy": {
+    "POST": [
+      {
+        "code": "int",
+        "data": "NoneType",
+        "msg": "str"
       }
     ]
   },
@@ -316,11 +592,33 @@
       }
     ]
   },
+  "/v1/global/auth/getAuthCode": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
   "/v1/private/<VARS>/common/checkAPPVersion": {
     "GET": [
       {
         "code": "str",
         "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v1/private/<VARS>/common/getAgreementURLBatch": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "list",
         "msg": "str",
         "success": "bool",
         "time": "int"
@@ -350,6 +648,17 @@
     ]
   },
   "/v1/private/<VARS>/common/getCurrentAreaSupportServiceInfo": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v1/private/<VARS>/common/getTimestamp": {
     "GET": [
       {
         "code": "str",
@@ -393,7 +702,62 @@
       }
     ]
   },
+  "/v1/private/<VARS>/intl/member/basicInfo": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
   "/v1/private/<VARS>/osmall/getCountryConfig": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v1/private/<VARS>/user/acceptAgreementBatch": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "NoneType",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v1/private/<VARS>/user/changeLang": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "NoneType",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v1/private/<VARS>/user/checkAgreementBatch": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v1/private/<VARS>/userSetting/getSuggestionSetting": {
     "GET": [
       {
         "code": "str",
@@ -416,6 +780,17 @@
     ]
   },
   "/v2/private/<VARS>/common/getCurrentAreaSupportServiceInfo": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v2/private/<VARS>/member/getBindBenefit": {
     "GET": [
       {
         "code": "str",
@@ -460,6 +835,24 @@
     ]
   },
   "/v2/private/<VARS>/user/checkLogin": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      },
+      {
+        "code": "str",
+        "data": "NoneType",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v2/private/<VARS>/user/login2": {
     "GET": [
       {
         "code": "str",
