@@ -8,6 +8,19 @@
       }
     ]
   },
+  "/api/appsvr/akvs/start_watch": {
+    "GET": [
+      {
+        "channel": "str",
+        "client_id": "str",
+        "credentials": "dict",
+        "region": "str",
+        "ret": "str",
+        "session": "str",
+        "ts": "int"
+      }
+    ]
+  },
   "/api/appsvr/akvs/start_watch/v2": {
     "GET": [
       {
@@ -110,6 +123,15 @@
       }
     ]
   },
+  "/api/appsvr/device/b924b9a9-ca81-4118-aea6-2e5a99417627/nickname": {
+    "PUT": [
+      {
+        "code": "int",
+        "message": "str",
+        "ret": "str"
+      }
+    ]
+  },
   "/api/appsvr/device/blacklist/check": {
     "GET": [
       {
@@ -120,11 +142,29 @@
       }
     ]
   },
+  "/api/appsvr/device/dde7625f-6691-45aa-a5ba-c37ded2da77d/nickname": {
+    "PUT": [
+      {
+        "code": "int",
+        "message": "str",
+        "ret": "str"
+      }
+    ]
+  },
   "/api/appsvr/device/prop/list": {
     "GET": [
       {
         "code": "int",
         "data": "dict",
+        "message": "str",
+        "ret": "str"
+      }
+    ]
+  },
+  "/api/appsvr/device/unbind": {
+    "POST": [
+      {
+        "code": "int",
         "message": "str",
         "ret": "str"
       }
@@ -192,12 +232,19 @@
     "POST": [
       {
         "code": "int",
+        "message": "str",
+        "ret": "str"
+      },
+      {
+        "code": "int",
         "message": "str"
       },
       {
         "code": "int",
-        "message": "str",
-        "ret": "str"
+        "force": "bool",
+        "fw0": "dict",
+        "name": "str",
+        "version": "str"
       }
     ]
   },
@@ -250,6 +297,11 @@
       {
         "ret": "str",
         "unRead": "bool"
+      },
+      {
+        "errno": "int",
+        "error": "str",
+        "ret": "str"
       }
     ]
   },
@@ -297,10 +349,26 @@
       }
     ]
   },
+  "/api/ecms/app/element/hint": {
+    "GET": [
+      {
+        "code": "int",
+        "data": "dict",
+        "message": "str",
+        "success": "bool"
+      }
+    ]
+  },
   "/api/ecms/app/push/event": {
     "POST": [
       {
         "code": "int",
+        "message": "str",
+        "success": "bool"
+      },
+      {
+        "code": "int",
+        "data": "str",
         "message": "str",
         "success": "bool"
       }
@@ -340,7 +408,41 @@
       }
     ]
   },
+  "/api/ecms/app/user/theme/enabled": {
+    "GET": [
+      {
+        "code": "int",
+        "data": "bool",
+        "message": "str",
+        "success": "bool"
+      }
+    ]
+  },
   "/api/homed/device/move": {
+    "POST": [
+      {
+        "code": "int",
+        "message": "str"
+      }
+    ]
+  },
+  "/api/homed/device/sort/update": {
+    "POST": [
+      {
+        "code": "int",
+        "message": "str"
+      }
+    ]
+  },
+  "/api/homed/home/create": {
+    "POST": [
+      {
+        "code": "int",
+        "message": "str"
+      }
+    ]
+  },
+  "/api/homed/home/delete": {
     "POST": [
       {
         "code": "int",
@@ -353,6 +455,10 @@
       {
         "code": "int",
         "data": "list",
+        "message": "str"
+      },
+      {
+        "code": "int",
         "message": "str"
       }
     ]
@@ -391,10 +497,26 @@
       }
     ]
   },
+  "/api/homed/v2/matter/fabric": {
+    "GET": [
+      {
+        "code": "int",
+        "message": "str"
+      }
+    ]
+  },
+  "/api/homed/v2/matter/paa": {
+    "GET": [
+      {
+        "code": "int",
+        "data": "dict",
+        "message": "str"
+      }
+    ]
+  },
   "/api/iot/devmanager.do#PollSCResult": {
     "POST": [
       {
-        "debug": "str",
         "errno": "int",
         "ret": "str",
         "subCode": "int"
@@ -405,6 +527,12 @@
         "resource": "str",
         "ret": "str",
         "type": "str"
+      },
+      {
+        "debug": "str",
+        "errno": "int",
+        "ret": "str",
+        "subCode": "int"
       }
     ]
   },
@@ -424,6 +552,11 @@
         "ret": "str"
       },
       {
+        "errno": "int",
+        "error": "str",
+        "ret": "str"
+      },
+      {
         "id": "str",
         "payloadType": "str",
         "resp": "dict",
@@ -431,7 +564,12 @@
       },
       {
         "errno": "int",
-        "error": "str",
+        "es": "dict",
+        "ret": "str"
+      },
+      {
+        "debug": "str",
+        "errno": "int",
         "ret": "str"
       }
     ]
@@ -440,6 +578,9 @@
     "POST": [
       {
         "body": "dict",
+        "header": "dict"
+      },
+      {
         "header": "dict"
       }
     ]
@@ -474,6 +615,14 @@
       }
     ]
   },
+  "/api/neng/v3/message/del": {
+    "POST": [
+      {
+        "code": "int",
+        "message": "str"
+      }
+    ]
+  },
   "/api/neng/v3/message/latest_by_did": {
     "GET": [
       {
@@ -488,8 +637,35 @@
       }
     ]
   },
+  "/api/neng/v3/message/list": {
+    "GET": [
+      {
+        "code": "int",
+        "data": "list",
+        "message": "str"
+      }
+    ]
+  },
   "/api/neng/v3/message/pushStatus": {
     "GET": [
+      {
+        "code": "int",
+        "data": "dict",
+        "message": "str"
+      }
+    ]
+  },
+  "/api/neng/v3/product/msg/tabs": {
+    "GET": [
+      {
+        "code": "int",
+        "data": "list",
+        "message": "str"
+      }
+    ]
+  },
+  "/api/neng/v3/shareMsg/getShareMsgs": {
+    "POST": [
       {
         "code": "int",
         "data": "dict",
@@ -592,6 +768,16 @@
       }
     ]
   },
+  "/api/pim/product/getConfigGroups": {
+    "POST": [
+      {
+        "code": "int",
+        "configFAQ": "dict",
+        "data": "list",
+        "msg": "str"
+      }
+    ]
+  },
   "/api/pim/product/getConfignetAll": {
     "POST": [
       {
@@ -631,6 +817,15 @@
       {
         "code": "int",
         "data": "list",
+        "message": "str"
+      }
+    ]
+  },
+  "/api/pim/product/software/config": {
+    "POST": [
+      {
+        "code": "int",
+        "data": "dict",
         "message": "str"
       }
     ]
@@ -712,6 +907,14 @@
       }
     ]
   },
+  "/api/users/user.do#SetDeviceNick": {
+    "POST": [
+      {
+        "result": "str",
+        "todo": "str"
+      }
+    ]
+  },
   "/api/users/user.do#logout": {
     "POST": [
       {
@@ -744,6 +947,22 @@
         "authCode": "str",
         "result": "str",
         "todo": "str"
+      }
+    ]
+  },
+  "/v0.1/public/codepush/report_Status/deploy": {
+    "POST": [
+      {
+        "code": "int",
+        "msg": "str"
+      }
+    ]
+  },
+  "/v0.1/public/codepush/report_Status/download": {
+    "POST": [
+      {
+        "code": "int",
+        "msg": "str"
       }
     ]
   },
@@ -857,11 +1076,44 @@
       }
     ]
   },
+  "/v1/private/<VARS>/agreement/getUserAcceptInfo": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
   "/v1/private/<VARS>/common/checkAPPVersion": {
     "GET": [
       {
         "code": "str",
         "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v1/private/<VARS>/common/deleteUserDevice": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "NoneType",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v1/private/<VARS>/common/getAboutBriefItem": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "list",
         "msg": "str",
         "success": "bool",
         "time": "int"
@@ -934,6 +1186,17 @@
       }
     ]
   },
+  "/v1/private/<VARS>/common/getIntlLiveChatInfo": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
   "/v1/private/<VARS>/common/getTimestamp": {
     "GET": [
       {
@@ -956,7 +1219,40 @@
       }
     ]
   },
+  "/v1/private/<VARS>/common/getUserDevice": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
   "/v1/private/<VARS>/common/uploadDeviceInfo": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v1/private/<VARS>/device/getCurrent": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v1/private/<VARS>/device/otp/generate": {
     "GET": [
       {
         "code": "str",
@@ -1115,6 +1411,17 @@
       }
     ]
   },
+  "/v1/private/<VARS>/osmall/proxy/cart/index": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
   "/v1/private/<VARS>/osmall/proxy/coupon-send-activity/get-customer-coupon-send-activity-coupon": {
     "GET": [
       {
@@ -1208,6 +1515,17 @@
       {
         "code": "str",
         "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v1/private/<VARS>/osmall/proxy/product/material-accessory-list": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "list",
         "msg": "str",
         "success": "bool",
         "time": "int"
@@ -1357,6 +1675,35 @@
       }
     ]
   },
+  "/v1/private/<VARS>/user/checkAgreementBatch": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "list",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v1/private/<VARS>/user/checkUserDeviceSN": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "NoneType",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      },
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
   "/v1/private/<VARS>/user/getBackupEmailByAccount": {
     "GET": [
       {
@@ -1395,6 +1742,28 @@
       }
     ]
   },
+  "/v1/private/<VARS>/user/login": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v1/private/<VARS>/user/loginHistory": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
   "/v1/private/<VARS>/user/logout": {
     "GET": [
       {
@@ -1407,6 +1776,17 @@
     ]
   },
   "/v1/private/<VARS>/user/sendEmailVerifyCode": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
+  "/v1/private/<VARS>/userData/applyList": {
     "GET": [
       {
         "code": "str",
@@ -1570,6 +1950,17 @@
       }
     ]
   },
+  "/v2/private/<VARS>/message/msgInfoListByModuleType": {
+    "GET": [
+      {
+        "code": "str",
+        "data": "dict",
+        "msg": "str",
+        "success": "bool",
+        "time": "int"
+      }
+    ]
+  },
   "/v2/private/<VARS>/message/setMsgRead": {
     "GET": [
       {
@@ -1612,14 +2003,14 @@
     "GET": [
       {
         "code": "str",
-        "data": "dict",
+        "data": "NoneType",
         "msg": "str",
         "success": "bool",
         "time": "int"
       },
       {
         "code": "str",
-        "data": "NoneType",
+        "data": "dict",
         "msg": "str",
         "success": "bool",
         "time": "int"

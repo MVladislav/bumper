@@ -117,7 +117,7 @@ async def _handle_home_member_role_update(request: Request) -> Any:
 
 
 @routes.view(f"{PREFIX}/homed/v2/matter/paa")
-@bind(LEGACY.with_result(None).with_success(True))
+@bind(LEGACY.with_result(None))
 async def _handle_matter_paa(_: Request) -> Any:
     """Matter / PAA integration probe."""
     _LOGGER.debug("Matter/PAA probe answered with an empty result")
