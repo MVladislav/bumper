@@ -15,6 +15,7 @@ from bumper.web.hosts import codepush_host
 from bumper.web.static_api import (
     get_codepush_update_check,
     get_codepush_update_check_mapping,
+    get_config_groups_response,
 )
 
 USER_ID = _generate_uid(bumper_isc.USER_USERNAME_DEFAULT)
@@ -162,6 +163,8 @@ async def test_handle_app_do_protocol(webserver_client: TestClient, app_do_base_
 
 @pytest.mark.usefixtures("clean_database", "helper_bot")
 async def test_handle_app_do_decode_qr_code(webserver_client: TestClient, app_do_base_payload: dict[str, Any]) -> None:
+    get_config_groups_response.cache_clear()
+
     # Test DecodeQrCode - wrong qrcode
     data_decode_qr_code_wrong_qrcode = app_do_base_payload.copy()
     data_decode_qr_code_wrong_qrcode["todo"] = "DecodeQrCode"
@@ -205,6 +208,37 @@ async def test_handle_app_do_decode_qr_code(webserver_client: TestClient, app_do
         assert json_resp["data"]["productCategory"]
         assert json_resp["data"]["configGuide"]
         assert json_resp["data"]["code_sn"] == "sn_1234"
+
+    # A known MQTT robot class must include the instructions used by the setup UI.
+    data_decode_qr_code_t10 = app_do_base_payload.copy()
+    data_decode_qr_code_t10["todo"] = "DecodeQrCode"
+    data_decode_qr_code_t10["qrcode"] = "?sn=sn_t10&mid=p95mgv"
+    async with webserver_client.post("/api/appsvr/app.do", json=data_decode_qr_code_t10) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert json_resp["data"]["productCategory"]
+        assert json_resp["data"]["configGuide"]["mid"] == "p95mgv"
+
+    data_decode_qr_code_t10_second = app_do_base_payload.copy()
+    data_decode_qr_code_t10_second["todo"] = "DecodeQrCode"
+    data_decode_qr_code_t10_second["qrcode"] = "?sn=sn_t10_second&mid=p95mgv"
+    async with webserver_client.post("/api/appsvr/app.do", json=data_decode_qr_code_t10_second) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert json_resp["data"]["productCategory"]
+        assert json_resp["data"]["configGuide"]["mid"] == "p95mgv"
+
+    data_decode_qr_code_goat = app_do_base_payload.copy()
+    data_decode_qr_code_goat["todo"] = "DecodeQrCode"
+    data_decode_qr_code_goat["qrcode"] = "?sn=sn_goat&mid=300lc5"
+    async with webserver_client.post("/api/appsvr/app.do", json=data_decode_qr_code_goat) as resp:
+        assert resp.status == 200
+        json_resp = await resp.json()
+        assert json_resp["ret"] == "ok"
+        assert json_resp["data"]["productCategory"] == "GOATBOT"
+        assert json_resp["data"]["configGuide"]["mid"] == "300lc5"
 
 
 @pytest.mark.usefixtures("clean_database", "helper_bot")
