@@ -743,6 +743,26 @@ async def test_set_bot_timezone_success(monkeypatch: pytest.MonkeyPatch) -> None
     assert all(model.create_topic().startswith(f"iot/p2p/{model.cmd_name}/") for model in models)
 
 
+async def test_set_bot_timezone_publish_failure(
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """A failed publish logs a warning for each command."""
+    plugin = _make_plugin(None)  # type: ignore[arg-type]
+    monkeypatch.setattr(bumper_isc, "SYNC_TIMEZONE", True)
+    helper = mock.AsyncMock()
+    helper.publish_command.return_value = False
+    monkeypatch.setattr(bumper_isc, "mqtt_helperbot", helper)
+    monkeypatch.setattr(server_module.bot_repo, "get", lambda did: mock.MagicMock(did=did, class_id="class", resource="res"))
+    monkeypatch.setattr(server_module.utils, "get_tzm_and_ts", lambda: (60, 1000))
+
+    with caplog.at_level("WARNING", logger="bumper.mqtt.server"):
+        await plugin._set_bot_timezone("did")
+
+    assert "Could not send 'SetTime'" in caplog.text
+    assert "Could not send 'SetTZ'" in caplog.text
+
+
 async def test_set_bot_timezone_disabled() -> None:
     """Disabled timezone sync returns early."""
     plugin = _make_plugin(None)  # type: ignore[arg-type]
