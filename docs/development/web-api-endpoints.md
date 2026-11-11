@@ -220,7 +220,7 @@ existing matching operation or gather the missing response contract first.
   `tests/web/response_shapes_bumper.json` check response keys and Python value
   types. A new key or changed type needs a reason in the response contract.
 - Run `uv run --active --frozen pytest tests/web`, the linters, and
-  `uv run --active --frozen mkdocs build --strict` before contributing.
+  `uv run --active --frozen zensical build --clean` before contributing.
 
 The core definitions are in `bumper/web/envelope/templates.py`,
 `bumper/web/envelope/binder.py`, and `bumper/web/operations.py`.

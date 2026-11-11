@@ -1,6 +1,8 @@
 # Android Sniffing on Ubuntu with mitmproxy
 
-This guide walks you through setting up an Android emulator on Ubuntu, installing a custom CA certificate, and using mitmproxy to intercept traffic. It also includes an optional Python addon for enhanced output filtering.
+This guide walks you through setting up an Android emulator on Ubuntu,
+installing a custom CA certificate, and using mitmproxy to intercept traffic.
+It also includes an optional Python addon for enhanced output filtering.
 
 ---
 
@@ -9,8 +11,9 @@ This guide walks you through setting up an Android emulator on Ubuntu, installin
 - **Ubuntu 22.04+**
 - **Docker** (for running mitmproxy)
 - **Android Studio** (for emulator and ADB)
-- **CA certificate** (`ca.crt` and `ca.pem`) placed in the `./certs/` folder
-    - These are generated automatically when Bumper starts for the first time
+- **CA certificate** (`ca.crt` and `ca.pem`) in the `./certs/` folder
+    - Created by `bash scripts/certs/create-cert.sh` or by Bumper at startup;
+      see [Certificates](../getting_started/certificates.md)
 
 ---
 
@@ -24,7 +27,9 @@ sudo snap install android-studio --classic
 
 Launch Android Studio and follow the initial setup to install the SDK and platform-tools.
 
-> _Tip:_ Install the SDK under `~/.android/Sdk` for consistency.
+!!! tip
+
+    Install the SDK under `~/.android/Sdk` for consistency.
 
 ---
 
@@ -32,15 +37,14 @@ Launch Android Studio and follow the initial setup to install the SDK and platfo
 
 1. Open **AVD Manager** (Virtual Device Manager).
 2. Click **Create Virtual Device**.
-3. Choose a device (e.g., Pixel 6 Pro) **without** Google Play Store.
-4. Select a system image with **API 28 (Android 9 Pie)** or lower to allow system CA installation.
+3. Choose a device (e.g., Pixel 6 Pro) **without** Google Play Store.
+4. Select a system image with **API 28 (Android 9 Pie)** or lower to allow system CA installation.
 
 ---
 
 ## 🔧 Prepare the Emulator
 
-_(Optional)_ Disable Quickboot file-backed feature
-[Reddit Source - fixes BTRFS issues](https://www.reddit.com/r/btrfs/comments/l8qu3l/comment/gowtd55/?utm_source=share&utm_medium=web2x&context=3):
+_(Optional)_ Disable Quickboot file-backed feature (can help with BTRFS-related emulator issues):
 
 ```sh
 echo "QuickbootFileBacked = off" >> ~/.android/advancedFeatures.ini
@@ -52,9 +56,8 @@ List available AVDs:
 ~/.android/Sdk/emulator/emulator -list-avds
 ```
 
-Start the emulator with root access and writable system:
-
-> _replace `<AVD_NAME>`_
+Start the emulator with root access and writable system.
+Replace `<AVD_NAME>` with an AVD from the list above:
 
 ```sh
 ~/.android/Sdk/emulator/emulator \
@@ -77,14 +80,23 @@ Restart ADB as root and remount:
 
 ## 🔒 Install the CA Certificate
 
-Push your custom CA into the emulator’s system trust store:
+Push your custom CA into the emulator's system trust store. The emulator must
+be started with `-writable-system` and ADB remounted as root (see
+[Prepare the Emulator](#prepare-the-emulator)):
 
 ```sh
-$HASH=$(openssl x509 -inform PEM -subject_hash_old -in certs/ca.crt | head -1)
+HASH=$(openssl x509 -inform PEM -subject_hash_old -in certs/ca.crt | head -1)
 ~/.android/Sdk/platform-tools/adb push certs/ca.crt "/system/etc/security/cacerts/${HASH}.0"
 ~/.android/Sdk/platform-tools/adb reboot
 ~/.android/Sdk/platform-tools/adb wait-for-device
 ```
+
+!!! note
+
+    On Android 10 and newer the system partition is read-only. Install the CA
+    as a user certificate instead, and use an app that trusts user CAs (for
+    example the patched app from
+    [Defeating Certificate Pinning](certificate-unpinning-app.md)).
 
 ---
 
@@ -94,31 +106,34 @@ $HASH=$(openssl x509 -inform PEM -subject_hash_old -in certs/ca.crt | head -1)
 
 Download and install version `2.4.1` of the Ecovacs Home APK:
 
-> If you want to try reversing newer app versions,
-> you'll need to unpin the certificate.
-> See **[Defeating Certificate Pinning](../internals/certificate-unpinning-app.md)** for instructions.
+!!! note
 
-- [Ecovacs Home on APKPure](https://apkpure.net/ecovacs-home/com.eco.global.app/download/2.4.1)
-- [Ecovacs Home on Aptoide](https://ecovacs-home.en.aptoide.com/app)
+    To reverse newer app versions, you need to unpin the certificate first.
+    See [Defeating Certificate Pinning](certificate-unpinning-app.md) for instructions.
+
+    - [Ecovacs Home on APKPure](https://apkpure.net/ecovacs-home/com.eco.global.app) (older versions may be easier to inspect; newer versions may require [certificate pinning bypass](certificate-unpinning-app.md))
+
+Install the app on the emulator:
 
 ```sh
 ~/.android/Sdk/platform-tools/adb install <path/to/Ecovacs_Home_2.4.1.apk>
 ```
 
-> _Tip:_ Drag-and-drop the APK onto the emulator window.
+!!! tip
+
+    Drag-and-drop the APK onto the emulator window.
 
 ### 2️⃣ Install SOCKS5 Proxy App
 
 Install a SOCKS5 proxy client (e.g., Super Proxy):
 
-- [Super Proxy on APKPure](https://apkpure.net/super-proxy/com.scheler.superproxy)
-- [Super Proxy on Aptoide](https://super-proxy-scheler-software.en.aptoide.com/app)
+- Use a SOCKS5 proxy app on the emulator/device (for example, [Proxy Server on APKPure](https://apkpure.net/proxy-server/com.icecoldapps.proxyserver) or another SOCKS5 client; verify the app/package before installing).
 
 ---
 
 ## 🌐 Configure Proxy on Android
 
-In the emulator’s network or proxy app settings:
+In the emulator's network or proxy app settings:
 
 - **Protocol**: SOCKS5
 - **Host**: `<YOUR_SERVER_IP>`
@@ -128,76 +143,62 @@ This routes all emulator traffic through mitmproxy.
 
 ---
 
-## ⚙️ Run mitmproxy in Docker-Swarm
+## ⚙️ Run mitmproxy with Docker Compose / Swarm
 
-From your project root:
+The repository includes `docker-compose-mitm.yaml` with pre-defined mitmproxy settings and helper scripts.
+It uses `certs/ca.pem`, so make sure your Bumper certificates exist.
 
-> NOTE: i run my projects in `swarm mode`,
-> mitm will be started with pre-defined configs inside `docker-compose-mitm.yaml`
+**Docker Compose**
 
 ```sh
-docker compose -f docker-compose-mitm.yaml --compatibility config | \
-  sed 's|cpus: \([0-9]\+\(\.[0-9]\+\)*\)|cpus: "\1"|' | \
-  sed '1{/^name:/d}' | \
-  sed 's/published: "\(.*\)"/published: \1/' | \
-  sed 's|mode: "\([0-9]\+\)"|mode: \1|' | \
-  docker stack deploy --resolve-image=never --with-registry-auth --detach=false --compose-file - mitm
+docker compose -f docker-compose-mitm.yaml up -d
+```
+
+**Docker Swarm**
+
+!!! note "Alias"
+
+    This uses the [`docker-swarm-compose` alias](https://github.com/MVladislav/.dotfiles/blob/main/profiles/profile5-containers#L9).
+    Pass the compose file with `-f`; setting `COMPOSE_FILE` is not enough. The
+    final argument is the stack name.
+
+```sh
+docker-swarm-compose -f docker-compose-mitm.yaml mitm
 ```
 
 Access [http://localhost:8081](http://localhost:8081) to inspect traffic.
 
 ---
 
-## 🐳 Alternative: Local mitmproxy Docker Run
+## 🐍 Optional: Python Script Addons
 
-From your project root (where `./certs/ca.pem` lives):
+`docker-compose-mitm.yaml` mounts helper scripts from `configs/` (`mitm-cmd.py`, `mitm-mqtt.py`, `mitm-dns.py`).
+Script loading is controlled by environment variables, so you can enable only what you need:
 
-```sh
-docker run --rm -it --network host \
-  -v $PWD/mitm:/home/mitm:ro \
-  -v $PWD/certs/ca.pem:/tmp/ca.pem:ro \
-  mitmproxy/mitmproxy mitmweb \
-    --web-host 0.0.0.0 \
-    --mode socks5 \
-    --showhost \
-    --rawtcp \
-    --ssl-insecure \
-    --certs '*=/tmp/ca.pem' \
-    --set connection_strategy=lazy
-```
+| Variable           | Default | Script              | Purpose                             |
+| ------------------ | ------- | ------------------- | ----------------------------------- |
+| `MITM_SCRIPT_CMD`  | `1`     | `/tmp/mitm-cmd.py`  | Capture/filter HTTP command traffic |
+| `MITM_SCRIPT_MQTT` | `0`     | `/tmp/mitm-mqtt.py` | MQTT sniffing                       |
+| `MITM_SCRIPT_DNS`  | `1`     | `/tmp/mitm-dns.py`  | DNS helper/filtering                |
 
-Access [http://localhost:8081](http://localhost:8081) to inspect traffic.
-
----
-
-## 🐍 Optional: Python Script Filter
-
-Use the Python addon at `./configs/mitm.py` to filter or transform flows:
+Examples:
 
 ```sh
-docker run --rm -it --network host \
-  -v $PWD/mitm:/home/mitm:ro \
-  -v $PWD/certs/ca.pem:/tmp/ca.pem:ro \
-  -v $PWD/configs/mitm.py:/tmp/mitm.py:ro \
-  mitmproxy/mitmproxy mitmweb \
-    --web-host 0.0.0.0 \
-    --mode socks5 \
-    --showhost \
-    --rawtcp \
-    --ssl-insecure \
-    --certs '*=/tmp/ca.pem' \
-    --set connection_strategy=lazy \
-    -s /tmp/mitm.py
+# Enable MQTT sniffing in addition to defaults
+MITM_SCRIPT_MQTT=1 docker compose -f docker-compose-mitm.yaml up -d
+
+# Only the MQTT script
+MITM_SCRIPT_CMD=0 MITM_SCRIPT_MQTT=1 MITM_SCRIPT_DNS=0 docker compose -f docker-compose-mitm.yaml up -d
 ```
 
-Access [http://localhost:8081](http://localhost:8081) to inspect traffic.
+You can also set `MITM_WEB_PW` to change the mitmweb password (default: `mitm`) and `MITM_PATH` for capture output.
 
 ---
 
 ## 🛠️ Troubleshooting
 
 - **SSL errors**: Verify the CA hash and placement.
-- **Emulator won’t root**: Use API 28 or lower with `-writable-system`.
+- **Emulator won't root**: Use API 28 or lower with `-writable-system`.
 - **App 2003 errors**: Launch the app once without proxy to fetch initial data.
 
 ---
@@ -206,4 +207,4 @@ Access [http://localhost:8081](http://localhost:8081) to inspect traffic.
 
 - [mitmproxy MQTT script example](https://github.com/nikitastupin/mitmproxy-mqtt-script)
 - [Custom CA usage](https://docs.mitmproxy.org/stable/concepts-certificates/#using-a-custom-certificate-authority)
-- [mitmproxy API docs](https://docs.mitmproxy.org/stable/api/)
+- [mitmproxy documentation](https://docs.mitmproxy.org/stable/)

@@ -12,13 +12,13 @@
 > It replaces the Ecovacs cloud, giving you full local control through a privacy-first,
 > high-performance stack: Python + uv, Docker Swarm, and NGINX.
 
-![Web-UI Preview](docs/images/web-ui.png)
+![Web-UI Preview](docs/images/ui/web-ui.png)
 
 ## 🔑 Key Features
 
 - **Self-Hosted**: Operate without Ecovacs cloud servers.
 - **Privacy-First**: All data stays within your network.
-- **High Performance**: Built on Python 3.13+ (3.15 by default) with [uv](https://pypi.org/project/uv/) for efficient async I/O.
+- **High Performance**: Python 3.13+ (3.15 by default) with asyncio, aiohttp, slixmpp, and amqtt; [uv](https://docs.astral.sh/uv/) keeps the environment and lockfile reproducible.
 - **Docker Swarm & Compose**: One-command startup with turnkey NGINX configuration.
 - **Modular**: Easily extend protocols and add integrations.
 
@@ -32,7 +32,17 @@
 
 **TLS certificates**:
 
-[Certificates](https://mvladislav.github.io/bumper/getting_started/certificates/).
+The checked-in Compose/Swarm files load certificates from `$PWD/certs/*` as
+read-only Docker configs, so create and install them before deployment:
+
+```sh
+bash scripts/certs/create-cert.sh
+# add --rsa if your robot requires RSA keys
+```
+
+Use the generated `certs/ca.crt` on the app and clients;
+[Certificates](https://mvladislav.github.io/bumper/latest/getting_started/certificates/)
+covers key types, SANs, and startup generation.
 
 **Environment variables**:
 
@@ -47,7 +57,7 @@ BUMPER_ANNOUNCE_IP=192.168.0.100  # your server's local IP
 ```
 
 Full configuration options are available in the
-[Environment Variables](https://mvladislav.github.io/bumper/configuration/environment/).
+[Environment Variables](https://mvladislav.github.io/bumper/latest/configuration/environment/).
 
 ### ✨ Docker Swarm Deployment
 
@@ -85,11 +95,11 @@ Visit `https://ecovacs.net/` in your browser.
 In-depth guides and architecture details are available in the `docs/` folder or online:
 
 - **Online**: [Documentation](https://mvladislav.github.io/bumper/)
-- **Getting started**: [DNS Setup](https://mvladislav.github.io/bumper/getting_started/dns/) and [Certificates](https://mvladislav.github.io/bumper/getting_started/certificates/)
-- **Docker Usage**: [Docker](https://mvladislav.github.io/bumper/usage/docker/)
-- **Mobile App**: [Mobile App Integration](https://mvladislav.github.io/bumper/usage/mobile_app/)
-- **Environment Variables**: [Configuration](https://mvladislav.github.io/bumper/configuration/environment/)
-- **How It Works**: [Architecture](https://mvladislav.github.io/bumper/internals/architecture/)
+- **Getting started**: [DNS Setup](https://mvladislav.github.io/bumper/latest/getting_started/dns/) and [Certificates](https://mvladislav.github.io/bumper/latest/getting_started/certificates/)
+- **Docker Usage**: [Docker](https://mvladislav.github.io/bumper/latest/usage/docker/)
+- **Mobile App**: [Mobile App Integration](https://mvladislav.github.io/bumper/latest/usage/mobile_app/)
+- **Environment Variables**: [Configuration](https://mvladislav.github.io/bumper/latest/configuration/environment/)
+- **How It Works**: [Architecture](https://mvladislav.github.io/bumper/latest/internals/architecture/)
 
 ---
 
@@ -97,14 +107,14 @@ In-depth guides and architecture details are available in the `docs/` folder or 
 
 ### 🤖 Supported Robots
 
-See [Model Compatibility](https://mvladislav.github.io/bumper/reference/models/) for reported working models, known limitations, and cases that still need verification.
+See [Model Compatibility](https://mvladislav.github.io/bumper/latest/reference/models/) for reported working models, known limitations, and cases that still need verification.
 
 ### 📱 Supported Apps
 
 The official Ecovacs app works with Bumper once it is patched, and the patch is not
 tied to an app version anymore - there is no version table to keep. See
-[Mobile App Integration](https://mvladislav.github.io/bumper/usage/mobile_app/) and
-[Certificate Pinning Bypass (APP)](https://mvladislav.github.io/bumper/internals/certificate-unpinning-app/).
+[Mobile App Integration](https://mvladislav.github.io/bumper/latest/usage/mobile_app/) and
+[Certificate Pinning Bypass (APP)](https://mvladislav.github.io/bumper/latest/internals/certificate-unpinning-app/).
 
 ---
 
@@ -123,17 +133,17 @@ Or use the GitHub Discussions section for longer conversations and proposals.
 Contributions are welcome! To get started:
 
 1. Fork the repo and create a feature branch.
-2. Run tests and linters:
+2. Run the checks CI runs:
+
    ```sh
+   uv run --active prek run --all-files
    uv run --active pytest tests
-   uv run --active --frozen ruff check bumper/
-   uv run --active --frozen ruff format --check bumper/
-   uv run --active --frozen mypy bumper/
-   uv run --active --frozen pylint bumper/
    ```
+
 3. Submit a pull request against `main`.
 
-See the [Development Guide](https://mvladislav.github.io/bumper/development/dev-guide/) for the full setup.
+See the [Development Guide](https://mvladislav.github.io/bumper/latest/development/dev-guide/)
+for the full setup and each linter.
 
 ---
 
@@ -149,7 +159,7 @@ with your robot, please open a [discussion](https://github.com/MVladislav/bumper
 - Success or failure details, with `DEBUG_BUMPER_LEVEL=DEBUG` logs
 
 The confirmed models are tracked on the
-[Model Compatibility](https://mvladislav.github.io/bumper/reference/models/) page.
+[Model Compatibility](https://mvladislav.github.io/bumper/latest/reference/models/) page.
 
 ---
 
@@ -174,7 +184,7 @@ Released under the [GPLv3 License](LICENSE).
 Special thanks to:
 
 - **@torbjornaxelsson** for the original Bumper implementation.
-- **@wpietri** and contributors of [Sucks](https://github.com/wpietri/sucks) for the open‑source Ecovacs client.
+- **@wpietri** and contributors of [Sucks](https://github.com/wpietri/sucks) for the open-source Ecovacs client.
 - All community members who test and contribute to making Bumper better.
 
 _Originally forked from [edenhaus/bumper](https://github.com/edenhaus/bumper) (via [bmartin5692](https://github.com/bmartin5692/bumper)) · Maintained by @MVladislav_

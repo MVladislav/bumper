@@ -1,0 +1,17 @@
+.md-grid {
+  max-width: 80rem;
+}
+
+/* Mermaid follows the page palette through its theme variables, so the card
+   stays transparent and works on both the light and the dark page palette.
+   The host is centered here; the SVG itself lives in a closed shadow root. */
+.md-typeset .mermaid {
+  background: transparent;
+  border: 1px solid var(--md-accent-fg-color);
+  border-radius: 0.5rem;
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0;
+  overflow-x: auto;
+  padding: 1rem 1.25rem;
+}

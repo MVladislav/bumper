@@ -1,10 +1,14 @@
 # Certificate Unpinning on Ecovacs Goat
 
-> **⚠️ Disclaimer:**
->
-> Accessing and modifying your `Ecovacs Goat` is **risky** and **may permanently damage** your device. These steps will void your warranty, may violate your terms of service, and Ecovacs will likely refuse support for modified devices. Proceed entirely at your own risk!
->
-> > Double check all params. This instruction was tested on `Goat O500`. If you have another model, details may differ.
+!!! danger "Disclaimer"
+
+    Accessing and modifying your `Ecovacs Goat` is **risky** and **may permanently damage** your device.
+    These steps may void your warranty or violate your terms of service, and Ecovacs may refuse
+    support for modified devices. Proceed entirely at your own risk!
+
+!!! note
+
+    These instructions were tested only on a `Goat O500`. Details may differ on other models.
 
 ---
 
@@ -17,20 +21,28 @@ No firmware unpacking or flashing is required.
 
 Connect to the Goat UART serial port.
 
-> Adjust parameters as needed:
->
-> - `/dev/ttyACM0`: device name may differ
-> - `--log / --log-file`: optional, remove if you do not want logs
+!!! note
+
+    Adjust parameters as needed:
+
+    - `/dev/ttyACM0`: device name may differ
+    - `--log / --log-file`: optional, remove if you do not want logs
+
+With `picocom`:
 
 ```sh
 picocom /dev/ttyACM0 --flow n --baud 115200 --log ./b-capture-"$(date --iso-8601=seconds)".log
+```
 
+Or with `tio`:
+
+```sh
 tio /dev/ttyACM0 --flow none -b 115200 --log --log-file ./b-capture-"$(date --iso-8601=seconds)".log
 ```
 
-| UART - Goat O500 Panorama                                                         |
-| :-------------------------------------------------------------------------------- |
-| ![UART Goat O500 Panorama](./docs/../../images/uart-goat-O500.png){ width="300" } |
+| Goat O500 UART                                                                        |
+| ------------------------------------------------------------------------------------- |
+| ![UART connector on a Goat O500](../images/devices/uart-goat-O500.png){ width="300" } |
 
 **Pinout (O500):**
 
@@ -39,7 +51,9 @@ tio /dev/ttyACM0 --flow none -b 115200 --log --log-file ./b-capture-"$(date --is
 | 5V (RED) | NC      | NC  | NC  | GND  |
 | UART TX  | UART RX | NC  | NC  | NC   |
 
-⚠️ **Never connect the 5V pin to your UART adapter.**
+!!! warning "UART voltage"
+
+    Never connect the 5 V pin to your UART adapter.
 
 ### 2. Interrupt Boot and Enter Hobot (on Goat)
 
@@ -52,7 +66,8 @@ During power-up, interrupt the boot process to enter `Hobot` (press any key).
     Hit key to stop autoboot('CTRL+C'):  0
     ```
 
-    Sometime `picocom` is not working and in that case you can try `minicom`. You can keep pressed your key (eg. `CTRL+C`) during the boot process until it's interropted.
+    Sometimes `picocom` does not work; in that case, try `minicom`.
+    Keep pressing your key (e.g. `CTRL+C`) during the boot process until it is interrupted.
     ```sh
     minicom -D /dev/ttyUSB0 -b 115200
     ```
@@ -115,7 +130,7 @@ You should see directories such as `/certs`.
 Before writing anything, confirm that the existing certificate file
 exists and is readable.
 
-??? note
+!!! note
 
     If UART logging is enabled, the original certificate contents will also
     be captured in the UART log, which effectively serves as a backup.
@@ -138,89 +153,31 @@ The replacement is done by:
 1. Injecting the new certificate into RAM via UART
 2. Writing it back into the `userdata` partition
 
-#### 4.1 Prepare Host Environment (on host)
+#### 4.1 Inject Certificate into RAM (on host)
+
+Close `picocom`/`tio`/`minicom` before running the script (only one program can
+hold the serial port). The script sends U-Boot `mw.l`/`mw.b` commands to inject
+the PEM into RAM, then prints the `ext4write` command. It does **not** run
+`ext4write` itself (run that in the Goat U-Boot shell).
 
 ```sh
 python3 -m venv .venv
 source .venv/bin/activate
-pip install pyserial
+python3 -m pip install pyserial
+
+python3 scripts/device/install-goat-certs-serial.py \
+  --port /dev/ttyACM0 \
+  --cert ./certs/ca.crt \
+  --target /certs/master.pem \
+  --mmc-part 10
 ```
 
-#### 4.2 Python UART Loader (on host)
+Adjust `--port`, `--cert`, `--target` (e.g. `/certs/ca-certificates.crt` if you
+need to replace the bundle), and `--mmc-part` for your model (Goat O500 userdata
+is typically `mmc 0:10`). Use `--dry-run` to print the planned writes and the
+`ext4write`/`md.b` commands without opening the serial port.
 
-This script:
-
-- injects a PEM certificate into RAM at `0xC2600000`
-- calculates the exact byte size
-- prints the `ext4write` command for U-Boot
-
-```py
-import time
-import serial
-
-uart_port = "/dev/ttyACM0" # CHANGE THIS
-baud_rate = 115200
-# userdata partition index (0x10 → mmc 0:10)
-dev_part = 10
-address = 0xC2600000
-
-# Replace with your own PEM certificate
-pem = """-----BEGIN CERTIFICATE-----
-<YOUR CERTIFICATE HERE>
------END CERTIFICATE-----"""
-
-data = pem.encode("utf-8")
-size = len(data)
-commands = []
-i = 0
-while i + 4 <= size:
-    word = int.from_bytes(data[i : i + 4], "little")
-    commands.append(f"mw.l {address:#010x} 0x{word:08x} 1")
-    address += 4
-    i += 4
-
-while i < size:
-    commands.append(f"mw.b {address:#010x} 0x{data[i]:02x} 1")
-    address += 1
-    i += 1
-
-ser = None
-try:
-    ser = serial.serial_for_url(
-        uart_port,
-        baud_rate,
-        timeout=0.1,
-        bytesize=8,
-        parity="N",
-        stopbits=1,
-        rtscts=False,
-        xonxoff=False,
-        do_not_open=True,
-    )
-    ser.dtr = None
-    ser.rts = None
-    ser.exclusive = False
-    ser.open()
-    time.sleep(2)
-    print(f"Connected to {uart_port} at {baud_rate} baud.")
-    print("Writing... (takes time)")
-    for cmd in commands:
-        ser.write(cmd.encode("utf-8") + b"\n")
-        ser.flush()
-        time.sleep(0.005)
-except serial.SerialException as e:
-    print(f"UART error: {e}")
-finally:
-    if ser and ser.is_open:
-        ser.close()
-        print("UART connection closed.")
-
-print(f"\nTotal size (hex): 0x{size:x}")
-print(f"Verify load: md.b 0xC2600000 0x{size:x}")
-print(f"Write: ext4write mmc 0:{dev_part} 0xC2600000 /certs/master.pem 0x{size:x}")
-```
-
-#### 4.3 Write Certificate to eMMC (on Goat)
+#### 4.2 Write Certificate to eMMC (on Goat)
 
 Execute the printed command in U-Boot:
 

@@ -1,0 +1,184 @@
+---
+name: bumper-docs
+
+x-basic-deploy: &basic-deploy
+  mode: replicated
+  replicas: 1
+  placement:
+    max_replicas_per_node: 1
+    constraints:
+      - "node.role==${NODE_ROLE:-manager}"
+      - node.platform.os == linux
+  update_config:
+    order: stop-first
+  restart_policy:
+    condition: any
+    delay: 5s
+  resources:
+    limits:
+      cpus: ${RESOURCES_LIMITS_CPUS:-0.25}
+      memory: ${RESOURCES_LIMITS_MEMORY:-250m}
+    reservations:
+      cpus: ${RESOURCES_RESERVATIONS_CPUS:-0.001}
+      memory: ${RESOURCES_RESERVATIONS_MEMORY:-32m}
+
+x-basic: &basic
+  cap_drop: ["ALL"]
+  security_opt:
+    - no-new-privileges:true
+  ulimits:
+    memlock:
+      soft: -1
+      hard: -1
+    nofile:
+      soft: 655360
+      hard: 655360
+    fsize: -1
+    as: -1
+  networks:
+    default: {}
+  healthcheck:
+    disable: true
+  tmpfs:
+    - /tmp:rw,relatime,size=512m,nodev,nosuid,noexec
+  restart: always
+
+################################################################################
+################################################################################
+################################################################################
+services:
+  ##############################################################################
+  ##############################################################################
+  ##############################################################################
+  # Single-version docs preview (live serve of current docs/).
+  # Compose: docker compose -f docker-compose-zensical.yaml up zensical
+  # Swarm:   docker-swarm-compose -f docker-compose-zensical.yaml bumper-docs
+  zensical:
+    # https://hub.docker.com/r/zensical/zensical
+    image: zensical/zensical:${VERSION_ZENSICAL:-latest}
+    <<: *basic
+    deploy:
+      <<: *basic-deploy
+    command: ["serve", "--dev-addr", "0.0.0.0:8000"]
+    ports:
+      - target: 8000
+        published: ${ZENSICAL_PORT:-8000}
+        protocol: tcp
+        mode: host
+    configs:
+      - source: zensical_config
+        target: /docs/mkdocs.yml
+        mode: "0444"
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ${ZENSICAL_MAIN_PATH:-$PWD}/docs/:/docs/docs:ro
+
+  # Versioned docs preview (mike). Standalone: it copies the checkout, rebuilds
+  # `latest` from the current docs, reuses the other versions already on
+  # gh-pages, adds the newest release tag, then serves the local branch with the
+  # version selector. It keeps watching the source and redeploys `latest` when
+  # docs change, so a stack deploy that Swarm does not restart still ends up
+  # current. The source is read-only: all work happens in /tmp/work, so the host
+  # checkout and its gh-pages are never modified.
+  # Compose: docker compose -f docker-compose-zensical.yaml up mike
+  #          MIKE_RELEASE_TAG=v0.4.1 docker compose -f docker-compose-zensical.yaml up mike
+  # Swarm:   docker-swarm-compose -f docker-compose-zensical.yaml bumper-docs
+  mike:
+    image: ghcr.io/astral-sh/uv:python3.14-bookworm
+    user: ${DOCS_UID:-1000}:${DOCS_GID:-1000}
+    working_dir: /tmp
+    environment:
+      HOME: /tmp
+      UV_CACHE_DIR: /tmp/uv-cache
+      UV_PROJECT_ENVIRONMENT: /tmp/venv
+      UV_LINK_MODE: copy
+      MIKE_BRANCH: ${MIKE_BRANCH:-gh-pages}
+      MIKE_RELEASE_TAG: ${MIKE_RELEASE_TAG:-}
+    command:
+      - /bin/sh
+      - -lc
+      - |
+        set -e
+        git config --global --add safe.directory /src || true
+        git config --global --add safe.directory /tmp/work || true
+        git config --global user.name "Bumper docs" || true
+        git config --global user.email "docs@localhost" || true
+        rm -rf /tmp/work
+        git clone --quiet --no-hardlinks /src /tmp/work
+        if git -C /tmp/work rev-parse --verify --quiet origin/gh-pages >/dev/null; then
+          git -C /tmp/work branch --force gh-pages origin/gh-pages
+        fi
+        cp /src/mkdocs.yml /src/mkdocs.release.yml /src/pyproject.toml /src/uv.lock /tmp/work/
+        cd /tmp/work
+        uv sync --frozen --only-group docs --no-install-project
+        branch="$${MIKE_BRANCH:-gh-pages}"
+        docs_state() {
+          find /src/docs /src/mkdocs.yml /src/mkdocs.release.yml -type f -print0 2>/dev/null \
+            | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1
+        }
+        sync_docs() {
+          rm -rf /tmp/work/docs
+          cp -a /src/docs /tmp/work/docs
+          cp /src/mkdocs.yml /src/mkdocs.release.yml /tmp/work/
+        }
+        deploy_latest() {
+          sync_docs
+          uv run --frozen --no-sync mike deploy --ignore-remote-status \
+            --branch "$$branch" --config-file mkdocs.release.yml latest
+          uv run --frozen --no-sync mike set-default --ignore-remote-status \
+            --branch "$$branch" latest
+        }
+        tag="$${MIKE_RELEASE_TAG:-$$(git tag --list 'v*' --sort=-v:refname | head -n 1)}"
+        if [ -n "$$tag" ]; then
+          worktree=/tmp/work/.docs-release
+          git worktree remove --force "$$worktree" 2>/dev/null || true
+          rm -rf "$$worktree"
+          git worktree add --detach "$$worktree" "$$tag"
+          cp /tmp/work/mkdocs.release.yml "$$worktree"/
+          (
+            cd "$$worktree"
+            uv run --project /tmp/work --frozen --no-sync mike deploy \
+              --ignore-remote-status --branch "$$branch" \
+              --config-file mkdocs.release.yml "$$tag"
+          )
+          git worktree remove --force "$$worktree"
+        fi
+        deploy_latest
+        uv run --frozen --no-sync mike serve --dev-addr 0.0.0.0:8000 \
+          --branch "$$branch" --ignore-remote-status &
+        serve_pid=$$!
+        trap 'kill "$$serve_pid" 2>/dev/null || true; exit 0' TERM INT
+        while true; do
+          built=$$(docs_state)
+          while [ "$$(docs_state)" = "$$built" ]; do
+            sleep 2
+          done
+          echo "Docs changed, rebuilding latest"
+          deploy_latest || echo "Deploy failed, waiting for the next change"
+        done
+    ports:
+      - target: 8000
+        published: ${MIKE_PORT:-8001}
+        protocol: tcp
+        mode: host
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ${ZENSICAL_MAIN_PATH:-$PWD}:/src:ro
+      - docs_venv:/tmp
+
+################################################################################
+################################################################################
+################################################################################
+networks:
+  # No driver on purpose: Compose creates a bridge network, while
+  # `docker stack deploy` creates an overlay network for the same file.
+  default: {}
+
+configs:
+  zensical_config:
+    file: ${ZENSICAL_MAIN_PATH:-$PWD}/mkdocs.yml
+
+volumes:
+  docs_venv: {}

@@ -1,0 +1,11 @@
+---
+# Built with an old tag: it keeps the tag's own mkdocs.yml (INHERIT) and adds
+# the mike version provider, which tags before this change do not declare.
+# Without the provider that tag's pages have no version selector, so it is the
+# one thing needed to switch between `latest` and an old release.
+INHERIT: mkdocs.yml
+
+extra:
+  version:
+    provider: mike
+    default: latest

@@ -1,18 +1,23 @@
 ---
 site_name: Bumper Docs
 site_url: https://mvladislav.github.io/bumper
+site_description: Self-hosted replacement for the Ecovacs cloud that keeps the app and the robots on your LAN.
+site_author: MVladislav
+copyright: Copyright &copy; MVladislav
 repo_url: https://github.com/MVladislav/bumper
 edit_uri: edit/main/docs/
 
 nav:
   - Home: index.md
   - Getting Started:
+      - Overview: getting_started/index.md
       - DNS Setup: getting_started/dns.md
-      - Certificate Setup: getting_started/certificates.md
+      - Certificates: getting_started/certificates.md
+      - Deploy Bumper: usage/docker.md
+      - Connect the Official App: usage/mobile_app.md
+      - Robot Wi-Fi Setup: getting_started/robot-onboarding.md
   - Usage:
-      - Command-Line Usage: usage/cli.md
-      - Docker Usage: usage/docker.md
-      - Mobile App Integration: usage/mobile_app.md
+      - Features: usage/features.md
   - Configuration:
       - Environment Variables: configuration/environment.md
   - Reference:
@@ -29,37 +34,77 @@ nav:
       - Development Guide: development/dev-guide.md
       - Web API Endpoints: development/web-api-endpoints.md
       - Static Data Update: development/static-data-update.md
-      - Robot Wi-Fi Onboarding: development/robot-onboarding.md
       - Testing & CI: https://github.com/MVladislav/bumper/actions
   - Origins & Credits: origins.md
 
 theme:
   name: material
+  variant: modern
   palette:
-    scheme: slate
-    primary: black
-    accent: deep purple
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      primary: deep purple
+      accent: deep purple
+      toggle:
+        icon: lucide/sun-moon
+        name: Switch to light mode
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      primary: deep purple
+      accent: deep purple
+      scheme: default
+      toggle:
+        icon: lucide/sun
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      primary: deep purple
+      accent: deep purple
+      scheme: slate
+      toggle:
+        icon: lucide/moon
+        name: Switch to system preference
+
   features:
-    # - content.action.edit
+    - content.action.edit
     - content.code.copy
-  logo: images/favicon.ico
-  favicon: images/favicon.ico
+    - content.code.select
+    - content.tooltips
+    - navigation.footer
+    - navigation.indexes
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.path
+    - navigation.top
+    - navigation.tracking
+    - search.highlight
+  logo: images/brand/favicon.svg
+  favicon: images/brand/favicon.svg
 
 extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/MVladislav/bumper
+  version:
+    provider: mike
+    default: latest
 
 plugins:
-  - privacy
   - search
-  - glightbox
-  # - social
 
 markdown_extensions:
   - admonition
   - attr_list
+  - zensical.extensions.glightbox
+  - toc:
+      permalink: true
   - pymdownx.details
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
@@ -67,7 +112,9 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
 
 extra_css:
-  - stylesheets/mermaid.css
+  - stylesheets/extra.css
+  - stylesheets/mermaid-zoom.css
 
 extra_javascript:
   - https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.min.js
+  - javascripts/mermaid-zoom.js

@@ -3,9 +3,9 @@
 This guide covers how to make the Ecovacs Home Android app trust your own
 Bumper instance, so the app talks only to your LAN.
 
-> **⚠️ Disclaimer:**
->
-> Modifying the Ecovacs app may break future updates. Proceed at your own risk.
+!!! warning "Disclaimer"
+
+    Modifying the Ecovacs app may break future updates. Proceed at your own risk.
 
 ---
 
@@ -24,7 +24,7 @@ its own **Needs:** line. Only the first is maintained.
 
 The three manual methods are reference material: they work in principle but are
 untested against current app versions. None of them applies the MQTT patch, so
-with those the web API works and robot control depends on app version.
+with those the web API works and MQTT robot control does not.
 
 ---
 
@@ -49,8 +49,8 @@ below, plus an **arm64 device** - see [Device requirement](#device-requirement).
 4. Runs `zipalign` and re-signs every split with a key kept in `certs/`.
 5. Verifies the result and prints the `adb` command to install it.
 
-Steps 2 and 3 are both required. Without step 3 no robot command arrives, because
-every command is relayed over MQTT.
+Steps 2 and 3 are both required. Without step 3 no command reaches an MQTT
+robot, because those commands are relayed over MQTT.
 
 [`scripts/app/create-unpinned-app.sh`](https://github.com/MVladislav/bumper/blob/main/scripts/app/create-unpinned-app.sh)
 writes the installable APKs to `data/<app-name>/`.
@@ -237,7 +237,7 @@ java -jar apktool.jar d 'com.eco.global.app.apk' --frame-path ~/.tmp/apktool-fra
 
 **4. Insert network security config:**
 
-??? note
+!!! note
 
     This step allows the app to trust user-installed certificates (e.g., your CA cert).
 
