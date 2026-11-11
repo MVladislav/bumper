@@ -557,9 +557,10 @@ and resource.
 - The auth code and IT token are removed when their portal/refresh session row
   expires. The legacy `GetAuthCode` path can create a fresh row; modern
   `getAuthCode` requires a live portal token and the client must log in again.
-- A logout with a recognized token revokes only its client row. A logout with
-  no token revokes every token and client for the account; an unknown supplied
-  token does not log out unrelated clients.
+- A logout with a recognized token revokes that token row and removes the
+  client row it names. A logout with no token revokes every token and client
+  for the account; an unknown supplied token does not log out unrelated
+  clients, because the request is ignored.
 - The email verification code is fixed. Bumper never sends mail.
 - The OTP is returned to the caller and accepted for its TTL. It is a UX
   emulation, not a second factor.

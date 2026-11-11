@@ -1,15 +1,22 @@
 # Certificate Unpinning on Ecovacs Bot
 
-> **⚠️ Disclaimer:**
->
-> Accessing and modifying your Ecovacs bot is risky and may permanently damage your device. These steps will void your warranty, may violate your terms of service, and Ecovacs will likely refuse support for modified devices. Proceed entirely at your own risk!
->
-> > Double check all params. This instruction was tested on bot `T10 PLUS`. If you have another model, details may differ.
+!!! danger "Disclaimer"
 
-This guide explains two approaches to enable your Ecovacs bot to trust a self-signed certificate for use with a self-hosted Bumper server:
+    Accessing and modifying your Ecovacs bot is risky and may permanently damage your device.
+    These steps may void your warranty or violate your terms of service, and Ecovacs may refuse
+    support for modified devices. Proceed entirely at your own risk!
 
-- **Option 1 (Recommended, Safer):** Replace certificate files on the bot-no firmware modification required.
-- **Option 2 (Advanced):** Extract, modify, and reflash the root filesystem for deeper changes.
+!!! note
+
+    These instructions were tested only on a `T10 PLUS`. Details may differ on other models.
+
+This guide explains two approaches to enable your Ecovacs bot to trust a
+self-signed certificate for use with a self-hosted Bumper server:
+
+- **Option 1 (recommended, safer):** replace certificate files on the bot -
+  no firmware modification required.
+- **Option 2 (advanced, unfinished):** extract, modify, and reflash the root
+  filesystem for deeper changes.
 
 ---
 
@@ -20,24 +27,34 @@ No firmware unpacking or flashing is required.
 
 ### 1. Start UART Console (on host)
 
-Connect to the bot's UART serial port:
+Connect to the bot's UART serial port.
 
-> Adjust parameters as needed:
->
-> - `/dev/ttyACM0`: device name may differ
-> - `--log / --log-file`: optional, remove if you do not want logs
+!!! note
+
+    Adjust parameters as needed:
+
+    - `/dev/ttyACM0`: device name may differ
+    - `--log / --log-file`: optional, remove if you do not want logs
+
+With `picocom`:
 
 ```sh
 picocom /dev/ttyACM0 --flow n --baud 115200 --log ./b-capture-"$(date --iso-8601=seconds)".log
+```
 
+Or with `tio`:
+
+```sh
 tio /dev/ttyACM0 --flow none -b 115200 --log --log-file ./b-capture-"$(date --iso-8601=seconds)".log
 ```
 
-| UART - T10 PLUS                                                        | UART - [EXT-SOURCE](https://dontvacuum.me/talks/DEFCON32/DEFCON32_reveng_hacking_ecovacs_robots.pdf) |
-| :--------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------- |
-| ![UART T10 PLUS](./docs/../../images/uart-t10-plus.png){ width="300" } | ![UART EXT-SOURCE](./docs/../../images/uart-ext-source.png){ width="300" }                           |
+| T10 PLUS UART                                                                       | [EXT-SOURCE UART](https://dontvacuum.me/talks/DEFCON32/DEFCON32_reveng_hacking_ecovacs_robots.pdf)    |
+| ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| ![UART connector on a T10 PLUS](../images/devices/uart-t10-plus.png){ width="300" } | ![UART connector from the EXT-SOURCE reference](../images/devices/uart-ext-source.png){ width="300" } |
 
-⚠️ **Never connect 5V to your UART adapter.**
+!!! warning "UART voltage"
+
+    Never connect 5V to your UART adapter.
 
 ### 2. Interrupt Boot and Enter Shell (on bot)
 
@@ -55,7 +72,8 @@ boot
     Hit key to stop autoboot('CTRL+C'):  0
     ```
 
-    Sometime `picocom` is not working and in that case you can try `minicom`. You can keep pressed your key (eg. `CTRL+C`) during the boot process until it's interropted.
+    Sometimes `picocom` does not work; in that case, try `minicom`.
+    Keep pressing your key (e.g. `CTRL+C`) during the boot process until it is interrupted.
     ```sh
     minicom -D /dev/ttyUSB0 -b 115200
     ```
@@ -77,7 +95,9 @@ mount -a
 
 ??? note
 
-    On some models executing the above commands are failing. In this case you can try to manually mount `data` by checking the boot logs for the correct partition. During the boot-up the partition table is logged on the console and looks similar to:
+    On some models the commands above fail. In that case, you can try to manually
+    mount `data` by finding the correct partition in the boot logs. During boot,
+    the partition table is logged on the console and looks similar to:
     ```
     GPT part:  0, name:            uboot, start:0x4000, size:0x2000
     GPT part:  1, name:            trust, start:0x6000, size:0x2000
@@ -91,9 +111,13 @@ mount -a
     GPT part:  9, name:             data, start:0x92800, size:0x5b7df
     ```
 
-    Identify the data partition (in the above example, it's on index 9), add 1 to the index, and check if you have a device by `ls /dev/rkflash0pX` (replace `X` with your index. In the example below, `/dev/rkflash0p10`).
+    Identify the data partition (in the above example, index 9), add 1 to the
+    index, and check for the device with `ls /dev/rkflash0pX` (replace `X` with
+    your index; in the example below, `/dev/rkflash0p10`).
 
-    If the device exists, you can manually mount it with:
+    If the device exists, confirm it is the data filesystem before continuing.
+    `fsck.ext4 -y` automatically approves filesystem repairs. If you proceed, you can mount it with:
+
     ```sh
     mkdir -p /data
     fsck.ext4 -y /dev/rkflash0p10
@@ -102,20 +126,60 @@ mount -a
 
 ### 4. Replace Certificates (on bot)
 
-> **ℹ️ Note:**
-> Certificate changes made in this step may be reverted by a factory reset or firmware update. It is recommended to first connect your bot to the official Ecovacs cloud and complete the initial setup before replacing the certificates. If you ever reset or update the bot, you will need to repeat these certificate replacement steps.
+!!! note
 
-After running the above scripts, `/data` is mounted. You now need to manually update the certificate files on the bot using the UART shell:
+    Certificate changes made in this step may be reverted by a factory reset or firmware update.
+    It is recommended to first connect your bot to the official Ecovacs cloud and complete the initial setup
+    before replacing the certificates.
+    If you ever reset or update the bot, you will need to repeat these certificate replacement steps.
 
-- On your host, open the following files in a text editor:
-    - `./certs/ca.crt`
-    - `./certs/bumper.crt`
-- On the bot (UART shell), use an editor like `vi` or `cat >` to paste the contents into the correct files:
-    - Overwrite `/data/ca.crt` with the contents of `./certs/ca.crt`
-    - Overwrite `/data/ca-certificates/ca.pem` with the contents of `./certs/ca.crt`
-    - For `/data/ca-certificates/ca-certificates.crt`, append the contents of `./certs/bumper.crt` and then `./certs/ca.crt` to the end of the file (do not remove existing entries; just add these two certs at the end, in this order)
+After running the above scripts, `/data` is mounted. You can update the certificate files manually, or use the helper script from the host.
 
-> Tip: You can use `vi /data/ca-certificates/ca-certificates.crt` and paste at the end, or use `cat >> /data/ca-certificates/ca-certificates.crt` to append. Make sure to save and exit after pasting.
+#### Option A: Helper script (recommended)
+
+The script writes the files over the existing UART shell session, so complete
+steps 1-3 first and make sure `/data` is mounted. Close
+`picocom`/`tio`/`minicom` before running it (only one program can hold the
+serial port), then reopen your terminal if you want to verify output on the bot.
+
+On the host:
+
+```sh
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install pyserial
+
+python3 scripts/device/install-bot-certs-serial.py \
+  --port /dev/ttyACM0 \
+  --baud 115200 \
+  --ca ./certs/ca.crt \
+  --bumper ./certs/bumper.crt
+```
+
+The script overwrites `/data/ca.crt` and `/data/ca-certificates/ca.pem` with
+`ca.crt`, and appends a marked Bumper block (`bumper.crt`, then `ca.crt`) to
+`/data/ca-certificates/ca-certificates.crt`. Re-running replaces its previous
+marked block to avoid duplicates. Verify the
+`BUMPER_WROTE`/`BUMPER_APPENDED`/`BUMPER_DONE` markers on the bot, then reboot.
+
+#### Option B: Manual update
+
+On your host, open the following files in a text editor:
+
+- `./certs/ca.crt`
+- `./certs/bumper.crt`
+
+On the bot (UART shell), use an editor like `vi` or `cat >` to paste the contents into the correct files:
+
+- Overwrite `/data/ca.crt` with the contents of `./certs/ca.crt`
+- Overwrite `/data/ca-certificates/ca.pem` with the contents of `./certs/ca.crt`
+- For `/data/ca-certificates/ca-certificates.crt`, append the contents of `./certs/bumper.crt` and then `./certs/ca.crt` to the end of the file (do not remove existing entries; just add these two certs at the end, in this order)
+
+!!! tip
+
+    You can use `vi /data/ca-certificates/ca-certificates.crt` and paste at the end,
+    or append with `cat >> /data/ca-certificates/ca-certificates.crt`.
+    Make sure to save and exit after pasting.
 
 Your bot should now trust your self-signed certificates. Reboot and test connectivity to your Bumper server.
 
@@ -123,10 +187,13 @@ Your bot should now trust your self-signed certificates. Reboot and test connect
 
 ## 🟡 Option 2: Full Root Filesystem Modification (Advanced)
 
-> **⚠️ Not Ready:**
-> This section is incomplete and not fully tested. Proceed only if you know what you are doing. More research/reverse engineering is required, especially for step `4. Flash Modified Rootfs Back to Bot -> b. Download and Flash on Bot`.
+!!! danger "Not ready"
 
-If the simple method does not work, you may need to modify the root filesystem. This is riskier and can brick your device if done incorrectly.
+    This section is incomplete and not fully tested. Proceed only if you know what you are doing.
+    More research/reverse engineering is required, especially for step
+    `4. Flash Modified Rootfs Back to Bot -> b. Download and Flash on Bot`.
+
+    If the simple method does not work, you may need to modify the root filesystem. This is riskier and can brick your device if done incorrectly.
 
 ### 1. (Optional) Setup WiFi (on bot)
 
@@ -140,12 +207,14 @@ If you need network access on the bot, set up WiFi:
 
 #### b. Connect to WiFi
 
-> Replace placeholders with your actual values:
->
-> - `<YOUR_SSID>`
-> - `<YOUR_WIFI_PASSWORD>`
-> - `<YOUR_BOT_IP>` (e.g., 192.168.112.57)
-> - `<YOUR_GATEWAY_IP>` (e.g., 192.168.112.1)
+!!! note
+
+    Replace placeholders with your actual values:
+
+    - `<YOUR_SSID>`
+    - `<YOUR_WIFI_PASSWORD>`
+    - `<YOUR_BOT_IP>` (e.g., 192.168.112.57)
+    - `<YOUR_GATEWAY_IP>` (e.g., 192.168.112.1)
 
 ```sh
 mkdir -p /tmp/wpa_ctrl
@@ -185,7 +254,9 @@ cd / && httpd -p 8080
 
 #### a. Download Root Filesystem to Host
 
-> Replace `<YOUR_BOT_IP>` with your bot's actual IP address.
+!!! note
+
+    Replace `<YOUR_BOT_IP>` with your bot's actual IP address.
 
 ```sh
 curl -Lo rootfs.img http://<YOUR_BOT_IP>:8080/tmp/rootfs.img
@@ -227,10 +298,14 @@ python3 -m http.server 8080
 
 #### b. Download and Flash on Bot
 
-> **⚠️ Not Ready:**
-> This step is not finished. When starting into `boot_mode2`, the root password is required. Further reverse engineering is needed.
+!!! danger "Not ready"
 
-> Replace `<YOUR_HOST_IP>` with your host's actual IP address.
+    This step is not finished. When starting into `boot_mode2`, the root password is required.
+    Further reverse engineering is needed. The following commands are unverified and may brick the device.
+
+!!! note
+
+    Replace `<YOUR_HOST_IP>` with your host's actual IP address.
 
 ```sh
 curl -Lo /data/rootfs_mod.img http://<YOUR_HOST_IP>:8080/rootfs_mod.img

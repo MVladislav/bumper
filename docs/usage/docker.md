@@ -1,26 +1,25 @@
-# Docker
+# 🐳 Deploy Bumper
 
-Manage Bumper via Docker-pull the official image, deploy with Compose or Swarm, build custom images, or run directly.
+Manage Bumper with Docker: pull the official image, deploy with Compose or Swarm, build custom images, or run directly.
 
 ---
 
 ## 🔧 Prerequisites
 
-Prepare TLS certificates and minimal environment variables before deployment:
+**TLS certificates**
 
-**TLS certificates**:
-
-Bumper generates missing certificates during normal startup; no separate Python
-command is needed. You can also create them ahead of time with the helper:
+The checked-in `docker-compose.yaml` and `docker-compose-traefik.yaml` load
+`ca.crt`, `bumper.crt`, and `bumper.key` from `$PWD/certs/*` as read-only Docker
+configs, so the files must exist before you deploy. Create them, then install
+`certs/ca.crt` on the clients:
 
 ```sh
 bash scripts/certs/create-cert.sh
+# add --rsa if your robot requires RSA keys
 ```
 
-The checked-in Compose and Swarm files load certificates from host-backed Docker
-configs before starting the Bumper container. When using those files, the host
-certificate files must exist before deployment. See
-[Certificates](../getting_started/certificates.md) for details.
+Key types, SANs, and certificate generation are covered in
+[Certificates](../getting_started/certificates.md).
 
 **Environment variables**:
 
@@ -50,14 +49,15 @@ See the package on GitHub Container Registry [here](https://github.com/MVladisla
 
 ## 👤 Container User
 
-Bumper runs as the unprivileged user `bumper` (uid/gid `1000`). The data
-directory is the only writable state, so a host directory mounted at
-`/bumper/data` must be writable by that id.
+Bumper runs as the unprivileged user `bumper` (uid/gid `1000`). In the
+checked-in Compose files, `/bumper/data` is the writable state volume and
+`/bumper/certs` is provided via read-only Docker configs.
 
-A named volume takes the ownership from the image and needs no manual step.
-The container starts as root, repairs the ownership of `/bumper/data` and
-`/bumper/certs`, and then drops to `bumper`; that is how a volume created by an
-image that still ran as root keeps working after an upgrade.
+A named volume takes ownership from the image and needs no manual step. The
+container starts as root, repairs ownership of writable mounted paths when it
+can (capabilities granted by the checked-in Compose files), and then drops to
+`bumper`. If you use a custom writable host directory, ensure it is readable or
+writable as needed by uid/gid `1000`.
 
 ---
 
@@ -78,11 +78,18 @@ docker swarm init
 
 **Step 3 - Start services**
 
-> alias for [docker-swarm](https://github.com/MVladislav/.dotfiles/blob/0b069b6a8435a43037789d8b5c4e1c0c65c6a142/zsh/profile-append#L146)
+!!! note "Alias"
+
+    This uses the [`docker-swarm-compose` alias](https://github.com/MVladislav/.dotfiles/blob/main/profiles/profile5-containers#L9),
+    which is maintained in the dotfiles repository. Pass the compose file with `-f`;
+    setting `COMPOSE_FILE` is not enough. The final argument is the stack name.
 
 ```sh
-# alias for Docker Swarm Compose
+# pulls ghcr.io/mvladislav/bumper, tag from VERSION_BUMPER (default "latest")
 docker-swarm-compose deebot
+
+# with a non-default compose file (for example the Traefik variant)
+docker-swarm-compose -f docker-compose-traefik.yaml deebot
 
 # or plain Docker Compose: builds the image from this checkout
 docker compose up -d
@@ -94,33 +101,26 @@ Visit `https://ecovacs.net/` in your browser.
 
 ---
 
-## 🗣️ Voice Files
+## 🗂️ Extra data files (voices, CodePush)
 
-The robot can change its voice language, but it downloads the new voice from
-Bumper first. The files are fetched from the Ecovacs cloud with
-[`scripts/data/update-eco-voices.sh`](../development/static-data-update.md) and are
-not part of the image.
+Voice files and CodePush packages are large and are not part of the image or
+repository, so they live in the data volume: `/bumper/data/voices` and
+`/bumper/data/codepush` inside the container (`BUMPER_VOICES` and
+`BUMPER_CODEPUSH` override the paths). [Features](../usage/features.md) explains
+what needs them.
 
-They belong in the voice directory of the deployment, which is
-`/bumper/data/voices` inside the container. The data directory is a volume in
-every deployment style, so the files either live in that volume or are copied
-into it:
+The files either live in that volume already or are copied into it:
 
 ```sh
-docker cp ./data/voices/. <container>:/bumper/data/voices/
+docker cp ./data/voices/.   <container>:/bumper/data/voices/
+docker cp ./data/codepush/. <container>:/bumper/data/codepush/
 ```
 
-With a swarm the volume is shared between the nodes, so the files have to be
-on every node that can run a task. `BUMPER_VOICES` points the server at
-another directory.
+With Swarm the named volume is local to a node, so the files have to exist on
+the node that runs the task (or be copied into the volume there).
 
-Bumper reports what it found at startup:
-
-```text
-INFO :: bumper.web.server - Voice files :: 13 in '/bumper/data/voices'
-```
-
-Without the files the robot keeps the language it has. The rest of the app is unaffected.
+The files are downloaded by the maintainer scripts; see
+[Static Data Update](../development/static-data-update.md).
 
 ---
 
@@ -136,7 +136,8 @@ cd bumper
 **Step 2 - Build**
 
 ```sh
-docker build -t mvladislav/bumper .
+# same name and tag the Compose file expects
+docker build -t ghcr.io/mvladislav/bumper:latest .
 ```
 
 Requires Docker ≥17.09 or Podman.
@@ -158,13 +159,20 @@ docker volume create bumper_data
 ```sh
 docker run -it \
   --mount source=bumper_data,target=/bumper/data \
-  -p 443:443 -p 8007:8007 -p 8883:8883 -p 5223:5223 \
+  -v $PWD/certs:/bumper/certs \
+  -p 443:443 -p 8007:8007 -p 1883:1883 -p 8883:8883 -p 5223:5223 \
   --name bumper \
-  mvladislav/bumper
+  ghcr.io/mvladislav/bumper:latest
 ```
 
-- **Volumes**: uses Docker volume `bumper_data`; replace with `-v /host/path:/bumper/data` for a host mount.
-- **Ports**: 443, 8007, 8883, 5223
+- **Volumes**: `bumper_data` holds Bumper state. Mount a writable host
+  directory at `/bumper/certs` if you want generated certificates to persist
+  across container recreation; you can also pre-create certificates with
+  `scripts/certs/create-cert.sh`. Without a persistent writable certs mount, a
+  new container may generate a new CA and clients that trusted the old CA will
+  fail.
+- **Ports**: 443 (HTTPS), 8007 (HTTP), 1883 (plain MQTT), 8883 (MQTT over TLS),
+  5223 (XMPP over TLS)
 
 ---
 

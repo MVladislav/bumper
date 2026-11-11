@@ -90,30 +90,27 @@ services:
       - source: mitm_dns_script_config
         target: /tmp/mitm-dns.py
         mode: "0555"
+    environment:
+      MITM_WEB_PW: ${MITM_WEB_PW:-mitm}
+      MITM_SCRIPT_CMD: ${MITM_SCRIPT_CMD:-1}
+      MITM_SCRIPT_MQTT: ${MITM_SCRIPT_MQTT:-0}
+      MITM_SCRIPT_DNS: ${MITM_SCRIPT_DNS:-1}
     command:
-      - "mitmweb"
-      - "-vv"
-      - "--ssl-insecure"
-      - "--web-host"
-      - "0.0.0.0"
-      - "--set"
-      - "web_password=${MITM_WEB_PW:-mitm}"
-      - "--set"
-      - "connection_strategy=lazy"
-      - "--mode"
-      - "socks5"
-      - "--mode"
-      - "regular"
-      - "--rawtcp"
-      - "--showhost"
-      - "--certs"
-      - "*=/tmp/ca.pem"
-      - "-s"
-      - "/tmp/mitm-cmd.py"
-      # - "-s"
-      # - "/tmp/mitm-mqtt.py"
-      - "-s"
-      - "/tmp/mitm-dns.py"
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        set -- mitmweb -vv --ssl-insecure \
+          --web-host 0.0.0.0 \
+          --set "web_password=$${MITM_WEB_PW:-mitm}" \
+          --set connection_strategy=lazy \
+          --mode socks5 --mode regular \
+          --rawtcp --showhost \
+          --certs "*=/tmp/ca.pem"
+        [ "$${MITM_SCRIPT_CMD:-1}" = "1" ] && set -- "$$@" -s /tmp/mitm-cmd.py
+        [ "$${MITM_SCRIPT_MQTT:-0}" = "1" ] && set -- "$$@" -s /tmp/mitm-mqtt.py
+        [ "$${MITM_SCRIPT_DNS:-1}" = "1" ] && set -- "$$@" -s /tmp/mitm-dns.py
+        exec "$$@"
 
 ################################################################################
 ################################################################################

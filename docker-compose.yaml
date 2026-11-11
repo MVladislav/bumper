@@ -168,11 +168,11 @@ volumes:
   config: {}
 
 configs:
+  nginx_config:
+    file: $PWD/configs/nginx.conf
   ca_config:
     file: $PWD/certs/ca.crt
   server_crt_config:
     file: $PWD/certs/bumper.crt
   server_key_config:
     file: $PWD/certs/bumper.key
-  nginx_config:
-    file: $PWD/configs/nginx.conf

@@ -1,70 +1,76 @@
-# Welcome to Bumper 🤖
+# Bumper 🤖
 
-Bumper is a local replacement for Ecovacs cloud services,
-allowing your robots and apps to connect entirely within your home network -
-without needing access to the original cloud.
+Bumper is a self-hosted replacement for Ecovacs cloud services.
+It lets supported Ecovacs robots and apps talk to a server on your local network,
+instead of the Ecovacs cloud.
 
-It supports both XMPP and MQTT-based models transparently.
+Bumper emulates the web, MQTT, and XMPP services that the official app and robots use.
+Protocol fidelity matters: the app and robots are unmodified clients,
+so Bumper aims to match the behavior they expect.
 
-> **Disclaimer:** This project is a work in progress and may contain errors or missing parts.
-> Please refer to the documentation and source code for complete details.
+!!! warning "Disclaimer"
 
----
-
-## ⚙️ Requirements
-
-- A Wi-Fi enabled Ecovacs robot
-- A server in your local network to run the Bumper services
-- Python 3.13 or newer (3.15 recommended) with [uv](https://pypi.org/project/uv/) **or** Docker
-- A DNS server capable of overriding specific domain queries
-- A client that can connect and control the robot:
-    - The official "Ecovacs" or "Ecovacs Home" Android/iOS apps (when configured correctly)
-        - See [Using Bumper with the official App](usage/mobile_app.md) for mobile setup details.
-    - [DeebotUniverse/client.py](https://github.com/DeebotUniverse/client.py) for command-line control
+    This project is a work in progress.
+    Behavior varies by robot model, firmware, app version, and region.
+    Check the documentation, [Model Compatibility](reference/models.md), and logs when troubleshooting.
 
 ---
 
-## 🚀 Quick Start
+## 🧩 How it fits together
 
-### 1. 🤖 Prepare your Robot
+For Bumper to work, app/robot traffic for Ecovacs domains must reach Bumper,
+and the client must trust the TLS certificate Bumper presents.
 
-- Set up your robot using the official Ecovacs app (initial Wi-Fi configuration, registration, etc.)
+```text
+Official app / robot
+        |
+        | DNS resolves Ecovacs domains to your Bumper server
+        v
+   Bumper (web + MQTT + XMPP)
+```
 
-### 2. 🌐 Set up DNS
-
-- Configure your local DNS server to override specific Ecovacs domains.
-- Detailed setup instructions: [DNS Setup](getting_started/dns.md)
-
-### 3. 🛠️ Install and Run Bumper
-
-- Follow the installation and usage instructions in the [README.md](https://github.com/MVladislav/bumper/blob/main/README.md)  
-  or refer to [Docker Setup](usage/docker.md) if using Docker.
-
-### 4. 🔒 Certificates
-
-- Bumper requires valid certificates to operate.
-- Instructions for manually creating certificates are available here: [Create Certificates](getting_started/certificates.md)
+Bumper's web UI shows server status, connected sessions, registered bots/clients, and clean logs.
 
 ---
 
-## 📋 Logs and Troubleshooting
+## 🚀 Getting started
 
-Bumper writes log files into the `/logs` directory by default.  
-You can also monitor real-time output:
+Start with the step-by-step guide:
 
-- **If running manually**: logs appear directly in the terminal.
-- **If running via Docker**: use `docker logs <container-name>` to view logs.
+- **[Getting Started Overview](getting_started/index.md)** - the full setup path, in order.
 
-For more detailed output and debugging:
+In short:
 
-- Additional debugging can be enabled using environment variables.  
-  See [Environment Variables](configuration/environment.md) for a list of available debug options.
+1. [Configure DNS](getting_started/dns.md) so Ecovacs domains resolve to Bumper.
+2. [Create or provide certificates](getting_started/certificates.md) on the host if you use the checked-in Compose files.
+3. [Deploy Bumper](usage/docker.md) (Docker/Compose is recommended, usually behind nginx or Traefik).
+4. [Connect the official app](usage/mobile_app.md) and make it trust Bumper's CA.
+5. [Use robot Wi-Fi setup](getting_started/robot-onboarding.md) only when you need the app's onboarding flow.
 
 ---
 
-# 📚 Next Steps
+## 👀 What to expect
 
-- [How Bumper Works](internals/architecture.md)
-- [Model Compatibility](reference/models.md)
+- **`ecovacs.net` shows only helperbot:** normal when no robot or app client is connected.
+  Robots appear after they connect to Bumper's services with working DNS, reachability/proxy routing,
+  and certificate trust. See [Getting Started troubleshooting](getting_started/index.md#troubleshooting)
+  and [What to expect](getting_started/index.md#what-to-expect).
+- **Model support is empirical:** check [Model Compatibility](reference/models.md).
+  Some models need certificate/key changes or have known limitations.
+- **Cloud-only features may be missing:** Bumper focuses on local control and the APIs needed for that.
 
-Happy cleaning! 🧹
+If you are stuck, use [Discussions](https://github.com/MVladislav/bumper/discussions) and debug logs
+(`DEBUG_BUMPER_LEVEL=DEBUG`).
+
+---
+
+## 📚 Documentation
+
+| Section                                       | Purpose                                                         |
+| --------------------------------------------- | --------------------------------------------------------------- |
+| [Getting Started](getting_started/index.md)   | DNS, certificates, deployment, app connection, robot onboarding |
+| [Features](usage/features.md)                 | Voice languages, work logs/maps, app updates (CodePush)         |
+| [Configuration](configuration/environment.md) | Environment variables                                           |
+| [Reference](reference/models.md)              | Model reports, error codes                                      |
+| [Internals](internals/architecture.md)        | Architecture, auth, sniffing, certificate unpinning             |
+| [Development](development/dev-guide.md)       | Local development, API docs, static data, CI                    |

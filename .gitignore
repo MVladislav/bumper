@@ -32,6 +32,7 @@
 # PROJECT
 
 !mkdocs.yml
+!mkdocs.release.yml
 !pyproject.toml
 !uv.lock
 
@@ -69,6 +70,12 @@ scripts/certs/*
 !scripts/data/
 scripts/data/*
 !scripts/data/*.sh
+!scripts/device/
+scripts/device/*
+!scripts/device/*.py
+!scripts/docs/
+scripts/docs/*
+!scripts/docs/*.py
 !scripts/server/
 scripts/server/*
 !scripts/server/*.sh
@@ -99,6 +106,7 @@ scripts/app/apk-patch/*
 !docker-compose.yaml
 !docker-compose-traefik.yaml
 !docker-compose-mitm.yaml
+!docker-compose-zensical.yaml
 
 # Created by https://www.toptal.com/developers/gitignore/api/python
 # Edit at https://www.toptal.com/developers/gitignore?templates=python

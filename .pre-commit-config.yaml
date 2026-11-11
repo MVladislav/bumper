@@ -57,6 +57,14 @@ repos:
         exclude_types:
           - python
         exclude: ^uv\.lock|\.(css|js)$|bumper/web/static_api/timezones\.json$
+  - repo: local
+    hooks:
+      - id: fix-doc-admonitions
+        name: Keep MkDocs admonitions stable under Prettier
+        entry: python3 scripts/docs/fix-admonitions.py
+        language: python
+        files: ^docs/.*\.md$
+        types: [markdown]
 
   # djLint for Jinja2 templates
   - repo: https://github.com/Riverside-Healthcare/djLint

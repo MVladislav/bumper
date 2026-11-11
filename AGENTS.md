@@ -347,7 +347,7 @@ of an eight byte one (`bumper/utils/map_doc.py` decodes it).
 bumper/          the Python package (web, mqtt, xmpp, db, utils)
   web/plugins/   the Ecovacs API endpoint handlers, one route table per module
   web/static_api/  pre-fetched JSON served offline; see docs/development/static-data-update.md
-docs/            mkdocs-material site, published via mkdocs-release.yml
+docs/            Zensical documentation site, published via mkdocs-release.yml
 scripts/         maintainer helper scripts (ruff-exempt, not shipped in the image)
   api/         the tools that read or check the API
   app/         the tools that work on the app
@@ -409,7 +409,7 @@ inline - categories, template, and version resolver. What matters:
 | `ci.yml`              | push `main`/`dev`, any PR | prek + mypy/pylint, then pytest on Python 3.13, 3.14, and 3.15 |
 | `codeql-analysis.yml` | push `main`/`dev`, any PR | Python only                                                    |
 | `docker-release.yml`  | push `dev`, tag `v*`      | Builds `linux/amd64` + `linux/arm64` to `ghcr.io`              |
-| `mkdocs-release.yml`  | push `main`               | `mkdocs gh-deploy` to the `gh-pages` branch                    |
+| `mkdocs-release.yml`  | push `main`               | Builds and deploys the Zensical site to GitHub Pages           |
 | `release-drafter.yml` | tag `v*`                  | Updates the release draft                                      |
 
 Three things to know before changing CI or expecting a release:
@@ -448,8 +448,11 @@ security decision to raise, not to do silently in a dependency PR.
 
 ## Docs
 
-- User-facing docs live in `docs/` as mkdocs-material pages. Adding a page means
+- User-facing docs live in `docs/` as Zensical pages. Adding a page means
   adding it to the `nav:` in `mkdocs.yml` too.
+- `mkdocs.release.yml` inherits `mkdocs.yml` and adds the mike version provider.
+  Tag deploys and the Docker preview use it; a tag's own `mkdocs.yml` is never
+  rewritten to carry the provider.
 - Docs use American spelling ("behavior", "license", "color"); match the existing
   text when editing.
 - `docs/internals/architecture.md` is explicitly a work in progress; keep its

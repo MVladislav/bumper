@@ -1,50 +1,100 @@
 ---
-name: MkDocs
+name: Docs
 
 on:
   push:
     branches:
       - main
+    tags:
+      - "v*"
+  pull_request:
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+      - "mkdocs.release.yml"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/mkdocs-release.yml"
   workflow_dispatch:
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+permissions:
+  contents: read
+
+# One deployment at a time: `main` and a tag both write to `gh-pages`.
+concurrency:
+  group: docs-deploy
+  cancel-in-progress: false
+
 jobs:
-  deploy:
-    name: Create MkDocs
+  build:
+    name: Build docs (pull request)
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: write
-
-    env:
-      NO_MKDOCS_2_WARNING: "true"
-
     steps:
-      # https://github.com/actions/checkout
       - name: Checkout repository
         uses: actions/checkout@v7.0.1
 
-      - name: Configure Git Credentials
-        run: |
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-
-      # https://github.com/astral-sh/setup-uv
       - name: Install uv and Python
         uses: astral-sh/setup-uv@v10.3.3
         with:
           enable-cache: true
-          cache-dependency-glob: "uv.lock"
+          cache-dependency-glob: uv.lock
           python-version: "3.15"
 
-      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
-      # https://github.com/actions/cache
-      - uses: actions/cache@v6.1.0
+      - name: Install documentation dependencies
+        run: uv sync --locked --only-group docs --no-install-project
+
+      - name: Build docs
+        run: uv run --frozen --no-sync zensical build --clean
+
+  deploy:
+    name: Build and deploy docs
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
         with:
-          key: mkdocs-material-${{ env.cache_id }}
-          path: .cache
-          restore-keys: |
-            mkdocs-material-
-      - run: uv sync --locked --group docs
-      - run: uv run --frozen mkdocs gh-deploy --force
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+
+      - name: Warn when this ref is not deployable
+        if: github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/v')
+        run: echo "::warning::Docs deploy only from main or a v* tag; this run builds nothing."
+
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+          python-version: "3.15"
+
+      # A tag keeps its own docs, so its pages show the content of that release.
+      # The environment and the mike overlay come from `main`, which is the only
+      # place that carries a working docs toolchain for old and new tags alike.
+      - name: Use the current documentation toolchain for a release tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: git checkout origin/main -- pyproject.toml uv.lock mkdocs.release.yml
+
+      - name: Install documentation dependencies
+        run: uv sync --locked --only-group docs --no-install-project
+
+      - name: Deploy latest docs
+        if: github.ref == 'refs/heads/main'
+        run: |
+          uv run --frozen --no-sync mike deploy --push latest
+          uv run --frozen --no-sync mike set-default --push latest
+
+      - name: Deploy release docs
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: uv run --frozen --no-sync mike deploy --push --config-file mkdocs.release.yml "${GITHUB_REF_NAME}"

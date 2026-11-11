@@ -1,7 +1,8 @@
 # Bumper Origins & Maintenance
 
 The **Bumper** project was originally created by [@torbjornaxelsson](https://github.com/torbjornaxelsson) in 2017 as a reverse engineering tool to interface with certain EcoVacs robotic vacuums.  
-It successfully reached its initial goal and remained in a stable (but no longer actively maintained) state, with the last update committed in December 2017.
+It successfully reached its initial goal and remained in a stable (but no longer
+actively maintained) state, with the last update committed in December 2017.
 
 In early 2019, [@bmartin5692](https://github.com/bmartin5692) picked up the project to support newer vacuum models that use updated protocols. His fork introduced key changes and improvements to the original codebase and continued development for several years.
 
@@ -19,11 +20,13 @@ This repository is now the **actively maintained** version of Bumper. It include
 
 ## 📦 Legacy Versions
 
-If you're looking for the older versions:
+If you are looking for the older versions:
 
-- The original 2017 codebase by @torbjornaxelsson is archived.
-- The intermediate development fork by @bmartin5692 is still available.
+- The [original 2017 codebase](https://github.com/torbjornaxelsson/bumper) by @torbjornaxelsson is archived.
+- The [intermediate development fork](https://github.com/bmartin5692/bumper) by @bmartin5692 is still available.
 - A historical snapshot of the pre-refactor code is preserved as [`v0.1.0`](https://github.com/bmartin5692/bumper/tree/v0.1.0) in his fork.
 
-> ⚠️ That legacy version may still work with some early models (e.g. M81 Pro, N79S),  
-> but for all current and future use, this repository is recommended.
+!!! warning
+
+    That legacy version may still work with some early models (e.g. M81 Pro, N79S),
+    but for all current and future use, this repository is recommended.

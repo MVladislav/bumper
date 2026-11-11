@@ -116,18 +116,28 @@ Bumper does not verify Ecovacs request signatures. See [Authentication](../inter
 
 These additional environment variables are used in the compose files to control service deployment and container behavior.
 
-| Variable                        | Default                | Description                                                                          |
-| ------------------------------- | ---------------------- | ------------------------------------------------------------------------------------ |
-| `NODE_ROLE`                     | `manager`              | Docker Swarm role constraint for service placement (`manager` or `worker`).          |
-| `NETWORK_MODE`                  | `bridge`               | Docker network driver (`bridge` or `overlay`).                                       |
-| `RESOURCES_LIMITS_CPUS`         | `0.25`                 | CPU limit per container.                                                             |
-| `RESOURCES_LIMITS_MEMORY`       | `250m`                 | Memory limit per container.                                                          |
-| `RESOURCES_RESERVATIONS_CPUS`   | `0.001`                | CPU reservation per container.                                                       |
-| `RESOURCES_RESERVATIONS_MEMORY` | `32m`                  | Memory reservation per container.                                                    |
-| `VERSION_BUMPER`                | `latest`               | Bumper image tag to deploy. The image reports its build version under the same name. |
-| `VERSION_NGNIX`                 | `1.29-alpine3.22-slim` | NGINX image tag for the reverse proxy.                                               |
-| `TZ`                            | `Europe/Berlin`        | Timezone inside containers (binds to host timezone).                                 |
-| `BUMPER_ANNOUNCE_IP`            | _required_             | IP address advertised to robots. Falls back to auto-detection if unset.              |
-| `BUMPER_LISTEN`                 | `0.0.0.0`              | Bind interface inside the container for Bumper listeners.                            |
-| `DEBUG_BUMPER_LEVEL`            | `INFO`                 | Logging level inside containers.                                                     |
-| `DEBUG_BUMPER_VERBOSE`          | `1`                    | Verbose detail per log line inside containers.                                       |
+| Variable                        | Default                | Description                                                                                                                         |
+| ------------------------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `ENV_FILE`                      | `.env`                 | File the containers read their environment from.                                                                                    |
+| `NODE_ROLE`                     | `manager`              | Docker Swarm role constraint for service placement (`manager` or `worker`).                                                         |
+| `NETWORK_MODE`                  | `bridge`               | Docker network driver (`bridge` or `overlay`).                                                                                      |
+| `RESOURCES_LIMITS_CPUS`         | `1`                    | CPU limit per container.                                                                                                            |
+| `RESOURCES_LIMITS_MEMORY`       | `500m`                 | Memory limit per container.                                                                                                         |
+| `RESOURCES_RESERVATIONS_CPUS`   | `0.001`                | CPU reservation per container.                                                                                                      |
+| `RESOURCES_RESERVATIONS_MEMORY` | `32m`                  | Memory reservation per container.                                                                                                   |
+| `VERSION_BUMPER`                | `latest`               | Bumper image tag to deploy. The image reports its build version under the same name.                                                |
+| `VERSION_NGNIX`                 | `1.29-alpine3.22-slim` | NGINX image tag for the reverse proxy.                                                                                              |
+| `TZ`                            | `Europe/Berlin`        | Timezone inside containers (binds to host timezone).                                                                                |
+| `BUMPER_ANNOUNCE_IP`            | _required_             | IP advertised to robots. The shipped Compose files refuse to start when it is unset; outside them it falls back to `BUMPER_LISTEN`. |
+| `BUMPER_LISTEN`                 | `0.0.0.0`              | Bind interface inside the container for Bumper listeners.                                                                           |
+| `DEBUG_BUMPER_LEVEL`            | `INFO`                 | Logging level inside containers.                                                                                                    |
+| `DEBUG_BUMPER_VERBOSE`          | `1`                    | Verbose detail per log line inside containers.                                                                                      |
+| `PROTOCOL`                      | `https`                | Scheme the nginx health check uses against `healthcheck.ecouser.net`.                                                               |
+| `LB_SWARM`                      | `true`                 | Serve the Traefik routers through the Swarm load balancer.                                                                          |
+| `TRAEFIK_ENTRYPOINT`            | `https`                | Traefik entrypoint the Bumper routers attach to.                                                                                    |
+
+The optional stacks keep their own variables in their Compose file:
+`docker-compose-zensical.yaml` uses `VERSION_ZENSICAL`, `ZENSICAL_PORT`,
+`ZENSICAL_MAIN_PATH`, `MIKE_PORT`, `MIKE_BRANCH`, `MIKE_RELEASE_TAG` and
+`DOCS_UID`/`DOCS_GID`, and `docker-compose-mitm.yaml` uses
+`VERSION_MITMPROXY`, `MITM_PATH` and `MITM_WEB_PW`.
