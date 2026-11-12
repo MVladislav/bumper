@@ -1,0 +1,1854 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://mvladislav.github.io/bumper/v0.4.1/internals/certificate-unpinning-bot/">
+      
+      
+      
+        <link rel="prev" href="../certificate-unpinning-app/">
+      
+      
+        <link rel="next" href="../certificate-unpinning-goat/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <meta name="generator" content="zensical-0.1.1">
+    
+    
+      
+        <title>Certificate Pinning Bypass (BOT) - Bumper Docs</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.ebb7f775.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/modern/palette.b60ce83d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        
+        <link href="../../assets/external/fonts.googleapis.com/css.c788a136.css" rel="stylesheet">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="deep-purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-hidden="true"></label>
+    <div data-md-component="skip">
+      <a href="#__skip" class="md-skip">
+        Skip to content
+      </a>
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Bumper Docs" class="md-header__button md-logo" aria-label="Bumper Docs" data-md-component="logo">
+      
+  <img src="../../images/favicon.ico" alt="Bumper Docs">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+      <span class="md-visually-hidden">Navigation</span>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Bumper Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Certificate Pinning Bypass (BOT)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="none" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="deep-purple"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+          <span class="md-visually-hidden">Search</span>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/MVladislav/bumper" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Bumper Docs" class="md-nav__button md-logo" aria-label="Bumper Docs" data-md-component="logo">
+      
+  <img src="../../images/favicon.ico" alt="Bumper Docs">
+
+    </a>
+    Bumper Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/MVladislav/bumper" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Getting Started
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_2">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Getting Started
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/dns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  DNS Setup
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/certificates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Certificate Setup
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Usage
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Usage
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Command-Line Usage
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/docker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Docker Usage
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/mobile_app/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Mobile App Integration
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Configuration
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_4">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Configuration
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/environment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Environment Variables
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Internals
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+            <label class="md-nav__title" for="__nav_5">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Internals
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Architecture
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sniffing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Sniffing & Reverse Engineering
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../certificate-unpinning-app/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Certificate Pinning Bypass (APP)
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Certificate Pinning Bypass (BOT)
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Certificate Pinning Bypass (BOT)
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#option-1-simple-certificate-replacement" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        🟢 Option 1: Simple Certificate Replacement
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🟢 Option 1: Simple Certificate Replacement">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-start-uart-console-on-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1. Start UART Console (on host)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-interrupt-boot-and-enter-shell-on-bot" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2. Interrupt Boot and Enter Shell (on bot)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-initialize-system-resources-on-bot" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        3. Initialize System Resources (on bot)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-replace-certificates-on-bot" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        4. Replace Certificates (on bot)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#option-2-full-root-filesystem-modification-advanced" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        🟡 Option 2: Full Root Filesystem Modification (Advanced)
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🟡 Option 2: Full Root Filesystem Modification (Advanced)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-optional-setup-wifi-on-bot" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1. (Optional) Setup WiFi (on bot)
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. (Optional) Setup WiFi (on bot)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-load-wifi-firmware" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        a. Load WiFi Firmware
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-connect-to-wifi" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        b. Connect to WiFi
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-create-root-filesystem-dump-on-bot" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2. Create Root Filesystem Dump (on bot)
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Create Root Filesystem Dump (on bot)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-dump-root-filesystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        a. Dump Root Filesystem
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-optional-backup-other-partitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        b. (Optional) Backup Other Partitions
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-serve-files-for-download" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        c. Serve Files for Download
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-download-and-extract-root-filesystem-dump-on-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        3. Download and Extract Root Filesystem Dump (on host)
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Download and Extract Root Filesystem Dump (on host)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-download-root-filesystem-to-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        a. Download Root Filesystem to Host
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-optional-download-other-partitions-to-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        b. (Optional) Download Other Partitions to Host
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-extract-and-modify-rootfs" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        c. Extract and Modify Rootfs
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-flash-modified-rootfs-back-to-bot" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        4. Flash Modified Rootfs Back to Bot
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Flash Modified Rootfs Back to Bot">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-start-http-server-on-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        a. Start HTTP Server on Host
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-download-and-flash-on-bot" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        b. Download and Flash on Bot
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        📝 Notes
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        📚 References
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../certificate-unpinning-goat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Certificate Pinning Bypass (GOAT)
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Development
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_6">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Development
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/dev-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Development Guide
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/MVladislav/bumper/actions" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Testing & CI
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../origins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Origins & Credits
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#option-1-simple-certificate-replacement" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        🟢 Option 1: Simple Certificate Replacement
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🟢 Option 1: Simple Certificate Replacement">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-start-uart-console-on-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1. Start UART Console (on host)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-interrupt-boot-and-enter-shell-on-bot" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2. Interrupt Boot and Enter Shell (on bot)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-initialize-system-resources-on-bot" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        3. Initialize System Resources (on bot)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-replace-certificates-on-bot" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        4. Replace Certificates (on bot)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#option-2-full-root-filesystem-modification-advanced" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        🟡 Option 2: Full Root Filesystem Modification (Advanced)
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🟡 Option 2: Full Root Filesystem Modification (Advanced)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-optional-setup-wifi-on-bot" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1. (Optional) Setup WiFi (on bot)
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. (Optional) Setup WiFi (on bot)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-load-wifi-firmware" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        a. Load WiFi Firmware
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-connect-to-wifi" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        b. Connect to WiFi
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-create-root-filesystem-dump-on-bot" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2. Create Root Filesystem Dump (on bot)
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Create Root Filesystem Dump (on bot)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-dump-root-filesystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        a. Dump Root Filesystem
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-optional-backup-other-partitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        b. (Optional) Backup Other Partitions
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-serve-files-for-download" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        c. Serve Files for Download
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-download-and-extract-root-filesystem-dump-on-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        3. Download and Extract Root Filesystem Dump (on host)
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Download and Extract Root Filesystem Dump (on host)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-download-root-filesystem-to-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        a. Download Root Filesystem to Host
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-optional-download-other-partitions-to-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        b. (Optional) Download Other Partitions to Host
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-extract-and-modify-rootfs" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        c. Extract and Modify Rootfs
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-flash-modified-rootfs-back-to-bot" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        4. Flash Modified Rootfs Back to Bot
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Flash Modified Rootfs Back to Bot">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-start-http-server-on-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        a. Start HTTP Server on Host
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-download-and-flash-on-bot" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        b. Download and Flash on Bot
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        📝 Notes
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        📚 References
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                <a id="__skip" tabindex="-1"></a>
+                
+                  
+
+  
+  
+
+
+<h1 id="certificate-unpinning-on-ecovacs-bot">Certificate Unpinning on Ecovacs Bot</h1>
+<blockquote>
+<p><strong>⚠️ Disclaimer:</strong></p>
+<p>Accessing and modifying your Ecovacs bot is risky and may permanently damage your device. These steps will void your warranty, may violate your terms of service, and Ecovacs will likely refuse support for modified devices. Proceed entirely at your own risk!</p>
+<blockquote>
+<p>Double check all params. This instruction was tested on bot <code>T10 PLUS</code>. If you have another model, details may differ.</p>
+</blockquote>
+</blockquote>
+<p>This guide explains two approaches to enable your Ecovacs bot to trust a self-signed certificate for use with a self-hosted Bumper server:</p>
+<ul>
+<li><strong>Option 1 (Recommended, Safer):</strong> Replace certificate files on the bot—no firmware modification required.</li>
+<li><strong>Option 2 (Advanced):</strong> Extract, modify, and reflash the root filesystem for deeper changes.</li>
+</ul>
+<hr />
+<h2 id="option-1-simple-certificate-replacement">🟢 Option 1: Simple Certificate Replacement</h2>
+<p>This method only updates certificate files on the device.<br />
+No firmware unpacking or flashing is required.</p>
+<h3 id="1-start-uart-console-on-host">1. Start UART Console (on host)</h3>
+<p>Connect to the bot's UART serial port:</p>
+<blockquote>
+<p>Adjust parameters as needed:</p>
+<ul>
+<li><code>/dev/ttyACM0</code>: device name may differ</li>
+<li><code>--log / --log-file</code>: optional, remove if you do not want logs</li>
+</ul>
+</blockquote>
+<div class="highlight"><pre><span></span><code>picocom<span class="w"> </span>/dev/ttyACM0<span class="w"> </span>--flow<span class="w"> </span>n<span class="w"> </span>--baud<span class="w"> </span><span class="m">115200</span><span class="w"> </span>--log<span class="w"> </span>./b-capture-<span class="s2">"</span><span class="k">$(</span>date<span class="w"> </span>--iso-8601<span class="o">=</span>seconds<span class="k">)</span><span class="s2">"</span>.log
+
+tio<span class="w"> </span>/dev/ttyACM0<span class="w"> </span>--flow<span class="w"> </span>none<span class="w"> </span>-b<span class="w"> </span><span class="m">115200</span><span class="w"> </span>--log<span class="w"> </span>--log-file<span class="w"> </span>./b-capture-<span class="s2">"</span><span class="k">$(</span>date<span class="w"> </span>--iso-8601<span class="o">=</span>seconds<span class="k">)</span><span class="s2">"</span>.log
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">UART - T10 PLUS</th>
+<th style="text-align: left;">UART - <a href="https://dontvacuum.me/talks/DEFCON32/DEFCON32_reveng_hacking_ecovacs_robots.pdf">EXT-SOURCE</a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a class="glightbox" data-type="image" href=".././docs/../../images/uart-t10-plus.png"><img alt="UART T10 PLUS" src=".././docs/../../images/uart-t10-plus.png" width="300" /></a></td>
+<td style="text-align: left;"><a class="glightbox" data-type="image" href=".././docs/../../images/uart-ext-source.png"><img alt="UART EXT-SOURCE" src=".././docs/../../images/uart-ext-source.png" width="300" /></a></td>
+</tr>
+</tbody>
+</table>
+<p>⚠️ <strong>Never connect 5V to your UART adapter.</strong></p>
+<h3 id="2-interrupt-boot-and-enter-shell-on-bot">2. Interrupt Boot and Enter Shell (on bot)</h3>
+<p>On startup, interrupt into <code>Hobot</code> (press any key), then boot with updated <code>bootargs</code>:</p>
+<div class="highlight"><pre><span></span><code>setenv<span class="w"> </span>bootargs<span class="w"> </span><span class="si">${</span><span class="nv">bootargs</span><span class="si">}</span><span class="w"> </span><span class="nv">init</span><span class="o">=</span>/bin/bash
+boot
+</code></pre></div>
+<details class="note">
+<summary>Note</summary>
+<p>On some bots you need to hit a specific key mentioned during the boot-up process like:
+<div class="highlight"><pre><span></span><code>Hit key to stop autoboot('CTRL+C'):  0
+</code></pre></div></p>
+<p>Sometime <code>picocom</code> is not working and in that case you can try <code>minicom</code>. You can keep pressed your key (eg. <code>CTRL+C</code>) during the boot process until it's interropted.
+<div class="highlight"><pre><span></span><code>minicom<span class="w"> </span>-D<span class="w"> </span>/dev/ttyUSB0<span class="w"> </span>-b<span class="w"> </span><span class="m">115200</span>
+</code></pre></div></p>
+</details>
+<h3 id="3-initialize-system-resources-on-bot">3. Initialize System Resources (on bot)</h3>
+<p>Mount volumes and start required services:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">TERM</span><span class="o">=</span>xterm-256color
+mount<span class="w"> </span>-a
+
+/etc/rc.d/pre_boot.sh<span class="w"> </span>start
+/etc/rc.d/mount_data.sh<span class="w"> </span>start
+/etc/rc.d/post_boot.sh<span class="w"> </span>start
+/etc/rc.d/load_ko.sh<span class="w"> </span>start
+/etc/rc.d/time_sync.sh<span class="w"> </span>start
+</code></pre></div>
+<details class="note">
+<summary>Note</summary>
+<p>On some models executing the above commands are failing. In this case you can try to manually mount <code>data</code> by checking the boot logs for the correct partition. During the boot-up the partition table is logged on the console and looks similar to:
+<div class="highlight"><pre><span></span><code>GPT part:  0, name:            uboot, start:0x4000, size:0x2000
+GPT part:  1, name:            trust, start:0x6000, size:0x2000
+GPT part:  2, name:              eco, start:0x8000, size:0x3000
+GPT part:  3, name:          reserve, start:0xb000, size:0x800
+GPT part:  4, name:              sys, start:0xb800, size:0x1000
+GPT part:  5, name:            boot1, start:0xc800, size:0x3000
+GPT part:  6, name:          rootfs1, start:0xf800, size:0x40000
+GPT part:  7, name:            boot2, start:0x4f800, size:0x3000
+GPT part:  8, name:          rootfs2, start:0x52800, size:0x40000
+GPT part:  9, name:             data, start:0x92800, size:0x5b7df
+</code></pre></div></p>
+<p>Identify the data partition (in the above example, it's on index 9), add 1 to the index, and check if you have a device by <code>ls /dev/rkflash0pX</code> (replace <code>X</code> with your index. In the example below, <code>/dev/rkflash0p10</code>).</p>
+<p>If the device exists, you can manually mount it with:
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>/data
+fsck.ext4<span class="w"> </span>-y<span class="w"> </span>/dev/rkflash0p10
+mount<span class="w"> </span>-t<span class="w"> </span>ext4<span class="w"> </span>-o<span class="w"> </span>rw<span class="w"> </span>/dev/rkflash0p10<span class="w"> </span>/data
+</code></pre></div></p>
+</details>
+<h3 id="4-replace-certificates-on-bot">4. Replace Certificates (on bot)</h3>
+<blockquote>
+<p><strong>ℹ️ Note:</strong>
+Certificate changes made in this step may be reverted by a factory reset or firmware update. It is recommended to first connect your bot to the official Ecovacs cloud and complete the initial setup before replacing the certificates. If you ever reset or update the bot, you will need to repeat these certificate replacement steps.</p>
+</blockquote>
+<p>After running the above scripts, <code>/data</code> is mounted. You now need to manually update the certificate files on the bot using the UART shell:</p>
+<ul>
+<li>On your host, open the following files in a text editor:<ul>
+<li><code>./certs/ca.crt</code></li>
+<li><code>./certs/bumper.crt</code></li>
+</ul>
+</li>
+<li>On the bot (UART shell), use an editor like <code>vi</code> or <code>cat &gt;</code> to paste the contents into the correct files:<ul>
+<li>Overwrite <code>/data/ca.crt</code> with the contents of <code>./certs/ca.crt</code></li>
+<li>Overwrite <code>/data/ca-certificates/ca.pem</code> with the contents of <code>./certs/ca.crt</code></li>
+<li>For <code>/data/ca-certificates/ca-certificates.crt</code>, append the contents of <code>./certs/bumper.crt</code> and then <code>./certs/ca.crt</code> to the end of the file (do not remove existing entries; just add these two certs at the end, in this order)</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>Tip: You can use <code>vi /data/ca-certificates/ca-certificates.crt</code> and paste at the end, or use <code>cat &gt;&gt; /data/ca-certificates/ca-certificates.crt</code> to append. Make sure to save and exit after pasting.</p>
+</blockquote>
+<p>Your bot should now trust your self-signed certificates. Reboot and test connectivity to your Bumper server.</p>
+<hr />
+<h2 id="option-2-full-root-filesystem-modification-advanced">🟡 Option 2: Full Root Filesystem Modification (Advanced)</h2>
+<blockquote>
+<p><strong>⚠️ Not Ready:</strong>
+This section is incomplete and not fully tested. Proceed only if you know what you are doing. More research/reverse engineering is required, especially for step <code>4. Flash Modified Rootfs Back to Bot -&gt; b. Download and Flash on Bot</code>.</p>
+</blockquote>
+<p>If the simple method does not work, you may need to modify the root filesystem. This is riskier and can brick your device if done incorrectly.</p>
+<h3 id="1-optional-setup-wifi-on-bot">1. (Optional) Setup WiFi (on bot)</h3>
+<p>If you need network access on the bot, set up WiFi:</p>
+<h4 id="a-load-wifi-firmware">a. Load WiFi Firmware</h4>
+<div class="highlight"><pre><span></span><code>/etc/rc.d/wifi.sh<span class="w"> </span>start
+</code></pre></div>
+<h4 id="b-connect-to-wifi">b. Connect to WiFi</h4>
+<blockquote>
+<p>Replace placeholders with your actual values:</p>
+<ul>
+<li><code>&lt;YOUR_SSID&gt;</code></li>
+<li><code>&lt;YOUR_WIFI_PASSWORD&gt;</code></li>
+<li><code>&lt;YOUR_BOT_IP&gt;</code> (e.g., 192.168.112.57)</li>
+<li><code>&lt;YOUR_GATEWAY_IP&gt;</code> (e.g., 192.168.112.1)</li>
+</ul>
+</blockquote>
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>/tmp/wpa_ctrl
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"ctrl_interface=/tmp/wpa_ctrl"</span><span class="w"> </span>&gt;<span class="w"> </span>/tmp/wpa_supplicant.conf
+
+wpa_passphrase<span class="w"> </span><span class="s1">'&lt;YOUR_SSID&gt;'</span><span class="w"> </span><span class="s1">'&lt;YOUR_WIFI_PASSWORD&gt;'</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>/tmp/wpa_supplicant.conf
+
+wpa_supplicant<span class="w"> </span>-B<span class="w"> </span>-i<span class="w"> </span>wlan0<span class="w"> </span>-c<span class="w"> </span>/tmp/wpa_supplicant.conf<span class="w"> </span>-f<span class="w"> </span>/tmp/wpa.log<span class="w"> </span>-s
+ifconfig<span class="w"> </span>wlan0<span class="w"> </span><span class="s1">'&lt;YOUR_BOT_IP&gt;'</span><span class="w"> </span>netmask<span class="w"> </span><span class="m">255</span>.255.255.0<span class="w"> </span>up
+route<span class="w"> </span>add<span class="w"> </span>default<span class="w"> </span>gw<span class="w"> </span><span class="s1">'&lt;YOUR_GATEWAY_IP&gt;'</span>
+</code></pre></div>
+<h3 id="2-create-root-filesystem-dump-on-bot">2. Create Root Filesystem Dump (on bot)</h3>
+<h4 id="a-dump-root-filesystem">a. Dump Root Filesystem</h4>
+<div class="highlight"><pre><span></span><code>dd<span class="w"> </span><span class="k">if</span><span class="o">=</span>/dev/ubi0_0<span class="w"> </span><span class="nv">of</span><span class="o">=</span>/tmp/rootfs.img<span class="w"> </span><span class="nv">bs</span><span class="o">=</span>1M
+</code></pre></div>
+<h4 id="b-optional-backup-other-partitions">b. (Optional) Backup Other Partitions</h4>
+<div class="highlight"><pre><span></span><code>dd<span class="w"> </span><span class="k">if</span><span class="o">=</span>/dev/ubi1_0<span class="w"> </span><span class="nv">of</span><span class="o">=</span>/tmp/data.img<span class="w"> </span><span class="nv">bs</span><span class="o">=</span>1M
+dd<span class="w"> </span><span class="k">if</span><span class="o">=</span>/dev/ubi2_0<span class="w"> </span><span class="nv">of</span><span class="o">=</span>/tmp/sysinfo.img<span class="w"> </span><span class="nv">bs</span><span class="o">=</span>1M
+dd<span class="w"> </span><span class="k">if</span><span class="o">=</span>/dev/ubi3_0<span class="w"> </span><span class="nv">of</span><span class="o">=</span>/tmp/ai_model.img<span class="w"> </span><span class="nv">bs</span><span class="o">=</span>1M
+tar<span class="w"> </span>-czf<span class="w"> </span>/tmp/data.tar.gz<span class="w"> </span>-C<span class="w"> </span>/data<span class="w"> </span>.
+</code></pre></div>
+<h4 id="c-serve-files-for-download">c. Serve Files for Download</h4>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>httpd<span class="w"> </span>-p<span class="w"> </span><span class="m">8080</span>
+</code></pre></div>
+<h3 id="3-download-and-extract-root-filesystem-dump-on-host">3. Download and Extract Root Filesystem Dump (on host)</h3>
+<h4 id="a-download-root-filesystem-to-host">a. Download Root Filesystem to Host</h4>
+<blockquote>
+<p>Replace <code>&lt;YOUR_BOT_IP&gt;</code> with your bot's actual IP address.</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-Lo<span class="w"> </span>rootfs.img<span class="w"> </span>http://&lt;YOUR_BOT_IP&gt;:8080/tmp/rootfs.img
+</code></pre></div>
+<h4 id="b-optional-download-other-partitions-to-host">b. (Optional) Download Other Partitions to Host</h4>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-Lo<span class="w"> </span>data.img<span class="w"> </span>http://&lt;YOUR_BOT_IP&gt;:8080/tmp/data.img
+curl<span class="w"> </span>-Lo<span class="w"> </span>sysinfo.img<span class="w"> </span>http://&lt;YOUR_BOT_IP&gt;:8080/tmp/sysinfo.img
+curl<span class="w"> </span>-Lo<span class="w"> </span>ai_model.img<span class="w"> </span>http://&lt;YOUR_BOT_IP&gt;:8080/tmp/ai_model.img
+curl<span class="w"> </span>-Lo<span class="w"> </span>data.tar.gz<span class="w"> </span>http://&lt;YOUR_BOT_IP&gt;:8080/tmp/data.tar.gz
+</code></pre></div>
+<p>You can extract or inspect these optional backup partitions with tools like <code>ubireader_extract_files</code>, <code>strings</code>, or <code>unsquashfs</code>:</p>
+<div class="highlight"><pre><span></span><code>ubireader_extract_files<span class="w"> </span>data.img
+cat<span class="w"> </span>sysinfo.img<span class="w"> </span><span class="p">|</span><span class="w"> </span>strings
+unsquashfs<span class="w"> </span>-d<span class="w"> </span>ai_model<span class="w"> </span>./ai_model.img
+mkdir<span class="w"> </span>-p<span class="w"> </span>data<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>tar<span class="w"> </span>-xzf<span class="w"> </span>./data.tar.gz<span class="w"> </span>-C<span class="w"> </span>data
+</code></pre></div>
+<h4 id="c-extract-and-modify-rootfs">c. Extract and Modify Rootfs</h4>
+<div class="highlight"><pre><span></span><code>unsquashfs<span class="w"> </span>-d<span class="w"> </span>rootfs<span class="w"> </span>./rootfs.img
+<span class="c1"># ... edit rootfs as needed ...</span>
+mksquashfs<span class="w"> </span>rootfs<span class="w"> </span>rootfs_mod.img<span class="w"> </span>-noappend<span class="w"> </span>-root-owned<span class="w"> </span>-p<span class="w"> </span><span class="s1">'/dev d 755 0 0'</span><span class="w"> </span>-p<span class="w"> </span><span class="s1">'/dev/console c 600 0 0 5 1'</span>
+</code></pre></div>
+<h3 id="4-flash-modified-rootfs-back-to-bot">4. Flash Modified Rootfs Back to Bot</h3>
+<h4 id="a-start-http-server-on-host">a. Start HTTP Server on Host</h4>
+<div class="highlight"><pre><span></span><code>python3<span class="w"> </span>-m<span class="w"> </span>http.server<span class="w"> </span><span class="m">8080</span>
+</code></pre></div>
+<h4 id="b-download-and-flash-on-bot">b. Download and Flash on Bot</h4>
+<blockquote>
+<p><strong>⚠️ Not Ready:</strong>
+This step is not finished. When starting into <code>boot_mode2</code>, the root password is required. Further reverse engineering is needed.</p>
+<p>Replace <code>&lt;YOUR_HOST_IP&gt;</code> with your host's actual IP address.</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-Lo<span class="w"> </span>/data/rootfs_mod.img<span class="w"> </span>http://&lt;YOUR_HOST_IP&gt;:8080/rootfs_mod.img
+
+ubi_atomic_update_leb<span class="w"> </span>/dev/ubi2_0<span class="w"> </span>-i<span class="w"> </span><span class="s2">"boot_mode2"</span><span class="w"> </span>-n<span class="w"> </span><span class="m">0</span>
+reboot
+
+ubiupdatevol<span class="w"> </span>/dev/ubi4_0<span class="w"> </span>/data/rootfs_mod.img
+
+ubi_atomic_update_leb<span class="w"> </span>/dev/ubi2_0<span class="w"> </span>-i<span class="w"> </span><span class="s2">"boot_mode1"</span><span class="w"> </span>-n<span class="w"> </span><span class="m">0</span>
+reboot
+</code></pre></div>
+<hr />
+<h2 id="notes">📝 Notes</h2>
+<ul>
+<li>Always backup your data before making changes.</li>
+<li>If unsure, use Option 1 first.</li>
+<li>For certificate creation, see <a href="../../getting_started/certificates/">Create Certificates</a>.</li>
+<li>For more context, see <a href="../architecture/">Architecture</a> and <a href="../certificate-unpinning-app/">App Certificate Unpinning</a>.</li>
+</ul>
+<h2 id="references">📚 References</h2>
+<ul>
+<li><a href="https://dontvacuum.me/talks/37c3-2023/37c3-vacuuming-and-mowing.pdf">https://dontvacuum.me/talks/37c3-2023/37c3-vacuuming-and-mowing.pdf</a></li>
+<li><a href="https://dontvacuum.me/talks/DEFCON32/DEFCON32_reveng_hacking_ecovacs_robots.pdf">https://dontvacuum.me/talks/DEFCON32/DEFCON32_reveng_hacking_ecovacs_robots.pdf</a></li>
+<li><a href="https://media.ccc.de/v/37c3-11943-sucking_dust_and_cutting_grass_reversing_robots_and_bypassing_security#t=2028">https://media.ccc.de/v/37c3-11943-sucking_dust_and_cutting_grass_reversing_robots_and_bypassing_security#t=2028</a></li>
+<li><a href="https://github.com/itsjfx/ecovacs-hacking/blob/master/x1_omni.md">https://github.com/itsjfx/ecovacs-hacking/blob/master/x1_omni.md</a></li>
+<li><a href="https://dontvacuum.me/">https://dontvacuum.me/</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/MVladislav/bumper" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M216.5 362.5c-66-8-112.5-55.5-112.5-117 0-25 9-52 24-70-6.5-16.5-5.5-51.5 2-66 20-2.5 47 8 63 22.5 19-6 39-9 63.5-9s44.5 3 62.5 8.5c15.5-14 43-24.5 63-22 7 13.5 8 48.5 1.5 65.5 16 19 24.5 44.5 24.5 70.5 0 61.5-46.5 108-113.5 116.5 17 11 28.5 35 28.5 62.5v52c0 15 12.5 23.5 27.5 17.5C441 459.5 512 369 512 257 512 115.5 397 0 255.5 0S0 115.5 0 257c0 111 70.5 203 165.5 237.5 13.5 5 26.5-4 26.5-17.5v-40c-7 3-16 5-24 5-33 0-52.5-18-66.5-51.5-5.5-13.5-11.5-21.5-23-23-6-.5-8-3-8-6 0-6 10-10.5 20-10.5 14.5 0 27 9 40 27.5 10 14.5 20.5 21 33 21s20.5-4.5 32-16c8.5-8.5 15-16 21-21"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog" role="status" aria-atomic="true">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      
+      
+        
+        
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["content.code.copy"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"default":"latest","provider":"mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.3cb411a8.min.js"></script>
+      
+    
+  </body>
+</html>
