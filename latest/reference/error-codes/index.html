@@ -1,0 +1,2177 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Self-hosted replacement for the Ecovacs cloud that keeps the app and the robots on your LAN.">
+      
+      
+        <meta name="author" content="MVladislav">
+      
+      
+        <link rel="canonical" href="https://mvladislav.github.io/bumper/latest/reference/error-codes/">
+      
+      
+      
+        <link rel="prev" href="../../configuration/environment/">
+      
+      
+        <link rel="next" href="../models/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../images/brand/favicon.svg">
+      <meta name="generator" content="zensical-0.1.1">
+    
+    
+      
+        <title>Error Codes - Bumper Docs</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.ebb7f775.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/modern/palette.b60ce83d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/mermaid-zoom.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="deep-purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-hidden="true"></label>
+    <div data-md-component="skip">
+      <a href="#__skip" class="md-skip">
+        Skip to content
+      </a>
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Bumper Docs" class="md-header__button md-logo" aria-label="Bumper Docs" data-md-component="logo">
+      
+  <img src="../../images/brand/favicon.svg" alt="Bumper Docs">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+      <span class="md-visually-hidden">Navigation</span>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Bumper Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Error Codes
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="deep-purple"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun-moon" viewBox="0 0 24 24"><path d="M12 2v2M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715M16 12a4 4 0 0 0-4-4M19 5l-1.256 1.256M20 12h2"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="deep-purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="deep-purple"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+          <span class="md-visually-hidden">Search</span>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/MVladislav/bumper" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Bumper Docs" class="md-nav__button md-logo" aria-label="Bumper Docs" data-md-component="logo">
+      
+  <img src="../../images/brand/favicon.svg" alt="Bumper Docs">
+
+    </a>
+    Bumper Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/MVladislav/bumper" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../getting_started/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Getting Started
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_2">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Getting Started
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/dns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  DNS Setup
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/certificates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Certificates
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/docker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Deploy Bumper
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/mobile_app/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Connect the Official App
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/robot-onboarding/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Robot Wi-Fi Setup
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Usage
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Usage
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/features/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Features
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Configuration
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_4">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Configuration
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/environment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Environment Variables
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Reference
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+            <label class="md-nav__title" for="__nav_5">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Reference
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Error Codes
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Error Codes
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#robot-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Robot components
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appliance-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Appliance components
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mop-station" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Mop station
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#base-station" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Base station
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#goat-mower" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        GOAT mower
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#camera-and-vision" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Camera and vision
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Code reference
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Model Compatibility
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Internals
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_6">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Internals
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../internals/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Architecture
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../internals/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Authentication
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../internals/sniffing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Sniffing & Reverse Engineering
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../internals/certificate-unpinning-app/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Certificate Pinning Bypass (APP)
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../internals/certificate-unpinning-bot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Certificate Pinning Bypass (BOT)
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../internals/certificate-unpinning-goat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Certificate Pinning Bypass (GOAT)
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Development
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_7">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Development
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/dev-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Development Guide
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/web-api-endpoints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Web API Endpoints
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/static-data-update/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Static Data Update
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/MVladislav/bumper/actions" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Testing & CI
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../origins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Origins & Credits
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#robot-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Robot components
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appliance-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Appliance components
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mop-station" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Mop station
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#base-station" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Base station
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#goat-mower" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        GOAT mower
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#camera-and-vision" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Camera and vision
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Code reference
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-path__item">
+        <a href="././" class="md-path__link">
+          
+  
+  <span class="md-ellipsis">
+    Reference
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                <a id="__skip" tabindex="-1"></a>
+                
+                  
+
+  
+    <a href="https://github.com/MVladislav/bumper/edit/main/docs/reference/error-codes.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-file-pen" viewBox="0 0 24 24"><path d="M12.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v9.34"/><path d="M14 2v5a1 1 0 0 0 1 1h5M10.378 12.622a1 1 0 0 1 3 3.003L8.36 20.637a2 2 0 0 1-.854.506l-2.867.837a.5.5 0 0 1-.62-.62l.836-2.869a2 2 0 0 1 .506-.853z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="error-codes">Error Codes<a class="headerlink" href="#error-codes" title="Permanent link">&para;</a></h1>
+<p>Robots report errors as numeric codes. This page documents the codes Bumper
+currently maps; unrecognized numeric codes remain visible without an invented
+description.</p>
+<p>Code meanings can vary by robot family. The sections below group codes by the
+component or fault area suggested by their names and available reference data;
+they do not imply that every code applies to every robot.</p>
+<h2 id="robot-components">Robot components<a class="headerlink" href="#robot-components" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td><code>ERROR_NO</code></td>
+<td>No error</td>
+</tr>
+<tr>
+<td>101</td>
+<td><code>ERROR_BATTERY_LOW</code></td>
+<td>Battery low</td>
+</tr>
+<tr>
+<td>102</td>
+<td><code>ERROR_HANG</code></td>
+<td>The unit hangs</td>
+</tr>
+<tr>
+<td>103</td>
+<td><code>ERROR_WHEEL</code></td>
+<td>Wheel abnormal</td>
+</tr>
+<tr>
+<td>104</td>
+<td><code>ERROR_DOWNSENSORABNORMAL</code></td>
+<td>Down sensor abnormal</td>
+</tr>
+<tr>
+<td>105</td>
+<td><code>ERROR_STUCK</code></td>
+<td>Stuck</td>
+</tr>
+<tr>
+<td>106</td>
+<td><code>ERROR_SIDEBRUSHEXHAUSTED</code></td>
+<td>Side brush exhausted</td>
+</tr>
+<tr>
+<td>107</td>
+<td><code>ERROR_DUSTCASEHEAPEXHAUSTED</code></td>
+<td>Dust case exhausted</td>
+</tr>
+<tr>
+<td>108</td>
+<td><code>ERROR_SIDEABNORMAL</code></td>
+<td>Side brush abnormal</td>
+</tr>
+<tr>
+<td>109</td>
+<td><code>ERROR_ROLLABNORMAL</code></td>
+<td>Roller abnormal</td>
+</tr>
+<tr>
+<td>110</td>
+<td><code>ERROR_NODUSTBOX</code></td>
+<td>No dust box</td>
+</tr>
+<tr>
+<td>111</td>
+<td><code>ERROR_BUMPABNORMAL</code></td>
+<td>Bumper abnormal</td>
+</tr>
+<tr>
+<td>112</td>
+<td><code>ERROR_LDSABNORMAL</code></td>
+<td>Laser distance sensor abnormal</td>
+</tr>
+<tr>
+<td>113</td>
+<td><code>ERROR_MAINBRUSHEXHAUSTED</code></td>
+<td>Main brush exhausted</td>
+</tr>
+<tr>
+<td>114</td>
+<td><code>ERROR_DUSTCASEEXHAUSTED</code></td>
+<td>Dust case filled</td>
+</tr>
+<tr>
+<td>115</td>
+<td><code>ERROR_BATTERYERROR</code></td>
+<td>Battery error</td>
+</tr>
+<tr>
+<td>116</td>
+<td><code>ERROR_FORWARDLOOKINGERROR</code></td>
+<td>Forward looking sensor error</td>
+</tr>
+<tr>
+<td>117</td>
+<td><code>ERROR_GYROSCOPEERROR</code></td>
+<td>Gyroscope error</td>
+</tr>
+<tr>
+<td>118</td>
+<td><code>ERROR_STRAINERBLOCK</code></td>
+<td>Strainer blocked</td>
+</tr>
+<tr>
+<td>119</td>
+<td><code>ERROR_FANERROR</code></td>
+<td>Fan error</td>
+</tr>
+<tr>
+<td>120</td>
+<td><code>ERROR_WATERBOX_ERROR</code></td>
+<td>Water box error</td>
+</tr>
+<tr>
+<td>121</td>
+<td><code>ERROR_PLATE_JAMMED</code></td>
+<td>Plate jammed</td>
+</tr>
+<tr>
+<td>125</td>
+<td><code>ERROR_HARDWIPE_TANK_MACHINERY_ERROR</code></td>
+<td>Hard wipe tank machinery error</td>
+</tr>
+<tr>
+<td>126</td>
+<td><code>ERROR_NO_HARDWIPE_TANK</code></td>
+<td>No hard wipe tank</td>
+</tr>
+<tr>
+<td>127</td>
+<td><code>ERROR_NO_HARDWIPE_BRUSH</code></td>
+<td>No hard wipe brush</td>
+</tr>
+<tr>
+<td>128</td>
+<td><code>ERROR_SET_HARDWIPE_BRUSH</code></td>
+<td>Hard wipe brush not set</td>
+</tr>
+<tr>
+<td>129</td>
+<td><code>ERROR_BIND_HARDWIPE_BRUSH</code></td>
+<td>Hard wipe brush not bound</td>
+</tr>
+</tbody>
+</table>
+<h2 id="appliance-components">Appliance components<a class="headerlink" href="#appliance-components" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>201</td>
+<td><code>ERROR_AIRFILTERUNISTALL</code></td>
+<td>Air filter not installed</td>
+</tr>
+<tr>
+<td>202</td>
+<td><code>ERROR_ULTRASONICCOMPONENTABNORMAL</code></td>
+<td>Ultrasonic component abnormal</td>
+</tr>
+<tr>
+<td>203</td>
+<td><code>ERROR_SMALLWHEELERROR</code></td>
+<td>Small wheel error</td>
+</tr>
+<tr>
+<td>204</td>
+<td><code>ERROR_WHEEL_HANG</code></td>
+<td>Wheel hang</td>
+</tr>
+<tr>
+<td>205</td>
+<td><code>ERROR_ION_STERILIZE_EXHAUSTED</code></td>
+<td>Ion sterilize exhausted</td>
+</tr>
+<tr>
+<td>206</td>
+<td><code>ERROR_ION_STERILIZE_ABNORMAL</code></td>
+<td>Ion sterilize abnormal</td>
+</tr>
+<tr>
+<td>207</td>
+<td><code>ERROR_ION_STERILIZE_FAULT</code></td>
+<td>Ion sterilize fault</td>
+</tr>
+<tr>
+<td>209</td>
+<td><code>ERROR_DTOF_ABNORMAL</code></td>
+<td>dToF sensor abnormal</td>
+</tr>
+</tbody>
+</table>
+<h2 id="mop-station">Mop station<a class="headerlink" href="#mop-station" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>301</td>
+<td><code>ERROR_MCD_NO_CLEANWATER</code></td>
+<td>Mop station: no clean water</td>
+</tr>
+<tr>
+<td>302</td>
+<td><code>ERROR_MCD_FULL_DIRTYWATER</code></td>
+<td>Mop station: dirty water full</td>
+</tr>
+<tr>
+<td>303</td>
+<td><code>ERROR_MCD_NO_CLEANWATER_TANK</code></td>
+<td>Mop station: no clean water tank</td>
+</tr>
+<tr>
+<td>304</td>
+<td><code>ERROR_MCD_NO_DIRTYWATER_TANK</code></td>
+<td>Mop station: no dirty water tank</td>
+</tr>
+<tr>
+<td>305</td>
+<td><code>ERROR_MCD_CLEANTANK_ERROR</code></td>
+<td>Mop station: clean tank error</td>
+</tr>
+<tr>
+<td>306</td>
+<td><code>ERROR_MCD_NO_CLEANTANK_WEB</code></td>
+<td>Mop station: clean tank not connected</td>
+</tr>
+<tr>
+<td>307</td>
+<td><code>ERROR_MCD_MACHINERY_ERROR</code></td>
+<td>Mop station: machinery error</td>
+</tr>
+<tr>
+<td>308</td>
+<td><code>ERROR_MCD_CONNECTION_ERROR</code></td>
+<td>Mop station: connection error</td>
+</tr>
+<tr>
+<td>309</td>
+<td><code>ERROR_TANK_TOOHOT_ERROR</code></td>
+<td>Water tank too hot</td>
+</tr>
+</tbody>
+</table>
+<h2 id="base-station">Base station<a class="headerlink" href="#base-station" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>310</td>
+<td><code>ERROR_AUTO_EMPTY_OPEN</code></td>
+<td>Auto empty station: lid open</td>
+</tr>
+<tr>
+<td>311</td>
+<td><code>ERROR_AUTO_EMPTY_UNINSTALL</code></td>
+<td>Auto empty station: not installed</td>
+</tr>
+<tr>
+<td>312</td>
+<td><code>ERROR_AUTO_EMPTY_FULL</code></td>
+<td>Auto empty station: dust bag full</td>
+</tr>
+<tr>
+<td>313</td>
+<td><code>ERROR_AUTO_EMPTY_UNKNOWN</code></td>
+<td>Auto empty station: unknown error</td>
+</tr>
+<tr>
+<td>314</td>
+<td><code>ERROR_BASE_STATION_WATER_UNINSTALL</code></td>
+<td>Base station: water filter not installed</td>
+</tr>
+<tr>
+<td>315</td>
+<td><code>ERROR_BASE_STATION_SILVER_UNINSTALL</code></td>
+<td>Base station: silver module not installed</td>
+</tr>
+<tr>
+<td>316</td>
+<td><code>ERROR_BASE_STATION_FULL_UNINSTALL</code></td>
+<td>Base station: dust bag not installed</td>
+</tr>
+<tr>
+<td>317</td>
+<td><code>ERROR_BASE_STATION_UD_WATER_UNINSTALL</code></td>
+<td>Base station: undiluted water module not installed</td>
+</tr>
+<tr>
+<td>318</td>
+<td><code>ERROR_BASE_STATION_UD_WATER_FULL</code></td>
+<td>Base station: undiluted water full</td>
+</tr>
+<tr>
+<td>319</td>
+<td><code>ERROR_BASE_STATION_CLEAN_WATER_EMPTY</code></td>
+<td>Base station: clean water empty</td>
+</tr>
+</tbody>
+</table>
+<h2 id="goat-mower">GOAT mower<a class="headerlink" href="#goat-mower" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>401</td>
+<td><code>ERROR_TILT</code></td>
+<td>Tilt</td>
+</tr>
+<tr>
+<td>402</td>
+<td><code>ERROR_OVERHANG</code></td>
+<td>Overhang</td>
+</tr>
+<tr>
+<td>403</td>
+<td><code>ERROR_SENSOR</code></td>
+<td>Sensor</td>
+</tr>
+<tr>
+<td>404</td>
+<td><code>ERROR_BATTERY</code></td>
+<td>Battery</td>
+</tr>
+<tr>
+<td>405</td>
+<td><code>ERROR_LEFT_DRIVING_WHEEL</code></td>
+<td>Left driving wheel</td>
+</tr>
+<tr>
+<td>406</td>
+<td><code>ERROR_ROTATION_CUTTER_HEAD</code></td>
+<td>Rotation cutter head</td>
+</tr>
+<tr>
+<td>407</td>
+<td><code>ERROR_BUMP_PLATE</code></td>
+<td>Bump plate</td>
+</tr>
+<tr>
+<td>408</td>
+<td><code>ERROR_TO_ERASE</code></td>
+<td>To erase</td>
+</tr>
+<tr>
+<td>409</td>
+<td><code>ERROR_CLEAN_LENS</code></td>
+<td>Clean lens</td>
+</tr>
+<tr>
+<td>410</td>
+<td><code>ERROR_GET_LOST</code></td>
+<td>Get lost</td>
+</tr>
+<tr>
+<td>411</td>
+<td><code>ERROR_STATION_LOCATION</code></td>
+<td>Station location</td>
+</tr>
+<tr>
+<td>412</td>
+<td><code>ERROR_BEACON_LOCATION</code></td>
+<td>Beacon location</td>
+</tr>
+<tr>
+<td>414</td>
+<td><code>ERROR_RGBD_DIRTY</code></td>
+<td>RGBD dirty</td>
+</tr>
+<tr>
+<td>415</td>
+<td><code>ERROR_PANORAMIC_CAMEAR_DIRTY</code></td>
+<td>Panoramic camera dirty</td>
+</tr>
+<tr>
+<td>416</td>
+<td><code>ERROR_BATTERY_HIGH_TEMPERATURE</code></td>
+<td>Battery high temperature</td>
+</tr>
+<tr>
+<td>417</td>
+<td><code>ERROR_BATTERY_LOW_TEMPERATURE</code></td>
+<td>Battery low temperature</td>
+</tr>
+<tr>
+<td>418</td>
+<td><code>ERROR_IN_FORBIDDEN_AREA</code></td>
+<td>In forbidden area</td>
+</tr>
+<tr>
+<td>420</td>
+<td><code>ERROR_OUT_OF_MAP_RANGE</code></td>
+<td>Out of map range</td>
+</tr>
+<tr>
+<td>421</td>
+<td><code>ERROR_BEACON_SINGAL</code></td>
+<td>Beacon signal</td>
+</tr>
+<tr>
+<td>422</td>
+<td><code>ERROR_GPS_SIGNAL_WEAK_BACK</code></td>
+<td>GPS signal weak back</td>
+</tr>
+<tr>
+<td>423</td>
+<td><code>ERROR_GPS_SIGNAL_WEAK_WAIT</code></td>
+<td>GPS signal weak wait</td>
+</tr>
+<tr>
+<td>424</td>
+<td><code>ERROR_RIGHT_DRIVING_WHEEL</code></td>
+<td>Right driving wheel</td>
+</tr>
+<tr>
+<td>430</td>
+<td><code>ERROR_SENSOR430</code></td>
+<td>Sensor 430</td>
+</tr>
+<tr>
+<td>431</td>
+<td><code>ERROR_SENSOR431</code></td>
+<td>Sensor 431</td>
+</tr>
+<tr>
+<td>432</td>
+<td><code>ERROR_SENSOR432</code></td>
+<td>Sensor 432</td>
+</tr>
+<tr>
+<td>433</td>
+<td><code>ERROR_SENSOR433</code></td>
+<td>Sensor 433</td>
+</tr>
+<tr>
+<td>434</td>
+<td><code>ERROR_SENSOR434</code></td>
+<td>Sensor 434</td>
+</tr>
+<tr>
+<td>435</td>
+<td><code>ERROR_SENSOR435</code></td>
+<td>Sensor 435</td>
+</tr>
+<tr>
+<td>520</td>
+<td><code>ERROR_TRAPPED</code></td>
+<td>Trapped</td>
+</tr>
+</tbody>
+</table>
+<h2 id="camera-and-vision">Camera and vision<a class="headerlink" href="#camera-and-vision" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>601</td>
+<td><code>ERROR_ClosedAIVISideAbnormal</code></td>
+<td>Closed AI vision: side abnormal</td>
+</tr>
+<tr>
+<td>602</td>
+<td><code>ERROR_ClosedAIVIRollAbnormal</code></td>
+<td>Closed AI vision: roller abnormal</td>
+</tr>
+</tbody>
+</table>
+<h2 id="code-reference">Code reference<a class="headerlink" href="#code-reference" title="Permanent link">&para;</a></h2>
+<p>The mapping is maintained in <code>bumper/utils/device_errors.py</code>:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">bumper.utils.device_errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">describe</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">describe</span><span class="p">(</span><span class="mi">312</span><span class="p">)</span>
+</span></code></pre></div>
+<p>This returns <code>Auto empty station: dust bag full (312)</code>. The app-compatible
+<code>api/pim/eventdetail.html?errcode=...</code> page uses the same mapping. Guidance is
+curated for some codes; other codes receive safe, general recommendations that
+are identified as generic rather than official Ecovacs instructions.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../../configuration/environment/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Environment Variables">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Environment Variables
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../models/" class="md-footer__link md-footer__link--next" aria-label="Next: Model Compatibility">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Model Compatibility
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; MVladislav
+    </div>
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/MVladislav/bumper" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M216.5 362.5c-66-8-112.5-55.5-112.5-117 0-25 9-52 24-70-6.5-16.5-5.5-51.5 2-66 20-2.5 47 8 63 22.5 19-6 39-9 63.5-9s44.5 3 62.5 8.5c15.5-14 43-24.5 63-22 7 13.5 8 48.5 1.5 65.5 16 19 24.5 44.5 24.5 70.5 0 61.5-46.5 108-113.5 116.5 17 11 28.5 35 28.5 62.5v52c0 15 12.5 23.5 27.5 17.5C441 459.5 512 369 512 257 512 115.5 397 0 255.5 0S0 115.5 0 257c0 111 70.5 203 165.5 237.5 13.5 5 26.5-4 26.5-17.5v-40c-7 3-16 5-24 5-33 0-52.5-18-66.5-51.5-5.5-13.5-11.5-21.5-23-23-6-.5-8-3-8-6 0-6 10-10.5 20-10.5 14.5 0 27 9 40 27.5 10 14.5 20.5 21 33 21s20.5-4.5 32-16c8.5-8.5 15-16 21-21"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog" role="status" aria-atomic="true">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      
+      
+        
+        
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["content.action.edit","content.code.copy","content.code.select","content.tooltips","navigation.footer","navigation.indexes","navigation.instant","navigation.instant.prefetch","navigation.path","navigation.top","navigation.tracking","search.highlight"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"default":"latest","provider":"mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.3cb411a8.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.min.js"></script>
+      
+        <script src="../../javascripts/mermaid-zoom.js"></script>
+      
+    
+  </body>
+</html>

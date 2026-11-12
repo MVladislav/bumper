@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="640" viewBox="0 0 1000 640" role="img"
+     aria-labelledby="title desc">
+  <title id="title">Bumper architecture</title>
+  <desc id="desc">The Ecovacs app reaches the Bumper web server over HTTPS on 443 and the MQTT
+    broker over MQTTS on 443, and the XMPP server over XMPP on 5223. Ecovacs robots reach the XMPP
+    server on 5223 and the MQTT broker on 443 or 8883. The web server hands REST commands to the
+    internal helper bot, which publishes them through the broker. All services read and write their
+    state in TinyDB.</desc>
+
+  <defs>
+    <marker id="arrow-https" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8"
+            markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#7e57c2"/>
+    </marker>
+    <marker id="arrow-xmpp" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8"
+            markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#b45309"/>
+    </marker>
+    <marker id="arrow-mqtt" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8"
+            markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#0f766e"/>
+    </marker>
+    <marker id="arrow-state" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8"
+            markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#8b93a7"/>
+    </marker>
+  </defs>
+
+  <rect x="1" y="1" width="998" height="638" rx="22" fill="#ffffff" stroke="#e8e3f7" stroke-width="2"/>
+
+  <!-- clients -->
+  <g>
+    <rect x="20" y="96" width="180" height="150" rx="16" fill="#ffffff" stroke="#cdc5e8" stroke-width="1.6"/>
+    <rect x="93" y="124" width="34" height="52" rx="6" fill="#f4f1fb" stroke="#4a3b78" stroke-width="1.8"/>
+    <rect x="99" y="132" width="22" height="30" rx="2" fill="#ffffff" stroke="#cdc5e8" stroke-width="1"/>
+    <line x1="104" y1="168" x2="116" y2="168" stroke="#4a3b78" stroke-width="1.8" stroke-linecap="round"/>
+    <text x="110" y="212" text-anchor="middle" font-family="Inter, Roboto, Helvetica, Arial, sans-serif"
+          font-size="15" font-weight="600" fill="#242436">Ecovacs app</text>
+    <text x="110" y="231" text-anchor="middle" font-family="Inter, Roboto, Helvetica, Arial, sans-serif"
+          font-size="12" fill="#5b5b74">official client</text>
+  </g>
+  <g>
+    <rect x="20" y="396" width="180" height="150" rx="16" fill="#ffffff" stroke="#cdc5e8" stroke-width="1.6"/>
+    <circle cx="110" cy="458" r="27" fill="#f4f1fb" stroke="#4a3b78" stroke-width="1.8"/>
+    <rect x="98" y="424" width="24" height="9" rx="4.5" fill="#f4f1fb" stroke="#4a3b78" stroke-width="1.8"/>
+    <circle cx="110" cy="458" r="6" fill="#ffffff" stroke="#4a3b78" stroke-width="1.8"/>
+    <line x1="84" y1="468" x2="136" y2="468" stroke="#4a3b78" stroke-width="1.4" stroke-linecap="round"/>
+    <text x="110" y="512" text-anchor="middle" font-family="Inter, Roboto, Helvetica, Arial, sans-serif"
+          font-size="15" font-weight="600" fill="#242436">Ecovacs robots</text>
+    <text x="110" y="531" text-anchor="middle" font-family="Inter, Roboto, Helvetica, Arial, sans-serif"
+          font-size="12" fill="#5b5b74">MQTT or XMPP</text>
+  </g>
+
+  <!-- Bumper -->
+  <rect x="300" y="36" width="680" height="568" rx="24" fill="#faf8ff" stroke="#7e57c2" stroke-width="1.8"/>
+  <text x="326" y="78" font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="24"
+        font-weight="700" fill="#4a3b78">Bumper</text>
+
+  <!-- state bus -->
+  <g stroke="#8b93a7" stroke-width="1.8" fill="none">
+    <line x1="636" y1="168" x2="636" y2="436"/>
+    <line x1="612" y1="168" x2="636" y2="168"/>
+    <line x1="612" y1="302" x2="636" y2="302"/>
+    <line x1="612" y1="436" x2="636" y2="436"/>
+    <line x1="636" y1="320" x2="682" y2="320" marker-start="url(#arrow-state)"
+          marker-end="url(#arrow-state)"/>
+  </g>
+
+  <!-- services -->
+  <g>
+    <rect x="326" y="116" width="286" height="104" rx="14" fill="#ffffff" stroke="#7e57c2" stroke-width="1.6"/>
+    <circle cx="350" cy="146" r="5" fill="#7e57c2"/>
+    <text x="366" y="152" font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="17"
+          font-weight="600" fill="#242436">Web server</text>
+    <text x="346" y="180" font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="13"
+          fill="#5b5b74">REST API · NGIoT · web UI</text>
+    <text x="346" y="201" font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="13"
+          fill="#5b5b74">discovery, login, command routing</text>
+  </g>
+  <g>
+    <rect x="326" y="250" width="286" height="104" rx="14" fill="#ffffff" stroke="#b45309" stroke-width="1.6"/>
+    <circle cx="350" cy="280" r="5" fill="#b45309"/>
+    <text x="366" y="286" font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="17"
+          font-weight="600" fill="#242436">XMPP server</text>
+    <text x="346" y="314" font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="13"
+          fill="#5b5b74">relays XML stanzas between</text>
+    <text x="346" y="335" font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="13"
+          fill="#5b5b74">the app and the robot</text>
+  </g>
+  <g>
+    <rect x="326" y="384" width="286" height="104" rx="14" fill="#ffffff" stroke="#0f766e" stroke-width="1.6"/>
+    <circle cx="350" cy="414" r="5" fill="#0f766e"/>
+    <text x="366" y="420" font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="17"
+          font-weight="600" fill="#242436">MQTT broker</text>
+    <text x="346" y="448" font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="13"
+          fill="#5b5b74">telemetry and commands</text>
+    <text x="346" y="469" font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="13"
+          fill="#5b5b74">plus the internal helper bot</text>
+  </g>
+
+  <!-- TinyDB -->
+  <rect x="682" y="250" width="278" height="140" rx="14" fill="#ffffff" stroke="#8b93a7" stroke-width="1.6"/>
+  <g stroke="#475569" stroke-width="1.6" fill="none">
+    <ellipse cx="712" cy="284" rx="16" ry="6" fill="#f1f5f9"/>
+    <path d="M696,284 L696,312 A16,6 0 0 0 728,312 L728,284"/>
+    <path d="M696,298 A16,6 0 0 0 728,298"/>
+  </g>
+  <text x="740" y="290" font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="17"
+        font-weight="600" fill="#242436">TinyDB</text>
+  <text x="740" y="314" font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="13"
+        fill="#5b5b74">accounts · bots · clients</text>
+  <text x="740" y="335" font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="13"
+        fill="#5b5b74">tokens · clean logs</text>
+  <text x="740" y="363" font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="12"
+        fill="#8b93a7">one JSON file</text>
+
+  <!-- edges -->
+  <g fill="none" stroke-linecap="round">
+    <path d="M200,150 L326,168" stroke="#7e57c2" stroke-width="2" marker-end="url(#arrow-https)"/>
+    <path d="M200,190 L326,302" stroke="#b45309" stroke-width="2" marker-end="url(#arrow-xmpp)"/>
+    <path d="M200,230 L326,436" stroke="#0f766e" stroke-width="2" marker-end="url(#arrow-mqtt)"/>
+    <path d="M200,440 L326,330" stroke="#b45309" stroke-width="2" marker-end="url(#arrow-xmpp)"/>
+    <path d="M200,490 L326,470" stroke="#0f766e" stroke-width="2" marker-end="url(#arrow-mqtt)"/>
+  </g>
+
+  <!-- edge labels -->
+  <g font-family="Inter, Roboto, Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle"
+     paint-order="stroke" stroke="#ffffff" stroke-width="4" stroke-linejoin="round">
+    <text x="263" y="153" fill="#7e57c2">HTTPS 443</text>
+    <text x="263" y="240" fill="#b45309">XMPP 5223</text>
+    <text x="263" y="327" fill="#0f766e">MQTTS 443</text>
+    <text x="263" y="379" fill="#b45309">XMPP 5223</text>
+    <text x="263" y="476" fill="#0f766e">MQTTS 443 / 8883</text>
+  </g>
+</svg>
