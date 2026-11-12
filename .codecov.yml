@@ -20,12 +20,12 @@ comment:
   layout: "header, diff, flags, components"
 
 component_management:
-  default_rules:
-    statuses:
-      - type: project
-        target: auto
-        branches:
-          - "!main"
+  # default_rules:
+  #   statuses:
+  #     - type: project
+  #       target: auto
+  #       branches:
+  #         - "!main"
   individual_components:
     - component_id: web
       name: web
