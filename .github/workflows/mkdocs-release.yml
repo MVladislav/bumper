@@ -16,6 +16,11 @@ on:
       - "uv.lock"
       - ".github/workflows/mkdocs-release.yml"
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Existing tag to (re)deploy, for example v0.4.1. Leave empty to deploy main."
+        required: false
+        type: string
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -57,10 +62,16 @@ jobs:
     permissions:
       contents: write
 
+    env:
+      DOCS_VERSION: ${{ github.event.inputs.version || github.ref_name }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7.0.1
         with:
+          # A manual run can check out an existing tag, so a missing release
+          # can be deployed without moving the tag or re-releasing it.
+          ref: ${{ github.event.inputs.version || github.ref }}
           fetch-depth: 0
 
       - name: Configure Git
@@ -69,8 +80,8 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
 
       - name: Warn when this ref is not deployable
-        if: github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/v')
-        run: echo "::warning::Docs deploy only from main or a v* tag; this run builds nothing."
+        if: github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/v') && (github.event_name != 'workflow_dispatch' || github.event.inputs.version == '')
+        run: echo "::warning::Docs deploy only from main, a v* tag, or a manual dispatch with a version; this run builds nothing."
 
       - name: Install uv and Python
         uses: astral-sh/setup-uv@v10.3.3
@@ -82,19 +93,45 @@ jobs:
       # A tag keeps its own docs, so its pages show the content of that release.
       # The environment and the mike overlay come from `main`, which is the only
       # place that carries a working docs toolchain for old and new tags alike.
-      - name: Use the current documentation toolchain for a release tag
-        if: startsWith(github.ref, 'refs/tags/v')
-        run: git checkout origin/main -- pyproject.toml uv.lock mkdocs.release.yml
+      - name: Use the current documentation toolchain for a release
+        if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && github.event.inputs.version != '')
+        run: |
+          git fetch origin main
+          git checkout origin/main -- pyproject.toml uv.lock mkdocs.release.yml
 
       - name: Install documentation dependencies
         run: uv sync --locked --only-group docs --no-install-project
 
       - name: Deploy latest docs
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && (github.event_name != 'workflow_dispatch' || github.event.inputs.version == '')
         run: |
           uv run --frozen --no-sync mike deploy --push latest
           uv run --frozen --no-sync mike set-default --push latest
 
+      # Backfill the newest release tag automatically. This covers tags created
+      # before this workflow existed (and a tag deploy that failed earlier)
+      # without rebuilding an already deployed version on every main commit.
+      - name: Deploy the latest release tag
+        if: github.ref == 'refs/heads/main' && (github.event_name != 'workflow_dispatch' || github.event.inputs.version == '')
+        run: |
+          git fetch --tags origin
+          TAG="$(git tag --merged HEAD --list 'v*' --sort=-version:refname | sed -n '1p')"
+          if [ -z "$TAG" ]; then
+            echo "No v* tag found; nothing to deploy."
+            exit 0
+          fi
+          echo "Latest release tag: $TAG"
+          git fetch origin refs/heads/gh-pages:refs/remotes/origin/gh-pages || true
+          if git show origin/gh-pages:versions.json 2>/dev/null \
+            | jq -e --arg v "$TAG" '.[] | select(.version == $v)' >/dev/null; then
+            echo "$TAG is already deployed."
+            exit 0
+          fi
+          git checkout --detach "$TAG"
+          git fetch origin main
+          git checkout origin/main -- pyproject.toml uv.lock mkdocs.release.yml
+          uv run --frozen --no-sync mike deploy --push --config-file mkdocs.release.yml "$TAG"
+
       - name: Deploy release docs
-        if: startsWith(github.ref, 'refs/tags/v')
-        run: uv run --frozen --no-sync mike deploy --push --config-file mkdocs.release.yml "${GITHUB_REF_NAME}"
+        if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && github.event.inputs.version != '')
+        run: uv run --frozen --no-sync mike deploy --push --config-file mkdocs.release.yml "${DOCS_VERSION}"
