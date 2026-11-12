@@ -28,9 +28,7 @@
             <td title="{{ user.account_id }}">{{ user.account_id }}</td>
             <td title="{{ user.iot_id }}">{{ user.iot_id }}</td>
             <td title="Robots: {{ user.bots }} | App devices: {{ user.devices }}">{{ user.bots }}</td>
-            <td
-              class="actions"
-            >{{ action_menu('user', user.userid, 'user ' ~ user.username, user.nickname or '') }}</td>
+            <td class="actions">{{ action_menu('user', user.userid, 'user ' ~ user.username, user.nickname or '') }}</td>
           </tr>
         {% else %}
           <tr>

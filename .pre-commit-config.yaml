@@ -49,11 +49,11 @@ repos:
 
   # Prettier for code formatting
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.9.10
+    rev: v3.10.1
     hooks:
       - id: prettier
         additional_dependencies:
-          - prettier@3.6.2
+          - prettier@3.10.1
         exclude_types:
           - python
         exclude: ^uv\.lock|\.(css|js)$|bumper/web/static_api/timezones\.json$
@@ -68,7 +68,7 @@ repos:
 
   # djLint for Jinja2 templates
   - repo: https://github.com/Riverside-Healthcare/djLint
-    rev: v1.49.2
+    rev: v1.50.0
     hooks:
       - id: djlint-reformat-jinja
         name: Format Jinja2 templates
@@ -112,7 +112,7 @@ repos:
 
   # Python-specific hooks ######################################################
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.17.3
+    rev: v0.17.5
     hooks:
       - id: ruff-check
         args:
