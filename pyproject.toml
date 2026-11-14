@@ -39,7 +39,7 @@ dependencies = [
   "aiohttp==3.14.5",       # https://pypi.org/project/aiohttp
   "aiomqtt==2.5.1",        # https://pypi.org/project/aiomqtt
   "amqtt==0.12.2",         # https://pypi.org/project/amqtt
-  "cachetools==7.3.1",     # https://pypi.org/project/cachetools
+  "cachetools==8.0.0",     # https://pypi.org/project/cachetools
   "coloredlogs==15.0.1",   # https://pypi.org/project/coloredlogs
   "cryptography==50.0.2",  # https://pypi.org/project/cryptography
   "defusedxml==0.8.0rc2",  # https://pypi.org/project/defusedxml
@@ -48,7 +48,7 @@ dependencies = [
   "PyJWT==2.15.1",         # https://pypi.org/project/PyJWT
   "tinydb==4.9.0",         # https://pypi.org/project/tinydb
   "validators==0.36.0",    # https://pypi.org/project/validators
-  "websockets==15.0.1",    # https://pypi.org/project/websockets
+  "websockets==17.4",    # https://pypi.org/project/websockets
 ]
 
 [dependency-groups]
