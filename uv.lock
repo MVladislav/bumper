@@ -199,7 +199,7 @@ wheels = [
 
 [[package]]
 name = "amqtt"
-version = "0.12.1"
+version = "0.12.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "dacite" },
@@ -211,9 +211,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "websockets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/72/bf/f08b1a1f3efec308d6883253bb3c2b689309535931e16040b1516f0cebdf/amqtt-0.12.1.tar.gz", hash = "sha256:7112cce32f9b9d3f24abb1f60c604695909cd6a31f89e79e430585326ebe97d8", size = 93594, upload-time = "2026-09-16T17:22:17.732Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/14/34/1d3472f4d01d386c9d3cbd2f8535ed83e1fb31cdb6f414b4fdcd5f6bb6a9/amqtt-0.12.2.tar.gz", hash = "sha256:5f9c55e5bdea0a96df7f3876d6976f9b9d44760f2167b0925a19195c9e281b6d", size = 99006, upload-time = "2026-11-13T15:39:12.505Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/29/9e/624469a7b7df2c07701b5e977b9bd84b2c8f04789ed9e5250f8ca6a3414d/amqtt-0.12.1-py3-none-any.whl", hash = "sha256:dfaf9d5989a31f5bae8506d9c91451d677e874efc1c89ca2e76ca650cd9b5cbb", size = 129862, upload-time = "2026-09-16T17:22:16.266Z" },
+    { url = "https://files.pythonhosted.org/packages/de/2a/ed834dd0712aaf4a3c8e97f1649bb38843c92a2e5838a310c6f4ca0daf0e/amqtt-0.12.2-py3-none-any.whl", hash = "sha256:0e8861df121caf3048574961343a3c4460e62a06467da54af2bb70fac0615bd9", size = 136046, upload-time = "2026-11-13T15:39:11.048Z" },
 ]
 
 [[package]]
@@ -429,13 +429,13 @@ requires-dist = [
     { name = "aiohttp", specifier = "==3.14.5" },
     { name = "aiohttp-jinja2", specifier = "==1.6" },
     { name = "aiomqtt", specifier = "==2.5.1" },
-    { name = "amqtt", specifier = "==0.12.1" },
+    { name = "amqtt", specifier = "==0.12.2" },
     { name = "cachetools", specifier = "==7.3.1" },
     { name = "coloredlogs", specifier = "==15.0.1" },
     { name = "cryptography", specifier = "==50.0.2" },
     { name = "defusedxml", specifier = "==0.8.0rc2" },
     { name = "jinja2", specifier = "==3.1.6" },
-    { name = "pwdlib", extras = ["argon2"], specifier = "==0.3.1" },
+    { name = "pwdlib", extras = ["argon2"], specifier = "==0.4.0" },
     { name = "pyjwt", specifier = "==2.15.1" },
     { name = "tinydb", specifier = "==4.9.0" },
     { name = "validators", specifier = "==0.36.0" },
@@ -1660,11 +1660,11 @@ wheels = [
 
 [[package]]
 name = "pwdlib"
-version = "0.3.1"
+version = "0.4.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/78/a6/644f28a21cb68920d06b264e72b864ac9bff2377f4757dd4648b5110b3ad/pwdlib-0.3.1.tar.gz", hash = "sha256:2ffd1955c92190d5bfbdc5071bf7d422568b83f943453ebd3d43d031ccba37b1", size = 216951, upload-time = "2026-08-12T08:38:38.383Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f3/9f/63dc5850fe793c0c13637792dd2494ff5ae6f7b95e334fd2b89a2d5803c9/pwdlib-0.4.0.tar.gz", hash = "sha256:123fd269d0980416f3a2a7b0c3a183f3b2f8580bb44bdadadde93e4bf7582f9d", size = 226803, upload-time = "2026-11-14T10:06:30.026Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6b/2e/51979293b2337f508597d13ee20db1ac1d43e48086b2ed7de6da213ed46b/pwdlib-0.3.1-py3-none-any.whl", hash = "sha256:944fa439198bed8ac3ea63dac76ea4ae43e2a35f4f21e9e725e82d3c2b97d6a5", size = 9272, upload-time = "2026-08-12T08:38:37.483Z" },
+    { url = "https://files.pythonhosted.org/packages/dc/6c/63119c0eba65efbe799e291a2cc9532ecaf7abc03d3f20e888df3fddff79/pwdlib-0.4.0-py3-none-any.whl", hash = "sha256:ef34f40b43efd610fce615391027f08bdb1403fcccda9897978f69275b61b2ee", size = 9470, upload-time = "2026-11-14T10:06:28.478Z" },
 ]
 
 [package.optional-dependencies]
