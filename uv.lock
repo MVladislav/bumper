@@ -430,12 +430,12 @@ requires-dist = [
     { name = "aiohttp-jinja2", specifier = "==1.6" },
     { name = "aiomqtt", specifier = "==2.5.1" },
     { name = "amqtt", specifier = "==0.12.2" },
-    { name = "cachetools", specifier = "==7.3.1" },
+    { name = "cachetools", specifier = "==7.3.3" },
     { name = "coloredlogs", specifier = "==15.0.1" },
     { name = "cryptography", specifier = "==50.0.2" },
     { name = "defusedxml", specifier = "==0.8.0rc2" },
     { name = "jinja2", specifier = "==3.1.6" },
-    { name = "pwdlib", extras = ["argon2"], specifier = "==0.4.0" },
+    { name = "pwdlib", extras = ["argon2"], specifier = "==0.4.2" },
     { name = "pyjwt", specifier = "==2.15.1" },
     { name = "tinydb", specifier = "==4.9.0" },
     { name = "validators", specifier = "==0.36.0" },
@@ -472,11 +472,11 @@ docs = [
 
 [[package]]
 name = "cachetools"
-version = "7.3.1"
+version = "7.3.3"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/04/d7/c2d7834f49eb10ba2eb55797a8a2e64c03679ec82cce58cfe1f03bb55024/cachetools-7.3.1.tar.gz", hash = "sha256:32e20b38b9cb7ff8d9fa7692e2f8969be3010083e6e7eac54226d51a91425d15", size = 49536, upload-time = "2026-11-12T21:25:12.764Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/1c/48/a5abcdd3c3b2aac71fb4379b451ac832cb1c988ed050cccd9ca1bd0c9c46/cachetools-7.3.3.tar.gz", hash = "sha256:46e92905f580cb137c499b9ec6acd73d569c2c3542ddfeb286618685e55cb340", size = 51165, upload-time = "2026-11-19T17:49:11.203Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/9e/ba/8f2b8d09957f8e8fed09236f22f7737b812bed5939cc6e2f5d9e77b0d71b/cachetools-7.3.1-py3-none-any.whl", hash = "sha256:0a2c9cfc6c6556161570c06d52b8939734d316ccf7ecad158fdb34b300808fce", size = 19785, upload-time = "2026-11-12T21:25:10.989Z" },
+    { url = "https://files.pythonhosted.org/packages/35/a3/62e2d09a9e1e45a9b586f3b4a2cb47196315617d4251c83f4c93baee4b7c/cachetools-7.3.3-py3-none-any.whl", hash = "sha256:32305addec0581cae6d4f7952d01d078dbc521f922650eba395b9d25b7481843", size = 20106, upload-time = "2026-11-19T17:49:09.462Z" },
 ]
 
 [[package]]
@@ -1660,11 +1660,11 @@ wheels = [
 
 [[package]]
 name = "pwdlib"
-version = "0.4.0"
+version = "0.4.2"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/f3/9f/63dc5850fe793c0c13637792dd2494ff5ae6f7b95e334fd2b89a2d5803c9/pwdlib-0.4.0.tar.gz", hash = "sha256:123fd269d0980416f3a2a7b0c3a183f3b2f8580bb44bdadadde93e4bf7582f9d", size = 226803, upload-time = "2026-11-14T10:06:30.026Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/4c/35/dcd08c5125c88d7783b6d2b5bb38d96970f79586e7f75fba79feecfc05b5/pwdlib-0.4.2.tar.gz", hash = "sha256:8f74cfd9c602982a9a05240c5b6484e384d732a891fd3c44befba2be9c4a4748", size = 228154, upload-time = "2026-11-15T13:07:23.013Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/dc/6c/63119c0eba65efbe799e291a2cc9532ecaf7abc03d3f20e888df3fddff79/pwdlib-0.4.0-py3-none-any.whl", hash = "sha256:ef34f40b43efd610fce615391027f08bdb1403fcccda9897978f69275b61b2ee", size = 9470, upload-time = "2026-11-14T10:06:28.478Z" },
+    { url = "https://files.pythonhosted.org/packages/47/1f/26e4bd61ac0b264fb9f1d181fa35d6e2969b2b6fd874d4cca7531b5babd0/pwdlib-0.4.2-py3-none-any.whl", hash = "sha256:5e03f706382a040a04139f2bbb3378fa964661f8a74e1cec8da34a221c801bcf", size = 9881, upload-time = "2026-11-15T13:07:21.779Z" },
 ]
 
 [package.optional-dependencies]
