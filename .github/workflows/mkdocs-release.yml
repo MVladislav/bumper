@@ -43,7 +43,7 @@ jobs:
         uses: actions/checkout@v7.0.1
 
       - name: Install uv and Python
-        uses: astral-sh/setup-uv@v10.3.3
+        uses: astral-sh/setup-uv@v10.4.0
         with:
           enable-cache: true
           cache-dependency-glob: uv.lock
@@ -84,7 +84,7 @@ jobs:
         run: echo "::warning::Docs deploy only from main, a v* tag, or a manual dispatch with a version; this run builds nothing."
 
       - name: Install uv and Python
-        uses: astral-sh/setup-uv@v10.3.3
+        uses: astral-sh/setup-uv@v10.4.0
         with:
           enable-cache: true
           cache-dependency-glob: uv.lock
